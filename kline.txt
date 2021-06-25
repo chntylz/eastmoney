@@ -1,0 +1,12 @@
+
+real data
+http://quote.eastmoney.com/center/gridlist.html#hs_a_board
+https://61.push2.eastmoney.com/api/qt/clist/get?cb=jQuery1124044204950317612046_1624510179891&pn=1&pz=10000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_=1624510179892
+
+kline
+http://quote.eastmoney.com/sz300582.html
+http://50.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery1124032193835566918194_1624510339003&secid=0.300582&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500101&lmt=700&_=1624510339048
+
+
+
+
