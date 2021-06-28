@@ -14,6 +14,9 @@ debug=1
 
 def get_realtime_data():
     
+    nowdate=datetime.datetime.now().date()
+    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    
     timestamp=str(round(time.time() * 1000))
     url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
             + '=jQuery1124044204950317612046_1624510179891&'\
@@ -29,8 +32,8 @@ def get_realtime_data():
     api_param = json.loads(response_array[0])
     rawdata = api_param['data']['diff']
     data_df = pd.DataFrame(rawdata)
-    tmp_column = ['close', 'percent', 'change', 'volume', 'amount', 'amplitude', 'touroverrate', \
-            'pe', 'stock_code', 'stock_city', 'stock_name', 'high', 'low', 'open', 'pre_clolse', \
+    tmp_column = ['close', 'percent', 'chg', 'volume', 'amount', 'amplitude', 'turnoverrate', \
+            'pe', 'stock_code', 'stock_name', 'high', 'low', 'open', 'pre_close', \
             'mkt_cap', 'circulation_mkt','pb','zlje']
 
 
@@ -38,6 +41,7 @@ def get_realtime_data():
         del data_df['f1']
         del data_df['f10']
         del data_df['f11']
+        del data_df['f13']
         del data_df['f22']
         del data_df['f24']
         del data_df['f25']
@@ -49,11 +53,22 @@ def get_realtime_data():
         del data_df['f152']
         data_df = data_df.replace('-',0)
         data_df.columns = tmp_column	
+        data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
+
+
+        new_column = ['record_date', 'stock_code', 'stock_name', 'open', 'close', 'high', 'low',\
+            'volume', 'amount', 'amplitude', 'percent', 'chg', 'turnoverrate',\
+            'pre_close', 'pe', 'pb', 'mkt_cap', 'circulation_mkt', 'zlje' ]
+
+        data_df = data_df.loc[:, new_column]
+
         data_df.to_csv('real-6-25.csv', encoding='gbk')
+
         if debug:
             print(data_df)
 
-    return data_df
+
+    return data_df, api_param
 
 
 
@@ -65,7 +80,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df = get_realtime_data()
+    df, api_param = get_realtime_data()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))

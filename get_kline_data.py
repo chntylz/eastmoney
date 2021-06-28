@@ -48,8 +48,11 @@ def get_kline_data(code=None, count=None):
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, response.text)
     api_param = json.loads(response_array[0])
+    name = api_param['data']['name']
+
     rawdata = api_param['data']['klines']
-    tmp_column = [ 'record_date', 'open', 'close', 'high', 'low', 'volume', 'amount', 'amplitude', 'percent', 'change', 'turnoverrate' ]
+    tmp_column = [ 'record_date', 'open', 'close', 'high', 'low', 'volume', 'amount', \
+            'amplitude', 'percent', 'chg', 'turnoverrate' ]
 
 
     data_df = pd.DataFrame(rawdata)
@@ -58,11 +61,20 @@ def get_kline_data(code=None, count=None):
     if len(data_df):
         data_df = data_df[0].str.split(',', expand=True)
         data_df.columns=tmp_column
+        data_df.insert(1, 'stock_name', name, allow_duplicates=False)
+        data_df.insert(1, 'stock_code', code, allow_duplicates=False)
+        
+        new_column = ['record_date', 'stock_code', 'stock_name', 'open', 'close', 'high', 'low',\
+                        'volume', 'amount', 'amplitude', 'percent', 'chg', 'turnoverrate']
+
+        data_df = data_df.loc[:, new_column]
 
     if debug:
         print(data_df)
+
+
         
-    return data_df
+    return data_df, api_param
 
 
 
@@ -71,9 +83,9 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df = get_kline_data('000977', 700)
+    df, api_param = get_kline_data('000977', 700)
     
-    df = get_kline_data('603027', 700)
+    df, api_param = get_kline_data('603027', 700)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
