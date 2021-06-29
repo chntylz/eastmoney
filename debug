@@ -1,0 +1,10 @@
+import get_kline_data
+import get_realtime_data
+import imp
+imp.reload(get_kline_data)
+imp.reload(get_realtime_data)
+
+k_df, k_api_param = get_kline_data.get_kline_data('000977', 700)
+
+r_df, r_api_param = get_realtime_data.get_realtime_data()
+

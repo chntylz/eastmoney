@@ -10,6 +10,7 @@ import time
 import datetime
 
 debug=1
+debug=0
 
 def get_kline_data(code=None, count=None):
     

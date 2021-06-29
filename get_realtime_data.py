@@ -11,6 +11,7 @@ import time
 import datetime
 
 debug=1
+debug=0
 
 def get_realtime_data():
     
@@ -55,18 +56,19 @@ def get_realtime_data():
         data_df.columns = tmp_column	
         data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
 
-
         new_column = ['record_date', 'stock_code', 'stock_name', 'open', 'close', 'high', 'low',\
             'volume', 'amount', 'amplitude', 'percent', 'chg', 'turnoverrate',\
             'pre_close', 'pe', 'pb', 'mkt_cap', 'circulation_mkt', 'zlje' ]
 
         data_df = data_df.loc[:, new_column]
 
-        data_df.to_csv('real-6-25.csv', encoding='gbk')
+        data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
             print(data_df)
 
+        data_df = data_df.sort_values('stock_code', ascending=1)
+        data_df = data_df.reset_index(drop=True)
 
     return data_df, api_param
 
