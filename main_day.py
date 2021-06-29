@@ -67,20 +67,7 @@ def handle_raw_df(df):
     if 'is_duck_head' not in df.columns:
         df['is_duck_head'] = 0
 
-
     df=df.fillna(0)
-    
-    try :
-        df['mkt_cap'] = round(df['mkt_cap']/10000/10000, 2) # unit:y
-        df['circulation_mkt'] = round(df['circulation_mkt']/10000/10000, 2) # unit:y
-        df['amount'] = round(df['amount']/10000/10000, 2) # unit:y
-        df['volume'] = round(df['volume']/10000, 2) # unit:w
-    except:
-        if debug:
-            print('catch except for stock_code=%s' % df['stock_code'][0])
-        pass
-
-
    
     #rename column
     new_cols = ['record_date', 'stock_code', 'stock_name', 'open', 'close', 'high', 'low',\
@@ -99,7 +86,7 @@ def check_table():
     table_exist = hdata_day.table_is_exist() 
     print('table_exist=%d' % table_exist)
     if table_exist:
-        hdata_day.db_hdata_eastmoney_create()
+        #hdata_day.db_hdata_eastmoney_create()
         print('table already exist')
     else:
         hdata_day.db_hdata_eastmoney_create()
