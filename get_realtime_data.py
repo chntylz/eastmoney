@@ -16,7 +16,8 @@ debug=0
 def get_realtime_data():
     
     nowdate=datetime.datetime.now().date()
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    if debug:
+        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     timestamp=str(round(time.time() * 1000))
     url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
@@ -62,7 +63,7 @@ def get_realtime_data():
 
         data_df = data_df.loc[:, new_column]
 
-        data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
+        #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
             print(data_df)
