@@ -10,8 +10,21 @@ import re
 import time
 import datetime
 
+
 debug=1
 debug=0
+
+import random
+def get_headers():
+    '''
+    随机获取一个headers
+    '''
+    user_agents =  ['Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',\
+            'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50',\
+            'Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11']
+    headers = {'User-Agent':random.choice(user_agents)}
+    return headers
+
 
 def get_index_data():
     
@@ -28,7 +41,10 @@ def get_index_data():
         + '&fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,'\
         + 'f20,f21,f23,f24,f25,f26,f22,f11,f62,f128,f136,f115,f152'
 
-    response = requests.get(url)
+    
+    tmp_header = get_headers()
+    response = requests.get(url, headers=tmp_header)
+
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, response.text)
     api_param = json.loads(response_array[0])
