@@ -35,7 +35,7 @@ def get_index_data():
     timestamp=str(round(time.time() * 1000))
 
     url='http://52.push2.eastmoney.com/api/qt/clist/get?cb=jQuery112408473004545667344_'\
-    + timestamp\
+        + timestamp\
         + '&pn=1&pz=500&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281'\
         + '&fltt=2&invt=2&fid=&fs=b:MK0010'\
         + '&fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,'\

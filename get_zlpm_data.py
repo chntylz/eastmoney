@@ -10,8 +10,17 @@ import re
 import time
 import datetime
 
+
+
+'''
+http://data.eastmoney.com/zjlx/list.html
+To get industry info
+https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery1123022981019595514018_1626678575964&fid=f184&po=1&pz=10000&pn=1&np=1&fltt=2&invt=2&fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2
+'''
+
+
 debug=1
-debug=0
+debug=1
 
 import random
 def get_headers():
@@ -25,21 +34,20 @@ def get_headers():
     return headers
 
 
-def get_realtime_data():
+def get_zlpm_data():
     
     nowdate=datetime.datetime.now().date()
     if debug:
         print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     timestamp=str(round(time.time() * 1000))
-    url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
-            + '=jQuery1124044204950317612046_'\
-            + timestamp\
-            + '&pn=1&pz=10000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&'\
-            + 'fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&'\
-            + 'fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,'\
-            + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
-            + timestamp
+
+    url = 'https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery1123022981019595514018_'\
+            + timestamp \
+            + '&fid=f184&po=1&pz=10000&pn=1&np=1&fltt=2&invt=2&'\
+            + 'fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&'\
+            + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
+            + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
 
     tmp_header = get_headers()
     response = requests.get(url, headers=tmp_header)
@@ -49,32 +57,23 @@ def get_realtime_data():
     api_param = json.loads(response_array[0])
     rawdata = api_param['data']['diff']
     data_df = pd.DataFrame(rawdata)
-    tmp_column = ['close', 'percent', 'chg', 'volume', 'amount', 'amplitude', 'turnoverrate', \
-            'pe', 'stock_code', 'stock_name', 'high', 'low', 'open', 'pre_close', \
-            'mkt_cap', 'circulation_mkt','pb','zlje']
+    tmp_column = ['close', 'percent', 'stock_code', 'stock_name', 'industry', 'percent_5day', 'percent_10day', \
+            'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
 
 
     if len(data_df):
         del data_df['f1']
-        del data_df['f10']
-        del data_df['f11']
         del data_df['f13']
-        del data_df['f22']
-        del data_df['f24']
-        del data_df['f25']
-        del data_df['f115']
-        del data_df['f128']
-        del data_df['f140']
-        del data_df['f141']
-        del data_df['f136']
-        del data_df['f152']
+        del data_df['f62']
+        del data_df['f124']
+        del data_df['f265']
         data_df = data_df.replace('-',0)
         data_df.columns = tmp_column	
         data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
 
-        new_column = ['record_date', 'stock_code', 'stock_name', 'open', 'close', 'high', 'low',\
-            'volume', 'amount', 'amplitude', 'percent', 'chg', 'turnoverrate',\
-            'pre_close', 'pe', 'pb', 'mkt_cap', 'circulation_mkt', 'zlje' ]
+        new_column = ['stock_code', 'stock_name', 'close', 'percent',  'industry', 'percent_5day', 'percent_10day', \
+            'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
+
 
         data_df = data_df.loc[:, new_column]
 
@@ -98,7 +97,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_realtime_data()
+    df, api_param = get_zlpm_data()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
