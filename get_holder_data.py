@@ -10,6 +10,19 @@ import time
 import datetime
 
 import random
+
+'''
+一次获取最新全部户数
+https://data.eastmoney.com/gdhs/
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery11230745007796091407_1626758636178&sortColumns=HOLD_NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_HOLDERNUMLATEST&columns=SECURITY_CODE%2CSECURITY_NAME_ABBR%2CEND_DATE%2CINTERVAL_CHRATE%2CAVG_MARKET_CAP%2CAVG_HOLD_NUM%2CTOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE%2CHOLDER_NUM%2CPRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE&quoteColumns=f2%2Cf3&source=WEB&client=WEB
+
+一次获取一只股票历史户数
+https://data.eastmoney.com/gdhs/detail/600212.html
+'''
+
+debug=0
+debug=0
+
 def get_headers():
     '''
     随机获取一个headers
@@ -21,34 +34,61 @@ def get_headers():
     return headers
 
 
-def get_holder_data(code):
+def get_holder_data(is_all=1, pagesize=500, pagenumber=1):
     timestamp=str(round(time.time() * 1000))
-    url='http://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112308619214168139351_1625036256522&sortColumns=END_DATE&sortTypes=-1&pageSize=10000&pageNumber=1&reportName=RPT_HOLDERNUM_DET&columns=SECURITY_CODE%2CSECURITY_NAME_ABBR%2CCHANGE_SHARES%2CCHANGE_REASON%2CEND_DATE%2CINTERVAL_CHRATE%2CAVG_MARKET_CAP%2CAVG_HOLD_NUM%2CTOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE%2CHOLDER_NUM%2CPRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE&quoteColumns=f2%2Cf3&filter=(SECURITY_CODE%3D%22002064%22)&source=WEB&client=WEB'
+    df = pd.DataFrame()
+    api_param=''
 
-    url='http://datacenter-web.eastmoney.com/api/data/v1/get?callback='\
-            + 'jQuery112308619214168139351_'\
+    url_all = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112305269055184325129_'\
             + timestamp \
-            + '&sortColumns=END_DATE&sortTypes=-1&pageSize=10000&pageNumber=1&'\
-            + 'reportName=RPT_HOLDERNUM_DET&'\
-            + 'columns=SECURITY_CODE%2CSECURITY_NAME_ABBR'\
-            + '%2CCHANGE_SHARES%2CCHANGE_REASON%2CEND_DATE'\
-            + '%2CINTERVAL_CHRATE%2CAVG_MARKET_CAP%2CAVG_HOLD_NUM'\
-            + '%2CTOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE'\
-            + '%2CHOLDER_NUM%2CPRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE'\
-            + '%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE&'\
-            + 'quoteColumns=f2%2Cf3&filter=(SECURITY_CODE%3D%22'\
-            + code \
-            + '%22)&source=WEB&client=WEB'
+            + '&reportName=RPT_HOLDERNUM_DET'\
+            + '&columns=SECURITY_CODE%2CSECURITY_NAME_ABBR%2C'\
+            + 'CHANGE_SHARES%2CCHANGE_REASON%2C'\
+            + 'END_DATE%2CINTERVAL_CHRATE%2C'\
+            + 'AVG_MARKET_CAP%2CAVG_HOLD_NUM%2C'\
+            + 'TOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE%2C'\
+            + 'HOLDER_NUM%2C'\
+            + 'PRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE'\
+            + '&pageSize='\
+            + str(pagesize) \
+            + '&pageNumber='\
+            + str(pagenumber) 
+
+    url_latest = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback'\
+            + '=jQuery11230745007796091407_'\
+            + timestamp \
+            + '&sortColumns=HOLD_NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize='\
+            + str(pagesize) \
+            + '&pageNumber='\
+            + str(pagenumber) \
+            + '&reportName=RPT_HOLDERNUMLATEST'\
+            + '&columns=SECURITY_CODE%2CSECURITY_NAME_ABBR%2C'\
+            + 'CHANGE_SHARES%2CCHANGE_REASON%2C'\
+            + 'END_DATE%2CINTERVAL_CHRATE%2C'\
+            + 'AVG_MARKET_CAP%2CAVG_HOLD_NUM%2C'\
+            + 'TOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE%2C'\
+            + 'HOLDER_NUM%2C'\
+            + 'PRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE'
+    
+    
+    if is_all == 1:
+        url = url_all
+    else:
+        url = url_latest
+
+    if debug:
+        print('url= %s ' % url)
 
     tmp_header = get_headers()
     response = requests.get(url, headers=tmp_header)
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, response.text)
-    api_param = json.loads(response_array[0])
 
+    api_param = json.loads(response_array[0])
     rawdata = api_param['result']['data']
     df = pd.DataFrame(rawdata)
+
     return df, api_param
 
 
@@ -57,7 +97,8 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_holder_data('000977')
+    df, api_param = get_holder_data(is_all=0, pagesize=500, pagenumber=9)
+    print(df.columns)
     print(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
