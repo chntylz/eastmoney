@@ -20,7 +20,7 @@ https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery1123022981019595514018_162
 
 
 debug=1
-debug=1
+debug=0
 
 import random
 def get_headers():
@@ -71,7 +71,7 @@ def get_zlpm_data():
         data_df.columns = tmp_column	
         data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
 
-        new_column = ['stock_code', 'stock_name', 'close', 'percent',  'industry', 'percent_5day', 'percent_10day', \
+        new_column = ['stock_code', 'record_date', 'stock_name', 'close', 'percent',  'industry', 'percent_5day', 'percent_10day', \
             'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
 
 
