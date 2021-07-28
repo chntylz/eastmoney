@@ -93,6 +93,7 @@ def get_kline_data(code=None, count=None, period=None):
         print(data_df)
 
 
+    print(data_df)
         
     return data_df, api_param
 
