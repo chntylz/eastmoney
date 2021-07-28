@@ -33,11 +33,12 @@ from get_data_from_db import *
 hsgtdata=HData_hsgt("usr","usr")
 hdata_day=HData_eastmoney_day("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
-#hdata_fina=HData_xq_fina("usr","usr")
+hdata_fina=HData_xq_fina("usr","usr")
 
 
 #get basic stock info
 basic_df = zlpm_data(stock_code=None, start_date=None, end_date=None, limit=0)
+basic_df = basic_df.set_index('stock_code')
 
 
 debug=0
@@ -773,6 +774,7 @@ def comm_generate_web_dataframe(curr_dir, images, curr_day, dict_industry):
 
 def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry):
     
+    unit_yi = 10000 * 10000
     shell_cmd = 'mkdir -p stock_data/' + curr_dir
     os.system(shell_cmd)
 
@@ -792,9 +794,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     len_df = len(daily_df)
     i = 0
     for i in range(len_df):
-        stock_code_new=daily_df.stock_code[i]
-        stock_code=stock_code_new[2:]
-        stock_code=stock_code_new[:]  #fix bug: sh000001 -> 000001
+        stock_code=daily_df.stock_code[i]
         stock_name = symbol(stock_code)
         pos_s=stock_name.rfind('[')
         pos_e=stock_name.rfind(']')
@@ -803,21 +803,6 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         #save stock_code to txt_file
         with open(txt_file,'a') as f:
             f.write('%s \n' % stock_code)
-
-        '''
-        #funcat call
-        T(curr_day)
-        S(stock_code)
-        pre_close = REF(C, 1)
-        open_p = (O - pre_close)/pre_close
-        open_p = round (open_p.value, 4)
-        open_jump=open_p - 0.02
-        if debug:
-            print(str(curr_day), stock_code, O, H, L, C, open_p)
-
-        close_p = (C - pre_close)/pre_close
-        close_p = round (close_p.value, 4) * 100
-        '''
 
         hsgt_df = hsgtdata.get_data_from_hdata(stock_code=stock_code, end_date=curr_day, limit=60)
         hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, conti_day, money_total, \
@@ -831,14 +816,14 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
 
         is_2d3pct=daily_df.is_2d3pct[i]
         is_cup_tea=daily_df.is_cup_tea[i]
-        total_mv=daily_df.mkt_cap[i]
+        total_mv=round(daily_df.mkt_cap[i] / unit_yi, 2)
 
 
         try:
             industry_name = basic_df.loc[stock_code]['industry']
         except:
             industry_name = 'Null'
-            print('except industry_name %s%s' % (stock_code, stock_name))
+            print('except industry_name %s %s' % (stock_code, stock_name))
         insert_industry(dict_industry, industry_name)
 
         zlje = get_zlje(zlje_df, stock_code, curr_date=curr_day)
@@ -847,6 +832,10 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         zlje_10 = get_zlje(zlje_10_df, stock_code, curr_date=curr_day)
 
         #### fina start ####
+        if stock_code[0:1] == '6':
+            stock_code_new= 'SH' + stock_code 
+        else:
+            stock_code_new= 'SZ' + stock_code 
         fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code_new)
         fina_df = fina_df.sort_values('record_date', ascending=0)
         fina_df = fina_df.reset_index(drop=True)
@@ -867,16 +856,16 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         #### fina end ####
  
         #### holder start ####
-        holder_df = hdata_holder.get_data_from_hdata(stock_code = stock_code_new)
+        holder_df = hdata_holder.get_data_from_hdata(stock_code = stock_code)
         holder_df = holder_df .sort_values('record_date', ascending=0)
         holder_df = holder_df .reset_index(drop=True)
         h0 = h1 = h2 = 0
         if len(holder_df) > 0:
-            h0 = holder_df['holder_num_change'][0]
+            h0 = round(holder_df['holder_num_ratio'][0], 2)
         if len(holder_df) > 1:
-            h1 = holder_df['holder_num_change'][1]
+            h1 = round(holder_df['holder_num_ratio'][1], 2)
         if len(holder_df) > 2:
-            h2 = holder_df['holder_num_change'][2]
+            h2 = round(holder_df['holder_num_ratio'][2], 2)
         h_chg = str(h0) + ' ' + str(h1) + ' ' + str(h2)
         #stock_code = stock_code + '<br>'+ h_chg + '</br>'
 
