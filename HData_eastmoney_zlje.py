@@ -258,6 +258,7 @@ class HData_eastmoney_zlje(object):
         if debug:
             print("delete_data_from_hdata, sql_temp:%s" % sql_temp)
 
+        print("delete_data_from_hdata, sql_temp:%s" % sql_temp)
         self.cur.execute(sql_temp)
         self.conn.commit()
         self.db_disconnect()

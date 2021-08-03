@@ -282,6 +282,18 @@ if __name__ == '__main__':
     else:
         print('#error, html_duckhead_df len < 1')
 
+    #cross3line
+    print('start cross3line')
+    curr_dir=curr_day_w+'-cross3line'
+    cross3line_df = df[(df.is_cross3line == 1) & (df.is_zig > 0)]
+    html_cross3line_df = convert_to_html_df(cross3line_df)
+    if len(html_cross3line_df):
+        html_cross3line_df = html_cross3line_df.sort_values('zig', ascending=1)
+        generate_html(html_cross3line_df)
+    else:
+        print('#error, html_cross3line_df len < 1')
+
+
 
     #basic
     print('start basic')

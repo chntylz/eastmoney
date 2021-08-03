@@ -18,17 +18,20 @@ http://data.eastmoney.com/bbsj/202106/yjbb.html
 http://datacenter-web.eastmoney.com/api/data/get?callback=jQuery112305938889278481287_1626682926066&st=UPDATE_DATE%2CSECURITY_CODE&sr=-1%2C-1&ps=50&p=1&type=RPT_LICO_FN_CPD&sty=ALL&token=894050c76af8597a853f5b408b759f5d&filter=(REPORTDATE%3D%272021-06-30%27)
 
 资产负债表
+balance
 http://data.eastmoney.com/bbsj/202106/zcfz.html
 http://datacenter-web.eastmoney.com/api/data/get?callback=jQuery11230002487053379782944_1626683115977&st=NOTICE_DATE%2CSECURITY_CODE&sr=-1%2C-1&ps=50&p=1&type=RPT_DMSK_FN_BALANCE&sty=ALL&token=894050c76af8597a853f5b408b759f5d&filter=(SECURITY_TYPE_CODE+in+(%22058001001%22%2C%22058001008%22))(REPORT_DATE%3D%272021-06-30%27)
 
 
 利润表
+income
 http://data.eastmoney.com/bbsj/202106/lrb.html
 http://datacenter-web.eastmoney.com/api/data/get?callback=jQuery1123033303123159764536_1626683309851&st=NOTICE_DATE%2CSECURITY_CODE&sr=-1%2C-1&ps=50&p=1&type=RPT_DMSK_FN_INCOME&sty=ALL&token=894050c76af8597a853f5b408b759f5d&filter=(SECURITY_TYPE_CODE+in+(%22058001001%22%2C%22058001008%22))(REPORT_DATE%3D%272021-06-30%27)
 
 
 
 现金流量表
+cashflow
 http://data.eastmoney.com/bbsj/202106/xjll.html
 '''
 
@@ -87,21 +90,51 @@ def get_headers():
     return headers
 
 
+def get_current_date(date=None):
+    fina_date = date
+    if fina_date == None:
+        nowdate = datetime.datetime.now().date()
+        target_date = ['03-31', '06-30', '09-30', '12-31']
+        tmp_date = nowdate.strftime('%m-%d')
+        if tmp_date < target_date[0]:
+            fina_date = (nowdate - datetime.timedelta(365)).strftime('%Y-') + target_date[3]
+        elif tmp_date < target_date[1]:
+            fina_date = nowdate.strftime('%Y-') + target_date[0]
+        elif tmp_date < target_date[2]:
+            fina_date = nowdate.strftime('%Y-') + target_date[1]
+        elif tmp_date < target_date[3]:
+            fina_date = nowdate.strftime('%Y-') + target_date[2]
+        else: 
+            print('error case')
+    print('fina_date is %s' % fina_date)
+    return fina_date
+
 def get_fina_data(code):
     timestamp=str(round(time.time() * 1000))
 
-    url='https://datacenter-web.eastmoney.com/api/data/get?'\
-        + 'callback=jQuery112306002872431271067_'\
-        + timestamp\
-        + '&st=REPORTDATE&sr=-1&ps=1000&p=1&sty=ALL&filter='\
-        + '(SECURITY_CODE%3D%22000153%22)&token=894050c76af8597a853f5b408b759f5d&'\
-        + 'type=RPT_LICO_FN_CPD'
+
+    url='http://datacenter-web.eastmoney.com/api/data/get?callback=jQuery112305938889278481287_1626682926066&st=UPDATE_DATE%2CSECURITY_CODE&sr=-1%2C-1&ps=50&p=1&type=RPT_LICO_FN_CPD&sty=ALL&token=894050c76af8597a853f5b408b759f5d&filter=(REPORTDATE%3D%272021-06-30%27)'
 
     tmp_header = get_headers()
     response = requests.get(url, headers=tmp_header)
 
+    response.encoding = 'utf-8'  
     p1 = re.compile(r'[(](.*?)[)]', re.S)
-    response_array = re.findall(p1, response.text)
+
+    #把中间的'(' ')' 替换成'-', 才能正确的把json 解析出来
+    s=response.text
+    f1 = s.find('(')
+    s = s[:f1] + '~' + s[f1+1 : ]
+    f2 = s.rfind(')')
+    s = s[:f2] + '@' + s[f2+1 : ]
+
+    s = s.replace('(', '-')
+    s = s.replace(')', '-')
+
+    s = s.replace('~', '(' )
+    s = s.replace('@', ')' )
+
+    response_array = re.findall(p1, s)
     api_param = json.loads(response_array[0])
 
     rawdata = api_param['result']['data']
@@ -109,6 +142,7 @@ def get_fina_data(code):
     return df, api_param
 
 
+    
 if __name__ == '__main__':
 
     t1 = time.time()
