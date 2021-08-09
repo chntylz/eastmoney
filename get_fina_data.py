@@ -109,14 +109,106 @@ def get_current_date(date=None):
     print('fina_date is %s' % fina_date)
     return fina_date
 
-def get_fina_data(code):
+
+def get_date_from_str(x):
+    if x != 0:
+        x=x[0:10]
+    else:
+        x='1900-01-01'
+    return x
+
+
+def handle_raw_df(df):
+    
+    if len(df) == 0:
+        return df
+
+    #大写 to 小写
+    df.columns = df.columns.map(lambda x:x.lower())
+
+    if 'trade_market_code' in df.columns:
+        del df['trade_market_code']
+
+
+    if 'trade_market' in df.columns:
+        del df['trade_market']
+
+    if 'security_type_code' in df.columns:
+        del df['security_type_code']
+
+    if 'security_type' in df.columns:
+        del df['security_type']
+
+    if 'update_date' in df.columns:
+        del df['update_date']
+
+    if 'deduct_basic_eps' in df.columns:
+        del df['deduct_basic_eps']
+
+    if 'assigndscrpt' in df.columns:
+        del df['assigndscrpt']
+
+    if 'payyear' in df.columns:
+        del df['payyear']
+
+    if 'publishname' in df.columns:
+        del df['publishname']
+
+    if 'zxgxl' in df.columns:
+        del df['zxgxl']
+
+    if 'notice_date' in df.columns:
+        del df['notice_date']
+
+    if 'org_code' in df.columns:
+        del df['org_code']
+
+    if 'trade_market_zjg' in df.columns:
+        del df['trade_market_zjg']
+
+    if 'isnew' in df.columns:
+        del df['isnew']
+
+    if 'datatype' in df.columns:
+        del df['datatype']
+
+    if 'datayear' in df.columns:
+        del df['datayear']
+
+
+    if 'datemmdd' in df.columns:
+        del df['datemmdd']
+
+    if 'eitime' in df.columns:
+        del df['eitime']
+
+
+    if 'secucode' in df.columns:
+        del df['secucode']
+
+    df=df.fillna(0)
+    
+    df['reportdate'] = df['reportdate'].apply(lambda x: get_date_from_str(x))
+
+    return df
+
+def get_fina_data(page=1):
+    
     timestamp=str(round(time.time() * 1000))
+    
+    url = 'http://datacenter-web.eastmoney.com/api/data/get?callback='\
+            + 'jQuery112305938889278481287_'\
+            + timestamp \
+            + '&st=UPDATE_DATE%2CSECURITY_CODE&sr=-1%2C-1&ps=500'\
+            + '&p='\
+            + str(page) \
+            + '&type=RPT_LICO_FN_CPD&sty=ALL&'\
+            # '&filter=(REPORTDATE%3D%272021-06-30%27)'
 
-
-    url='http://datacenter-web.eastmoney.com/api/data/get?callback=jQuery112305938889278481287_1626682926066&st=UPDATE_DATE%2CSECURITY_CODE&sr=-1%2C-1&ps=50&p=1&type=RPT_LICO_FN_CPD&sty=ALL&token=894050c76af8597a853f5b408b759f5d&filter=(REPORTDATE%3D%272021-06-30%27)'
-
+    print(url)
     tmp_header = get_headers()
     response = requests.get(url, headers=tmp_header)
+    print(response)
 
     response.encoding = 'utf-8'  
     p1 = re.compile(r'[(](.*?)[)]', re.S)
@@ -139,6 +231,10 @@ def get_fina_data(code):
 
     rawdata = api_param['result']['data']
     df = pd.DataFrame(rawdata)
+    
+    if len(df):
+       df = handle_raw_df(df)
+
     return df, api_param
 
 
@@ -148,7 +244,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_fina_data('000977')
+    df, api_param = get_fina_data(2)
     print(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

@@ -177,8 +177,8 @@ def combine_zlje_data(db_table, df):
 
     if 'zlje' in ret_df.columns:
         ret_df = ret_df.sort_values('zlje', ascending=0)
-    if 'pbuy' in ret_df.columns:
-        ret_df = ret_df.sort_values('pbuy', ascending=0)
+    if 'jmmoney' in ret_df.columns:
+        ret_df = ret_df.sort_values('jmmoney', ascending=0)
 
     ret_df = ret_df.reset_index(drop=True)
 
@@ -306,6 +306,7 @@ if __name__ == '__main__':
     else:
         print('#error, html_basic_df len < 1')
 
+    '''
     #zlje
     print('start zlje')
     curr_dir=curr_day_w+'-zlje'
@@ -317,7 +318,8 @@ if __name__ == '__main__':
         generate_html(html_zlje_df)
     else:
         print('#error, html_zlje_df len < 1')
-
+    '''
+    
     #dragon
     print('start dragon')
     curr_dir=curr_day_w+'-dragon'

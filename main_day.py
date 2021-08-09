@@ -34,7 +34,7 @@ hdata_day=HData_eastmoney_day("usr","usr")
 def handle_raw_df(df):
     
     if len(df) == 0:
-        return
+        return df
 
     if 'pre_close' not in df.columns:
         df['pre_close'] = 0

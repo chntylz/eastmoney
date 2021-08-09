@@ -291,7 +291,7 @@ def comm_write_to_file(f, k, df, filename):
                 #fix bug:  must be real number, not datetime.date for holder function
                 elif list(df)[j] == 'hk_date':
                     f.write('           <a> %s</a>\n'%(element_value))
-                elif list(df)[j] == 'dragon':
+                elif (list(df)[j] == 'dragon') or (list(df)[j] == 'lhb') :
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (dragon_url, element_value))
                 else:
@@ -901,6 +901,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
 
     if 'pbuy' in input_df.columns:
         ret_df.insert(12, 'dragon', round(input_df['pbuy'] / 10000/10000, 2))
+        ret_df.insert(12, 'lhb', round(input_df['jmmoney'] / 10000/10000, 2))
  
     return ret_df
 
