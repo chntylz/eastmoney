@@ -1,3 +1,6 @@
+#!/#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -6,9 +9,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 import time, datetime
 import pandas as pd
 import os
+import re
 
-
-import bs4
 import json
 
 import psycopg2 #使用的是PostgreSQL数据库
@@ -22,7 +24,7 @@ def check_table():
     table_exist = hdata_day.table_is_exist() 
     print('table_exist=%d' % table_exist)
     if table_exist:
-        hdata_day.db_hdata_xq_simple_create()
+        #hdata_day.db_hdata_xq_simple_create()
         print('table already exist')
     else:
         hdata_day.db_hdata_xq_simple_create()
@@ -93,14 +95,24 @@ def get_data():
 
 def get_data2(browser):
 
-    url='https://xueqiu.com/service/v5/stock/screener/quote/list?page=1&size=10000&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
+    url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
+        + '?page=1&size=10000&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
 
     browser.get(url)
     html = browser.page_source
-    soup = bs4.BeautifulSoup(html, 'lxml')
-    cc = soup.select('pre')[0]
-    res = json.loads(cc.text)
-    df=pd.DataFrame(res['data']['list'])
+    s=html
+    f1 = s.find('{')
+    s = s[:f1] + '(' + s[f1 : ]  #add '(' before first '{' 
+    f2 = s.rfind('}')              #add ')' after last  '}' 
+    s = s[:f2+1] + ')' + s[f2+1 : ]
+    html=s
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+
+    api_param = json.loads(response_array[0])
+    rawdata = api_param['data']['list']
+    df = pd.DataFrame(rawdata)
     
     return df
 

@@ -211,13 +211,13 @@ def get_fina_data(page=1):
     print(response)
 
     response.encoding = 'utf-8'  
-    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    p1 = re.compile(r'[(](.*?)[)]', re.S)  #'xxx(yyy)zzz', 提取括号的内容yyy
 
     #把中间的'(' ')' 替换成'-', 才能正确的把json 解析出来
     s=response.text
     f1 = s.find('(')
-    s = s[:f1] + '~' + s[f1+1 : ]
-    f2 = s.rfind(')')
+    s = s[:f1] + '~' + s[f1+1 : ]  #first '(' -> '~'
+    f2 = s.rfind(')')              #last  ')' -> '@'
     s = s[:f2] + '@' + s[f2+1 : ]
 
     s = s.replace('(', '-')
