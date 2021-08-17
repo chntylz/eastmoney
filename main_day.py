@@ -110,7 +110,7 @@ if __name__ == '__main__':
     #check table exist
     check_table()
 
-    r_df, api_param = get_realtime_data()
+    r_df, api_param = get_realtime_data2()
     r_df = handle_raw_df(r_df)
 
     if int(para1):
