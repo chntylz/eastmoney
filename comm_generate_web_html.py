@@ -816,6 +816,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
 
         is_2d3pct=daily_df.is_2d3pct[i]
         is_cup_tea=daily_df.is_cup_tea[i]
+        is_cross3line=daily_df.is_cross3line[i]
         total_mv=round(daily_df.mkt_cap[i] / unit_yi, 2)
 
 
@@ -874,13 +875,13 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         data_list.append([new_date, stock_code, stock_name, close_p, close, \
                 hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, conti_day, \
                 money_total, total_mv, industry_name, \
-                is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea,\
+                is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea, is_cross3line,\
                 zlje, zlje_3, zlje_5, zlje_10,h_chg ])
 
     data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'conti_day', \
             'hk_m_total', 'total_mv', 'industry', \
-            'peach', 'zig', 'quad', '2d3pct', 'cup_tea',\
+            'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3', \
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ]
 
     ret_df=pd.DataFrame(data_list, columns=data_column)
@@ -891,7 +892,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         print(ret_df)
 
     data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', \
-            'peach', 'zig', 'quad', '2d3pct', 'cup_tea', \
+            'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
             'hk_date', 'hk_share', 'hk_pct', \
             'hk_delta1', 'hk_deltam', 'conti_day', \
