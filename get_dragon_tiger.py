@@ -17,8 +17,22 @@ import numpy as np
 import time
 import datetime
 
+
+
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+import time, datetime
+import pandas as pd
+import os
+import re
+
+import json
+
+
 import sys
-sys.path.append("..")
 from file_interface import *
 
 from HData_eastmoney_dragon import *
@@ -107,7 +121,6 @@ def get_headers():
     return headers
 
 
-
 def get_dragon_tiger(date=None, url_type=None):
 
     timestamp=str(round(time.time() * 1000))
@@ -161,6 +174,74 @@ def get_dragon_tiger(date=None, url_type=None):
     return data_df
 
 
+
+def get_dragon_tiger2(date=None, url_type=None):
+
+    timestamp=str(round(time.time() * 1000))
+
+    if date == None:
+        nowdate=datetime.datetime.now().date()
+        date = nowdate.strftime("%Y-%m-%d")
+
+    url = url_lhb = 'https://datainterface3.eastmoney.com/EM_DataCenter_V3/api/LHBGGDRTJ/GetLHBGGDRTJ?'\
+            + 'js=jQuery112307979656966674489_'\
+            + timestamp \
+            + '&sortColumn=&sortRule=1&pageSize=5000&pageNum=1&tkn=eastmoney&'\
+            + 'dateNum=&cfg=lhbggdrtj&mkt=0&startDateTime='\
+            + date \
+            + '&endDateTime='\
+            + date
+
+
+    #https://www.zhihu.com/question/31600760
+    url_jg='https://datainterface3.eastmoney.com/EM_DataCenter_V3/api/LHBJGTJ/GetHBJGTJ?'\
+            + 'js=jQuery1123029660230486644434_'\
+            + timestamp \
+            + '&sortfield=PBuy&sortdirec=1&pageSize=5000&pageNum=1&tkn=eastmoney&code=&'\
+            + 'mkt=0&dateNum=&cfg=lhbjgtj&startDateTime='\
+            + date \
+            + '&endDateTime='\
+            + date
+
+    if url_type == None:
+        url = url_lhb
+    else:
+        url = url_jg
+   
+    print(url)
+    
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+
+    browser.get(url)
+    html = browser.page_source
+    browser.close()
+
+    print(html)
+
+
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+    api_param = json.loads(response_array[0])
+    tmp_column= api_param['Data'][0]['FieldName']
+    tmp_column=tmp_column.split(',')
+    rawdata = api_param['Data'][0]['Data']
+    data_df = pd.DataFrame(rawdata)
+    if len(data_df):
+        data_df = data_df[0].str.split('|', expand=True)
+        data_df.columns=tmp_column
+
+    return data_df
+
+
 if __name__ == '__main__':
 
     cript_name, para1 = check_input_parameter()
@@ -170,9 +251,9 @@ if __name__ == '__main__':
     
     check_table()
 
-    jg_df = get_dragon_tiger(nowdate.strftime("%Y-%m-%d"), url_type='all_jg')
+    jg_df = get_dragon_tiger2(nowdate.strftime("%Y-%m-%d"), url_type='all_jg')
     time.sleep(15)
-    all_df = get_dragon_tiger(nowdate.strftime("%Y-%m-%d"))
+    all_df = get_dragon_tiger2(nowdate.strftime("%Y-%m-%d"))
     
     if len(jg_df) or len(all_df):
 
@@ -193,7 +274,7 @@ if __name__ == '__main__':
 
 
         cur_time = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-        conj_df.to_csv('./csv_data/' + 'dragon-' + cur_time + '.csv', encoding='gbk')
+        conj_df.to_csv('./csv/' + 'dragon-' + cur_time + '.csv', encoding='gbk')
         hdata_dragon.delete_data_from_hdata(\
             start_date=nowdate.strftime("%Y-%m-%d"), \
             end_date=nowdate.strftime("%Y-%m-%d"))
