@@ -74,7 +74,7 @@ if __name__ == '__main__':
     #每次最多只能得到500条数据
     while (1):
         try:
-            h_df, api_param = get_holder_data(is_all=get_all, pagesize=500, pagenumber=i)
+            h_df, api_param = get_holder_data2(is_all=get_all, pagesize=500, pagenumber=i)
             time.sleep(10)
             if len(h_df):
                 h_df = h_df.fillna(0)

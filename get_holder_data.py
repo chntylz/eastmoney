@@ -11,6 +11,18 @@ import datetime
 
 import random
 
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+import time, datetime
+import pandas as pd
+import os
+import re
+
+
+
 '''
 一次获取最新全部户数
 https://data.eastmoney.com/gdhs/
@@ -77,7 +89,6 @@ def get_headers():
     headers = {'User-Agent':random.choice(user_agents)}
     return headers
 
-
 def get_holder_data(is_all=1, pagesize=500, pagenumber=1):
     timestamp=str(round(time.time() * 1000))
     df = pd.DataFrame()
@@ -136,12 +147,84 @@ def get_holder_data(is_all=1, pagesize=500, pagenumber=1):
     return df, api_param
 
 
+
+def get_holder_data2(is_all=1, pagesize=500, pagenumber=1):
+    timestamp=str(round(time.time() * 1000))
+    df = pd.DataFrame()
+    api_param=''
+
+    url_all = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112305269055184325129_'\
+            + timestamp \
+            + '&reportName=RPT_HOLDERNUM_DET'\
+            + '&columns=SECURITY_CODE%2CSECURITY_NAME_ABBR%2C'\
+            + 'CHANGE_SHARES%2CCHANGE_REASON%2C'\
+            + 'END_DATE%2CINTERVAL_CHRATE%2C'\
+            + 'AVG_MARKET_CAP%2CAVG_HOLD_NUM%2C'\
+            + 'TOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE%2C'\
+            + 'HOLDER_NUM%2C'\
+            + 'PRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE'\
+            + '&pageSize='\
+            + str(pagesize) \
+            + '&pageNumber='\
+            + str(pagenumber) 
+
+    url_latest = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback'\
+            + '=jQuery11230745007796091407_'\
+            + timestamp \
+            + '&sortColumns=HOLD_NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize='\
+            + str(pagesize) \
+            + '&pageNumber='\
+            + str(pagenumber) \
+            + '&reportName=RPT_HOLDERNUMLATEST'\
+            + '&columns=SECURITY_CODE%2CSECURITY_NAME_ABBR%2C'\
+            + 'CHANGE_SHARES%2CCHANGE_REASON%2C'\
+            + 'END_DATE%2CINTERVAL_CHRATE%2C'\
+            + 'AVG_MARKET_CAP%2CAVG_HOLD_NUM%2C'\
+            + 'TOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE%2C'\
+            + 'HOLDER_NUM%2C'\
+            + 'PRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE'
+    
+    
+    if is_all == 1:
+        url = url_all
+    else:
+        url = url_latest
+
+    print('url= %s ' % url)
+    
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+
+    browser.get(url)
+    html = browser.page_source
+    browser.close()
+
+    if debug:
+        print(html)
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+
+    api_param = json.loads(response_array[0])
+    rawdata = api_param['result']['data']
+    df = pd.DataFrame(rawdata)
+
+    return df, api_param
+
+
 if __name__ == '__main__':
 
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_holder_data(is_all=0, pagesize=500, pagenumber=9)
+    df, api_param = get_holder_data2(is_all=0, pagesize=500, pagenumber=9)
     print(df.columns)
     print(df)
 
