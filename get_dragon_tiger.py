@@ -31,6 +31,7 @@ import re
 
 import json
 
+import glob
 
 import sys
 from file_interface import *
@@ -248,6 +249,14 @@ if __name__ == '__main__':
 
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(int(para1))
+
+    target_file = './csv/dragon-' + nowdate.strftime("%Y-%m-%d") + '*.csv'
+    print(target_file)
+
+    print( len(glob.glob(target_file)))
+    if len(glob.glob(target_file)):
+        print('target_file is already generated !!! return')
+        exit()
     
     check_table()
 
