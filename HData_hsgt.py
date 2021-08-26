@@ -35,9 +35,7 @@ class HData_hsgt(object):
         self.conn.close()
 
     def db_hdata_date_create(self):
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
+        self.db_connect()
         # 创建stocks表
         cur.execute('''
                 drop table if exists hdata_hsgt_table;
@@ -67,35 +65,46 @@ class HData_hsgt(object):
                     );
                 alter table hdata_hsgt_table add primary key(stock_code,record_date);
                 ''')
-        conn.commit()
-        conn.close()
+        self.db_disconnect()
         print("db_hdata_hsgt_table_create finish")
         pass
 
 
 
     def db_get_latest_date_of_stock(self):#获取最晚日期
+        self.db_connect()
+
         self.cur.execute("select record_date from hdata_hsgt_table group by record_date order by record_date desc limit 1;")
         ans=self.cur.fetchall()
         if(len(ans)==0):
+            self.conn.commit()
+            self.db_disconnect()
             return None
-        return ans[0][0]
-        self.conn.commit()
+        else:
+            self.conn.commit()
+            self.db_disconnect()
+            return ans[0][0]
         pass
 
 
 
     def db_get_maxdate_of_stock(self,stock_code):#获取某支股票的最晚日期
+        self.db_connect()
         self.cur.execute("select max(record_date) from hdata_hsgt_table where stock_code="+"\'"+stock_code+"\'"+";")
         ans=self.cur.fetchall()
         if(len(ans)==0):
+            self.conn.commit()
+            self.db_disconnect()
             return None
-        return ans[0][0]
-        self.conn.commit()
+        else:
+            self.conn.commit()
+            self.db_disconnect()
+            return ans[0][0]
         pass
 
     def insert_perstock_hdatadate(self,  data):#插入一支股票的所有历史数据到数据库#如果有code和index相同的不重复插入
 
+        self.db_connect()
         #print(" insert_perstock_hdatadate begin")
         if data is None:
             print("None")
@@ -115,6 +124,7 @@ class HData_hsgt(object):
                 #print(sql_temp)
                 self.cur.execute("insert into hdata_hsgt_table "+sql_temp+";")
             self.conn.commit()
+        self.db_disconnect()
 
 
         #print(" insert_perstock_hdatadate finish")
@@ -122,6 +132,7 @@ class HData_hsgt(object):
 
     def insert_optimize_stock_hdatadate(self, data):#插入一支股票的所有历史数据到数据库#如果有code和index相同的不重复插入
 
+        self.db_connect()
         #data format: record_date , stock_code, share_holding, percent
 
         #print(" insert_perstock_hdatadate begin")
@@ -160,90 +171,84 @@ class HData_hsgt(object):
                 self.conn.commit()
 
 
+        self.db_disconnect()
         #print(stock_code+" insert_perstock_hdatadate finish")
 
     def get_all_hdata_of_stock_code(self, stock_code):#将数据库中的数据读取并转为dataframe格式返回
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
 
+        self.db_connect()
         #sql_temp="select * from (select * from hdata_hsgt_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;"
         #sql_temp="select * from (select * from hdata_hsgt_table where stock_code="+"\'"+stock_code+"\' order by record_date desc LIMIT 100) as tbl order by record_date asc;"
         sql_temp="select * from hdata_hsgt_table where stock_code="+"\'"+stock_code+"\' order by record_date desc;"
-        cur.execute(sql_temp)
-        rows = cur.fetchall()
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
 
-        conn.commit()
-        conn.close()
+        self.conn.commit()
 
-        dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)
         #index =  df["record_date"]
         #df = pd.DataFrame(rows, index=index, columns=dataframe_cols)
         df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))
         
+        self.db_disconnect()
         return df
         pass
  
 
     def get_all_hdata_of_stock_cname(self, stock_cname):#将数据库中的数据读取并转为dataframe格式返回
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
+        self.db_connect()
 
         #sql_temp="select * from (select * from hdata_hsgt_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;"
         #sql_temp="select * from (select * from hdata_hsgt_table where stock_code="+"\'"+stock_code+"\' order by record_date desc LIMIT 100) as tbl order by record_date asc;"
         sql_temp="select * from hdata_hsgt_table where stock_cname="+"\'"+stock_cname+"\' order by record_date desc;"
-        cur.execute(sql_temp)
-        rows = cur.fetchall()
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
 
-        conn.commit()
-        conn.close()
+        self.conn.commit()
 
-        dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)
         #index =  df["record_date"]
         #df = pd.DataFrame(rows, index=index, columns=dataframe_cols)
         df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))
         
+        self.db_disconnect()
         return df
         pass
         
     def get_limit_hdata_of_stock_code(self, stock_code, end_day, limit_number):#将数据库中的数据读取并转为dataframe格式返回
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
+        self.db_connect()
 
         #sql_temp="select * from (select * from hdata_hsgt_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;"
         sql_temp="select * from (select * from hdata_hsgt_table where stock_code="+"\'"+stock_code+"\'  and record_date <= "+"\'"+ end_day +"\'  order by record_date desc LIMIT "+"\'"+str(limit_number)+"\' ) as tbl order by record_date asc;"
         #sql_temp="select * from hdata_hsgt_table where stock_code="+"\'"+stock_code+"\';"
-        cur.execute(sql_temp)
-        rows = cur.fetchall()
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
 
-        conn.commit()
-        conn.close()
+        self.conn.commit()
+        self.db_connect()
 
-        dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)
         index =  df["record_date"]
         df = pd.DataFrame(rows, index=index, columns=dataframe_cols)
         
+        self.db_disconnect()
         return df
         pass
  
     def get_day_hdata_of_stock(self, day):#将数据库中的数据读取并转为dataframe格式返回
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
+        self.db_connect()
         #select * from (select * from hdata_hsgt_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;
         sql_temp="select * from hdata_hsgt_table where record_date = "+"\'"+day+"\';"
-        cur.execute(sql_temp)
-        rows = cur.fetchall()
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
 
-        conn.commit()
-        conn.close()
+        self.conn.commit()
+        self.db_disconnect()
 
-        dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)
         index =  df["record_date"]
         df = pd.DataFrame(rows, index=index, columns=dataframe_cols)
@@ -254,22 +259,20 @@ class HData_hsgt(object):
     def get_all_hdata_of_stock(self, 
             from_date=None):#将数据库中的数据读取并转为dataframe格式返回
 
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
+        self.db_connect()
         #select * from (select * from hdata_hsgt_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;
         #sql_temp="select * from hdata_hsgt_table order by record_date desc ;"
         if from_date is None:
             sql_temp="select * from hdata_hsgt_table order by record_date desc ;"
         else:
             sql_temp="select" + cur_culumn + " from hdata_hsgt_table where record_date > '" + from_date + "'  order by record_date desc ;;"
-        cur.execute(sql_temp)
-        rows = cur.fetchall()
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
 
-        conn.commit()
-        conn.close()
+        self.conn.commit()
+        self.db_disconnect()
 
-        dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)
         df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))
         #index =  df["record_date"]
@@ -280,35 +283,32 @@ class HData_hsgt(object):
  
        
     def get_all_list_of_stock(self):#将数据库中的数据读取并转为dataframe格式返回
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
+        self.db_connect()
+
         sql_temp="select stock_code from hdata_hsgt_table group by stock_code order by stock_code asc;"
-        cur.execute(sql_temp)
-        rows = cur.fetchall()
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
 
-        conn.commit()
-        conn.close()
+        self.conn.commit()
+        self.db_disconnect()
 
-        dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)
         
         return df
         pass
         
     def get_startday_2_currday_hdata_of_stock(self, stop_day, curr_day, number):#将数据库中的数据读取并转为dataframe格式返回
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
+        self.db_connect()
         #select * from (select * from hdata_hsgt_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;
         sql_temp="select record_date from hdata_hsgt_table where record_date between " + "\'" + stop_day + "\'  and  " + "\'" + curr_day + "\'  group by record_date order by record_date desc limit " + "\'" + str(number) + "\' ;"
-        cur.execute(sql_temp)
-        rows = cur.fetchall()
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
 
-        conn.commit()
-        conn.close()
+        self.conn.commit()
+        self.db_disconnect()
 
-        dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)
     
         return df
@@ -319,9 +319,7 @@ class HData_hsgt(object):
                         start_date=None, 
                         end_date=None,
                         limit=0):#将数据库中的数据读取并转为dataframe格式返回
-        conn = psycopg2.connect(database="usr", user=self.user, password=self.password, host="127.0.0.1",
-                                port="5432")
-        cur = conn.cursor()
+        self.db_connect()
         and_flag = False
 
         sql_temp = "select * from hdata_hsgt_table"
@@ -373,13 +371,13 @@ class HData_hsgt(object):
 
 
         #select * from (select * from hdata_hsgt_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;
-        cur.execute(sql_temp)
-        rows = cur.fetchall()
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
 
-        conn.commit()
-        conn.close()
+        self.conn.commit()
+        self.db_disconnect()
 
-        dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)
         df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))        
 
