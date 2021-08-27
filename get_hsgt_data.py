@@ -189,14 +189,16 @@ def hsgt_get_day_item_from_json(file_path):
             shgt_high=day_dict['high'][0]
             shgt_low=day_dict['low'][0]
             shgt_volume=day_dict['volume'][0]
+            shgt_mkt_cap=day_dict['mkt_cap'][0]
             shgt_is_zig=int(day_dict['is_zig'][0])
             shgt_is_quad=int(day_dict['is_quad'][0])
             shgt_is_peach=int(day_dict['is_peach'][0])
+            
 
 
 
             list_tmp.append([shgt_date, shgt_code, shgt_cname, shgt_holding, shgt_percent, \
-                    shgt_open, shgt_close, shgt_high, shgt_low, shgt_volume, \
+                    shgt_open, shgt_close, shgt_high, shgt_low, shgt_volume, shgt_mkt_cap, \
                     shgt_is_zig, shgt_is_quad, shgt_is_peach, \
                     op_yoy, net_yoy,\
                     zlje, zlje_3, zlje_5, zlje_10,\
@@ -208,7 +210,7 @@ def hsgt_get_day_item_from_json(file_path):
         print(list_tmp)
 
     dataframe_cols = ['record_date', 'stock_code','shgt_cname', 'share_holding', 'hk_pct', \
-            'open', 'close', 'high', 'low', 'volume', \
+            'open', 'close', 'high', 'low', 'volume', 'total_mv', \
             'is_zig', 'is_quad', 'is_peach',\
             'op_yoy', 'net_yoy',\
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', \

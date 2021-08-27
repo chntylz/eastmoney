@@ -71,6 +71,7 @@ def hsgt_get_continuous_info(df, select):
         group_df    = group_df.reset_index(drop=True) #reset index
         max_date    = group_df.loc[0, 'record_date']
         stock_cname = group_df.loc[0, 'stock_cname']
+        total_mv    = group_df.loc[0, 'total_mv']
         hk_pct      = group_df.loc[0, 'hk_pct']
         delta1      = group_df.loc[0, 'delta1']
         delta1_m    = group_df.loc[0, 'delta1_m']
@@ -142,21 +143,21 @@ def hsgt_get_continuous_info(df, select):
                 
         money_total = round(money_total,2)
         if debug:
-            print(max_date, stock_code, stock_cname, hk_pct, close, a_pct, \
+            print(max_date, stock_code, stock_cname, total_mv, hk_pct, close, a_pct, \
                     is_peach, is_zig, is_quad, \
                     op_yoy, net_yoy, \
                     zlje, zlje_3, zlje_5, zlje_10, \
                     holder_0, holder_1, holder_2, \
                     delta1, i, money_total)
 
-        data_list.append([max_date, stock_code, stock_cname, hk_pct, close, a_pct, \
+        data_list.append([max_date, stock_code, stock_cname, total_mv, hk_pct, close, a_pct, \
                 is_peach, is_zig, is_quad, \
                 op_yoy, net_yoy, \
                 zlje, zlje_3, zlje_5, zlje_10, \
                 holder_0, holder_1, holder_2, \
                 delta1, delta1_m, i, money_total])  #i  is conti_day
 
-    data_column=['record_date', 'stock_code', 'stock_cname', 'hk_pct', 'close', 'a_pct', \
+    data_column=['record_date', 'stock_code', 'stock_cname', 'total_mv', 'hk_pct', 'close', 'a_pct', \
             'peach', 'zig', 'quad', \
             'op_yoy', 'net_yoy', \
             'zlje', 'zl3', 'zl5', 'zl10', \

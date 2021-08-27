@@ -10,7 +10,7 @@ pd.set_option('display.float_format',lambda x : '%.2f' % x)
 debug=0
 
 cur_culumn=" record_date , stock_code, stock_cname, share_holding, percent,\
-        open, close, high, low, volume, \
+        open, close, high, low, volume, total_mv,\
         is_zig, is_quad, is_peach,  \
         op_yoy, net_yoy,\
         zlje, zlje_3, zlje_5, zlje_10, \
@@ -50,6 +50,7 @@ class HData_hsgt(object):
                     high float,
                     low float,
                     volume float,
+                    total_mv float,
                     is_zig int, 
                     is_quad int, 
                     is_peach int,

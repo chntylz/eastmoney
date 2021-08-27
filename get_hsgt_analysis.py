@@ -103,6 +103,7 @@ def hsgt_handle_all_data(df):
     
     
     all_df['share_holding'] = all_df['share_holding'].apply(lambda i: i/10000/10000)
+    all_df['total_mv'] = all_df['total_mv'].apply(lambda i: i/10000/10000)
 
     max_number=21
     #temp column added
