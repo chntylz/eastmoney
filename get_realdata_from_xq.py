@@ -99,6 +99,7 @@ def get_data2(browser):
         + '?page=1&size=10000&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
 
     browser.get(url)
+    print(url)
     html = browser.page_source
     s=html
     f1 = s.find('{')

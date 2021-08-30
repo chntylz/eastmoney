@@ -11,7 +11,7 @@ from io import StringIO
 
 
 debug = 0
-#debug = 1
+debug = 1
 
 eastmoney_cols = " stock_code, stock_name, change_shares, change_reason, record_date, \
         interval_chrate, avg_market_cap, avg_hold_num, total_market_cap, total_a_shares,\
@@ -260,6 +260,8 @@ class HData_eastmoney_fina(object):
                         final_sql.append( "  on conflict (stock_code, record_date) do nothing ; ")
                         #print(''.join(final_sql))
                         sql_cmd = []
+                        if debug:
+                            print(final_sql)
                         t2 = time.time()
                         self.cur.execute(''.join(final_sql))
                         t3 = time.time()

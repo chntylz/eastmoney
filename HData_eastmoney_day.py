@@ -11,7 +11,7 @@ from io import StringIO
 
 
 debug = 0
-#debug = 1
+debug = 1
 
 eastmoney_cols = " record_date, stock_code, stock_name, open, close, high, low,\
         volume, amount, amplitude, percent, chg, turnoverrate,\
