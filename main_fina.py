@@ -34,7 +34,7 @@ def check_table():
     table_exist = hdata_fina.table_is_exist() 
     print('table_exist=%d' % table_exist)
     if table_exist:
-        #hdata_fina.db_hdata_eastmoney_create()
+        hdata_fina.db_hdata_eastmoney_create()
         print('table already exist')
     else:
         hdata_fina.db_hdata_eastmoney_create()

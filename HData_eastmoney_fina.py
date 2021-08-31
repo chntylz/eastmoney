@@ -11,13 +11,10 @@ from io import StringIO
 
 
 debug = 0
-debug = 1
 
-eastmoney_cols = " stock_code, stock_name, change_shares, change_reason, record_date, \
-        interval_chrate, avg_market_cap, avg_hold_num, total_market_cap, total_a_shares,\
-        hold_notice_date, fina_num, pre_fina_num, fina_num_change, fina_num_ratio,\
-        pre_end_date  "
-
+eastmoney_cols =" stock_code, stock_name, record_date, basic_eps,\
+               total_operate_income, parent_netprofit, weightavg_roe, ystz,\
+              sjltz, bps, mgjyxjje, xsmll, yshz, sjlhz, qdate "
 
 class HData_eastmoney_fina(object):
     def __init__(self,user,password):
@@ -63,27 +60,28 @@ class HData_eastmoney_fina(object):
 
         self.db_connect()
 
+        #ystz  float,  yingyeshouru tongbi
+        #sjltz  float,  jinglirun tongbi
         # 创建stocks表
         self.cur.execute('''
             drop table if exists eastmoney_fina_table;
             create table eastmoney_fina_table(
-                stock_code varchar, 
-                stock_name varchar, 
-                change_shares float, 
-                change_reason varchar,
-                record_date date, 
-                interval_chrate float, 
-                avg_market_cap float, 
-                avg_hold_num float, 
-                total_market_cap float, 
-                total_a_shares float, 
-                hold_notice_date date, 
-                fina_num float, 
-                pre_fina_num float, 
-                fina_num_change float, 
-                fina_num_ratio float, 
-                pre_end_date date
-                );
+                stock_code  varchar,
+                stock_name  varchar,
+                record_date  date,
+                basic_eps  float,
+                total_operate_income  float,
+                parent_netprofit  float,
+                weightavg_roe  float,
+                ystz  float, 
+                sjltz  float,
+                bps  float,
+                mgjyxjje  float,
+                xsmll  float,
+                yshz  float,
+                sjlhz  float,
+                qdate varchar
+            );
             alter table eastmoney_fina_table add primary key(stock_code,record_date);
             ''')
         self.conn.commit()

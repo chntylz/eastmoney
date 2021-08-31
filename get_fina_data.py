@@ -11,6 +11,17 @@ import datetime
 
 import random
 
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+import time, datetime
+import pandas as pd
+import os
+import re
+
+debug=0
 
 '''
 业绩报表
@@ -238,13 +249,72 @@ def get_fina_data(page=1):
     return df, api_param
 
 
+def get_fina_data2(page=1):
+    
+    timestamp=str(round(time.time() * 1000))
+    
+    url = 'http://datacenter-web.eastmoney.com/api/data/get?callback='\
+            + 'jQuery112305938889278481287_'\
+            + timestamp \
+            + '&st=UPDATE_DATE%2CSECURITY_CODE&sr=-1%2C-1&ps=500'\
+            + '&p='\
+            + str(page) \
+            + '&type=RPT_LICO_FN_CPD&sty=ALL&'\
+            # '&filter=(REPORTDATE%3D%272021-06-30%27)'
+
+    print(url)
+
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+
+    browser.get(url)
+    html = browser.page_source
+    browser.close()
+
+    if debug:
+        print(html)
+ 
+    p1 = re.compile(r'[(](.*?)[)]', re.S)  #'xxx(yyy)zzz', 提取括号的内容yyy
+
+    #把中间的'(' ')' 替换成'-', 才能正确的把json 解析出来
+    s=html
+    f1 = s.find('(')
+    s = s[:f1] + '~' + s[f1+1 : ]  #first '(' -> '~'
+    f2 = s.rfind(')')              #last  ')' -> '@'
+    s = s[:f2] + '@' + s[f2+1 : ]
+
+    s = s.replace('(', '-')
+    s = s.replace(')', '-')
+
+    s = s.replace('~', '(' )
+    s = s.replace('@', ')' )
+
+    response_array = re.findall(p1, s)
+    api_param = json.loads(response_array[0])
+
+    rawdata = api_param['result']['data']
+    df = pd.DataFrame(rawdata)
+    
+    if len(df):
+       df = handle_raw_df(df)
+
+    return df, api_param
+
+
     
 if __name__ == '__main__':
 
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_fina_data(2)
+    df, api_param = get_fina_data2(2)
     print(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
