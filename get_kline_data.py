@@ -166,7 +166,6 @@ def get_kline_data(code=None, count=None, period=None):
         print(data_df)
 
 
-    print(data_df)
         
     return data_df, api_param
 
@@ -225,7 +224,8 @@ def get_kline_data2(code=None, count=None, period=None):
     html = browser.page_source
     browser.close()
 
-    print(html)
+    if debug:
+        print(html)
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
@@ -253,9 +253,6 @@ def get_kline_data2(code=None, count=None, period=None):
 
     if debug:
         print(data_df)
-
-
-    print(data_df)
         
     return data_df, api_param
 

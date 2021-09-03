@@ -25,7 +25,7 @@ import json
 
 
 debug=1
-debug=1
+debug=0
 
 import random
 def get_headers():

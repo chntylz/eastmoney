@@ -90,7 +90,11 @@ def time_is_equal(time1,time2):
 
 
 def is_national_holiday(date='20200707'):
-    national_holiday = ['20190913','20190914', '20191002','20191003','20191004', '20191005','20191007', '20200101', '20200124', '20200127', '20200128', '20200129', '20200130', '20200131', '20200406', '20200501', '20200504', '20200505', '20200625', '20200626', '20201001', '20201002','20201001','20201005','20201006','20201007','20201008']
+    national_holiday = ['20190913','20190914', '20191002','20191003','20191004',\
+            '20191005','20191007', '20200101', '20200124', '20200127', '20200128', \
+            '20200129', '20200130', '20200131', '20200406', '20200501', '20200504',\
+            '20200505', '20200625', '20200626', '20201001', '20201002','20201001',\
+            '20201005','20201006','20201007','20201008']
     if date in national_holiday:
         return True
     else:
@@ -118,6 +122,40 @@ def is_work_time():
         ret = False
 
     return ret
+
+
+def get_file_modify_day(filename=None):
+    try :
+        filemt1= time.localtime(os.stat(filename).st_mtime) #文件修改时间
+    except:
+        return -1
+    t1=time.mktime(filemt1)
+    filemt2= time.localtime() #不带参数就是当前时间
+    t2=time.mktime(filemt2)
+
+    #print(datetime.timedelta(seconds=t2-t1).days)
+    #print(datetime.timedelta(seconds=t2-t1).seconds)
+
+    return (datetime.timedelta(seconds=t2-t1).days)
+
+
+
+def check_input_parameter():
+# 如果执行的方式错误输出使用方法
+    USAGE = '''
+        用法错误，正确方式如下：
+        python demo.py 1
+        '''
+    if len(argv) > 2:
+        print(USAGE)  # 如果传入的参数不足，输出正确用法
+        exit(1) # 异常退出(下面的代码将不会被执行)
+
+    script_name, para1 = argv  # 将传入的参数赋值进行使用
+    print("%s, %d"%(script_name, int(para1)))
+
+    return script_name, para1
+
+
 
 
 

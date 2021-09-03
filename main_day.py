@@ -88,8 +88,9 @@ def check_table():
     table_exist = hdata_day.table_is_exist() 
     print('table_exist=%d' % table_exist)
     if table_exist:
-        #hdata_day.db_hdata_eastmoney_create()
-        print('table already exist')
+        if int(para1):
+            #hdata_day.db_hdata_eastmoney_create()
+            print('table already exist, recreate')
     else:
         hdata_day.db_hdata_eastmoney_create()
         print('table not exist, create')
@@ -99,6 +100,12 @@ def check_table():
 if __name__ == '__main__':
 
     cript_name, para1 = check_input_parameter()
+
+    if int(para1) == 0:
+        f_day = get_file_modify_day('r_df_today.csv')
+        if f_day != 0:
+            print(' exit... ')
+            sys.exit(0)
     
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -119,7 +126,7 @@ if __name__ == '__main__':
         if r_len:
             for i in range(0, r_len):
                 code = r_df['stock_code'][i]
-                k_df, api_param = get_kline_data(code, 700)
+                k_df, api_param = get_kline_data2(code, 700)
                 k_df = handle_raw_df(k_df)
                 if k_df is None:
                     continue
