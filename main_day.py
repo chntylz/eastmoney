@@ -102,8 +102,9 @@ if __name__ == '__main__':
     cript_name, para1 = check_input_parameter()
 
     if int(para1) == 0:
-        f_day = get_file_modify_day('r_df_today.csv')
-        if f_day != 0:
+        f_day = get_file_modify_day('csv/r_df_today.csv')
+        print('f_day=%d' % f_day)
+        if f_day == 0:
             print(' exit... ')
             sys.exit(0)
     
