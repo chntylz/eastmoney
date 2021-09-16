@@ -417,6 +417,7 @@ class HData_eastmoney_day(object):
         self.db_disconnect()
         pass
 
+
     def get_data_from_hdata(self, stock_code=None, 
                         start_date=None, 
                         end_date=None,
@@ -498,6 +499,32 @@ class HData_eastmoney_day(object):
     
         return df
         pass
+ 
+
+    def get_latest_data_from_hdata(self):#将数据库中的数据读取并转为dataframe格式返回
+
+        self.db_connect()
+        sql_temp = ' select * from eastmoney_d_table where record_date = '\
+                + '(select max(record_date) from eastmoney_d_table as tmp_date); '
+
+        if debug:
+            print("get_latest_data_from_hdata, sql_temp:%s" % sql_temp)
+
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
+
+        self.conn.commit()
+        self.db_disconnect()
+
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
+        df = pd.DataFrame(rows, columns=dataframe_cols)
+        df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))        
+
+        if debug:
+            print(type(df))
+            print(df.head(2))
+    
+        return df
  
     def delete_data_from_hdata(self, stock_code=None, 
                         start_date=None, 
