@@ -38,7 +38,7 @@ hdata=HData_eastmoney_day("usr","usr")
 
 #debug switch
 debug = 0
-debug = 0
+debug = 1
 
 #return the day(j) and cross_flag(true or false) if P is true during with_days, P is cross(5, 30), etc
 def get_cross_info(P):
@@ -142,8 +142,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             pass
 
 
-        if 0:
-            if '0831' not in  nowcode:
+        if 1:
+            if '0126' not in  nowcode:
                 continue
             print("code:%s, name:%s" % (nowcode, nowname ))
 
@@ -614,7 +614,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         #print(H1, L1 , H1_days, L1_days)
         if L1_days.value > 1 and H1_days.value > L1_days.value:
             #第二次最高价：第一次最低价以来的最高价(当天除外)
-            H2 = HHV(REF(H, 1), L1_days.value -1)     
+            #H2 = HHV(REF(H, 1), L1_days.value -1)     
+            H2 = HHV(REF(C, 1), L1_days.value -1)     
+            H2 = max(H2,   HHV(REF(O, 1), L1_days.value -1))     
             cond_2 = H2 > 0.8 * H1  
            
             #第二次最高价距离昨天的天数
@@ -707,7 +709,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 
         #突破: 收盘价 > 杯柄的最高价
         cond_5 = C > H2
+        print('C=', C,',', 'H2=', H2)
 
+        print('is_cup_tea condition:', cond_1, cond_2, cond_3, cond_4, cond_5)
         if (cond_1 and cond_2 and cond_3 and cond_4 and cond_5):
         #if 1:
             is_cup_tea = 1
