@@ -68,7 +68,8 @@ if __name__ == '__main__':
     #每次最多只能得到500条数据
     while (1):
         try:
-            f_df, api_param = get_fina_data(i)
+            #f_df, api_param = get_fina_data(i)
+            f_df, api_param = get_fina_data2(i)
             time.sleep(10)
             if len(f_df):
 

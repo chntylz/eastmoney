@@ -127,8 +127,10 @@ def hsgt_get_day_item_from_json(file_path):
         
         op_yoy = net_yoy = 0
         if len(fina_df):
-            op_yoy = fina_df['operating_income_yoy'][0]
-            net_yoy = fina_df['net_profit_atsopc_yoy'][0]
+            #op_yoy = fina_df['operating_income_yoy'][0]
+            #net_yoy = fina_df['net_profit_atsopc_yoy'][0]
+            op_yoy = fina_df['ystz'][0]
+            net_yoy = fina_df['sjltz'][0]
             
             if debug:
                 print(fina_df)
