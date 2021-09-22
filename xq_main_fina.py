@@ -50,7 +50,7 @@ def xq_handle_raw_df(df):
 def xq_get_original_data(datatype=None):
 
     df = pd.DataFrame()
-    codestock_local=get_stock_list()
+    codestock_local=xq_get_stock_list()
     length=len(codestock_local)
     tt_1 = time.time()
     t_1 = t_2 = 0

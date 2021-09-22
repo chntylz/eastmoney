@@ -175,8 +175,8 @@ def combine_zlje_data(db_table, df):
     ret_df = pd.merge(k_df, zlje_df, how='inner', on=['stock_code', 'record_date'])
     #ret_df['stock_code'] = ret_df['stock_code_new']
 
-    if 'zlje' in ret_df.columns:
-        ret_df = ret_df.sort_values('zlje', ascending=0)
+    if 'zlje_x' in ret_df.columns:
+        ret_df = ret_df.sort_values('zlje_x', ascending=0)
     if 'jmmoney' in ret_df.columns:
         ret_df = ret_df.sort_values('jmmoney', ascending=0)
 
@@ -307,7 +307,7 @@ if __name__ == '__main__':
     else:
         print('#error, html_basic_df len < 1')
 
-    '''
+    
     #zlje
     print('start zlje')
     curr_dir=curr_day_w+'-zlje'
@@ -319,7 +319,7 @@ if __name__ == '__main__':
         generate_html(html_zlje_df)
     else:
         print('#error, html_zlje_df len < 1')
-    '''
+    
     
     #dragon
     print('start dragon')

@@ -39,6 +39,7 @@ hdata=HData_eastmoney_day("usr","usr")
 #debug switch
 debug = 0
 debug = 1
+within_days = 8
 
 #return the day(j) and cross_flag(true or false) if P is true during with_days, P is cross(5, 30), etc
 def get_cross_info(P):
@@ -142,7 +143,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             pass
 
 
-        if 1:
+        if 0:
             if '0126' not in  nowcode:
                 continue
             print("code:%s, name:%s" % (nowcode, nowname ))
@@ -162,7 +163,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
         #fix NaN bug
         # if len(detail_info) == 0 or (detail_info is None):
-        if len(detail_info) <= 6  or (detail_info is None):
+        if len(detail_info) <= within_days  or (detail_info is None):
             # print('NaN: code:%s, name:%s' % (nowcode, nowname ))
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
                 is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line])
@@ -616,11 +617,21 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             #第二次最高价：第一次最低价以来的最高价(当天除外)
             #H2 = HHV(REF(H, 1), L1_days.value -1)     
             H2 = HHV(REF(C, 1), L1_days.value -1)     
-            H2 = max(H2,   HHV(REF(O, 1), L1_days.value -1))     
             cond_2 = H2 > 0.8 * H1  
            
             #第二次最高价距离昨天的天数
-            H2_days = BARSLAST(REF(H, 1)== H2.value )      
+            #H2_days = BARSLAST(REF(H, 1)== H2.value )      
+            H2_days = BARSLAST(REF(C, 1)== H2 )      
+            print(nowcode,H2_days)
+            if H2_days.value > 200:
+                print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
+                update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
+                        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line])
+                continue
+
+            if debug:
+                print(H2_days)
+                print(df_len-1-H2_days.value-1)
             H2_date = detail_info.record_date[df_len-1-H2_days.value-1]
 
             #计算底部横盘天数，涨跌幅不能超过2%
@@ -709,9 +720,11 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 
         #突破: 收盘价 > 杯柄的最高价
         cond_5 = C > H2
-        print('C=', C,',', 'H2=', H2)
+        if debug:
+            print('C=', C,',', 'H2=', H2)
 
-        print('is_cup_tea condition:', cond_1, cond_2, cond_3, cond_4, cond_5)
+        if debug:
+            print('is_cup_tea condition:', cond_1, cond_2, cond_3, cond_4, cond_5)
         if (cond_1 and cond_2 and cond_3 and cond_4 and cond_5):
         #if 1:
             is_cup_tea = 1
@@ -722,8 +735,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             print('max_botton_days=%s' % max_botton_days) 
             print(cond_1, cond_2, cond_3, cond_4, cond_5)
             print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
-        #print(cond_1, cond_2, cond_3, cond_4, cond_5)
-        #print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
+        if debug:
+            print(cond_1, cond_2, cond_3, cond_4, cond_5)
+            print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
 
         ###############################################################################################
         

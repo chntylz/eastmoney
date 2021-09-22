@@ -588,3 +588,4 @@ class HData_eastmoney_day(object):
 #UPDATE eastmoney_d_table SET is_zig = tmp.is_zig, is_quad=tmp.is_quad FROM    (VALUES ( DATE  '2018-06-13', '600647', 11, 1), ( DATE  '2018-06-12', '600647', 12, 1) ) AS tmp (record_date, stock_code, is_zig, is_quad ) WHERE eastmoney_d_table.record_date = tmp.record_date and eastmoney_d_table.stock_code = tmp.stock_code;
 #select * from eastmoney_d_table where stock_code ='600647' and (record_date='2018-06-13' or record_date='2018-06-12' ); 
         
+#update eastmoney_d_table set record_date='2021-09-17' where record_date='2021-09-18';
