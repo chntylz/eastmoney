@@ -46,7 +46,7 @@ df_global=None
 
 
 debug=0
-debug=1
+debug=0
 
 today_date=datetime.datetime.now().date()
 #test
@@ -429,15 +429,16 @@ if __name__ == '__main__':
     curr_dir=curr_day_w+'-holder'
 
     holder_raw_df = get_holder_data(nowdate)
-    print('holder_raw_df', holder_raw_df)
+    if debug:
+        print('holder_raw_df', holder_raw_df)
 
     holder_df = handle_holder_data_continuous(holder_raw_df)
-    print('holder_df', holder_df)
+    if debug:
+        print('holder_df', holder_df)
     
     holder_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=holder_df)
-    print('holder_df', holder_df)
     if debug:
-        print(holder_df)
+        print('holder_df', holder_df)
     html_holder_df = convert_to_html_df(holder_df)
     if len(html_holder_df):
         generate_html(html_holder_df)
