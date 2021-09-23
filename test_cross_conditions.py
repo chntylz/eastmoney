@@ -38,7 +38,7 @@ hdata=HData_eastmoney_day("usr","usr")
 
 #debug switch
 debug = 0
-debug = 1
+debug = 0
 within_days = 8
 
 #return the day(j) and cross_flag(true or false) if P is true during with_days, P is cross(5, 30), etc
