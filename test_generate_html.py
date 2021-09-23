@@ -38,8 +38,11 @@ zlje_table=HData_eastmoney_zlje("usr","usr")
 from HData_eastmoney_dragon import *
 dragon_table=HData_eastmoney_dragon("usr","usr")
 
+from HData_eastmoney_holder import *
+holder_table=HData_eastmoney_holder("usr","usr")
+
 dict_industry={}
-df=None
+df_global=None
 
 
 debug=0
@@ -74,15 +77,15 @@ def continue_handle_html_body_special(newfile, date):
         print('delta time= %s ' % (time.time() - t1))
 
         # 找出上涨的股票
-        df_up = df[df['percent'] > 0.00]
+        df_up = df_global[df_global['percent'] > 0.00]
         # 走平股数
-        df_even = df[df['percent'] == 0.00]
+        df_even = df_global[df_global['percent'] == 0.00]
         # 找出下跌的股票
-        df_down = df[df['percent'] < 0.00]
+        df_down = df_global[df_global['percent'] < 0.00]
 
         # 找出涨停的股票
-        limit_up = df[df['percent'] >= 9.70]
-        limit_down = df[df['percent'] <= -9.70]
+        limit_up = df_global[df_global['percent'] >= 9.70]
+        limit_down = df_global[df_global['percent'] <= -9.70]
 
         s_debug= ('<p> A股上涨个数： %d,  A股下跌个数： %d,  A股走平个数:  %d</p>' % \
                 (df_up.shape[0], df_down.shape[0], df_even.shape[0]))
@@ -157,32 +160,108 @@ def convert_to_html_df(df):
         print('#error, html_df data len < 1, return None')
     return html_df
 
-def combine_zlje_data(db_table, df):
+def combine_zlje_data(db_table=None, first_df=None, second_df=None):
 
-    k_df = df.copy(deep=True)
+    if first_df is None:
+        return None
 
-    zlje_df = db_table.get_data_from_hdata(start_date=curr_day, end_date=curr_day)
-    zlje_df = zlje_df.sort_values('stock_code')
-    zlje_df = zlje_df.reset_index(drop=True)
 
-    '''
-    k_df['stock_code_new'] = k_df['stock_code']
-    k_df['stock_code'] = k_df['stock_code'].apply(lambda x: x[2:])
-    k_df = k_df.sort_values('stock_code')
-    k_df = k_df.reset_index(drop=True)
-    '''
+    df1 = first_df.copy(deep=True)
+    ret_df = pd.DataFrame()
 
-    ret_df = pd.merge(k_df, zlje_df, how='inner', on=['stock_code', 'record_date'])
-    #ret_df['stock_code'] = ret_df['stock_code_new']
+    if db_table is not None:
+        second_df = db_table.get_data_from_hdata(start_date=curr_day, end_date=curr_day)
+        second_df = second_df.sort_values('stock_code')
+        second_df = second_df.reset_index(drop=True)
+        df2 = second_df
+        ret_df = pd.merge(df1, df2, how='inner', on=['stock_code', 'record_date'])
+    else:
+        df2 = second_df
+        ret_df = pd.merge(df1, df2, how='inner', on=['stock_code'])
 
     if 'zlje_x' in ret_df.columns:
         ret_df = ret_df.sort_values('zlje_x', ascending=0)
+
     if 'jmmoney' in ret_df.columns:
         ret_df = ret_df.sort_values('jmmoney', ascending=0)
+
+    if 'holder_num_ratio' in ret_df.columns:
+        ret_df = ret_df.sort_values('holder_num_ratio', ascending=1)
+
 
     ret_df = ret_df.reset_index(drop=True)
 
     return ret_df
+
+def get_holder_data(current_date):
+    #nowdate = datetime.datetime.now().date()
+    nowdate = current_date
+    lastdate = nowdate - datetime.timedelta(365 * 3) #3 years ago
+    print('nowdate:%s, lastdate:%s' % (nowdate, lastdate))
+    holder_data  =  holder_table.get_data_from_hdata( start_date=lastdate.strftime("%Y%m%d"), \
+            end_date=nowdate.strftime("%Y%m%d"))
+    return holder_data
+
+def handle_holder_data_continuous(holder_raw_df):
+    
+    df_tmp = holder_raw_df
+    df_tmp=df_tmp[~df_tmp['holder_num'].isin([0])]  #delete the line which holder_num value is 0
+    df_tmp = df_tmp.fillna(0)
+
+    data_list = []
+    group_by_stock_code_df=df_tmp.groupby('stock_code')
+
+    for stock_code, group_df in group_by_stock_code_df:
+        if debug:
+            print(stock_code)
+            print(group_df.head(1))
+
+        i = holder_pct_i = 0
+        group_df = group_df.sort_values('record_date', ascending=0)
+
+        group_df=group_df.reset_index(drop=True) #reset index
+        max_date=group_df.loc[0, 'record_date']
+        holder_num = group_df.loc[0, 'holder_num']
+        holder_num_ratio = group_df.loc[0, 'holder_num_ratio']
+
+        length=len(group_df)
+        for i in range(length-1):
+            if group_df.loc[i]['holder_num_ratio'] <= 0:
+                pass
+            else:
+                break
+
+        #algorithm
+        if(i > 1):
+            i_holder_num = group_df.loc[i, 'holder_num']
+            holder_pct_i =  (holder_num - i_holder_num ) * 100 / i_holder_num
+            pass
+            #if group_df.loc[0]['holder_num'] < group_df.loc[1]['holder_num']:  #decline, skip
+            #   continue
+        else:
+            continue
+
+
+
+        if debug:
+            print(max_date, stock_code, holder_num, i, holder_num_ratio, holder_pct_i ) 
+        
+        data_list.append([max_date, stock_code, holder_num, i, holder_num_ratio, holder_pct_i ]) 
+
+    data_column=['max_date', 'stock_code', 'holder_num', \
+            'holer_cont_d', 'holder_num_ratio', 'holder_pct_i' ]
+
+    ret_df = pd.DataFrame(data_list, columns=data_column)
+    ret_df = ret_df.fillna(0)
+    ret_df=ret_df.round(2)
+
+    ret_df = ret_df.sort_values('holder_num_ratio', ascending=1)
+
+    if debug:
+        print(ret_df)
+
+    return ret_df
+
 
  
 if __name__ == '__main__':
@@ -201,9 +280,10 @@ if __name__ == '__main__':
     last_day=lastdate.strftime("%Y-%m-%d")
     print("curr_day:%s, last_day:%s"%(curr_day, last_day))
 
-    df = kline_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
+    df_global = df = k_df = kline_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
 
     #zig
+    print('#############################################################')
     print('start zig')
     curr_dir=curr_day_w+'-zig'
     zig_df = df[(df.is_zig == 1) | (df.is_zig == 2) ]
@@ -215,6 +295,7 @@ if __name__ == '__main__':
         print('#error, html_zig_df len < 1')
 
     #quad
+    print('#############################################################')
     print('start quad')
     curr_dir=curr_day_w+'-quad'
     quad_df = df[(df.is_quad == 1) & (df.is_zig > 0)]
@@ -227,6 +308,7 @@ if __name__ == '__main__':
 
 
     #peach
+    print('#############################################################')
     print('start peach')
     curr_dir=curr_day_w+'-peach'
     peach_df = df[(df.is_peach == 1) & (df.is_zig > 0)]
@@ -238,6 +320,7 @@ if __name__ == '__main__':
         print('#error, html_peach_df len < 1')
 
     #5days
+    print('#############################################################')
     print('start 5days')
     curr_dir=curr_day_w+'-5days'
     up_days_df = df[(df.is_up_days == 1) & (df.is_zig > 0)]
@@ -249,6 +332,7 @@ if __name__ == '__main__':
         print('#error, html_5days_df len < 1')
 
     #macd
+    print('#############################################################')
     print('start macd')
     curr_dir=curr_day_w+'-macd'
     macd_df = df[(df.is_macd == 1) & (df.is_zig > 0)]
@@ -261,6 +345,7 @@ if __name__ == '__main__':
 
 
     #cup_tea
+    print('#############################################################')
     print('start cup_tea')
     curr_dir=curr_day_w+'-cuptea'
     cuptea_df = df[(df.is_cup_tea == 1) & (df.is_zig > 0)]
@@ -272,6 +357,7 @@ if __name__ == '__main__':
         print('#error, html_cuptea_df len < 1')
 
     #cup_tea
+    print('#############################################################')
     print('start duck_head')
     curr_dir=curr_day_w+'-duckhead'
     duckhead_df = df[(df.is_duck_head == 1) & (df.is_zig > 0)]
@@ -283,6 +369,7 @@ if __name__ == '__main__':
         print('#error, html_duckhead_df len < 1')
 
     #cross3line
+    print('#############################################################')
     print('start cross3line')
     curr_dir=curr_day_w+'-cross3line'
     #cross3line_df = df[(df.is_cross3line == 1) & (df.is_zig > 0)]
@@ -297,6 +384,7 @@ if __name__ == '__main__':
 
 
     #basic
+    print('#############################################################')
     print('start basic')
     curr_dir=curr_day_w
     basic_df = df[(df.is_2d3pct > 1) & (df.is_zig > 0)]
@@ -309,9 +397,10 @@ if __name__ == '__main__':
 
     
     #zlje
+    print('#############################################################')
     print('start zlje')
     curr_dir=curr_day_w+'-zlje'
-    zlje_df = combine_zlje_data(zlje_table, df)
+    zlje_df = combine_zlje_data(db_table=zlje_table, first_df=k_df, second_df=None)
     if debug:
         print(zlje_df)
     html_zlje_df = convert_to_html_df(zlje_df)
@@ -322,9 +411,10 @@ if __name__ == '__main__':
     
     
     #dragon
+    print('#############################################################')
     print('start dragon')
     curr_dir=curr_day_w+'-dragon'
-    dragon_df = combine_zlje_data(dragon_table, df)
+    dragon_df = combine_zlje_data(db_table=dragon_table, first_df=k_df, second_df=None)
     if debug:
         print(dragon_df)
     html_dragon_df = convert_to_html_df(dragon_df)
@@ -332,6 +422,28 @@ if __name__ == '__main__':
         generate_html(html_dragon_df)
     else:
         print('#error, html_dragon_df len < 1')
+
+    #holder
+    print('#############################################################')
+    print('start holder')
+    curr_dir=curr_day_w+'-holder'
+
+    holder_raw_df = get_holder_data(nowdate)
+    print('holder_raw_df', holder_raw_df)
+
+    holder_df = handle_holder_data_continuous(holder_raw_df)
+    print('holder_df', holder_df)
+    
+    holder_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=holder_df)
+    print('holder_df', holder_df)
+    if debug:
+        print(holder_df)
+    html_holder_df = convert_to_html_df(holder_df)
+    if len(html_holder_df):
+        generate_html(html_holder_df)
+    else:
+        print('#error, html_holder_df len < 1')
+
 
  
     curr_dir=curr_day_w
