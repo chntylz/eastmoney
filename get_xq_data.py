@@ -71,9 +71,16 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
 
     xq_login(browser)
 
-    browser.get(url)
-    html = browser.page_source
-    browser.close()
+    html = ''
+    try: 
+        browser.get(url)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
 
     if debug:
         print(html)

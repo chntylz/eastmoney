@@ -147,8 +147,10 @@ if __name__ == '__main__':
     except:
         print('#ERROR get_data2()')
         browser.close()
+        browser.quit()
     finally:
         browser.close()
+        browser.quit()
 
 
     if len(df):

@@ -248,9 +248,18 @@ def get_daily_zlje2(url=None):
     wait = WebDriverWait(browser, 10)
 
 
-    browser.get(url)
-    html = browser.page_source
-    browser.close()
+    
+    html = ''
+    try: 
+        browser.get(url)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
 
     #print(html)
    
