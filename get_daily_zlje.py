@@ -28,6 +28,8 @@ from HData_eastmoney_zlje_3 import *
 from HData_eastmoney_zlje_5 import *
 from HData_eastmoney_zlje_10 import *
 
+from file_interface import *
+
 debug = 0
 #debug = 1
 
@@ -171,13 +173,6 @@ def get_headers():
 
     headers = {'User-Agent':random.choice(user_agents)}
     return headers
-
-
-def get_date_from_timestamp(timestamp):
-    d = datetime.datetime.fromtimestamp(timestamp / 1000, None)  
-    my_date = d.strftime("%Y-%m-%d %H:%M:%S.%f")
-    my_date = my_date[:10]
-    return my_date
 
 def get_daily_zlje(url=None):
     timestamp=str(round(time.time() * 1000))
