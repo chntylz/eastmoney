@@ -202,11 +202,9 @@ if __name__ == '__main__':
     nowdate=nowdate-datetime.timedelta(int(para1))
     print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
-    '''
     update_database_indicator()
     update_database_income()
     update_database_balance()
-    '''
     update_database_cashflow()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

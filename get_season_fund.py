@@ -173,7 +173,7 @@ def check_table():
     table_exist = hdata_fund.table_is_exist()
     print('table_exist=%d' % table_exist)
     if table_exist:
-        hdata_fund.db_hdata_xq_create()
+        #hdata_fund.db_hdata_xq_create()
         print('table already exist')
     else:
         hdata_fund.db_hdata_xq_create()
@@ -184,8 +184,9 @@ if __name__ == '__main__':
     
     nowdate=datetime.datetime.now().date()
     date_string = nowdate.strftime('%Y-%m-%d')
-
-    df  = get_all_season_fund('2019-12-31')
+    
+    '''
+    df  = get_all_season_fund('2021-06-30')
     df2 = get_all_season_fund('2020-03-31')
     df3 = get_all_season_fund('2020-06-30')
     df4 = get_all_season_fund('2020-09-30')
@@ -197,7 +198,10 @@ if __name__ == '__main__':
     df = pd.concat([df, df4])
     df = pd.concat([df, df5])
     df = pd.concat([df, df6])
+    '''
     
+    df  = get_all_season_fund('2021-06-30')
+
     df.to_csv('./csv/test_fund.csv', encoding='gbk')
     if len(df):
         check_table()

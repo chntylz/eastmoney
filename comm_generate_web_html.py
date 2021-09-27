@@ -861,14 +861,16 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         holder_df = hdata_holder.get_data_from_hdata(stock_code = stock_code)
         holder_df = holder_df .sort_values('record_date', ascending=0)
         holder_df = holder_df .reset_index(drop=True)
-        h0 = h1 = h2 = 0
+        h0 = h1 = h2 = avg_hold_num = interval_chrate = 0
         if len(holder_df) > 0:
             h0 = round(holder_df['holder_num_ratio'][0], 2)
+            avg_hold_num = round(holder_df['avg_hold_num'][0]/10000,2)
+            interval_chrate = round(holder_df['interval_chrate'][0],2)
         if len(holder_df) > 1:
             h1 = round(holder_df['holder_num_ratio'][1], 2)
         if len(holder_df) > 2:
             h2 = round(holder_df['holder_num_ratio'][2], 2)
-        h_chg = str(h0) + ' ' + str(h1) + ' ' + str(h2)
+        h_chg = str(h0) + ' ' + str(h1) + ' ' + str(h2) +' ' + str(avg_hold_num) + ' '+ str(interval_chrate)
         #stock_code = stock_code + '<br>'+ h_chg + '</br>'
 
         #### holder start ####
