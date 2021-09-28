@@ -252,7 +252,7 @@ def hsgt_get_all_data():
 
     curr_dir=cur_file_dir()#获取当前.py脚本文件的文件路径
     json_dir=curr_dir+'/hkexnews_scrapy/hkexnews_scrapy/json'
-    json_dir='/home/ubuntu/a_stock/hkexnews_scrapy/hkexnews_scrapy/json'
+    json_dir='/home/ubuntu/eastmoney/hkexnews_scrapy/hkexnews_scrapy/json'
     all_files=getAllFiles(json_dir)
     if debug:
         print(all_files)
