@@ -9,12 +9,11 @@ from file_interface import *
 
 
 import psycopg2 #使用的是PostgreSQL数据库
-import tushare as ts
 
 from HData_hsgt import *
 from HData_eastmoney_day import *
 
-from HData_eastmoney_fina import *
+from HData_xq_fina import *
 from HData_eastmoney_holder import *
 
 from HData_eastmoney_zlje import *
@@ -40,7 +39,7 @@ debug=0
 hdata_day=HData_eastmoney_day("usr","usr")
 
 hdata_hsgt=HData_hsgt("usr","usr")
-hdata_fina=HData_eastmoney_fina("usr","usr")
+hdata_fina=HData_xq_fina("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
 #hdata_hsgt.db_hdata_date_create()
 
@@ -116,38 +115,35 @@ def hsgt_get_day_item_from_json(file_path):
             shgt_code_new= 'SH' + shgt_code 
         else:
             shgt_code_new= 'SZ' + shgt_code 
-        shgt_code_new= shgt_code 
 
-        
         #### fina start ####
         fina_df = hdata_fina.get_data_from_hdata(stock_code = shgt_code_new)
         
         fina_df = fina_df.sort_values('record_date', ascending=0)
         fina_df = fina_df.reset_index(drop=True)
-        
+
         op_yoy = net_yoy = 0
         if len(fina_df):
-            #op_yoy = fina_df['operating_income_yoy'][0]
-            #net_yoy = fina_df['net_profit_atsopc_yoy'][0]
-            op_yoy = fina_df['ystz'][0]
-            net_yoy = fina_df['sjltz'][0]
+            op_yoy = fina_df['operating_income_yoy'][0]
+            net_yoy = fina_df['net_profit_atsopc_yoy'][0]
             
             if debug:
                 print(fina_df)
         #### fina end ####
  
  
+
         #### holder start ####
-        holder_df = hdata_holder.get_data_from_hdata(stock_code = shgt_code_new)
+        holder_df = hdata_holder.get_data_from_hdata(stock_code = shgt_code)
         holder_df = holder_df.sort_values('record_date', ascending=0)
         holder_df = holder_df.reset_index(drop=True)
         h0 = h1 = h2 = 0
         if len(holder_df) > 0:
-            h0 = holder_df['holder_num_change'][0]
+            h0 = holder_df['holder_num_ratio'][0]
         if len(holder_df) > 1:
-            h1 = holder_df['holder_num_change'][1]
+            h1 = holder_df['holder_num_ratio'][1]
         if len(holder_df) > 2:
-            h2 = holder_df['holder_num_change'][2]
+            h2 = holder_df['holder_num_ratio'][2]
         #### holder start ####
 
 

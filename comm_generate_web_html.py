@@ -23,9 +23,7 @@ import psycopg2
 from HData_hsgt import *
 from HData_eastmoney_day import *
 from HData_eastmoney_holder import *
-#from pysnow_ball.HData_xq_fina import *
-
-#from file_interface import *
+from HData_xq_fina import *
 
 from get_data_from_db import *
 

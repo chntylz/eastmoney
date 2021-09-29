@@ -170,9 +170,7 @@ def combine_zlje_data(db_table=None, first_df=None, second_df=None):
     ret_df = pd.DataFrame()
 
     if db_table is not None:
-        print(curr_day)
         second_df = db_table.get_data_from_hdata(start_date=curr_day, end_date=curr_day)
-        print(second_df)
         second_df = second_df.sort_values('stock_code')
         second_df = second_df.reset_index(drop=True)
         df2 = second_df
@@ -284,134 +282,7 @@ if __name__ == '__main__':
 
     df_global = df = k_df = kline_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
 
-    #zig
-    print('#############################################################')
-    print('start zig')
-    curr_dir=curr_day_w+'-zig'
-    zig_df = df[(df.is_zig == 1) | (df.is_zig == 2) ]
-    html_zig_df = convert_to_html_df(zig_df)
-    if len(html_zig_df):
-        html_zig_df = html_zig_df.sort_values('zig', ascending=1)
-        generate_html(html_zig_df)
-    else:
-        print('#error, html_zig_df len < 1')
-
-    #quad
-    print('#############################################################')
-    print('start quad')
-    curr_dir=curr_day_w+'-quad'
-    quad_df = df[(df.is_quad == 1) & (df.is_zig > 0)]
-    html_quad_df =  convert_to_html_df(quad_df)
-    if len(html_quad_df):
-        html_quad_df = html_quad_df.sort_values('zig', ascending=1)
-        generate_html(html_quad_df)
-    else:
-        print('#error, html_quad_df len < 1')
-
-
-    #peach
-    print('#############################################################')
-    print('start peach')
-    curr_dir=curr_day_w+'-peach'
-    peach_df = df[(df.is_peach == 1) & (df.is_zig > 0)]
-    html_peach_df = convert_to_html_df(peach_df)
-    if len(html_peach_df):
-        html_peach_df = html_peach_df.sort_values('zig', ascending=1)
-        generate_html(html_peach_df)
-    else:
-        print('#error, html_peach_df len < 1')
-
-    #5days
-    print('#############################################################')
-    print('start 5days')
-    curr_dir=curr_day_w+'-5days'
-    up_days_df = df[(df.is_up_days == 1) & (df.is_zig > 0)]
-    html_up_days_df = convert_to_html_df(up_days_df)
-    if len(html_up_days_df):
-        html_up_days_df = html_up_days_df.sort_values('zig', ascending=1)
-        generate_html(html_up_days_df)
-    else:
-        print('#error, html_5days_df len < 1')
-
-    #macd
-    print('#############################################################')
-    print('start macd')
-    curr_dir=curr_day_w+'-macd'
-    macd_df = df[(df.is_macd == 1) & (df.is_zig > 0)]
-    html_macd_df = convert_to_html_df(macd_df)
-    if len(html_macd_df):
-        html_macd_df = html_macd_df.sort_values('zig', ascending=1)
-        generate_html(html_macd_df)
-    else:
-        print('#error, html_macd_df len < 1')
-
-
-    #cup_tea
-    print('#############################################################')
-    print('start cup_tea')
-    curr_dir=curr_day_w+'-cuptea'
-    cuptea_df = df[(df.is_cup_tea == 1) & (df.is_zig > 0)]
-    html_cuptea_df = convert_to_html_df(cuptea_df)
-    if len(html_cuptea_df):
-        html_cuptea_df = html_cuptea_df.sort_values('zig', ascending=1)
-        generate_html(html_cuptea_df)
-    else:
-        print('#error, html_cuptea_df len < 1')
-
-    #cup_tea
-    print('#############################################################')
-    print('start duck_head')
-    curr_dir=curr_day_w+'-duckhead'
-    duckhead_df = df[(df.is_duck_head == 1) & (df.is_zig > 0)]
-    html_duckhead_df = convert_to_html_df(duckhead_df)
-    if len(html_duckhead_df):
-        html_duckhead_df = html_duckhead_df.sort_values('zig', ascending=1)
-        generate_html(html_duckhead_df)
-    else:
-        print('#error, html_duckhead_df len < 1')
-
-    #cross3line
-    print('#############################################################')
-    print('start cross3line')
-    curr_dir=curr_day_w+'-cross3line'
-    #cross3line_df = df[(df.is_cross3line == 1) & (df.is_zig > 0)]
-    cross3line_df = df[(df.is_cross3line == 1)]
-    html_cross3line_df = convert_to_html_df(cross3line_df)
-    if len(html_cross3line_df):
-        html_cross3line_df = html_cross3line_df.sort_values('zig', ascending=1)
-        generate_html(html_cross3line_df)
-    else:
-        print('#error, html_cross3line_df len < 1')
-
-
-
-    #basic
-    print('#############################################################')
-    print('start basic')
-    curr_dir=curr_day_w
-    basic_df = df[(df.is_2d3pct > 1) & (df.is_zig > 0)]
-    html_basic_df = convert_to_html_df(basic_df)
-    html_basic_df = html_basic_df.sort_values('zig', ascending=1)
-    if len(html_basic_df):
-        generate_html(html_basic_df)
-    else:
-        print('#error, html_basic_df len < 1')
-
-    
-    #zlje
-    print('#############################################################')
-    print('start zlje')
-    curr_dir=curr_day_w+'-zlje'
-    zlje_df = combine_zlje_data(db_table=zlje_table, first_df=k_df, second_df=None)
-    if debug:
-        print(zlje_df)
-    html_zlje_df = convert_to_html_df(zlje_df)
-    if len(html_zlje_df):
-        generate_html(html_zlje_df)
-    else:
-        print('#error, html_zlje_df len < 1')
-    
-    
+   
     #dragon
     print('#############################################################')
     print('start dragon')
@@ -424,28 +295,6 @@ if __name__ == '__main__':
         generate_html(html_dragon_df)
     else:
         print('#error, html_dragon_df len < 1')
-
-    #holder
-    print('#############################################################')
-    print('start holder')
-    curr_dir=curr_day_w+'-holder'
-
-    holder_raw_df = get_holder_data(nowdate)
-    if debug:
-        print('holder_raw_df', holder_raw_df)
-
-    holder_df = handle_holder_data_continuous(holder_raw_df)
-    if debug:
-        print('holder_df', holder_df)
-    
-    holder_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=holder_df)
-    if debug:
-        print('holder_df', holder_df)
-    html_holder_df = convert_to_html_df(holder_df)
-    if len(html_holder_df):
-        generate_html(html_holder_df)
-    else:
-        print('#error, html_holder_df len < 1')
 
 
  
