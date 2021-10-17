@@ -220,13 +220,19 @@ def get_dragon_tiger2(date=None, url_type=None):
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
 
+    html = ''
+    try:
+        browser.get(url)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
 
-    browser.get(url)
-    html = browser.page_source
-    browser.close()
-
-    print(html)
-
+    if debug:
+        print(html)
 
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)

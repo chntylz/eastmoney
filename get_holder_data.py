@@ -201,10 +201,16 @@ def get_holder_data2(is_all=1, pagesize=500, pagenumber=1):
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
 
-
-    browser.get(url)
-    html = browser.page_source
-    browser.close()
+    html = ''
+    try:
+        browser.get(url)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
 
     if debug:
         print(html)

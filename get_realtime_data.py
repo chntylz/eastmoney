@@ -193,11 +193,16 @@ def get_realtime_data2():
 
     print(url)
 
-    browser.get(url)
-    html = browser.page_source
-    browser.get(url)
-    #print(html)
-    browser.close()
+    html = ''
+    try:
+        browser.get(url)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
 
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)

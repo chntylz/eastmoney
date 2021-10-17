@@ -220,9 +220,17 @@ def get_kline_data2(code=None, count=None, period=None):
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
 
-    browser.get(url)
-    html = browser.page_source
-    browser.close()
+    html = ''
+    try:
+        browser.get(url)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
 
     if debug:
         print(html)

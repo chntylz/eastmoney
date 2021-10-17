@@ -274,9 +274,17 @@ def get_fina_data2(page=1):
     wait = WebDriverWait(browser, 10)
 
 
-    browser.get(url)
-    html = browser.page_source
-    browser.close()
+    html = ''
+    try:
+        browser.get(url)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
 
     if debug:
         print(html)
