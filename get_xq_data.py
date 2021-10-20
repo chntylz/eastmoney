@@ -74,6 +74,7 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     html = ''
     try: 
         browser.get(url)
+        time.sleep(10)
         html = browser.page_source
     except:
         browser.close()
