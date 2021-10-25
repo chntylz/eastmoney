@@ -378,7 +378,7 @@ if __name__ == '__main__':
     cross3line_df = df[(df.is_cross3line == 1)]
     html_cross3line_df = convert_to_html_df(cross3line_df)
     if len(html_cross3line_df):
-        html_cross3line_df = html_cross3line_df.sort_values('zig', ascending=1)
+        html_cross3line_df = html_cross3line_df.sort_values('a_pct', ascending=0)
         generate_html(html_cross3line_df)
     else:
         print('#error, html_cross3line_df len < 1')
