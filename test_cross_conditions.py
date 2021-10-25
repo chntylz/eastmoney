@@ -385,26 +385,26 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if debug:
             print('P1=%s, P2=%s, P3=%s, P4=%s'% (P1, P2, P3, P4))
 
-        p1_pos, p1_cross =  get_cross_info(P1)
-        p2_pos, p2_cross =  get_cross_info(P2)
-        p3_pos, p3_cross =  get_cross_info(P3)
-        p4_pos, p4_cross =  get_cross_info(P4)
+        p1_5c30_pos, p1_5c30_cross =  get_cross_info(P1)
+        p2_5c60_pos, p2_5c60_cross =  get_cross_info(P2)
+        p3_10c30_pos, p3_10c30_cross =  get_cross_info(P3) 
+        p4_10c60_pos, p4_10c60_cross =  get_cross_info(P4)
 
 
         if debug:
-            print('p1_pos:%s, p1_cross:%s' %(p1_pos, p1_cross))
-            print('p2_pos:%s, p2_cross:%s' %(p2_pos, p2_cross))
-            print('p3_pos:%s, p3_cross:%s' %(p3_pos, p3_cross))
-            print('p4_pos:%s, p4_cross:%s' %(p4_pos, p4_cross))
+            print('p1_5c30_pos:%s, p1_5c30_cross:%s' %(p1_5c30_pos, p1_5c30_cross))
+            print('p2_5c60_pos:%s, p2_5c60_cross:%s' %(p2_5c60_pos, p2_5c60_cross))
+            print('p3_10c30_pos:%s, p3_10c30_cross:%s' %(p3_10c30_pos, p3_10c30_cross))
+            print('p4_10c60_pos:%s, p4_10c60_cross:%s' %(p4_10c60_pos, p4_10c60_cross))
 
-            print(detail_info.record_date[df_len-1-p1_pos-1])
-            print(detail_info.record_date[df_len-1-p2_pos-1])
-            print(detail_info.record_date[df_len-1-p3_pos-1])
-            print(detail_info.record_date[df_len-1-p4_pos-1])
+            print(detail_info.record_date[df_len-1-p1_5c30_pos-1])
+            print(detail_info.record_date[df_len-1-p2_5c60_pos-1])
+            print(detail_info.record_date[df_len-1-p3_10c30_pos-1])
+            print(detail_info.record_date[df_len-1-p4_10c60_pos-1])
 
 
         # P1 P2 P3 P4 all are true during withdays
-        if p1_cross and  p2_cross and  p3_cross and  p4_cross :
+        if p1_5c30_cross and  p2_5c60_cross and  p3_10c30_cross and  p4_10c60_cross :
             if debug:
                 print('!!! %s, %s, %s' %(str(nowdate), nowcode, nowname))
 
@@ -412,8 +412,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
             #cond-1
             c_less_ma5 = False
-            s_day = min(p1_pos, p2_pos)
-            e_day = max(p1_pos, p2_pos)
+            s_day = min(p1_5c30_pos, p2_5c60_pos)
+            e_day = max(p1_5c30_pos, p2_5c60_pos)
             if s_day == e_day:
                 if REF(the_min, s_day) >= REF(MA5, s_day):
                     c_less_ma5 = True
@@ -443,8 +443,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
             #cond-2
             c_less_ma60 = False
-            s_day = min(p3_pos, p4_pos)
-            e_day = min(p1_pos, p2_pos)
+            s_day = min(p3_10c30_pos, p4_10c60_pos)
+            e_day = min(p1_5c30_pos, p2_5c60_pos)
             if debug:
                 print("s_day(%d)  e_day(%d)" %( s_day, e_day))
             if s_day == e_day:
@@ -455,7 +455,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     else:
                         pass
             else:
-                for ps in range(s_day, e_day + 1):
+                #for ps in range(s_day, e_day + 1):
+                for ps in range(0, e_day + 1):  # min price is higher than MA60 since last cross pointer
                     if REF(the_min, ps) >= max(REF(MA60, ps), REF(MA30, ps)):  #the min can not be allowed to enter the quadrilateral
                     #if REF(C, ps) >= REF(MA60, ps):
                         c_less_ma60 = True
