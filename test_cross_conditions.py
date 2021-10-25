@@ -231,7 +231,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         cond_3 = CROSS(C,MA20)
         cond_4 = CROSS(C,MA30)
         cond_5 = CROSS(C,MA60)
-        cond_6 = C > O 
+        cond_6 = C > O  and (C-REF(C,1)/REF(C,1) >= 0.05)
 
 
         if debug:
@@ -253,7 +253,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if cond_5:
             line3_cnt += 1
        
-        if (line3_cnt >= 3 ) and cond_6:
+        if (line3_cnt > 3 ) and cond_6:
             is_cross3line = 1 
 
             print("[yi yang chuan san xian] cross: code:%s, name:%s" % \
