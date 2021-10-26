@@ -213,7 +213,13 @@ def get_kline_data2(code=None, count=None, period=None):
 
     # 添加无头headlesss
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument("blink-settings=imagesEnabled=false")
     browser = webdriver.Chrome(chrome_options=chrome_options)
 
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
@@ -223,9 +229,10 @@ def get_kline_data2(code=None, count=None, period=None):
     html = ''
     try:
         browser.get(url)
-        time.sleep(3)
+        time.sleep(5)
         html = browser.page_source
-    except:
+    except Exception as e:
+        print(e)
         browser.close()
         browser.quit()
     finally:

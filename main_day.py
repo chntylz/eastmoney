@@ -130,7 +130,7 @@ if __name__ == '__main__':
             for i in range(0, r_len):
                 code = r_df['stock_code'][i]
                 #debug
-                #if int(code) < 2895:
+                #if int(code) < 688767:
                 #    continue
                 k_df, api_param = get_kline_data2(code, 700)
                 k_df = handle_raw_df(k_df)
