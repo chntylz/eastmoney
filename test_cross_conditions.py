@@ -144,7 +144,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
 
         if 0:
-            if '0126' not in  nowcode:
+            if '0437' not in  nowcode:
                 continue
             print("code:%s, name:%s" % (nowcode, nowname ))
 
@@ -562,7 +562,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
         #is_duck_head = duck_head(detail_info)
         #print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
-        A1=A2=PDAY1=PDAY2=PDAY3=PDAY4=PDAY5=0
+        A1=A2=A3=A4=PDAY1=PDAY2=PDAY3=PDAY4=PDAY5=0
         MA5 = MA(CLOSE,5);
         MA10 = MA(CLOSE,10);
         MA60 = MA(CLOSE,60);
@@ -572,7 +572,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             pass
         else:
             if PDAY2.value:
-                PDAY3 = BARSLAST(HIGH==HHV(HIGH,PDAY2.value));#{形成头部，要下跌}
+                PDAY3 = BARSLAST(C == HHV(C,PDAY2.value));#{形成头部，要下跌}
             PDAY4 = BARSLAST(CROSS(MA10,MA5));#{下跌后，5日均线和10日均线死叉}
             PDAY5 = BARSLAST(CROSS(MA5,MA10));#{回落不久，5日均线和10日均线形成金叉，形成嘴部}
             A1= PDAY1>PDAY2 and PDAY2>PDAY3 and PDAY3>PDAY4 and PDAY4>PDAY5 and PDAY5<5;
@@ -586,7 +586,18 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             print('PDAY4:%s' % PDAY4) 
             print('PDAY5:%s' % PDAY5) 
 
-        if A1 and A2:
+
+            if PDAY1 < 100 and PDAY2 < 100 and PDAY3 < 100 and PDAY5 < 100:
+                #must up 40% from pday1
+                A3 =  (REF(C, PDAY3.value) - REF(C, PDAY1.value)) / REF(C, PDAY1.value) > 0.4
+
+                #the trough > last trough and C > MA60 
+                A4 = (LLV(C, PDAY2.value) > LLV(C, PDAY5.value + 1)) and (C > MA60)
+
+        if debug:
+            print(A1, A2, A3, A4)
+
+        if A1 and A2 and A3 and A4:
             is_duck_head = 1
             print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
 
