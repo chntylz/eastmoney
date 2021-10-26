@@ -223,6 +223,7 @@ def get_kline_data2(code=None, count=None, period=None):
     html = ''
     try:
         browser.get(url)
+        time.sleep(3)
         html = browser.page_source
     except:
         browser.close()

@@ -118,8 +118,10 @@ if __name__ == '__main__':
     #check table exist
     check_table()
 
-    r_df, api_param = get_realtime_data2()
+    r_df, work_df, stop_df, api_param = get_realtime_data2()
+
     r_df = handle_raw_df(r_df)
+    work_df = handle_raw_df(work_df)
 
     if int(para1):
         print('get kline data')
@@ -127,6 +129,9 @@ if __name__ == '__main__':
         if r_len:
             for i in range(0, r_len):
                 code = r_df['stock_code'][i]
+                #debug
+                #if int(code) < 2895:
+                #    continue
                 k_df, api_param = get_kline_data2(code, 700)
                 k_df = handle_raw_df(k_df)
                 if k_df is None:
@@ -137,13 +142,13 @@ if __name__ == '__main__':
                     hdata_day.copy_from_stringio(k_df)
     else:
         print('today data')
-        r_df.to_csv('./csv/r_df_today.csv', encoding='gbk')
+        work_df.to_csv('./csv/r_df_today.csv', encoding='gbk')
         hdata_day.delete_data_from_hdata(
                 start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
                 end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
                 )
-        hdata_day.copy_from_stringio(r_df)
-        #hdata_day.insert_all_stock_data_3(r_df)
+        hdata_day.copy_from_stringio(work_df)
+        #hdata_day.insert_all_stock_data_3(work_df)
         
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

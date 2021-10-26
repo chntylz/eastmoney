@@ -196,6 +196,7 @@ def get_realtime_data2():
     html = ''
     try:
         browser.get(url)
+        time.sleep(3)
         html = browser.page_source
     except:
         browser.close()
@@ -246,10 +247,19 @@ def get_realtime_data2():
         if debug:
             print(data_df)
 
+        #all
         data_df = data_df.sort_values('stock_code', ascending=1)
         data_df = data_df.reset_index(drop=True)
 
-    return data_df, api_param
+        #stopped
+        stop_df = data_df[data_df['close'].isin([0])] 
+        stop_df = stop_df.reset_index(drop=True)
+
+        #worked
+        work_df = data_df[~data_df['close'].isin([0])] 
+        work_df = work_df.reset_index(drop=True)
+
+    return data_df, work_df, stop_df, api_param
 
 
 
@@ -261,7 +271,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_realtime_data2()
+    data_df, work_df, stop_df, api_param = get_realtime_data2()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
