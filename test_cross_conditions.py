@@ -144,7 +144,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
 
         if 0:
-            if '0437' not in  nowcode:
+            if '1213' not in  nowcode :
                 continue
             print("code:%s, name:%s" % (nowcode, nowname ))
 
@@ -560,6 +560,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             condition_7.all(axis=0) & condition_8 & condition_9
         '''
 
+        '''
         #is_duck_head = duck_head(detail_info)
         #print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
         A1=A2=A3=A4=PDAY1=PDAY2=PDAY3=PDAY4=PDAY5=0
@@ -572,12 +573,12 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             pass
         else:
             if PDAY2.value:
-                PDAY3 = BARSLAST(C == HHV(C,PDAY2.value));#{形成头部，要下跌}
+                PDAY3 = BARSLAST(C == HHV(C,max(PDAY1.value, PDAY2.value)));#{形成头部，要下跌}
             PDAY4 = BARSLAST(CROSS(MA10,MA5));#{下跌后，5日均线和10日均线死叉}
             PDAY5 = BARSLAST(CROSS(MA5,MA10));#{回落不久，5日均线和10日均线形成金叉，形成嘴部}
-            A1= PDAY1>PDAY2 and PDAY2>PDAY3 and PDAY3>PDAY4 and PDAY4>PDAY5 and PDAY5<5;
+            A1=  PDAY2>PDAY3 and PDAY3>PDAY4 and PDAY4>PDAY5 and PDAY5<5;
             if PDAY2.value:
-                A2= COUNT(CROSS(MA10,MA5),PDAY2.value)==1;
+                A2= COUNT(CROSS(MA10,MA5),PDAY2.value)>=1;
 
         if debug:
             print('PDAY1:%s' % PDAY1) 
@@ -600,6 +601,75 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if A1 and A2 and A3 and A4:
             is_duck_head = 1
             print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
+ 
+        '''
+
+        
+        cond_1= cond_2= cond_3= cond_4= cond_5= cond_6=0
+        #鸭脚距离
+        A1 = BARSLAST(REF(CROSS(MA(C,5),MA(C,10)),1))
+        a1 = int(A1.value + 1)
+        a1_c = 0
+        try:
+            a1_c = REF(C, a1).value
+        except Exception as e:
+            print(e)
+            print(nowcode)
+            a1 = len(H.series) - 1 
+            a1_c = REF(C, a1).value
+
+        if debug:
+            print('foot of duck, day=', a1, 'price', a1_c)
+
+        #鸭头距离
+        A2 = HHV(C,a1)
+        a2 = A2.value
+        A3 = BARSLAST(C == a2)
+        a3 = int(A3.value + 1)
+        if debug:
+            print('head of duck, day=', a3, 'price', a2)
+
+        #鸭脚距离 > 鸭头距离
+        cond_1 = (a1 > a3)
+
+        #鸭脚 到 鸭头 之间涨幅大于 30%
+        cond_2 = (a2 - a1_c ) / a1_c  >  0.30
+
+        #鸭头最低价 > 鸭脚距离最高价 * 1.10
+        cond_3 = (LLV(L, a3) > REF(H, a1) * 1.10)
+
+        #鸭头距离大于ma10下穿ma5交叉距离
+        #cross(ma10, ma5)
+        MA5 = MA(CLOSE,5);
+        MA10 = MA(CLOSE,10);
+        MA30 = MA(CLOSE,30);
+        MA60 = MA(CLOSE,60);
+        A4 = BARSLAST(CROSS(MA10, MA5))
+        a4 = A4.value
+        cond_4 = a3 > a4  
+        if debug:
+            print('cross(ma10,ma5), day=', a4)
+
+        #LLV(C, a3) 在 ma30 ma60 之上
+        cond_5 =  LLV(C, a3) > MA30
+
+        #ma5 上穿 ma10 , 或者  C 同时上穿 ma5, ma10
+        cond_6 = a4 > 0 and \
+                (CROSS(MA5,MA10)  \
+                or CROSS(C, MA10) \
+                or (O < MA5 and O < MA10 and C > MA5 and C > MA10 and ((C - REF(C, 1)) / REF(C, 1) >= 0.05)) \
+                or is_2d3pct \
+                or is_up_days)
+
+        if debug:
+            print('duckhead:',cond_1, cond_2, cond_3, cond_4, cond_5, cond_6)
+                
+        if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
+            is_duck_head = 1
+            print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
+ 
+
+
 
         ##############################################################################
         #is_cup_tea 
