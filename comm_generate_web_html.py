@@ -818,7 +818,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         is_cross3line=daily_df.is_cross3line[i]
         total_mv=round(daily_df.mkt_cap[i] / unit_yi, 2)
 
-
+        industry_name = ''
         try:
             industry_name = basic_df.loc[stock_code]['industry']
         except:
