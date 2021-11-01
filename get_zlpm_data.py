@@ -10,6 +10,17 @@ import re
 import time
 import datetime
 
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+import time, datetime
+import pandas as pd
+import os
+import re
+
+
 
 
 '''
@@ -130,6 +141,85 @@ def get_zlpm_data():
         data_df = data_df.reset_index(drop=True)
 
     return data_df, api_param
+
+
+
+def get_zlpm_data2():
+    
+    nowdate=datetime.datetime.now().date()
+    if debug:
+        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    
+    timestamp=str(round(time.time() * 1000))
+
+    url = 'https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery1123022981019595514018_'\
+            + timestamp \
+            + '&fid=f184&po=1&pz=10000&pn=1&np=1&fltt=2&invt=2&'\
+            + 'fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&'\
+            + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
+            + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
+
+    print(url)
+
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+
+    
+    html = ''
+    try: 
+        browser.get(url)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+    api_param = json.loads(response_array[0])
+    rawdata = api_param['data']['diff']
+    data_df = pd.DataFrame(rawdata)
+    tmp_column = ['close', 'percent', 'stock_code', 'stock_name', 'industry', 'percent_5day', 'percent_10day', \
+            'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
+
+
+    if len(data_df):
+        del data_df['f1']
+        del data_df['f13']
+        del data_df['f62']
+        del data_df['f124']
+        del data_df['f265']
+        data_df = data_df.replace('-',0)
+        data_df.columns = tmp_column	
+        data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
+
+        new_column = ['stock_code', 'record_date', 'stock_name', 'close', 'percent',  'industry', 'percent_5day', 'percent_10day', \
+            'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
+
+
+        data_df = data_df.loc[:, new_column]
+
+        #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
+
+        if debug:
+            print(data_df)
+
+        data_df = data_df.sort_values('stock_code', ascending=1)
+        data_df = data_df.reset_index(drop=True)
+
+    return data_df, api_param
+
+
 
 
 

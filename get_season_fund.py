@@ -200,7 +200,9 @@ if __name__ == '__main__':
     df = pd.concat([df, df6])
     '''
     
-    df  = get_all_season_fund('2021-06-30')
+    #df  = get_all_season_fund('2021-06-30')
+
+    df  = get_all_season_fund('2021-09-30')
 
     df.to_csv('./csv/test_fund.csv', encoding='gbk')
     if len(df):

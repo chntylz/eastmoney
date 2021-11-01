@@ -24,7 +24,10 @@ import re
 debug = 0
 
 def xq_login(driver):
+    print('xq_login')
+    time.sleep(2)
     driver.get('https://xueqiu.com/user/login')
+    time.sleep(1)
     driver.find_element_by_name("username").clear()
     driver.find_element_by_name("username").send_keys('chntylz@gmail.com')
     driver.find_element_by_name("password").clear()
@@ -69,12 +72,16 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
 
-    xq_login(browser)
+    try:
+        xq_login(browser)
+    except Exception as e:
+        print(e)
+        print('alread login in')
 
     html = ''
     try: 
         browser.get(url)
-        time.sleep(10)
+        time.sleep(5)
         html = browser.page_source
     except:
         browser.close()
