@@ -21,7 +21,7 @@ from file_interface import *
 
 
 debug=0
-debug=1
+debug=0
 
 
 hdata_fina=HData_xq_fina("usr","usr")

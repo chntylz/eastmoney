@@ -26,11 +26,18 @@ def xq_get_stock_list():
 
 def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
 
-    fina_data = xq_get_raw_data2(stock_code, datatype, is_annuals, def_cnt)
-    fina_data = fina_data['data']['list']
+    df      = pd.DataFrame() 
+    new_df  = pd.DataFrame() 
 
-    df = pd.DataFrame() 
-    new_df = pd.DataFrame() 
+    fina_data = xq_get_raw_data2(stock_code, datatype, is_annuals, def_cnt)
+
+    try:
+        fina_data = fina_data['data']['list']
+    except Exception as e:
+        print(e)
+        print(stock_code)
+        return df
+
 
     if 0: 
         #first think, drop later
@@ -59,16 +66,15 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
 
 
     len_cols = len(list(df)) 
-    new_df = pd.DataFrame() 
     i = 0
     for i in range(3, len_cols):
         #split
         try:
             tmp_df = pd.DataFrame(data=[x[i] for x in df.values])
-        except:
+        except Exception as e:
+            print(e)
             print('try stock_code=%s, len(df)=%d, i=%d, #error# abnormal' \
                     % (stock_code, len(df), i))
-            new_df = pd.DataFrame() 
             return new_df
         else:
             pass

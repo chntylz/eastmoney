@@ -77,13 +77,16 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     except Exception as e:
         print(e)
         print('alread login in')
+    finally:
+        pass
 
     html = ''
     try: 
         browser.get(url)
-        time.sleep(5)
+        time.sleep(10)
         html = browser.page_source
-    except:
+    except Exception as e:
+        print(e)
         browser.close()
         browser.quit()
     finally:
@@ -102,7 +105,14 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
        
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
-    fina_data = json.loads(response_array[0])
+    try:
+        fina_data = json.loads(response_array[0])
+    except Exception as e:
+        print(e)
+        print(url)
+        print(html)
+    finally:
+        pass
  
     return fina_data
 
