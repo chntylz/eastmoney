@@ -277,6 +277,7 @@ def get_fina_data2(page=1):
     html = ''
     try:
         browser.get(url)
+        browser.implicitly_wait(5)
         html = browser.page_source
     except:
         browser.close()

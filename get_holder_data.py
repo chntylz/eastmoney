@@ -204,6 +204,7 @@ def get_holder_data2(is_all=1, pagesize=500, pagenumber=1):
     html = ''
     try:
         browser.get(url)
+        browser.implicitly_wait(5)
         html = browser.page_source
     except:
         browser.close()

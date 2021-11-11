@@ -13,7 +13,7 @@ import shutil
 import numpy as np
 import pandas as pd
 
-import talib
+#import talib
 #funcat
 from funcat import *
 from funcat.data.aaron_backend import AaronDataBackend

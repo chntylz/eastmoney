@@ -70,7 +70,6 @@ if __name__ == '__main__':
         try:
             #f_df, api_param = get_fina_data(i)
             f_df, api_param = get_fina_data2(i)
-            time.sleep(10)
             if len(f_df):
 
                 if debug:

@@ -229,7 +229,7 @@ def get_kline_data2(code=None, count=None, period=None):
     html = ''
     try:
         browser.get(url)
-        time.sleep(5)
+        browser.implicitly_wait(5)
         html = browser.page_source
     except Exception as e:
         print(e)

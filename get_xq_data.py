@@ -25,13 +25,27 @@ debug = 0
 
 def xq_login(driver):
     print('xq_login')
-    time.sleep(2)
-    driver.get('https://xueqiu.com/user/login')
     time.sleep(1)
+    driver.get('https://xueqiu.com/user/login')
+    time.sleep(2)
     driver.find_element_by_name("username").clear()
     driver.find_element_by_name("username").send_keys('chntylz@gmail.com')
     driver.find_element_by_name("password").clear()
     driver.find_element_by_name("password").send_keys('820820')
+    driver.find_element_by_class_name("button").click()
+    time.sleep(1)
+
+
+def xq_login2(driver):
+    #selenium example
+    #https://vimsky.com/examples/detail/python-ex-selenium.webdriver.support.ui-WebDriverWait-send_keys-method.html
+    #https://www.cnblogs.com/denise1108/p/10551019.html
+    print('xq_login')
+    driver.get('https://xueqiu.com/user/login')
+    elem = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.NAME, 'username')))
+    elem.send_keys('chntylz@gmail.com')
+    elem = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.NAME, 'password')))
+    elem.send_keys('820820')
     driver.find_element_by_class_name("button").click()
 
 
@@ -73,7 +87,7 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     wait = WebDriverWait(browser, 10)
 
     try:
-        xq_login(browser)
+        xq_login2(browser)
     except Exception as e:
         print(e)
         print('alread login in')
@@ -83,7 +97,7 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     html = ''
     try: 
         browser.get(url)
-        time.sleep(10)
+        browser.implicitly_wait(5)
         html = browser.page_source
     except Exception as e:
         print(e)

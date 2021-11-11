@@ -102,6 +102,7 @@ def get_season_fund2(date=None, pagenumber=1, pagesize=500):
         html = ''
         try: 
             browser.get(url)
+            browser.implicitly_wait(5)
             html = browser.page_source
         except:
             browser.close()
@@ -145,7 +146,6 @@ def get_all_season_fund(date=None):
     while (1):
         try:
             df_fund, api_param = get_season_fund2(date=date, pagenumber=i, pagesize=500 )
-            time.sleep(10)
             if len(df_fund):
                 df_fund = df_fund.fillna(0)
 

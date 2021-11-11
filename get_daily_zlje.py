@@ -247,6 +247,7 @@ def get_daily_zlje2(url=None):
     html = ''
     try: 
         browser.get(url)
+        browser.implicitly_wait(10)
         html = browser.page_source
     except:
         browser.close()
@@ -441,7 +442,6 @@ if __name__ == '__main__':
         delete_zlje_data_from_db()
     hdata_zlje.copy_from_stringio(df)
 
-    time.sleep(10)
 
     df_3 = get_daily_zlje2(url='url_3')
     df_3 = handle_raw_data(df_3)
@@ -450,7 +450,6 @@ if __name__ == '__main__':
     hdata_zlje_3.copy_from_stringio(df_3)
     #print(list(df_3))
 
-    time.sleep(10)
 
     df_5 = get_daily_zlje2(url='url_5')
     df_5 = handle_raw_data(df_5)
@@ -459,7 +458,6 @@ if __name__ == '__main__':
     hdata_zlje_5.copy_from_stringio(df_5)
     #print(list(df_5))
 
-    time.sleep(10)
 
     df_10 = get_daily_zlje2(url='url_10')
     df_10 = handle_raw_data(df_10)

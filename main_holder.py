@@ -75,7 +75,6 @@ if __name__ == '__main__':
     while (1):
         try:
             h_df, api_param = get_holder_data2(is_all=get_all, pagesize=500, pagenumber=i)
-            time.sleep(10)
             if len(h_df):
                 h_df = h_df.fillna(0)
 

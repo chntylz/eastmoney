@@ -196,7 +196,7 @@ def get_realtime_data2():
     html = ''
     try:
         browser.get(url)
-        time.sleep(3)
+        browser.implicitly_wait(3)
         html = browser.page_source
     except:
         browser.close()

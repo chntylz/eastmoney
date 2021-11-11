@@ -214,7 +214,7 @@ def get_dragon_tiger2(date=None, url_type=None):
     # 添加无头headlesss
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(chrome_options=chrome_options)
+    browser = webdriver.Chrome(options=chrome_options)
 
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
     browser.maximize_window()  # 最大化窗口
@@ -223,6 +223,7 @@ def get_dragon_tiger2(date=None, url_type=None):
     html = ''
     try:
         browser.get(url)
+        browser.implicitly_wait(10)
         html = browser.page_source
     except:
         browser.close()
@@ -267,7 +268,6 @@ if __name__ == '__main__':
     check_table()
 
     jg_df = get_dragon_tiger2(nowdate.strftime("%Y-%m-%d"), url_type='all_jg')
-    time.sleep(15)
     all_df = get_dragon_tiger2(nowdate.strftime("%Y-%m-%d"))
     
     if len(jg_df) or len(all_df):
