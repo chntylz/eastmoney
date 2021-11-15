@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import  psycopg2
-import tushare as ts
 import pandas as pd
 
 pd.set_option('display.float_format',lambda x : '%.2f' % x)
@@ -34,10 +33,28 @@ class HData_hsgt(object):
     def db_disconnect(self):
         self.conn.close()
 
+    def table_is_exist(self):
+        self.db_connect()
+        self.cur.execute("select count(*) from pg_class where relname = 'hdata_hsgt_table' ;")
+        ans=self.cur.fetchall()
+        #print(list(ans[0])[0])
+        if list(ans[0])[0]:
+            self.conn.commit()
+            self.db_disconnect()
+            return True
+        else:
+            self.conn.commit()
+            self.db_disconnect()
+            return False
+
+        pass
+
+
+
     def db_hdata_date_create(self):
         self.db_connect()
         # 创建stocks表
-        cur.execute('''
+        self.cur.execute('''
                 drop table if exists hdata_hsgt_table;
                 create table hdata_hsgt_table(
                     record_date date,
@@ -66,6 +83,7 @@ class HData_hsgt(object):
                     );
                 alter table hdata_hsgt_table add primary key(stock_code,record_date);
                 ''')
+        self.conn.commit()
         self.db_disconnect()
         print("db_hdata_hsgt_table_create finish")
         pass

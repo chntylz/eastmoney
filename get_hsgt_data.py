@@ -41,7 +41,6 @@ hdata_day=HData_eastmoney_day("usr","usr")
 hdata_hsgt=HData_hsgt("usr","usr")
 hdata_fina=HData_xq_fina("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
-#hdata_hsgt.db_hdata_date_create()
 
 
 
@@ -237,20 +236,22 @@ def hsgt_get_all_data():
     latest_date = hdata_hsgt.db_get_latest_date_of_stock()
     if debug:
         print(type(latest_date))
-    latest_date = str(latest_date)
-    latest_date = latest_date.replace('-', '')
+
+
+    if latest_date:
+        latest_date = str(latest_date)
+        latest_date = latest_date.replace('-', '')
+    else:
+        latest_date='20180101'
 
     print('latest_date:%s'%(latest_date))
 
-    if latest_date is None :
-        latest_date='20180101'
-
-
     curr_dir=cur_file_dir()#获取当前.py脚本文件的文件路径
     json_dir=curr_dir+'/hkexnews_scrapy/hkexnews_scrapy/json'
-    json_dir='/home/ubuntu/eastmoney/hkexnews_scrapy/hkexnews_scrapy/json'
+    #json_dir='/home/aaron/eastmoney/hkexnews_scrapy/hkexnews_scrapy/json'
     all_files=getAllFiles(json_dir)
-    if debug:
+    #if debug:
+    if 0:
         print(all_files)
 
     for tmp_file in all_files:
@@ -275,8 +276,21 @@ def hsgt_get_all_data():
 
     return
 
+def check_table():
+    table_exist = hdata_hsgt.table_is_exist() 
+    print('table_exist=%d' % table_exist)
+    if table_exist:
+        #hdata_hsgt.db_hdata_date_create()
+        print('table already exist, recreate')
+    else:
+        hdata_hsgt.db_hdata_date_create()
+        print('table not exist, create')
+
+
 
 if __name__ == '__main__':
+
+    check_table()
 
     hsgt_get_all_data()
 
