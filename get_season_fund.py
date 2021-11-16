@@ -93,7 +93,7 @@ def get_season_fund2(date=None, pagenumber=1, pagesize=500):
         # 添加无头headlesss
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--headless')
-        browser = webdriver.Chrome(chrome_options=chrome_options)
+        browser = webdriver.Chrome(options=chrome_options)
 
         # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
         browser.maximize_window()  # 最大化窗口
@@ -185,24 +185,21 @@ if __name__ == '__main__':
     nowdate=datetime.datetime.now().date()
     date_string = nowdate.strftime('%Y-%m-%d')
     
-    '''
     df  = get_all_season_fund('2021-06-30')
     df2 = get_all_season_fund('2020-03-31')
     df3 = get_all_season_fund('2020-06-30')
     df4 = get_all_season_fund('2020-09-30')
     df5 = get_all_season_fund('2020-12-31')
-    df6 = get_all_season_fund('2021-03-31')
+    df6  = get_all_season_fund('2021-09-30')
 
     df = pd.concat([df, df2])
     df = pd.concat([df, df3])
     df = pd.concat([df, df4])
     df = pd.concat([df, df5])
     df = pd.concat([df, df6])
-    '''
     
     #df  = get_all_season_fund('2021-06-30')
 
-    df  = get_all_season_fund('2021-09-30')
 
     df.to_csv('./csv/test_fund.csv', encoding='gbk')
     if len(df):

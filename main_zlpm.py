@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     #check table exist
     check_table()
-    df, api_param = get_zlpm_data()
+    df, api_param = get_zlpm_data2()
     
     df.to_csv('./csv/zlpm_df.csv', encoding='gbk')
     
