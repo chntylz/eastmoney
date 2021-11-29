@@ -42,13 +42,14 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    #check table exist
-    check_table()
     df, api_param = get_zlpm_data2()
     
     df.to_csv('./csv/zlpm_df.csv', encoding='gbk')
     
-    hdata_zlpm.copy_from_stringio(df)
+    if len(df) > 3000:
+        #check table exist
+        check_table()
+        hdata_zlpm.copy_from_stringio(df)
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
