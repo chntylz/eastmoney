@@ -16,7 +16,8 @@ from io import StringIO
 debug = 0
 #debug = 1
 
-eastmoney_cols = '  stock_code, stock_name, record_date,  hould_num,  total_shares,  hold_value,  totalshares_ratio,  freeshares_ratio '
+eastmoney_cols = '  stock_code, stock_name, record_date,  hould_num, '\
+        'total_shares,  hold_value,  totalshares_ratio,  freeshares_ratio, delta_ratio '
 
 class HData_eastmoney_jigou(object):
     def __init__(self,user,password):
@@ -70,7 +71,8 @@ class HData_eastmoney_jigou(object):
                 total_shares  float,
                 hold_value float,
                 totalshares_ratio float,
-                freeshares_ratio float
+                freeshares_ratio float,
+                delta_ratio float
                 );
             alter table eastmoney_jigou_table add primary key(stock_code,record_date);
             ''')

@@ -136,6 +136,9 @@ def showImageInHTML(imageTypes,savedir):
         f.write('    <tr>\n')
 
         f.write('<td>\n')
+        f.write('     <a href="./jigou-index.html"  target="_blank"> jigou </a>\n')
+        f.write('</td>\n')
+        f.write('<td>\n')
         f.write('     <a href="./stock_data/fund.html"  target="_blank"> fund </a>\n')
         f.write('</td>\n')
         f.write('<td>\n')

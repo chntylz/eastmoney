@@ -141,6 +141,16 @@ def get_jigou():
 
             df = pd.concat([df, tmp_df])
 
+
+    df=df.sort_values(by=['stock_code', 'record_date'], ascending=False)
+
+    df['tmp'] = df.groupby('stock_code')['freeshares_ratio'].shift(-1)
+    df['delta_ratio'] = round(df['freeshares_ratio'] - df['tmp'], 2)
+    del df['tmp'] 
+    df=df.fillna(0)
+    df=df.sort_values('delta_ratio', ascending=0)
+    df=df.reset_index(drop=True)
+
     return df
 
 
@@ -148,7 +158,7 @@ def check_table():
     table_exist = hdata_jigou.table_is_exist()
     print('table_exist=%d' % table_exist)
     if table_exist:
-        #hdata_jigou.db_hdata_xq_create()
+        hdata_jigou.db_hdata_xq_create()
         print('table already exist')
     else:
         hdata_jigou.db_hdata_xq_create()
@@ -157,13 +167,25 @@ def check_table():
 
 if __name__ == '__main__':
     
+    t1 = time.time()
+    start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+ 
     nowdate=datetime.datetime.now().date()
     date_string = nowdate.strftime('%Y-%m-%d')
     
     df  = get_jigou()
     df.to_csv('./csv/jigou_'+ date_string + '.csv', encoding='gbk')
+    #df = pd.read_csv('./csv/jigou_2021-11-29.csv',encoding='gbk', converters={'stock_code': lambda x: str(x)})
 
     if len(df):
         check_table()
         hdata_jigou.copy_from_stringio(df)
+
+    last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    print("start_time: %s, last_time: %s" % (start_time, last_time))
+
+    t2 = time.time()
+    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+
 

@@ -23,6 +23,7 @@ import psycopg2
 from HData_hsgt import *
 from HData_eastmoney_day import *
 from HData_eastmoney_holder import *
+from HData_eastmoney_jigou import *
 from HData_xq_fina import *
 
 from get_data_from_db import *
@@ -31,6 +32,7 @@ from get_data_from_db import *
 hsgtdata=HData_hsgt("usr","usr")
 hdata_day=HData_eastmoney_day("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
+hdata_jigou=HData_eastmoney_jigou("usr","usr")
 hdata_fina=HData_xq_fina("usr","usr")
 
 
@@ -153,7 +155,7 @@ def hsgt_get_continuous_info(df, select):
                 op_yoy, net_yoy, \
                 zlje, zlje_3, zlje_5, zlje_10, \
                 holder_0, holder_1, holder_2, \
-                delta1, delta1_m, i, money_total])  #i  is conti_day
+                delta1, delta1_m, i, money_total])  #i  == conti_day
 
     data_column=['record_date', 'stock_code', 'stock_cname', 'total_mv', 'hk_pct', 'close', 'a_pct', \
             'peach', 'zig', 'quad', \
@@ -167,13 +169,13 @@ def hsgt_get_continuous_info(df, select):
     ret_df=ret_df.round(2)
     #ret_df = ret_df.sort_values('money_total', ascending=0)
     #ret_df = ret_df.sort_values('conti_day', ascending=0)
-    if select is 'p_money':
+    if select == 'p_money':
         ret_df = ret_df.sort_values('money_total', ascending=0)
-    elif select is 'p_minus_money':
+    elif select == 'p_minus_money':
         ret_df = ret_df.sort_values('money_total', ascending=1)
-    elif select is 'p_continous_day':
+    elif select == 'p_continous_day':
         ret_df = ret_df.sort_values('conti_day', ascending=0)
-    elif select is 'p_minus_continous_day':
+    elif select == 'p_minus_continous_day':
         ret_df = ret_df.sort_values('conti_day', ascending=0)
 
     return ret_df
@@ -213,12 +215,13 @@ def comm_handle_link(stock_code):
 
     holder_url = xueqiu_url + '/detail#/GDRS'    
     add_url    = xueqiu_url + '/detail#/GGZJC'    
-    return xueqiu_url, hsgt_url, fina_url, holder_url
+    jigou_url  = 'https://data.eastmoney.com/zlsj/detail/2021-09-30-0-' + stock_code + '.html'
+    return xueqiu_url, hsgt_url, fina_url, holder_url, jigou_url
 
    
 def comm_write_to_file(f, k, df, filename):
 
-    fund_date = ['03-31', '06-30', '09-30', '12-31']
+    jigou_date = ['03-31', '06-30', '09-30', '12-31']
 
     f.write('<table class="gridtable">\n')
 
@@ -233,9 +236,7 @@ def comm_write_to_file(f, k, df, filename):
         f.write('    <tr>\n')
         a_array=df[i:i+1].values  #get line of df
         tmp_stock_code=a_array[0][1] 
-        xueqiu_url, hsgt_url, fina_url, holder_url = comm_handle_link(tmp_stock_code)
-        fund_url = 'https://data.eastmoney.com/zlsj/detail/2020-12-31-0-' + tmp_stock_code +'.html'
-        fund_url = 'https://data.eastmoney.com/zlsj/detail/2021-03-31-0-' + tmp_stock_code +'.html'
+        xueqiu_url, hsgt_url, fina_url, holder_url, jigou_url = comm_handle_link(tmp_stock_code)
         #print(filename[11:21])
         dragon_url = 'https://data.eastmoney.com/stock/lhb,' + filename[11:21] + ',' + tmp_stock_code + '.html'
 
@@ -262,7 +263,7 @@ def comm_write_to_file(f, k, df, filename):
             list(df)[12]=money_total
             list(df)[13]=m_per_day
             '''
-            if k is -1: # normal case
+            if k == -1: # normal case
                 #data_column=['record_date', 'stock_code', 'stock_cname', 'hk_pct', 'close', 'delta1', 'delta1_m', 'conti_day', 'money_total']
                 if(j == 0): 
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
@@ -283,10 +284,9 @@ def comm_write_to_file(f, k, df, filename):
                         or (list(df)[j] == 'h0'):
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (holder_url, element_value))
-                elif list(df)[j] == 'fu_delta':
-                    tmp_url = ''
+                elif list(df)[j] == 'jigou':
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
-                            (fund_url, element_value))
+                            (jigou_url, element_value))
                 #fix bug:  must be real number, not datetime.date for holder function
                 elif list(df)[j] == 'hk_date':
                     f.write('           <a> %s</a>\n'%(element_value))
@@ -297,7 +297,7 @@ def comm_write_to_file(f, k, df, filename):
                     f.write('           <a> %s</a>\n'%(element_value))
             
             else: #special case for get red color column
-                #set color to delta column, 6 is the position of hk_pct
+                #set color to delta column, 6 == the position of hk_pct
                 '''
                 list(df)[0]=record_date
                 list(df)[1]=stock_code
@@ -423,7 +423,7 @@ def comm_handle_html_body(filename, all_df, select='topy10'):
             daily_df  = hsgt_get_daily_data(all_df)
             daily_net = daily_df['delta1_m'].sum()
             f.write('<p style="color: #FF0000"> delta1_m sum is: %.2fw rmb </p>\n'%(daily_net))
-            if select is 'top10':
+            if select == 'top10':
 
                 delta_list = ['hk_pct', 'delta1', 'delta1_m', 'delta2', 'delta3', 'delta4',  \
                         'delta5', 'delta10', 'delta21', 'delta120', \
@@ -437,25 +437,25 @@ def comm_handle_html_body(filename, all_df, select='topy10'):
                     delta_tmp = delta_tmp.head(20)
                     comm_write_to_file(f, k, delta_tmp, filename)
 
-            elif select is 'p_money':
+            elif select == 'p_money':
                 conti_df = hsgt_get_continuous_info(all_df, 'p_money')
                 #select condition
                 conti_df = conti_df[ (conti_df.money_total / conti_df.conti_day > 1000) & (conti_df.money_total > 2000) &(conti_df.delta1_m > 1000)] 
                 comm_write_to_file(f, -1, conti_df, filename)
 
-            elif select is 'p_minus_money':
+            elif select == 'p_minus_money':
                 conti_df = hsgt_get_continuous_info(all_df, 'p_minus_money')
                 #select condition
                 conti_df = conti_df[ (conti_df.money_total / conti_df.conti_day < -1000) & (conti_df.money_total < -2000) &(conti_df.delta1_m < -1000)] 
                 comm_write_to_file(f, -1, conti_df, filename)
 
-            elif select is 'p_continous_day':
+            elif select == 'p_continous_day':
                 conti_df = hsgt_get_continuous_info(all_df, 'p_continous_day')
                 #select condition
                 conti_df = conti_df[conti_df.money_total > 2000] 
                 comm_write_to_file(f, -1, conti_df, filename)
   
-            elif select is 'p_minus_continous_day':
+            elif select == 'p_minus_continous_day':
                 conti_df = hsgt_get_continuous_info(all_df, 'p_minus_continous_day')
                 #select condition
                 conti_df = conti_df[conti_df.money_total < -2000] 
@@ -871,19 +871,34 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         h_chg = str(h0) + ' ' + str(h1) + ' ' + str(h2) +' ' + str(avg_hold_num) + ' '+ str(interval_chrate)
         #stock_code = stock_code + '<br>'+ h_chg + '</br>'
 
-        #### holder start ####
+        #### holder jigou ####
+        jigou_df = hdata_jigou.get_data_from_hdata(stock_code = stock_code)
+        jigou_df = jigou_df.sort_values('record_date', ascending=False)
+        jigou_df = jigou_df.reset_index(drop=True)
+        float_ratio = delta_ratio = 0
+        if len(jigou_df) > 0:
+            float_ratio = jigou_df['freeshares_ratio'][0]
+            delta_ratio = jigou_df['delta_ratio'][0]
+        
+        jigou = ''
+        if delta_ratio < 0:
+            jigou = str(float_ratio) + str(delta_ratio)
+        else:
+            jigou = str(float_ratio) + '+' + str(delta_ratio)
 
         data_list.append([new_date, stock_code, stock_name, close_p, close, \
                 hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, conti_day, \
                 money_total, total_mv, industry_name, \
                 is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea, is_cross3line,\
-                zlje, zlje_3, zlje_5, zlje_10,h_chg ])
+                zlje, zlje_3, zlje_5, zlje_10,h_chg, \
+                jigou])
 
     data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'conti_day', \
             'hk_m_total', 'total_mv', 'industry', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3', \
-            'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ]
+            'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ,\
+            'jigou']
 
     ret_df=pd.DataFrame(data_list, columns=data_column)
     ret_df['m_per_day'] = ret_df.hk_m_total / ret_df.conti_day
@@ -895,6 +910,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
+            'jigou', \
             'hk_date', 'hk_share', 'hk_pct', \
             'hk_delta1', 'hk_deltam', 'conti_day', \
             'hk_m_total', 'm_per_day']

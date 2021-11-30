@@ -35,6 +35,9 @@ hsgtdata=HData_hsgt("usr","usr")
 
 zlje_table=HData_eastmoney_zlje("usr","usr")
 
+from HData_eastmoney_jigou import *
+jigou_table=HData_eastmoney_jigou("usr","usr")
+
 from HData_eastmoney_dragon import *
 dragon_table=HData_eastmoney_dragon("usr","usr")
 
@@ -182,18 +185,33 @@ def combine_zlje_data(db_table=None, first_df=None, second_df=None):
         ret_df = pd.merge(df1, df2, how='inner', on=['stock_code'])
 
     if 'zlje_x' in ret_df.columns:
-        ret_df = ret_df.sort_values('zlje_x', ascending=0)
+        ret_df = ret_df.sort_values('zlje_x', ascending=False)
 
     if 'jmmoney' in ret_df.columns:
-        ret_df = ret_df.sort_values('jmmoney', ascending=0)
+        ret_df = ret_df.sort_values('jmmoney', ascending=False)
 
     if 'holder_num_ratio' in ret_df.columns:
-        ret_df = ret_df.sort_values('holder_num_ratio', ascending=1)
+        ret_df = ret_df.sort_values('holder_num_ratio', ascending=True)
+
+    #for jigou
+    if 'delta_ratio' in ret_df.columns:
+        ret_df = ret_df.sort_values('delta_ratio', ascending=False)
 
 
     ret_df = ret_df.reset_index(drop=True)
 
     return ret_df
+
+
+def get_latest_jigou_data():
+    jigou_df=  jigou_table.get_data_from_hdata()
+    jigou_df = jigou_df.sort_values('record_date', ascending=False)
+    jigou_df = jigou_df.reset_index(drop=True)
+    jigou_df = jigou_df[jigou_df['record_date'] == jigou_df['record_date'][0]]
+    jigou_df = jigou_df.sort_values('delta_ratio', ascending=False)
+    jigou_df = jigou_df.reset_index(drop=True)
+    return jigou_df
+
 
 def get_holder_data(current_date):
     #nowdate = datetime.datetime.now().date()
@@ -410,7 +428,23 @@ if __name__ == '__main__':
         generate_html(html_zlje_df)
     else:
         print('#error, html_zlje_df len < 1')
-    
+     
+    #jigou
+    print('#############################################################')
+    print('start jigou')
+    curr_dir=curr_day_w+'-jigou'
+    jigou_raw_df =  get_latest_jigou_data()
+
+    jigou_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=jigou_raw_df)
+    if debug:
+        print(jigou_df)
+    html_jigou_df = convert_to_html_df(jigou_df)
+    if len(html_jigou_df):
+        generate_html(html_jigou_df)
+    else:
+        print('#error, html_jigou_df len < 1')
+
+   
     
     #dragon
     print('#############################################################')
@@ -447,6 +481,7 @@ if __name__ == '__main__':
     else:
         print('#error, html_holder_df len < 1')
 
+    print('#############################################################')
 
  
     curr_dir=curr_day_w
