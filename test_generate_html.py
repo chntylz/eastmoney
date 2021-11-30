@@ -300,7 +300,10 @@ if __name__ == '__main__':
     last_day=lastdate.strftime("%Y-%m-%d")
     print("curr_day:%s, last_day:%s"%(curr_day, last_day))
 
-    df_global = df = k_df = kline_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
+    df_global  = kline_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
+
+    #delete 68???? kechuangban
+    df = k_df = df_global[~(df_global.stock_code.str[:2] == '68')]
 
     #zig
     print('#############################################################')
