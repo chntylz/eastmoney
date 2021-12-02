@@ -29,7 +29,7 @@ from HData_eastmoney_jigou import *
 hdata_jigou=HData_eastmoney_jigou("usr","usr")
 
 debug = 1
-debug = 0
+debug = 1
 
 def get_jigou_data(stock_code, record_date):
     df = pd.DataFrame()
@@ -80,7 +80,7 @@ def get_jigou_data(stock_code, record_date):
     except Exception as e:
         print(e)
         print('get_jigou_data rawdata is none %s %s' % (stock_code, record_date))
-        return df
+        return df,df
 
     data_df = pd.DataFrame(rawdata)
     data_df = data_df.fillna(0)
@@ -116,13 +116,13 @@ def get_jigou_data(stock_code, record_date):
     df['freeshares_ratio'] = data_df['freeshares_ratio']
     df = round(df, 2)
 
-    return df
+    return df, data_df
 
 def get_jigou():
     
     date_list = ['2021-09-30', '2021-06-30', '2021-03-31']
 
-    df = tmp_df = pd.DataFrame()
+    df = tmp_df = raw_df = pd.DataFrame()
     r_df, work_df, stop_df, api_param = get_realtime_data2()
 
     r_len = len(r_df)
@@ -135,7 +135,7 @@ def get_jigou():
             stock_code = r_df['stock_code'][i]
 
             #record_date = '2021-09-30'
-            tmp_df = get_jigou_data(stock_code, record_date)
+            tmp_df , raw_df = get_jigou_data(stock_code, record_date)
             if debug:
                 print(tmp_df)
 

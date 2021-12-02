@@ -10,10 +10,10 @@ debug=0
 
 cur_culumn=" record_date , stock_code, stock_cname, share_holding, percent,\
         open, close, high, low, volume, total_mv,\
-        is_zig, is_quad, is_peach,  \
+        is_zig, is_quad, is_peach, is_cross3line, \
         op_yoy, net_yoy,\
         zlje, zlje_3, zlje_5, zlje_10, \
-        holder_0, holder_1, holder_2 "
+        holder_0, holder_1, holder_2, jigou  "
 class HData_hsgt(object):
     def __init__(self,user,password):
         # self.aaa = aaa
@@ -71,6 +71,7 @@ class HData_hsgt(object):
                     is_zig int, 
                     is_quad int, 
                     is_peach int,
+                    is_cross3line int,
                     op_yoy float, 
                     net_yoy float, 
                     zlje float, 
@@ -79,7 +80,8 @@ class HData_hsgt(object):
                     zlje_10 float, 
                     holder_0 float, 
                     holder_1 float, 
-                    holder_2 float
+                    holder_2 float,
+                    jigou varchar
                     );
                 alter table hdata_hsgt_table add primary key(stock_code,record_date);
                 ''')

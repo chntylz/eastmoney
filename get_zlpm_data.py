@@ -175,6 +175,7 @@ def get_zlpm_data2():
     html = ''
     try: 
         browser.get(url)
+        browser.implicitly_wait(10)
         html = browser.page_source
     except:
         browser.close()

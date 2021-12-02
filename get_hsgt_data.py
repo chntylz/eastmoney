@@ -15,6 +15,7 @@ from HData_eastmoney_day import *
 
 from HData_xq_fina import *
 from HData_eastmoney_holder import *
+from HData_eastmoney_jigou import *
 
 from HData_eastmoney_zlje import *
 from HData_eastmoney_zlje_3 import *
@@ -41,6 +42,7 @@ hdata_day=HData_eastmoney_day("usr","usr")
 hdata_hsgt=HData_hsgt("usr","usr")
 hdata_fina=HData_xq_fina("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
+hdata_jigou=HData_eastmoney_jigou("usr","usr")
 
 
 
@@ -145,6 +147,22 @@ def hsgt_get_day_item_from_json(file_path):
             h2 = holder_df['holder_num_ratio'][2]
         #### holder start ####
 
+        #### holder jigou ####
+        jigou_df = hdata_jigou.get_data_from_hdata(stock_code = shgt_code)
+        jigou_df = jigou_df.sort_values('record_date', ascending=False)
+        jigou_df = jigou_df.reset_index(drop=True)
+        float_ratio = delta_ratio = 0
+        if len(jigou_df) > 0:
+            float_ratio = jigou_df['freeshares_ratio'][0]
+            delta_ratio = jigou_df['delta_ratio'][0]
+        
+        jigou = ''
+        if delta_ratio < 0:
+            jigou = str(float_ratio) + str(delta_ratio)
+        else:
+            jigou = str(float_ratio) + '+' + str(delta_ratio)
+
+
 
         
         #get stock_cname
@@ -190,16 +208,17 @@ def hsgt_get_day_item_from_json(file_path):
             shgt_is_zig=int(day_dict['is_zig'][0])
             shgt_is_quad=int(day_dict['is_quad'][0])
             shgt_is_peach=int(day_dict['is_peach'][0])
+            shgt_is_cross3line = int(day_dict['is_cross3line'][0])
             
 
 
 
             list_tmp.append([shgt_date, shgt_code, shgt_cname, shgt_holding, shgt_percent, \
                     shgt_open, shgt_close, shgt_high, shgt_low, shgt_volume, shgt_mkt_cap, \
-                    shgt_is_zig, shgt_is_quad, shgt_is_peach, \
+                    shgt_is_zig, shgt_is_quad, shgt_is_peach, shgt_is_cross3line, \
                     op_yoy, net_yoy,\
                     zlje, zlje_3, zlje_5, zlje_10,\
-                    h0, h1, h2 ])
+                    h0, h1, h2, jigou ])
         else:
             print('############## code:%s, name=%s, daily data is null!!! ##############' % (shgt_code, shgt_cname))
 
@@ -208,10 +227,10 @@ def hsgt_get_day_item_from_json(file_path):
 
     dataframe_cols = ['record_date', 'stock_code','shgt_cname', 'share_holding', 'hk_pct', \
             'open', 'close', 'high', 'low', 'volume', 'total_mv', \
-            'is_zig', 'is_quad', 'is_peach',\
+            'is_zig', 'is_quad', 'is_peach', 'is_cross3line', \
             'op_yoy', 'net_yoy',\
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', \
-            'holder_0', 'holder_1', 'holder_2' ]
+            'holder_0', 'holder_1', 'holder_2', 'jigou' ]
 
     df = pd.DataFrame(list_tmp, columns=dataframe_cols)
     
