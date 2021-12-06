@@ -189,3 +189,12 @@ if __name__ == '__main__':
     print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 
+'''
+import pandas as pd
+df = pd.read_csv('./csv/jigou_2021-12-02.csv',encoding='gbk', converters={'stock_code': lambda x: str(x)})
+del df['Unnamed: 0']
+from get_jigou_data import *
+check_table()
+hdata_jigou.copy_from_stringio(df)
+'''
+
