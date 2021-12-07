@@ -10,6 +10,7 @@ import re
 import time
 import datetime
 
+from file_interface import *
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -129,6 +130,73 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
         pass
  
     return fina_data
+
+
+
+def xq_get_holder_data(symbol, page=1, size=10):
+    # holder
+    #https://stock.xueqiu.com/v5/stock/f10/cn/holders.json?symbol=SZ300859&extend=true&page=1&size=10
+    url = 'https://stock.xueqiu.com/v5/stock/f10/cn/holders.json?'\
+        + 'symbol=' + symbol \
+        + '&extend=true&page=' + str(page) + '&size=' + str(size)      
+
+    data_df = pd.DataFrame()
+    print(url)
+
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+    try:
+        xq_login2(browser)
+    except Exception as e:
+        print(e)
+        print('alread login in')
+    finally:
+        pass
+
+
+    html = ''
+    try: 
+        browser.get(url)
+        browser.implicitly_wait(5)
+        html = browser.page_source
+    except Exception as e:
+        print(e)
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+    if debug:
+        print(html)
+    
+    s=html
+    f1 = s.find('{')
+    s = s[:f1] + '(' + s[f1 : ]    #add '(' before first '{'
+    f2 = s.rfind('}')              #add ')' after last  '}'
+    s = s[:f2+1] + ')' + s[f2+1 : ]
+       
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, s)
+    try:
+        api_param = json.loads(response_array[0])
+        rawdata = api_param['data']['items']
+        data_df = pd.DataFrame(rawdata)
+    except Exception as e:
+        print(e)
+        print(url)
+        print(html)
+    finally:
+        pass
+ 
+    return data_df
 
 
 
