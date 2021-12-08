@@ -228,7 +228,6 @@ def show_realdata():
                 new_hsgt_delta1, new_hsgt_deltam,\
                 conti_day, money_total, \
                 is_zig, is_quad, is_peach = comm_handle_hsgt_data(hsgt_df)
-        new_hsgt_date = new_hsgt_date[5:]
         
         #### zlje start ####
         zlje    = get_zlje(zlje_df,     new_code, curr_date=str_date)
