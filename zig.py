@@ -17,11 +17,11 @@ ZIG_STATE_FALL = 2
 def recurse_set_state(buy_state, pos, state):
     if debug:
         print("recurse_set_state")
-    if pos is 0:
+    if pos == 0:
         pass
     else:
         buy_state[pos] = state;
-        if state is 1:
+        if state == 1:
             state = 0
         else:
             state = 1

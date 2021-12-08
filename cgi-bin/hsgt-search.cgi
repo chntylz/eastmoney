@@ -8,15 +8,15 @@ import tushare as ts
 import numpy as np
 
 from HData_hsgt import *
-from HData_xq_day import *
+from HData_eastmoney_day import *
 from zig import *
-from test_plot import *
+from plot import *
 
 import matplotlib.pyplot as plt
 
 import  datetime
 
-from comm_generate_html import *
+from comm_generate_web_html import *
 
 
 
@@ -26,10 +26,9 @@ debug=0
 nowdate=datetime.datetime.now().date()
 #nowdate=nowdate-datetime.timedelta(1)
 
-hdata_day=HData_xq_day("usr","usr")
+hdata_day=HData_eastmoney_day("usr","usr")
 
 hdata_hsgt=HData_hsgt("usr","usr")
-hdata_hsgt.db_connect()
 
 
 
@@ -107,7 +106,7 @@ def get_df_and_stock_code(name):
 
 
 def get_html_data(all_df):
-    if len(all_df) is 0:
+    if len(all_df) == 0:
         var = "data is null, please input correct code or name"
     else:
 

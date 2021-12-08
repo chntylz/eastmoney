@@ -163,14 +163,14 @@ class HData_eastmoney_fina(object):
                     str_temp+=",\'"+str(data.iloc[i,j]) + "\'"      #stock_code must be string
 
                 sql_cmd += "("+str_temp+")"
-                if i is 0:
+                if i == 0:
                     sql_cmd += ","
                 elif i % each_num == 0 or i == (length -1):
                     pass
                 else:
                     sql_cmd += ","
 
-                if i % each_num == 0 and i is not 0:
+                if i % each_num == 0 and i != 0:
                     if debug:
                         print(sql_cmd)
                     if(sql_cmd != ""):
@@ -236,14 +236,14 @@ class HData_eastmoney_fina(object):
                 sql_cmd.append('(')
                 sql_cmd.extend(str_temp)
                 sql_cmd.append(')')
-                if i is 0:
+                if i == 0:
                     sql_cmd.append(",")
                 elif i % each_num == 0 or i == (length -1):
                     pass
                 else:
                     sql_cmd.append(",")
 
-                if i % each_num == 0 and i is not 0:
+                if i % each_num == 0 and i != 0:
                     if debug:
                         print(sql_cmd)
                         print("--------------------------------------")
