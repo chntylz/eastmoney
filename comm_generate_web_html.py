@@ -25,15 +25,17 @@ from HData_eastmoney_day import *
 from HData_eastmoney_holder import *
 from HData_eastmoney_jigou import *
 from HData_xq_fina import *
+from HData_xq_holder import *
 
 from get_data_from_db import *
 
 
 hsgtdata=HData_hsgt("usr","usr")
 hdata_day=HData_eastmoney_day("usr","usr")
-hdata_holder=HData_eastmoney_holder("usr","usr")
+#hdata_holder=HData_eastmoney_holder("usr","usr")
 hdata_jigou=HData_eastmoney_jigou("usr","usr")
 hdata_fina=HData_xq_fina("usr","usr")
+hdata_holder=HData_xq_holder("usr","usr")
 
 
 #get basic stock info
@@ -861,6 +863,8 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         #### fina end ####
  
         #### holder start ####
+        '''
+        # eastmoney holder
         holder_df = hdata_holder.get_data_from_hdata(stock_code = stock_code)
         holder_df = holder_df .sort_values('record_date', ascending=0)
         holder_df = holder_df .reset_index(drop=True)
@@ -873,7 +877,29 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             h1 = round(holder_df['holder_num_ratio'][1], 2)
         if len(holder_df) > 2:
             h2 = round(holder_df['holder_num_ratio'][2], 2)
-        h_chg = str(h0) + ' ' + str(h1) + ' ' + str(h2) +' ' + str(avg_hold_num) + ' '+ str(interval_chrate)
+        h_chg = str(h0) + ' ' + str(h1) + ' ' + str(h2) +' '\
+                + str(avg_hold_num) + ' '+ str(interval_chrate)
+        '''
+
+        #xueqiu holder
+        holder_df = hdata_holder.get_data_from_hdata(stock_code = stock_code)
+        holder_df = holder_df.sort_values('record_date', ascending=0)
+        holder_df = holder_df.reset_index(drop=True)
+        h0 = h1 = h2 = h_num = h_avg = delta_price = 0
+        if len(holder_df) > 0:
+            h0 = holder_df['chg'][0]
+            h_num = round(holder_df['holder_num'][0]/10000, 2)
+            h_avg = round(holder_df['per_float'][0]/10000, 2)
+            delta_price  = holder_df['price_ratio'][0]
+        if len(holder_df) > 1:
+            h1 = holder_df['chg'][1]
+        if len(holder_df) > 2:
+            h2 = holder_df['chg'][2]
+
+
+        h_chg = '<br>'+ str(h0) + ' ' + str(h1) + ' ' + str(h2) + '</br>'\
+                + str(h_num) + ' ' + str(h_avg) + ' ' + str(delta_price) 
+
         #stock_code = stock_code + '<br>'+ h_chg + '</br>'
 
         #### holder jigou ####

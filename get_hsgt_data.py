@@ -14,6 +14,7 @@ from HData_hsgt import *
 from HData_eastmoney_day import *
 
 from HData_xq_fina import *
+from HData_xq_holder import *
 from HData_eastmoney_holder import *
 from HData_eastmoney_jigou import *
 
@@ -41,7 +42,8 @@ hdata_day=HData_eastmoney_day("usr","usr")
 
 hdata_hsgt=HData_hsgt("usr","usr")
 hdata_fina=HData_xq_fina("usr","usr")
-hdata_holder=HData_eastmoney_holder("usr","usr")
+#hdata_holder=HData_eastmoney_holder("usr","usr")
+hdata_holder=HData_xq_holder("usr","usr")
 hdata_jigou=HData_eastmoney_jigou("usr","usr")
 
 
@@ -134,7 +136,8 @@ def hsgt_get_day_item_from_json(file_path):
  
  
 
-        #### holder start ####
+        '''
+        #eastmoney holder data
         holder_df = hdata_holder.get_data_from_hdata(stock_code = shgt_code)
         holder_df = holder_df.sort_values('record_date', ascending=0)
         holder_df = holder_df.reset_index(drop=True)
@@ -145,6 +148,20 @@ def hsgt_get_day_item_from_json(file_path):
             h1 = holder_df['holder_num_ratio'][1]
         if len(holder_df) > 2:
             h2 = holder_df['holder_num_ratio'][2]
+        '''
+
+        #### holder start ####
+        #xueqiu holder data
+        holder_df = hdata_holder.get_data_from_hdata(stock_code = shgt_code)
+        holder_df = holder_df.sort_values('record_date', ascending=0)
+        holder_df = holder_df.reset_index(drop=True)
+        h0 = h1 = h2 = 0
+        if len(holder_df) > 0:
+            h0 = holder_df['chg'][0]
+        if len(holder_df) > 1:
+            h1 = holder_df['chg'][1]
+        if len(holder_df) > 2:
+            h2 = holder_df['chg'][2]
         #### holder start ####
 
         #### holder jigou ####
