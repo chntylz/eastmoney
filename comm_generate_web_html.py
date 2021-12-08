@@ -30,6 +30,12 @@ from HData_xq_holder import *
 from get_data_from_db import *
 
 
+from HData_eastmoney_zlje import *
+from HData_eastmoney_zlje_3 import *
+from HData_eastmoney_zlje_5 import *
+from HData_eastmoney_zlje_10 import *
+
+
 hsgtdata=HData_hsgt("usr","usr")
 hdata_day=HData_eastmoney_day("usr","usr")
 #hdata_holder=HData_eastmoney_holder("usr","usr")
@@ -47,8 +53,225 @@ debug=0
 #debug=1
 
 
+
   
 ############################################################################################################
+ 
+def cgi_write_headline_column(df):
+
+    print('    <tr>\n')
+    #headline
+    col_len=len(list(df))
+    for j in range(0, col_len): 
+        print('        <th>\n')
+        print('        <a> %s</a>\n'%(list(df)[j]))
+        print('        </th>\n')
+
+    '''
+    #add total_mv
+    print('        <td>\n')
+    print('           <a> total_mv </a>\n')
+    print('        </td>\n')
+    '''
+
+    print('    </tr>\n')
+
+  
+def cgi_handle_html_head(title_name, refresh=0):
+    print("Content-type: text/html")
+    print("")
+
+    print('<!DOCTYPE html>\n')
+    print('<html>\n')
+    print('<head>\n')
+    print('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n')
+    if refresh:
+        print('<meta http-equiv="refresh" content="30">\n')
+    print('<title> %s-%s </title>\n' % (title_name, datetime.datetime.now().date()))
+    print('\n')
+    print('\n')
+    print('<style type="text/css">a {text-decoration: none}\n')
+    print('\n')
+    print('\n')
+
+    print('/* gridtable */\n')
+    print('table {\n')
+    print('    font-size:18px;\n')
+    print('    color:#000;\n')
+    print('    border-width: 1px;\n')
+    print('    border-color: #333333;\n')
+    print('    border-collapse: collapse;\n')
+    print('}\n')
+
+    print('table tr {\n')
+    print('    border-width: 1px;\n')
+    print('    padding: 8px;\n')
+    print('    border-style: solid;\n')
+    print('    border-color: #333333;\n')
+    print('}\n')
+
+
+    print('table th {\n')
+    print('    border-width: 1px;\n')
+    print('    padding: 8px;\n')
+    print('    border-style: solid;\n')
+    print('    border-color: #333333;\n')
+    print('}\n')
+
+    print('table td {\n')
+    print('    border-width: 1px;\n')
+    print('    padding: 8px;\n')
+    print('    border-style: solid;\n')
+    print('    border-color: #333333;\n')
+    print('}\n')
+
+    '''
+    print('    table tr:nth-child(odd){\n')
+    print('    background-color: #eeeeee;\n')
+    print('    }\n')
+    '''
+
+    print('/* /gridtable */\n')
+
+    print('\n')
+    print('\n')
+    print('</style>\n')
+
+    print('</head>\n')
+    print('\n')
+    print('\n')
+
+def cgi_handle_link(stock_code):
+
+    tmp_stock_code=stock_code
+    if tmp_stock_code[0:1] == '6':
+        stock_code_new='SH'+tmp_stock_code
+    else:
+        stock_code_new='SZ'+tmp_stock_code
+        
+    xueqiu_url='https://xueqiu.com/S/' + stock_code_new
+    hsgt_url='../../cgi-bin/hsgt-search.cgi?name=' + tmp_stock_code
+    cgi_url = xueqiu_url + '/detail#/ZYCWZB'    
+    #holder_url = 'https://xueqiu.com/snowman/S/' + stock_code_new + '/detail#/GDRS'
+    holder_url = xueqiu_url + '/detail#/GDRS'
+    return xueqiu_url, hsgt_url, cgi_url, holder_url
+ 
+    
+def cgi_write_to_file( df):
+    print('<table >\n')
+
+    #headline
+    cgi_write_headline_column(df)
+
+    #dataline
+    #print('%s\n'%(list(df)))
+    df_len=len(df)
+    for i in range(0, df_len): #loop line
+
+        print('    <tr>\n')
+        a_array=df[i:i+1].values  #get line of df
+        tmp_stock_code=a_array[0][1] 
+        tmp_stock_code=tmp_stock_code[:6]
+        xueqiu_url, hsgt_url, cgi_url, holder_url = cgi_handle_link(tmp_stock_code)
+
+        col_name = list(df)
+        col_len=len(col_name)
+        for j in range(0, col_len): #loop column
+            #set align right begin from the third column
+            if j>2:
+                print('        <td align="right">\n')
+            else:
+                print('        <td>\n')
+
+            element_value = a_array[0][j] #get a[i][j] element
+            #df_cgi_column=['record_date', 'stock_code', 'stock_name', 'or_yoy', 'netprofit_yoy', 'conti_day']
+            if(j == 0): 
+                print('           <a href="%s" target="_blank"> %s</a>\n'%(cgi_url, element_value))
+            elif(j == 1): 
+                print('           <a href="%s" target="_blank"> %s</a>\n'%(hsgt_url, element_value))
+            elif(j == 2):
+                print('           <a href="%s" target="_blank"> %s</a>\n'%(xueqiu_url, element_value))
+            elif(j == col_len - 1):
+                print('           <a> %.2f</a>\n'%(element_value))
+            elif 'holder_change' in col_name[j]:
+                print('           <a href="%s" target="_blank"> %s</a>\n'%(holder_url, element_value))
+            elif ('a_pct' in col_name[j]) or ('hk_deltam' in col_name[j]):
+                if float(element_value) > 0:
+                    print('           <a> <font color="red"> %s </font></a>\n'%(element_value))
+                else:
+                    print('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
+
+            else:
+                print('           <a> %s</a>\n'%(element_value))
+                                
+            print('        </td>\n')
+
+        '''
+        #add total_mv
+        print('        <td align="right">\n')
+        print('           <a> %s </a>\n' %  (comm_get_total_mv(tmp_stock_code)))
+        print('        </td>\n')
+        '''
+
+
+        print('    </tr>\n')
+
+    print('</table>\n')
+
+    pass
+
+
+def cgi_hsgt_part_body():
+    print ('   <form action="hsgt-search.cgi">')
+    print ('   code or name <input type="text" name="name" />')
+    print ('   <input type="submit" />')
+    print ('   </form>')
+    print ('   <a href="%s" target="_blank"> [picture]</a>' % ('../html/test.png'))
+    print ('   <p></p>')
+    pass
+    
+def cgi_handle_html_body(df, form=0):
+    print('<body>\n')
+    print('\n')
+    print('\n')
+    print('\n')
+    #print('<p>----------------------------------------------------------------------</p>\n')
+    #print('<p>----------------------------------------------------------------------</p>\n')
+    print('\n')
+    print('\n')
+
+    if form:
+        cgi_hsgt_part_body()
+
+    cgi_write_to_file(df)
+
+    print('        <td>\n')
+    print('        </td>\n')
+    print('</body>\n')
+    pass
+
+def cgi_handle_html_end():
+    print('\n')
+    print('\n')
+    print('</html>\n')
+    print('\n')
+
+    pass
+    
+ 
+
+############################################################################################################
+
+def comm_get_total_mv(stock_code):
+    total_mv_df = db_daily.get_data_from_hdata(stock_code=stock_code, limit=1)
+    if (len(total_mv_df)) > 0:
+        total_mv = total_mv_df['total_mv'][0]/10000 
+    else:
+        total_mv = 0
+
+    return round(total_mv,2)
+
+
 
 def hsgt_get_daily_data(all_df):
     latest_date=all_df.loc[0,'record_date']
@@ -620,164 +843,6 @@ def insert_industry(dict_name, key):
         dict_name[key]=dict_name[key] + 1
     pass
 
-
-from HData_eastmoney_zlje import *
-from HData_eastmoney_zlje_3 import *
-from HData_eastmoney_zlje_5 import *
-from HData_eastmoney_zlje_10 import *
-
-#from get_daily_zlje import *
-
-def comm_generate_web_dataframe(curr_dir, images, curr_day, dict_industry):
-    
-    txt_file = curr_dir + '/' + curr_day +'.txt'
-    with open(txt_file,'w') as f:
-        f.write('\n')
-
-    zlje_df   = get_zlje_data_from_db(url='url',     curr_date=curr_day)
-    zlje_3_df = get_zlje_data_from_db(url='url_3',   curr_date=curr_day)
-    zlje_5_df = get_zlje_data_from_db(url='url_5',   curr_date=curr_day)
-    zlje_10_df = get_zlje_data_from_db(url='url_10', curr_date=curr_day)
-
-    daily_df = hdata_day.get_data_from_hdata(start_date=curr_day, end_date=curr_day)
-
-    data_list = []
-    for image in images:
-
-        #'2019-07-09-600095-哈高科-873-960-960-873-997.png'
-        #2019-09-23-1-002436-兴森科技-814-878-891-796-840.png
-        tmp_image=image[0:image.rfind('.')]
-        if debug:
-            print('tmp_image: %s' % (tmp_image))
-
-        #stock_code=image[11:17]
-        stock_code=image[13:19]
-        stock_name = symbol(stock_code)
-        pos_s=stock_name.rfind('[')
-        pos_e=stock_name.rfind(']')
-        stock_name=stock_name[pos_s+1: pos_e]
-        
-        #save stock_code to txt_file
-        with open(txt_file,'a') as f:
-            f.write('%s \n' % stock_code)
-
-        if stock_code[0:1] == '6':
-            stock_code_new = 'SH' + stock_code
-        else:
-            stock_code_new = 'SZ' + stock_code
-
-        #funcat call
-        T(curr_day)
-        S(stock_code)
-        pre_close = REF(C, 1)
-        open_p = (O - pre_close)/pre_close
-        open_p = round (open_p.value, 4)
-        open_jump=open_p - 0.02
-        if debug:
-            print(str(curr_day), stock_code, O, H, L, C, open_p)
-
-        close_p = (C - pre_close)/pre_close
-        close_p = round (close_p.value, 4) * 100
-
-        hsgt_df = hsgtdata.get_data_from_hdata(stock_code=stock_code, end_date=curr_day, limit=60)
-        hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, conti_day, money_total, \
-            is_zig, is_quad, is_peach = comm_handle_hsgt_data(hsgt_df)
-        
-        tmp_df=daily_df[daily_df['stock_code']==stock_code_new]
-        tmp_df=tmp_df.reset_index(drop=True)
-        if debug:
-            print(tmp_df)
-        is_zig=tmp_df['is_zig'][0]
-        is_quad=tmp_df['is_quad'][0]
-        is_peach=tmp_df['is_peach'][0]
-
-
-
-        industry_name = basic_df.loc[stock_code]['industry']
-        insert_industry(dict_industry, industry_name)
-
-        zlje = get_zlje(zlje_df, stock_code, curr_date=curr_day)
-        zlje_3 = get_zlje(zlje_3_df, stock_code, curr_date=curr_day)
-        zlje_5 = get_zlje(zlje_5_df, stock_code, curr_date=curr_day)
-        zlje_10 = get_zlje(zlje_10_df, stock_code, curr_date=curr_day)
-
-        #### fina start ####
-        if stock_code[0:1] == '6':
-            stock_code_new= 'SH' + stock_code 
-        else:
-            stock_code_new= 'SZ' + stock_code 
-
-        fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code_new)
-        fina_df = fina_df.sort_values('record_date', ascending=0)
-        fina_df = fina_df.reset_index(drop=True)
-        
-        op_yoy = net_yoy = 0
-        if len(fina_df):
-            op_yoy = fina_df['operating_income_yoy'][0]
-            net_yoy = fina_df['net_profit_atsopc_yoy'][0]
-            
-            if debug:
-                print(stock_code_new)
-                print(fina_df)
-
-        fina=str(round(op_yoy,2)) +' ' + str(round(net_yoy,2))
-        new_date = curr_day[5:] + '<br>'+ fina + '</br>'
-        #### fina end ####
- 
-        #### holder start ####
-
-        holder_df = hdata_holder.get_data_from_hdata(stock_code = stock_code_new)
-        holder_df = holder_df .sort_values('record_date', ascending=0)
-        holder_df = holder_df .reset_index(drop=True)
-        h0 = h1 = h2 = 0
-        if len(holder_df) > 0:
-            h0 = holder_df['holder_num_change'][0]
-        if len(holder_df) > 1:
-            h1 = holder_df['holder_num_change'][1]
-        if len(holder_df) > 2:
-            h2 = holder_df['holder_num_change'][2]
-        h_chg = str(h0) + ' ' + str(h1) + ' ' + str(h2)
-        #stock_code = stock_code + '<br>'+ h_chg + '</br>'
-
-        #### holder start ####
-
-
-
-        data_list.append([new_date, stock_code, stock_name, close_p, C.value, image, \
-                hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, conti_day, \
-                money_total, total_mv,\
-                is_peach, is_zig, is_quad,\
-                zlje, zlje_3, zlje_5, zlje_10,h_chg ])
-
-    data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', 'image_url',\
-            'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'conti_day', \
-            'hk_m_total', 'total_mv',\
-            'peach', 'zig', 'quad', \
-            'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ]
-
-    ret_df=pd.DataFrame(data_list, columns=data_column)
-    ret_df['m_per_day'] = ret_df.hk_m_total / ret_df.conti_day
-    ret_df = ret_df.fillna(0)
-    ret_df=ret_df.round(2)
-    if debug:
-        print(ret_df)
-
-    data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', 'image_url',\
-            'peach', 'zig', 'quad',\
-            'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
-            'hk_date', 'hk_share', 'hk_pct', \
-            'hk_delta1', 'hk_deltam', 'conti_day', \
-            'hk_m_total', 'm_per_day', 'total_mv']
-
-    ret_df=ret_df.loc[:,data_column]
-
-    ret_df = ret_df.sort_values('hk_m_total', ascending=0)
- 
-    return ret_df
-
-
-
-
 def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry):
     
     unit_yi = 10000 * 10000
@@ -896,13 +961,12 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         if len(holder_df) > 2:
             h2 = holder_df['chg'][2]
 
-
         h_chg = '<br>'+ str(h0) + ' ' + str(h1) + ' ' + str(h2) + '</br>'\
                 + str(h_num) + ' ' + str(h_avg) + ' ' + str(delta_price) 
 
         #stock_code = stock_code + '<br>'+ h_chg + '</br>'
 
-        #### holder jigou ####
+#        #### holder jigou ####
         jigou_df = hdata_jigou.get_data_from_hdata(stock_code = stock_code)
         jigou_df = jigou_df.sort_values('record_date', ascending=False)
         jigou_df = jigou_df.reset_index(drop=True)

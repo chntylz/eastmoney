@@ -1,0 +1,68 @@
+#There must be 1 space after stock code!!!
+SH000001 shangzheng
+SZ399001 shenzheng
+SZ399006 chuangyeban
+SZ159994 5GETF
+
+
+SH600566 jichuanyaoye
+SZ002475 lixunjingmi
+SZ000860 shunxinnongye
+SH600741 huayuqiche
+SZ300633 kailiyiliao
+SZ300573 xingqiyanyao
+SZ300458 quanzhikeji
+SZ002230 kedaxunfei
+SH603520 sitaili
+SZ000977 langchaoxinxi
+SZ000401 jidongshuini
+SH603160 huidingkeji
+SZ300465 gaoweida
+
+SZ002064 huafenghuaxue
+
+SZ000513 lizhujituan
+SZ300638 guanghetong
+SH601318 zhongguopingan
+SH600529 shandongyaobo
+SZ000651 gelidianqi
+SH603799 huayouguye
+
+
+SZ002241 ge'ergufen
+SZ300676 huadajiyin
+SZ000922 jiadiangufen
+SH600460 shilanwei
+SZ002352 shunfengkonggu
+SZ002959 xiaoxiongdianqi
+
+SH600585 hailuoshuini
+SZ000877 tianshangufen
+SZ003009 zhongtianhuojian
+SZ002273 shuijingguangdian
+
+SZ300256 xingxingkeji
+SZ300556 silushijue
+
+SH600352 zhejianglongsheng
+
+SZ002572 suofeiya
+
+SZ002050 sanhuazhikong
+
+
+SZ002463 hudiankeji
+
+SZ002271 dongfangyuhong
+SZ002304 yanghegufen
+
+SZ002332 xianjuzhiyao
+SH603229 ao'xiangyaoye
+
+SZ300014 yiweilineng
+
+SH601117 zhongguohuaxue
+
+SZ002123 mengwangjituan
+
+SH600584 changdiankeji
