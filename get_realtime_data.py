@@ -25,7 +25,7 @@ import json
 
 
 debug=1
-debug=0
+debug=1
 
 import random
 def get_headers():
@@ -198,7 +198,7 @@ def get_realtime_data2():
     html = ''
     try:
         browser.get(url)
-        browser.implicitly_wait(3)
+        browser.implicitly_wait(10)
         html = browser.page_source
     except:
         browser.close()

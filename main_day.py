@@ -142,7 +142,7 @@ if __name__ == '__main__':
                     hdata_day.copy_from_stringio(k_df)
     else:
         print('today data')
-        work_df.to_csv('./csv/r_df_today.csv', encoding='gbk')
+        work_df.to_csv('./csv/r_df_'+ nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
         hdata_day.delete_data_from_hdata(
                 start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
                 end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
