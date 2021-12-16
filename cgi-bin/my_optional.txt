@@ -4,6 +4,11 @@ SZ399001 shenzheng
 SZ399006 chuangyeban
 SZ159994 5GETF
 
+SH600660 fuyaoboli
+SZ300888 wenjianyiliao
+SZ300821 dongyueguicai
+SH603313 mengbaihe
+SH601318 zhongguopingan
 
 SH600566 jichuanyaoye
 SZ002475 lixunjingmi
@@ -23,7 +28,6 @@ SZ002064 huafenghuaxue
 
 SZ000513 lizhujituan
 SZ300638 guanghetong
-SH601318 zhongguopingan
 SH600529 shandongyaobo
 SZ000651 gelidianqi
 SH603799 huayouguye

@@ -199,6 +199,79 @@ def xq_get_holder_data(symbol, page=1, size=10):
     return data_df
 
 
+def xq_get_fund(stock_code, report_date):
+
+    data_df = pd.DataFrame()
+
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+    #stock_code = 'SH600660'
+    #report_date = '2021-09-30'
+    fund_report_date = str(int(string2timestamp(report_date)*1000))
+
+    url='https://stock.xueqiu.com/v5/stock/f10/cn/org_holding/detail.json?'\
+        + 'symbol=' + stock_code + '&timestamp=' + fund_report_date + '&extend=true'
+
+    print(url)
+
+    try:
+        xq_login2(browser)
+    except Exception as e:
+        print(e)
+        print('alread login in')
+    finally:
+        pass
+
+
+    html = ''
+    try:
+        browser.get(url)
+        browser.implicitly_wait(5)
+        html = browser.page_source
+    except Exception as e:
+        print(e)
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+    s=html
+    s=s.replace('(', '_')   # replace '(' by '_'
+    s=s.replace(')', '')     # replace ')' by space
+    f1 = s.find('{')
+    s = s[:f1] + '(' + s[f1 : ]  #add '(' before first '{'
+    f2 = s.rfind('}')              #add ')' after last  '}'
+    s = s[:f2+1] + ')' + s[f2+1 : ]
+
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, s)
+    data = json.loads(response_array[0])
+
+
+    try:
+        data = json.loads(response_array[0])
+        data = data['data']['fund_items']
+    except Exception as e:
+        print(e)
+        print(url)
+        print(html)
+    finally:
+        pass
+
+
+    data_df = pd.DataFrame(data)
+
+    return data_df
+
 
 
 if __name__ == '__main__':
