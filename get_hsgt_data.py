@@ -35,7 +35,7 @@ set_data_backend(AaronDataBackend())
 
 
 debug=0
-#debug=1
+debug=1
 
 #file_path='/home/ubuntu/tmp/a_stock/hkexnews_scrapy/hkexnews_scrapy/json/20190823.json.gz'
 hdata_day=HData_eastmoney_day("usr","usr")
@@ -74,9 +74,9 @@ def hsgt_get_day_item_from_json(file_path):
         begin=line.rfind('{')
         end=line.rfind('}')
         s=line[begin:end+1]
+        s=s.replace('\\"', '_')
         s=s.replace('\'', '-')
         s=s.replace('\\', '')
-        s=s.replace('XI"AN', 'XI-AN')
 
         if debug:
             print('s---->%s'%(s))
