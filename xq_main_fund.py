@@ -29,6 +29,26 @@ def get_fund_rawdata(report_date):
     tt_1 = time.time()
     t_1 = t_2 = 0
     mod = 1000
+
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+    try:
+        xq_login2(browser)
+        xq_login2(browser)
+    except Exception as e:
+        print(e)
+        print('alread login in')
+    finally:
+        pass
+
+
     for i in range(0,length):
         
 
@@ -39,7 +59,7 @@ def get_fund_rawdata(report_date):
             stock_code_new= 'SH' + nowcode
         else:
             stock_code_new= 'SZ' + nowcode
-        tmp_df = xq_get_fund(stock_code_new, report_date)
+        tmp_df = xq_get_fund(browser, stock_code_new, report_date)
 
         if debug:
             print(i, stock_code_new)
@@ -52,7 +72,10 @@ def get_fund_rawdata(report_date):
             tmp_df.insert(0, 'stock_code'  , stock_code_new[2:], allow_duplicates=False)
             tmp_df = round(tmp_df, 2)
             tmp_df = tmp_df.fillna(0)
-            hdata_fund.copy_from_stringio(tmp_df)
+
+            #hdata_fund.copy_from_stringio(tmp_df)
+
+            df = pd.concat([df, tmp_df])
 
         #debug
         if( 0 ):
@@ -64,21 +87,23 @@ def get_fund_rawdata(report_date):
             d_t = t_2 - t_1
             if debug:
                 print(t_1, t_2)
-                print('get_fund() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
+                print(' get_fund_rawdata() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
                         (i, stock_code_new, d_t, len(tmp_df)))
+
+    browser.close()
+    browser.quit()
 
     tt_2 = time.time()
     delta_t = tt_2 - tt_1
     if debug:
-        print('get_fund() delta_t=%f' % delta_t)
+        print(' get_fund_rawdata() delta_t=%f' % delta_t)
         print('len(list(df))=%d' % len(list(df)))
         print('list(df)=%s' % list(df))
 
     return df
 
-def get_fund():
+def get_fund(report_date):
 
-    report_date = '2021-09-30'
     df = get_fund_rawdata(report_date)
     df = df.reset_index(drop=True)
 
@@ -100,11 +125,11 @@ def check_table():
         print('table not exist, create')
 
 
-def update_database_fund():
-    print('fund')
-    check_table()
-    df_fund = get_fund()
-    df_fund.to_csv('./csv/test_xq_fund.csv', encoding='gbk')
+def update_database_fund(report_date):
+    print('update_database_fund() %s' % report_date)
+    df_fund = get_fund(report_date)
+    hdata_fund.copy_from_stringio(df_fund)
+    df_fund.to_csv('./csv/test_xq_fund_' + report_date +'.csv', encoding='gbk')
 
 
 
@@ -118,7 +143,12 @@ if __name__ == '__main__':
     nowdate=datetime.datetime.now().date()
     print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
-    update_database_fund()
+    check_table()
+
+    update_database_fund('2021-12-31')
+    #update_database_fund('2021-09-30')
+    #update_database_fund('2021-06-30')
+    #update_database_fund('2021-03-31')
     
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))

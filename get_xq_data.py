@@ -199,49 +199,25 @@ def xq_get_holder_data(symbol, page=1, size=10):
     return data_df
 
 
-def xq_get_fund(stock_code, report_date):
+def xq_get_fund(browser, stock_code, report_date):
 
     data_df = pd.DataFrame()
 
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-
-    #stock_code = 'SH600660'
-    #report_date = '2021-09-30'
     fund_report_date = str(int(string2timestamp(report_date)*1000))
 
     url='https://stock.xueqiu.com/v5/stock/f10/cn/org_holding/detail.json?'\
-        + 'symbol=' + stock_code + '&timestamp=' + fund_report_date + '&extend=true'
-
-    print(url)
-
-    try:
-        xq_login2(browser)
-    except Exception as e:
-        print(e)
-        print('alread login in')
-    finally:
-        pass
-
+            + 'symbol=' + stock_code + '&timestamp=' + fund_report_date + '&extend=true'
 
     html = ''
     try:
+        browser.implicitly_wait(15)
+        #time.sleep(5)
         browser.get(url)
-        browser.implicitly_wait(5)
         html = browser.page_source
     except Exception as e:
         print(e)
-        browser.close()
-        browser.quit()
     finally:
-        browser.close()
-        browser.quit()
+        pass
 
     s=html
     s=s.replace('(', '_')   # replace '(' by '_'

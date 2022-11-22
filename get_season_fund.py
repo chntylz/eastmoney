@@ -201,7 +201,7 @@ if __name__ == '__main__':
     #df  = get_all_season_fund('2021-06-30')
 
 
-    df.to_csv('./csv/test_fund.csv', encoding='gbk')
+    df.to_csv('./csv/test_eastmoney_fund.csv', encoding='gbk')
     if len(df):
         check_table()
         hdata_fund.copy_from_stringio(df)

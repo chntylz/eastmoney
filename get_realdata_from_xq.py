@@ -95,8 +95,12 @@ def get_data():
 
 def get_data2(browser):
 
+#url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
+#        + '?page=1&size=10000&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
+
+    #10000 is too big now, change to 5000
     url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
-        + '?page=1&size=10000&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
+        + '?page=1&size=5000&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
 
     browser.get(url)
     browser.implicitly_wait(5)

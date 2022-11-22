@@ -56,7 +56,6 @@ def xq_get_original_data(datatype=None):
     t_1 = t_2 = 0
     mod = 1000
     for i in range(0,length):
-        
 
         if i % mod == 0:
             t_1 = time.time()
@@ -132,7 +131,7 @@ def check_table():
 def update_database_indicator():
     print('#indicator zhuyao caiwu zhibiao')
     df_indicator = xq_get_fina()
-    df_indicator.to_csv('./csv/test_indicator.csv', encoding='gbk')
+    df_indicator.to_csv('./csv/test_xq_indicator.csv', encoding='gbk')
     df_indicator = df_indicator.drop_duplicates(subset=['report_date', 'symbol'], keep='first')
     if len(df_indicator):
         hdata_fina.db_hdata_xq_create()
@@ -158,7 +157,7 @@ def spilt_df(df, key_word):
 def update_database_income():
     print('#income  net profit')
     df_income = xq_get_fina(datatype='income')
-    df_income.to_csv('./csv/test_income.csv', encoding='gbk')
+    df_income.to_csv('./csv/test_xq_income.csv', encoding='gbk')
     df_income = df_income.drop_duplicates(subset=['report_date', 'symbol'], keep='first')
     df_income = spilt_df(df_income,'operating_total_cost_si_new')
     if len(df_income):
@@ -169,7 +168,7 @@ def update_database_income():
 def update_database_balance():
     print('#balance zichan fuzhai biao')
     df_balance = xq_get_fina(datatype='balance')
-    df_balance.to_csv('./csv/test_balance.csv', encoding='gbk')
+    df_balance.to_csv('./csv/test_xq_balance.csv', encoding='gbk')
     df_balance = df_balance.drop_duplicates(subset=['report_date', 'symbol'], keep='first')
     df_balance = spilt_df(df_balance,'lt_staff_salary_payable_new')
     if len(df_balance):
@@ -180,7 +179,7 @@ def update_database_balance():
 def update_database_cashflow():
     print('#cashflow xianjinliuliang biao')
     df_cashflow = xq_get_fina(datatype='cashflow')
-    df_cashflow.to_csv('./csv/test_cashflow.csv', encoding='gbk')
+    df_cashflow.to_csv('./csv/test_xq_cashflow.csv', encoding='gbk')
     df_cashflow = df_cashflow.drop_duplicates(subset=['report_date', 'symbol'], keep='first')
     df_cashflow = spilt_df(df_cashflow,'net_increase_in_pledge_loans_new')
     if len(df_cashflow):
