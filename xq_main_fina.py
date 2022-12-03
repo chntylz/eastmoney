@@ -16,8 +16,15 @@ import numpy as np
 import sys
 import os
 
+import get_xq_data
 from xq_get_basic_data import * 
 from file_interface import * 
+
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 debug=0
@@ -28,6 +35,7 @@ hdata_fina=HData_xq_fina("usr","usr")
 hdata_income=HData_xq_income("usr","usr")
 hdata_balance=HData_xq_balance("usr","usr")
 hdata_cashflow=HData_xq_cashflow("usr","usr")
+
 
 
 def xq_handle_raw_df(df):
@@ -192,8 +200,37 @@ def update_database_cashflow():
 if __name__ == '__main__':
     
 
-    cript_name, para1 = check_input_parameter()
+    get_xq_data._init()
+
+# 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+#browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+
+    get_xq_data.set_browser(browser)
+    get_xq_data.xq_login2(browser)
+
+    #cript_name, para1 = check_input_parameter()
     
+    # 如果执行的方式错误输出使用方法
+    USAGE = '''
+        用法错误，正确方式如下：
+        python demo.py 1
+        '''
+    if len(argv) > 3:
+        print(USAGE)  # 如果传入的参数不足，输出正确用法
+        exit(1) # 异常退出(下面的代码将不会被执行)
+
+    script_name, para1, para2 = argv  # 将传入的参数赋值进行使用
+    
+    print("%s, %d, %s"%(script_name, int(para1), para2))
+
+
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -201,10 +238,24 @@ if __name__ == '__main__':
     nowdate=nowdate-datetime.timedelta(int(para1))
     print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
-    update_database_indicator()
-    update_database_income()
-    update_database_balance()
-    update_database_cashflow()
+    if para2 == "indicator":
+        print("indicator")
+        update_database_indicator()
+
+    if para2 == "income":
+        print("income")
+        update_database_income()
+
+    if para2 == "balance":
+        print("balance")
+        update_database_balance()
+
+    if para2 == "cashflow":
+        print("cashflow")
+        update_database_cashflow()
+    
+    browser.close()
+    browser.quit()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))

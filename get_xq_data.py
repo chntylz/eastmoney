@@ -24,6 +24,16 @@ import re
 
 debug = 0
 
+def _init():
+    global _global_browser
+    _global_browser = {}
+
+def set_browser(key):
+    _global_browser[0] = key
+
+def get_browser():
+    return  _global_browser[0]
+
 def xq_login(driver):
     print('xq_login')
     time.sleep(1)
@@ -51,7 +61,8 @@ def xq_login2(driver):
 
 
 def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
-     # finance
+
+    # finance
     finance_cash_flow_url = "https://stock.xueqiu.com/v5/stock/finance/cn/cash_flow.json?symbol="
     finance_indicator_url = "https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?symbol="
     finance_balance_url = "https://stock.xueqiu.com/v5/stock/finance/cn/balance.json?symbol="
@@ -77,7 +88,7 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     url += str(count)
 
     print(url)
-
+    '''
     # 添加无头headlesss
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
@@ -86,9 +97,11 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
-
+    '''
+    _global_browser = get_browser()
     try:
-        xq_login2(browser)
+        pass
+        # xq_login2(_global_browser)
     except Exception as e:
         print(e)
         print('alread login in')
@@ -97,17 +110,18 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
 
     html = ''
     try: 
-        browser.get(url)
-        browser.implicitly_wait(5)
-        html = browser.page_source
+        _global_browser.get(url)
+        _global_browser.implicitly_wait(5)
+        html = _global_browser.page_source
     except Exception as e:
         print(e)
-        browser.close()
-        browser.quit()
+        #_global_browser.close()
+        #_global_browser.quit()
     finally:
-        browser.close()
-        browser.quit()
-
+        #_global_browser.close() 
+        ##_global_browser.quit()
+        pass
+     
     if debug:
         print(html)
     
@@ -123,6 +137,7 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     try:
         fina_data = json.loads(response_array[0])
     except Exception as e:
+        xq_login2(_global_browser)
         print(e)
         print(url)
         print(html)
