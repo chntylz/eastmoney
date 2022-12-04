@@ -13,8 +13,17 @@ import numpy as np
 import sys
 import os
 
+import get_xq_data
 from xq_get_basic_data import * 
 from file_interface import * 
+
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
+
 
 
 debug=0
@@ -121,6 +130,22 @@ def update_database_holder():
 
 if __name__ == '__main__':
     
+    get_xq_data._init()
+
+# 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+#browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+
+    get_xq_data.set_browser(browser)
+    get_xq_data.xq_login2(browser)
+
+    #
 
     
     t1 = time.time()
@@ -131,6 +156,9 @@ if __name__ == '__main__':
 
     update_database_holder()
     
+    browser.close()
+    browser.quit()
+
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
 

@@ -22,7 +22,7 @@ import pandas as pd
 import os
 import re
 
-debug = 0
+debug = 1
 
 def _init():
     global _global_browser
@@ -158,6 +158,7 @@ def xq_get_holder_data(symbol, page=1, size=10):
     data_df = pd.DataFrame()
     print(url)
 
+    '''
     # 添加无头headlesss
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
@@ -166,9 +167,12 @@ def xq_get_holder_data(symbol, page=1, size=10):
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
+    '''
 
+    _global_browser = get_browser()
     try:
-        xq_login2(browser)
+        pass
+        # xq_login2(browser)
     except Exception as e:
         print(e)
         print('alread login in')
@@ -178,16 +182,17 @@ def xq_get_holder_data(symbol, page=1, size=10):
 
     html = ''
     try: 
-        browser.get(url)
-        browser.implicitly_wait(5)
-        html = browser.page_source
+        _global_browser.get(url)
+        _global_browser.implicitly_wait(5)
+        html = _global_browser.page_source
     except Exception as e:
         print(e)
-        browser.close()
-        browser.quit()
+        # _global_browser.close()
+        # _global_browser.quit()
     finally:
-        browser.close()
-        browser.quit()
+        # _global_browser.close()
+        # _global_browser.quit()
+        pass
 
     if debug:
         print(html)
@@ -205,6 +210,7 @@ def xq_get_holder_data(symbol, page=1, size=10):
         rawdata = api_param['data']['items']
         data_df = pd.DataFrame(rawdata)
     except Exception as e:
+        xq_login2(_global_browser)
         print(e)
         print(url)
         print(html)
@@ -214,7 +220,7 @@ def xq_get_holder_data(symbol, page=1, size=10):
     return data_df
 
 
-def xq_get_fund(browser, stock_code, report_date):
+def xq_get_fund(stock_code, report_date):
 
     data_df = pd.DataFrame()
 
@@ -224,11 +230,14 @@ def xq_get_fund(browser, stock_code, report_date):
             + 'symbol=' + stock_code + '&timestamp=' + fund_report_date + '&extend=true'
 
     html = ''
+    print(url)
+
+    _global_browser = get_browser()
     try:
-        browser.implicitly_wait(15)
+        _global_browser.implicitly_wait(15)
         #time.sleep(5)
-        browser.get(url)
-        html = browser.page_source
+        _global_browser.get(url)
+        html = _global_browser.page_source
     except Exception as e:
         print(e)
     finally:
@@ -252,6 +261,7 @@ def xq_get_fund(browser, stock_code, report_date):
         data = json.loads(response_array[0])
         data = data['data']['fund_items']
     except Exception as e:
+        xq_login2(_global_browser)
         print(e)
         print(url)
         print(html)

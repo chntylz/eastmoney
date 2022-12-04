@@ -13,8 +13,17 @@ import numpy as np
 import sys
 import os
 
+
+import get_xq_data
+from xq_get_basic_data import * 
 from file_interface import * 
-from xq_get_basic_data import *
+
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
 
 debug=0
 debug=0
@@ -30,25 +39,6 @@ def get_fund_rawdata(report_date):
     t_1 = t_2 = 0
     mod = 1000
 
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-
-    try:
-        xq_login2(browser)
-        xq_login2(browser)
-    except Exception as e:
-        print(e)
-        print('alread login in')
-    finally:
-        pass
-
-
     for i in range(0,length):
         
 
@@ -59,7 +49,7 @@ def get_fund_rawdata(report_date):
             stock_code_new= 'SH' + nowcode
         else:
             stock_code_new= 'SZ' + nowcode
-        tmp_df = xq_get_fund(browser, stock_code_new, report_date)
+        tmp_df = xq_get_fund(stock_code_new, report_date)
 
         if debug:
             print(i, stock_code_new)
@@ -90,8 +80,6 @@ def get_fund_rawdata(report_date):
                 print(' get_fund_rawdata() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
                         (i, stock_code_new, d_t, len(tmp_df)))
 
-    browser.close()
-    browser.quit()
 
     tt_2 = time.time()
     delta_t = tt_2 - tt_1
@@ -135,6 +123,21 @@ def update_database_fund(report_date):
 
 if __name__ == '__main__':
     
+    get_xq_data._init()
+
+# 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+#browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+
+    get_xq_data.set_browser(browser)
+    get_xq_data.xq_login2(browser)
+
 
     
     t1 = time.time()
@@ -146,9 +149,13 @@ if __name__ == '__main__':
     check_table()
 
     update_database_fund('2021-12-31')
-    #update_database_fund('2021-09-30')
-    #update_database_fund('2021-06-30')
-    #update_database_fund('2021-03-31')
+    update_database_fund('2022-09-30')
+    update_database_fund('2022-06-30')
+    update_database_fund('2022-03-31')
+    
+    
+    browser.close()
+    browser.quit()
     
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
