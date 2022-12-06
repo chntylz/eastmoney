@@ -148,10 +148,10 @@ if __name__ == '__main__':
 
     check_table()
 
-    update_database_fund('2021-12-31')
-    update_database_fund('2022-09-30')
-    update_database_fund('2022-06-30')
-    update_database_fund('2022-03-31')
+    update_database_fund('2022-12-31')
+    #update_database_fund('2022-09-30')
+    #update_database_fund('2022-06-30')
+    #update_database_fund('2022-03-31')
     
     
     browser.close()
