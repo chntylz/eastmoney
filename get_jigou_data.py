@@ -26,21 +26,23 @@ from get_realtime_data import *
 
 from HData_eastmoney_jigou import *
 
+
+
+
 hdata_jigou=HData_eastmoney_jigou("usr","usr")
 
+debug = 0
 debug = 1
-debug = 1
+
+browser = ''
 
 def get_jigou_data(stock_code, record_date):
+    retry = 3
+
+
     df = pd.DataFrame()
 
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
+    #stock_code = '300780'
 
     url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?'\
             + 'reportName=RPT_MAIN_ORGHOLD&columns=ALL&quoteColumns=&filter='\
@@ -57,11 +59,13 @@ def get_jigou_data(stock_code, record_date):
         browser.implicitly_wait(5)
         html = browser.page_source
     except:
-        browser.close()
-        browser.quit()
+        pass
+        #browser.close()
+        #browser.quit()
     finally:
-        browser.close()
-        browser.quit()
+        pass
+        #browser.close()
+        #browser.quit()
 
     if debug:
         print(url)
@@ -73,14 +77,64 @@ def get_jigou_data(stock_code, record_date):
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, s)
-    api_param = json.loads(response_array[0])
+    api_param = '' 
+    try :
+        api_param = json.loads(response_array[0])
+    except Exception as e:
+        print("retry ...") 
+        retry = retry - 1
+        browser.get(url)
+        browser.implicitly_wait(5)
+        html = browser.page_source
+
+        s=html
+
+        p1 = re.compile(r'[(](.*?)[)]', re.S)
+        response_array = re.findall(p1, s)
+        try :
+            api_param = json.loads(response_array[0])
+        except Exception as e:
+            print(e)
+            print(s)
+            return df,df
+        print(e)
+        print(s)
+        print(response_array)
+        print('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
+
+
     rawdata = ''
     try:
         rawdata = api_param['result']['data']
     except Exception as e:
+        print(api_param)
         print(e)
         print('get_jigou_data rawdata is none %s %s' % (stock_code, record_date))
-        return df,df
+
+        print("retry ...") 
+        retry = retry - 1
+        browser.get(url)
+        browser.implicitly_wait(5)
+        html = browser.page_source
+
+        s=html
+
+        p1 = re.compile(r'[(](.*?)[)]', re.S)
+        response_array = re.findall(p1, s)
+        try :
+            api_param = json.loads(response_array[0])
+            rawdata = api_param['result']['data']
+        except Exception as e:
+            print(e)
+            print(s)
+            return df,df
+        print(e)
+        print(s)
+        print(response_array)
+        print('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
+
+
+    print("retry=%d"% retry) 
 
     data_df = pd.DataFrame(rawdata)
     data_df = data_df.fillna(0)
@@ -116,13 +170,15 @@ def get_jigou_data(stock_code, record_date):
     df['freeshares_ratio'] = data_df['freeshares_ratio']
     df = round(df, 2)
 
+
     return df, data_df
 
 def get_jigou():
     
-    date_list = ['2021-09-30', '2021-06-30', '2021-03-31']
+    date_list = ['2022-09-30', '2022-06-30', '2022-03-31']
 
     df = tmp_df = raw_df = pd.DataFrame()
+    #get all stock info
     r_df, work_df, stop_df, api_param = get_realtime_data2()
 
     r_len = len(r_df)
@@ -166,7 +222,16 @@ def check_table():
     pass
 
 if __name__ == '__main__':
-    
+ 
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+   
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -181,6 +246,9 @@ if __name__ == '__main__':
     if len(df):
         check_table()
         hdata_jigou.copy_from_stringio(df)
+
+    browser.close()
+    browser.quit()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
