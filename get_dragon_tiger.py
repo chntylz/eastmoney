@@ -1,4 +1,4 @@
-#!/#!/usr/bin/env python  
+#!/usr/bin/env python  
 # -*- coding: utf-8 -*-
 
 #龙虎榜机构统计
@@ -7,6 +7,12 @@
 #https://datainterface3.eastmoney.com/EM_DataCenter_V3/api/LHBJGTJ/GetHBJGTJ?js=jQuery1123042907327005290474_1624455435981&sortfield=PBuy&sortdirec=1&pageSize=50&pageNum=1&tkn=eastmoney&code=&mkt=0&dateNum=&cfg=lhbjgtj&startDateTime=2021-06-23&endDateTime=2021-06-23
 
 
+#20221206
+#longhubang
+#https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112308537977646953068_1670331780571&sortColumns=SECURITY_CODE%2CTRADE_DATE&sortTypes=1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&columns=SECURITY_CODE%2CSECUCODE%2CSECURITY_NAME_ABBR%2CTRADE_DATE%2CEXPLAIN%2CCLOSE_PRICE%2CCHANGE_RATE%2CBILLBOARD_NET_AMT%2CBILLBOARD_BUY_AMT%2CBILLBOARD_SELL_AMT%2CBILLBOARD_DEAL_AMT%2CACCUM_AMOUNT%2CDEAL_NET_RATIO%2CDEAL_AMOUNT_RATIO%2CTURNOVERRATE%2CFREE_MARKET_CAP%2CEXPLANATION%2CD1_CLOSE_ADJCHRATE%2CD2_CLOSE_ADJCHRATE%2CD5_CLOSE_ADJCHRATE%2CD10_CLOSE_ADJCHRATE%2CSECURITY_TYPE_CODE&source=WEB&client=WEB&filter=(TRADE_DATE%3C%3D%272022-12-06%27)(TRADE_DATE%3E%3D%272022-12-06%27)
+
+#jigoumaimaitongji
+#https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery1123014370723883869285_1670332224441&sortColumns=NET_BUY_AMT%2CTRADE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1%2C1&pageSize=50&pageNumber=1&reportName=RPT_ORGANIZATION_TRADE_DETAILSNEW&columns=ALL&source=WEB&client=WEB&filter=(TRADE_DATE%3E%3D%272022-12-06%27)
 
 import pandas as pd
 import json
@@ -38,7 +44,7 @@ from file_interface import *
 
 from HData_eastmoney_dragon import *
 
-debug = 0
+debug = 1
 
 hdata_dragon = HData_eastmoney_dragon('usr', 'usr')
 
@@ -46,7 +52,7 @@ def check_table():
     table_exist = hdata_dragon.table_is_exist()
     print('table_exist=%d' % table_exist)
     if table_exist:
-        #hdata_dragon.db_hdata_xq_create()
+        hdata_dragon.db_hdata_xq_create()
         print('table already exist')
     else:
         hdata_dragon.db_hdata_xq_create()
@@ -204,6 +210,39 @@ def get_dragon_tiger2(date=None, url_type=None):
             + '&endDateTime='\
             + date
 
+
+#20221206
+#longhubang
+#https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112308537977646953068_1670331780571&sortColumns=SECURITY_CODE%2CTRADE_DATE&sortTypes=1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&columns=SECURITY_CODE%2CSECUCODE%2CSECURITY_NAME_ABBR%2CTRADE_DATE%2CEXPLAIN%2CCLOSE_PRICE%2CCHANGE_RATE%2CBILLBOARD_NET_AMT%2CBILLBOARD_BUY_AMT%2CBILLBOARD_SELL_AMT%2CBILLBOARD_DEAL_AMT%2CACCUM_AMOUNT%2CDEAL_NET_RATIO%2CDEAL_AMOUNT_RATIO%2CTURNOVERRATE%2CFREE_MARKET_CAP%2CEXPLANATION%2CD1_CLOSE_ADJCHRATE%2CD2_CLOSE_ADJCHRATE%2CD5_CLOSE_ADJCHRATE%2CD10_CLOSE_ADJCHRATE%2CSECURITY_TYPE_CODE&source=WEB&client=WEB&filter=(TRADE_DATE%3C%3D%272022-12-06%27)(TRADE_DATE%3E%3D%272022-12-06%27)
+    url = url_lhb = 'https://datacenter-web.eastmoney.com/api/data/v1/'\
+            + 'get?callback=jQuery112308537977646953068_'\
+            + timestamp \
+            + '&sortColumns=SECURITY_CODE%2CTRADE_DATE&sortTypes=1%2C-1&'\
+            + 'pageSize=5000&pageNumber=1&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&'\
+            + 'columns=SECURITY_CODE%2CSECUCODE%2CSECURITY_NAME_ABBR%2C'\
+            + 'TRADE_DATE%2CEXPLAIN%2CCLOSE_PRICE%2CCHANGE_RATE%2C'\
+            + 'BILLBOARD_NET_AMT%2CBILLBOARD_BUY_AMT%2CBILLBOARD_SELL_AMT%2C'\
+            + 'BILLBOARD_DEAL_AMT%2CACCUM_AMOUNT%2CDEAL_NET_RATIO%2CDEAL_AMOUNT_RATIO%2C'\
+            + 'TURNOVERRATE%2CFREE_MARKET_CAP%2CEXPLANATION%2CD1_CLOSE_ADJCHRATE%2C'\
+            + 'D2_CLOSE_ADJCHRATE%2CD5_CLOSE_ADJCHRATE%2CD10_CLOSE_ADJCHRATE%2CSECURITY_TYPE_CODE&'\
+            + 'source=WEB&client=WEB&filter=(TRADE_DATE%3C%3D%27'\
+            + date \
+            + '%27)(TRADE_DATE%3E%3D%27'\
+            + date \
+            + '%27)'
+
+#jigoumaimaitongji
+#https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery1123014370723883869285_1670332224441&sortColumns=NET_BUY_AMT%2CTRADE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1%2C1&pageSize=50&pageNumber=1&reportName=RPT_ORGANIZATION_TRADE_DETAILSNEW&columns=ALL&source=WEB&client=WEB&filter=(TRADE_DATE%3E%3D%272022-12-06%27)
+    url_jg =  'https://datacenter-web.eastmoney.com/api/data/v1/'\
+            + 'get?callback=jQuery1123014370723883869285_'\
+            + timestamp \
+            + '&sortColumns=NET_BUY_AMT%2CTRADE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1%2C1&pageSize=5000&pageNumber=1&'\
+            + 'reportName=RPT_ORGANIZATION_TRADE_DETAILSNEW&columns=ALL&source=WEB&client=WEB&filter=(TRADE_DATE%3E%3D%27'\
+            + date \
+            + '%27)'
+
+
+
     if url_type == None:
         url = url_lhb
     else:
@@ -250,6 +289,91 @@ def get_dragon_tiger2(date=None, url_type=None):
     return data_df
 
 
+
+
+def get_dragon_tiger3(date=None, url_type=None):
+
+    timestamp=str(round(time.time() * 1000))
+
+    if date == None:
+        nowdate=datetime.datetime.now().date()
+        date = nowdate.strftime("%Y-%m-%d")
+
+#https://www.zhihu.com/question/31600760
+
+#20221206
+#longhubang
+#https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112308537977646953068_1670331780571&sortColumns=SECURITY_CODE%2CTRADE_DATE&sortTypes=1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&columns=SECURITY_CODE%2CSECUCODE%2CSECURITY_NAME_ABBR%2CTRADE_DATE%2CEXPLAIN%2CCLOSE_PRICE%2CCHANGE_RATE%2CBILLBOARD_NET_AMT%2CBILLBOARD_BUY_AMT%2CBILLBOARD_SELL_AMT%2CBILLBOARD_DEAL_AMT%2CACCUM_AMOUNT%2CDEAL_NET_RATIO%2CDEAL_AMOUNT_RATIO%2CTURNOVERRATE%2CFREE_MARKET_CAP%2CEXPLANATION%2CD1_CLOSE_ADJCHRATE%2CD2_CLOSE_ADJCHRATE%2CD5_CLOSE_ADJCHRATE%2CD10_CLOSE_ADJCHRATE%2CSECURITY_TYPE_CODE&source=WEB&client=WEB&filter=(TRADE_DATE%3C%3D%272022-12-06%27)(TRADE_DATE%3E%3D%272022-12-06%27)
+    url = url_lhb = 'https://datacenter-web.eastmoney.com/api/data/v1/'\
+            + 'get?callback=jQuery112308537977646953068_'\
+            + timestamp \
+            + '&sortColumns=SECURITY_CODE%2CTRADE_DATE&sortTypes=1%2C-1&'\
+            + 'pageSize=5000&pageNumber=1&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&'\
+            + 'columns=SECURITY_CODE%2CSECUCODE%2CSECURITY_NAME_ABBR%2C'\
+            + 'TRADE_DATE%2CEXPLAIN%2CCLOSE_PRICE%2CCHANGE_RATE%2C'\
+            + 'BILLBOARD_NET_AMT%2CBILLBOARD_BUY_AMT%2CBILLBOARD_SELL_AMT%2C'\
+            + 'BILLBOARD_DEAL_AMT%2CACCUM_AMOUNT%2CDEAL_NET_RATIO%2CDEAL_AMOUNT_RATIO%2C'\
+            + 'TURNOVERRATE%2CFREE_MARKET_CAP%2CEXPLANATION%2CD1_CLOSE_ADJCHRATE%2C'\
+            + 'D2_CLOSE_ADJCHRATE%2CD5_CLOSE_ADJCHRATE%2CD10_CLOSE_ADJCHRATE%2CSECURITY_TYPE_CODE&'\
+            + 'source=WEB&client=WEB&filter=(TRADE_DATE%3C%3D%27'\
+            + date \
+            + '%27)(TRADE_DATE%3E%3D%27'\
+            + date \
+            + '%27)'
+
+#jigoumaimaitongji
+#https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery1123014370723883869285_1670332224441&sortColumns=NET_BUY_AMT%2CTRADE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1%2C1&pageSize=50&pageNumber=1&reportName=RPT_ORGANIZATION_TRADE_DETAILSNEW&columns=ALL&source=WEB&client=WEB&filter=(TRADE_DATE%3E%3D%272022-12-06%27)
+    url_jg =  'https://datacenter-web.eastmoney.com/api/data/v1/'\
+            + 'get?callback=jQuery1123014370723883869285_'\
+            + timestamp \
+            + '&sortColumns=NET_BUY_AMT%2CTRADE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1%2C1&pageSize=5000&pageNumber=1&'\
+            + 'reportName=RPT_ORGANIZATION_TRADE_DETAILSNEW&columns=ALL&source=WEB&client=WEB&filter=(TRADE_DATE%3E%3D%27'\
+            + date \
+            + '%27)'
+
+
+
+    if url_type == None:
+        url = url_lhb
+    else:
+        url = url_jg
+   
+    print(url)
+    
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+    html = ''
+    try:
+        browser.get(url)
+        browser.implicitly_wait(10)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+    if debug:
+        print(html)
+
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+    api_param = json.loads(response_array[0])
+    rawdata = api_param['result']['data']
+    data_df = pd.DataFrame(rawdata)
+
+    return data_df
+
+
 if __name__ == '__main__':
 
     cript_name, para1 = check_input_parameter()
@@ -267,29 +391,35 @@ if __name__ == '__main__':
     
     check_table()
 
-    jg_df = get_dragon_tiger2(nowdate.strftime("%Y-%m-%d"), url_type='all_jg')
-    all_df = get_dragon_tiger2(nowdate.strftime("%Y-%m-%d"))
+    jg_df = get_dragon_tiger3(nowdate.strftime("%Y-%m-%d"), url_type='all_jg')
+    all_df = get_dragon_tiger3(nowdate.strftime("%Y-%m-%d"))
+
     
     if len(jg_df) or len(all_df):
 
         jg_df.columns = jg_df.columns.map(lambda x:x.lower())
         all_df.columns = all_df.columns.map(lambda x:x.lower())
 
-        all_df = all_df.drop_duplicates(subset=['scode', 'tdate'], keep='first')
-        jg_df  = jg_df.drop_duplicates(subset=['scode', 'tdate'], keep='first')
+        jg_df   = jg_df.drop_duplicates(subset=['security_code', 'trade_date'], keep='first')
+        all_df  = all_df.drop_duplicates(subset=['security_code', 'trade_date'], keep='first')
+        jg_df['trade_date']   = jg_df['trade_date'].apply(lambda x: x[:10])
+        all_df['trade_date']  = all_df['trade_date'].apply(lambda x: x[:10])
 
-        conj_df = pd.merge(all_df, jg_df, how='outer', on=['scode', 'tdate'])
+        conj_df = pd.merge(all_df, jg_df, how='outer', on=['security_code', 'trade_date'])
         conj_df = conj_df.fillna(0)
         conj_df = conj_df.replace('',0)
         conj_df = conj_df.reset_index(drop=True)
         
-        conj_df['dp'] = conj_df['dp'].apply(lambda x: str(x).replace(',', '_') )
-        conj_df['ctypedes_x'] = conj_df['ctypedes_x'].apply(lambda x: str(x).replace(',', '_') )
-        conj_df['ctypedes_y'] = conj_df['ctypedes_y'].apply(lambda x: str(x).replace(',', '_') )
-
+        conj_df['explain'] = conj_df['explain'].apply(lambda x: str(x).replace('，', '_') )
+        conj_df['explanation_x'] = conj_df['explanation_x'].apply(lambda x: str(x).replace(',', '_') )
+        conj_df['explanation_y'] = conj_df['explanation_y'].apply(lambda x: str(x).replace(',', '_') )
 
         cur_time = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
         conj_df.to_csv('./csv/' + 'dragon-' + cur_time + '.csv', encoding='gbk')
+        print(jg_df)
+        print(all_df)
+        print(conj_df)
+
         hdata_dragon.delete_data_from_hdata(\
             start_date=nowdate.strftime("%Y-%m-%d"), \
             end_date=nowdate.strftime("%Y-%m-%d"))
