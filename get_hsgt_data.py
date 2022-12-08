@@ -35,7 +35,7 @@ set_data_backend(AaronDataBackend())
 
 
 debug=0
-debug=1
+debug=0
 
 #file_path='/home/ubuntu/tmp/a_stock/hkexnews_scrapy/hkexnews_scrapy/json/20190823.json.gz'
 hdata_day=HData_eastmoney_day("usr","usr")

@@ -52,7 +52,7 @@ def check_table():
     table_exist = hdata_dragon.table_is_exist()
     print('table_exist=%d' % table_exist)
     if table_exist:
-        hdata_dragon.db_hdata_xq_create()
+        #hdata_dragon.db_hdata_xq_create()
         print('table already exist')
     else:
         hdata_dragon.db_hdata_xq_create()
