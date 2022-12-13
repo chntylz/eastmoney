@@ -175,7 +175,8 @@ def get_jigou_data(stock_code, record_date):
 
 def get_jigou():
     
-    date_list = ['2022-09-30', '2022-06-30', '2022-03-31']
+    #date_list = ['2022-09-30', '2022-06-30', '2022-03-31']
+    date_list = ['2022-12-31']
 
     df = tmp_df = raw_df = pd.DataFrame()
     #get all stock info
