@@ -259,7 +259,7 @@ def hsgt_get_day_item_from_json(file_path):
     if debug:
         print(df)
 
-    df.to_csv('./hsgt_debug.csv', encoding='utf-8')
+    df.to_csv('./csv/' + datetime.datetime.now().date().strftime('%Y-%m-%d') + '_hsgt_debug.csv', encoding='utf-8')
 
     hdata_hsgt.insert_optimize_stock_hdatadate(df)
 

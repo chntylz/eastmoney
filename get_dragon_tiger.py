@@ -415,7 +415,7 @@ if __name__ == '__main__':
         conj_df['explanation_y'] = conj_df['explanation_y'].apply(lambda x: str(x).replace(',', '_') )
 
         cur_time = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-        conj_df.to_csv('./csv/' + 'dragon-' + cur_time + '.csv', encoding='gbk')
+        conj_df.to_csv('./csv/' + cur_time + '-dragon.csv', encoding='gbk')
         print(jg_df)
         print(all_df)
         print(conj_df)

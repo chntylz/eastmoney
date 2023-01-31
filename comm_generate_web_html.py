@@ -557,7 +557,7 @@ def comm_write_to_file(f, k, df, filename):
                #record_date,  stock_code,  stock_cname, share_holding,   close, a_pct,  hk_pct,  \
                #        delta1,  delta2,  delta3,  delta4,  delta5,  delta10, delta21, delta120, \
                #        delta1_m,    delta2_m,  delta3_m, delta4_m, delta5_m, delta10_m, delta21_m
-                if (j == k + 20):
+                if (j == k + 21):
                     f.write('           <a style="color: #FF0000"> %s</a>\n'%(element_value))
                 else:
                     if(j == 0): 

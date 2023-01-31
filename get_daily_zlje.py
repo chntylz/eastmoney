@@ -472,9 +472,9 @@ if __name__ == '__main__':
         print(list(df_5))
         print(list(df_10))
 
-    df.to_csv('csv/zlje_1.csv', encoding='gbk')
-    df_3.to_csv('csv/zlje_3.csv', encoding='gbk')
-    df_5.to_csv('csv/zlje_5.csv', encoding='gbk')
-    df_10.to_csv('csv/zlje_10.csv', encoding='gbk')
+    df.to_csv('csv/' + nowdate.strftime('%Y-%m-%d')+ '_zlje_1.csv', encoding='gbk')
+    df_3.to_csv('csv/' + nowdate.strftime('%Y-%m-%d') + '_zlje_3.csv', encoding='gbk')
+    df_5.to_csv('csv/' + nowdate.strftime('%Y-%m-%d') + '_zlje_5.csv', encoding='gbk')
+    df_10.to_csv('csv/' + nowdate.strftime('%Y-%m-%d') + '_zlje_10.csv', encoding='gbk')
 
 
