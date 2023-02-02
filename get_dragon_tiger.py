@@ -364,6 +364,20 @@ def get_dragon_tiger3(date=None, url_type=None):
     if debug:
         print(html)
 
+    #把中间的'(' ')' 替换成'-', 才能正确的把json 解析出来
+    s=html
+    f1 = s.find('(')
+    s = s[:f1] + '~' + s[f1+1 : ]  #first '(' -> '~'
+    f2 = s.rfind(')')              #last  ')' -> '@'
+    s = s[:f2] + '@' + s[f2+1 : ]
+
+    s = s.replace('(', '-')
+    s = s.replace(')', '-')
+
+    s = s.replace('~', '(' )
+    s = s.replace('@', ')' )
+    html=s
+
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
