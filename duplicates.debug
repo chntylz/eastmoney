@@ -1,0 +1,33 @@
+示例数据：
+import pandas as pd
+
+df = pd.DataFrame({'a':['Python', 'Python', 'Java', 'Java', 'C'], 'b': [2, 2, 6, 8, 10]})
+df
+
+仅判断单列是否有重复值
+
+1. 使用values_counts()对列中值出现次数进行统计。结果默认按照降序进行排列，只需要判断第一行值的出现次数是否为1即可判断是否存在重复值。
+    df['a'].value_counts()
+
+2. 使用drop_duplicates()对重复值进行删除，只保留第一次出现的值，判断处理后的值是否与原df相等，如果False就表示有重复值。
+    df.equals(df.drop_duplicates(subset=['a'], keep='first'))
+
+    False
+
+3. 判断所有列是否有重复行 同样是使用drop_duplicates()对重复值进行删除，只保留第一次出现的值，此时不适用subset参数设置列，默认为全部列，判断处理后的值是否与原df相等，如果False就表示有重复值。
+    df.equals(df.drop_duplicates(keep='first'))
+
+    False
+
+4. 统计重复行的数量
+    len(df) - len(df.drop_duplicates(keep="first"))
+
+5. 显示重复的数据行
+    先删除重复的行，只保留第一次出现的，得到一个行唯一的数据集，再使用drop_duplicates()删除掉df中存在重复的所有数据，这次不保留第一次出现的重复值，将上述两个结果集进行合并，使用drop_duplicates()对新生成的数据集进行去重，即可得到重复行的数据。
+
+    df.drop_duplicates(keep="first").append(df.drop_duplicates(keep=False)).drop_duplicates(keep=False)
+
+作者：Dream丶Killer
+链接：https://juejin.cn/post/7025198685784899592
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
