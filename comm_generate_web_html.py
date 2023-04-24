@@ -961,8 +961,8 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         if len(holder_df) > 2:
             h2 = holder_df['chg'][2]
 
-        h_chg = '<br>'+ str(h0) + ' ' + str(h1) + ' ' + str(h2) + '</br>'\
-                + str(h_num) + ' ' + str(h_avg) + ' ' + str(delta_price) 
+        h_chg = '<br>'+ str(h0) + '%' +' ' + str(h1) + '%' + ' ' + str(h2) + '%' + ' </br>'\
+                + 't' + str(h_num) + ' ' + 'a' + str(h_avg) + ' '+ 'd' + str(delta_price)
 
         #stock_code = stock_code + '<br>'+ h_chg + '</br>'
 

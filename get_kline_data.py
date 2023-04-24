@@ -220,7 +220,9 @@ def get_kline_data2(code=None, count=None, period=None):
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument("blink-settings=imagesEnabled=false")
+    chrome_options.add_argument('--disable-dev-shm-usage')
     browser = webdriver.Chrome(chrome_options=chrome_options)
+
 
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
     browser.maximize_window()  # 最大化窗口

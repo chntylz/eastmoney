@@ -170,6 +170,8 @@ def get_realtime_data2():
     # 添加无头headlesss
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
     browser = webdriver.Chrome(chrome_options=chrome_options)
 
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
