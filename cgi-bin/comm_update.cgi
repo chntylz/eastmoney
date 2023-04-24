@@ -280,8 +280,8 @@ def show_realdata():
             h1 = round(holder_df['chg'][1], 2)
         if len(holder_df) > 2:
             h2 = round(holder_df['chg'][2], 2)
-        h_chg = '<br>'+ str(h0) + ' ' + str(h1) + ' ' + str(h2) + '</br>'\
-                + str(h_num) + ' ' + str(h_avg) + ' ' + str(delta_price) 
+        h_chg = '<br>'+ str(h0) + '%' +' ' + str(h1) + '%' + ' ' + str(h2) + '%' + ' </br>'\
+                + 't' + str(h_num) + ' ' + 'a' + str(h_avg) + ' '+ 'd' + str(delta_price) 
 
 
         #### fund start ####
