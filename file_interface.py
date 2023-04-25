@@ -290,3 +290,36 @@ def timestamp2string(timeStamp):
     return '' 
 
 
+#output date_list_b = [ '2023-03-31', '2023-06-30', '2023-09-30', '2023-12-31']
+
+def get_curr_season():
+
+    date_list_a = [ '0331', '0630', '0930', '1230']
+    date_list_b = [ '03-31', '06-30', '09-30', '12-31']
+
+    nowdate=datetime.datetime.now().date()
+    curr_string = nowdate.strftime('%Y%m%d')
+    year_string = nowdate.strftime('%Y')
+
+    length = len(date_list_a)
+    position = 0
+    for i in range(length):
+       tmp_date = year_string + date_list_a[i]
+       ret=compare_time(curr_string,  tmp_date)
+       if ret:
+           position = i - 1
+           break 
+
+    for i in range(length):
+        tmp_string = ''
+        if i <= position: 
+           tmp_string = year_string
+        else:
+           tmp_int = int(year_string) - 1
+           tmp_string = str(tmp_int) 
+        date_list_b[i] = tmp_string + '-' + date_list_b[i]
+
+
+    return position, date_list_b
+
+

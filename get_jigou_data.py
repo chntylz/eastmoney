@@ -26,6 +26,7 @@ from get_realtime_data import *
 
 from HData_eastmoney_jigou import *
 
+from file_interface import *
 
 
 
@@ -96,7 +97,7 @@ def get_jigou_data(stock_code, record_date):
         except Exception as e:
             print(e)
             print(s)
-            return df,df
+            return df
         print(e)
         print(s)
         print(response_array)
@@ -173,10 +174,10 @@ def get_jigou_data(stock_code, record_date):
 
     return df, data_df
 
+
+
+
 def get_jigou():
-    
-    #date_list = ['2022-09-30', '2022-06-30', '2022-03-31']
-    date_list = ['2022-12-31']
 
     df = tmp_df = raw_df = pd.DataFrame()
     #get all stock info
@@ -184,10 +185,20 @@ def get_jigou():
 
     r_len = len(r_df)
 
+    position, date_list = get_curr_season()
+    new_date_list = []
+
+    #which season data will be fetched
+    table_exist = hdata_jigou.table_is_exist()
+    print('table_exist=%d' % table_exist)
+    if table_exist:
+        new_date_list.append(date_list[position])
+    else:
+        new_date_list = date_list
+
     for my_date in date_list:
 
         record_date = my_date
-
         for i in range(0, r_len):
             stock_code = r_df['stock_code'][i]
 

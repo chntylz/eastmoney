@@ -29,6 +29,7 @@ from HData_xq_holder import *
 
 from get_data_from_db import *
 
+from file_interface import *
 
 from HData_eastmoney_zlje import *
 from HData_eastmoney_zlje_3 import *
@@ -154,7 +155,11 @@ def cgi_handle_link(stock_code):
     cgi_url = xueqiu_url + '/detail#/ZYCWZB'    
     #holder_url = 'https://xueqiu.com/snowman/S/' + stock_code_new + '/detail#/GDRS'
     holder_url = xueqiu_url + '/detail#/GDRS'
-    return xueqiu_url, hsgt_url, cgi_url, holder_url
+
+    season_pos, date_list = get_curr_season()
+    jigou_url  = 'https://data.eastmoney.com/zlsj/detail/' + date_list[season_pos] +'-0-' + stock_code + '.html'
+
+    return xueqiu_url, hsgt_url, cgi_url, holder_url, jigou_url
  
     
 def cgi_write_to_file( df):
@@ -172,7 +177,7 @@ def cgi_write_to_file( df):
         a_array=df[i:i+1].values  #get line of df
         tmp_stock_code=a_array[0][1] 
         tmp_stock_code=tmp_stock_code[:6]
-        xueqiu_url, hsgt_url, cgi_url, holder_url = cgi_handle_link(tmp_stock_code)
+        xueqiu_url, hsgt_url, cgi_url, holder_url, jigou_url = cgi_handle_link(tmp_stock_code)
 
         col_name = list(df)
         col_len=len(col_name)
@@ -195,6 +200,8 @@ def cgi_write_to_file( df):
                 print('           <a> %.2f</a>\n'%(element_value))
             elif 'holder_change' in col_name[j]:
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(holder_url, element_value))
+            elif 'jigou' in col_name[j]:
+                print('           <a href="%s" target="_blank"> %s</a>\n'%(jigou_url, element_value))
             elif ('a_pct' in col_name[j]) or ('hk_deltam' in col_name[j]):
                 if float(element_value) > 0:
                     print('           <a> <font color="red"> %s </font></a>\n'%(element_value))
@@ -429,6 +436,7 @@ def comm_write_headline_column(f, df):
 
     f.write('    </tr>\n')
 
+
 def comm_handle_link(stock_code):
 
     tmp_stock_code=stock_code
@@ -443,7 +451,8 @@ def comm_handle_link(stock_code):
 
     holder_url = xueqiu_url + '/detail#/GDRS'    
     add_url    = xueqiu_url + '/detail#/GGZJC'    
-    jigou_url  = 'https://data.eastmoney.com/zlsj/detail/2021-09-30-0-' + stock_code + '.html'
+    season_pos, date_list = get_curr_season()
+    jigou_url  = 'https://data.eastmoney.com/zlsj/detail/' + date_list[season_pos] +'-0-' + stock_code + '.html'
     return xueqiu_url, hsgt_url, fina_url, holder_url, jigou_url
 
    

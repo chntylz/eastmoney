@@ -343,6 +343,7 @@ def cgi_generate_html(df):
 if __name__ == '__main__':
 
     df=show_realdata()
+    df = df.sort_values('hk_m_total', ascending=0)
     if debug:
         print(df)
 
