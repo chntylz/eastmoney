@@ -455,7 +455,7 @@ def comm_handle_link(stock_code):
     jigou_url  = 'https://data.eastmoney.com/zlsj/detail/' + date_list[season_pos] +'-0-' + stock_code + '.html'
     return xueqiu_url, hsgt_url, fina_url, holder_url, jigou_url
 
-   
+
 def comm_write_to_file(f, k, df, filename):
 
     jigou_date = ['03-31', '06-30', '09-30', '12-31']
@@ -480,8 +480,10 @@ def comm_write_to_file(f, k, df, filename):
         col_name = list(df)
         col_len=len(col_name)
         for j in range(0, col_len): #loop column
+            item_name = list(df)[j] 
             f.write('        <td>\n')
             element_value = a_array[0][j] #get a[i][j] element
+
             if debug:
                 print('element_value: %s' % element_value)
             '''
@@ -505,31 +507,38 @@ def comm_write_to_file(f, k, df, filename):
                 if(j == 0): 
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (fina_url, element_value))
-                elif (list(df)[j] == 'op_yoy'):
-                    f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
-                            (fina_url, element_value))
+                elif (item_name == 'op_yoy'):
+                    if float(element_value) > 0:
+                        f.write('           <a href="%s" target="_blank"> <font color="red"> %s </font> </a>\n'% (fina_url, element_value))
+                    else:
+                        f.write('           <a href="%s" target="_blank"> <font color="green"> %s </font> </a>\n'% (fina_url, element_value))
                 elif(j == 1): 
-                    f.write('           <a href="%s" target="_blank"> %s[hsgt]</a>\n'%\
-                            (hsgt_url, element_value))
+                    f.write('           <a href="%s" target="_blank"> %s[hsgt]</a>\n'%  (hsgt_url, element_value))
                 elif(j == 2):
-                    f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
-                            (xueqiu_url, element_value))
+                    f.write('           <a href="%s" target="_blank"> %s</a>\n'%  (xueqiu_url, element_value))
                 elif(j == 3):
                     f.write('           <a> %.2f</a>\n'%(element_value))
-                elif (list(df)[j] == 'holder_change') \
-                        or (list(df)[j] == 'holder_pct') \
-                        or (list(df)[j] == 'h0'):
-                    f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
-                            (holder_url, element_value))
-                elif list(df)[j] == 'jigou':
+                elif item_name in [ 'holder_change', ] :
+                    f.write('           <a href="%s" target="_blank">  %s </a>\n'% (holder_url, element_value))
+                elif item_name in ['holder_pct', 'h0'] :
+                    if float(element_value) > 0:
+                        f.write('           <a href="%s" target="_blank"> <font color="red"> %s </font> </a>\n'% (holder_url, element_value))
+                    else:
+                        f.write('           <a href="%s" target="_blank"> <font color="green"> %s </font> </a>\n'% (holder_url, element_value))
+                elif item_name == 'jigou':
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (jigou_url, element_value))
                 #fix bug:  must be real number, not datetime.date for holder function
-                elif list(df)[j] == 'hk_date':
+                elif item_name == 'hk_date':
                     f.write('           <a> %s</a>\n'%(element_value))
-                elif (list(df)[j] == 'dragon') or (list(df)[j] == 'lhb') :
+                elif item_name in [ 'dragon', 'lhb']:
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (dragon_url, element_value))
+                elif item_name in ['a_pct', 'zig' , 'op_yoy', 'net_yoy' ,  'h0' , 'h1' , 'h2' , 'delta1', 'delta1_m', 'money_total', 'm_per_day']:  
+                    if float(element_value) > 0:
+                        f.write('           <a> <font color="red"> %s </font></a>\n'%(element_value))
+                    else:
+                        f.write('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
                 else:
                     f.write('           <a> %s</a>\n'%(element_value))
             
@@ -575,9 +584,13 @@ def comm_write_to_file(f, k, df, filename):
                         f.write('           <a href="%s" target="_blank"> %s[hsgt]</a>\n'%(hsgt_url, element_value))
                     elif(j == 2):
                         f.write('           <a href="%s" target="_blank"> %s</a>\n'%(xueqiu_url, element_value))
+                    elif list(df)[j] in ['a_pct', 'zig' , 'op_yoy' , 'net_yoy' , 'zlje' , 'h0' , 'h1' , 'h2' , 'delta1', 'delta1_m', 'money_total', 'm_per_day']:  
+                        if float(element_value) > 0:
+                            f.write('           <a> <font color="red"> %s </font></a>\n'%(element_value))
+                        else:
+                            f.write('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
                     else:
                         f.write('           <a> %s</a>\n'%(element_value))
-            
                                 
             f.write('        </td>\n')
 
