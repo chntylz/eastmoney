@@ -4,6 +4,7 @@ SZ399001 shenzheng
 SZ399006 chuangyeban
 SZ159994 5GETF
 
+SZ300811 bokexincai
 SH600660 fuyaoboli
 SZ300888 wenjianyiliao
 SZ300821 dongyueguicai
