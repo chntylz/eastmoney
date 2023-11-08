@@ -119,6 +119,8 @@ def get_data2(browser):
     api_param = json.loads(response_array[0])
     rawdata = api_param['data']['list']
     df = pd.DataFrame(rawdata)
+    del df['mapping_quote_current']
+    del df['dual_counter_mapping_symbol']
     
     return df
 

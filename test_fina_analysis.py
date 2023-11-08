@@ -15,7 +15,7 @@ from HData_xq_balance  import *
 
 from xq_main_fina import *
 
-debug = 1
+debug = 0
 
 hdata_fina     = HData_xq_fina("usr","usr")
 hdata_income   = HData_xq_income("usr","usr")
@@ -29,6 +29,7 @@ def income_analysis_assets(df):
     df_len=len(df)
     #zong zi chan zengzhanglv  > 20%
     #total_assets_new
+    flag = True
     i = 0
     list = []
     list.append([df.stock_name[0], '总资产', '总资产增长率', 'result'])
@@ -42,6 +43,9 @@ def income_analysis_assets(df):
         if debug:
             print('record_date=%s, i=%d, total_assets=%f, total_assets_new=%f'\
                     %(df.record_date[i], i, df.total_assets[i]/y_unit, df.total_assets_new[i] * 100))
+        if df.total_assets_new[i] < 0.2:
+            flag = False
+
         list.append([df.record_date[i], df.total_assets[i]/y_unit, \
                 df.total_assets_new[i] * 100 , df.total_assets_new[i] >= 0.2])
 
@@ -49,12 +53,13 @@ def income_analysis_assets(df):
 
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #1-2
 def income_analysis_liab(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     #zong zi chan fuzhailv  < 60%
     #asset_liab_ratio_x
     i = 0
@@ -68,6 +73,9 @@ def income_analysis_liab(df):
             print('record_date=%s, i=%d, total_assets=%f, total_liab=%f, asset_liab_ratio_x=%f, '\
                     %(df.record_date[i], i, df.total_assets[i]/y_unit, \
                     df.total_liab[i]/y_unit, df.asset_liab_ratio_x[i]))
+        if df.asset_liab_ratio_x[i] >= 60:
+            flag = False
+
         list.append([df.record_date[i], df.total_assets[i]/y_unit, df.total_liab[i]/y_unit,\
                 df.asset_liab_ratio_x[i], df.asset_liab_ratio_x[i] < 60 ])
     biaozhun='看资产负债率，判断公司的债务风险.    资产负债率大于 60%的公司，债务风险较大需要注意'
@@ -75,12 +83,13 @@ def income_analysis_liab(df):
 
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #1-3
 def income_analysis_loan(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     #youxifuzhai > huobijijin  
     #fuzhai vs zichan
     i = 0
@@ -102,6 +111,8 @@ def income_analysis_loan(df):
                 df.interest_payable[i]/y_unit, df.noncurrent_liab_due_in1y[i]/y_unit, \
                 df.lt_loan[i]/y_unit, df.bond_payable[i]/y_unit, df.lt_payable[i]/y_unit, \
                 df.total_loan[i]/y_unit))
+        if df.currency_funds[i] <= df.total_loan[i]:
+            flag = False
         list.append([df.record_date[i], df.currency_funds[i]/y_unit, df.st_loan[i]/y_unit, \
                 df.interest_payable[i]/y_unit, df.noncurrent_liab_due_in1y[i]/y_unit, \
                 df.lt_loan[i]/y_unit, df.bond_payable[i]/y_unit, df.lt_payable[i]/y_unit, \
@@ -116,12 +127,14 @@ def income_analysis_loan(df):
     
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #1-4
 def income_analysis_payable_receivable(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
+
     #
     # yingfuyushou vs yingshouyufu
     i = 0
@@ -147,6 +160,8 @@ def income_analysis_payable_receivable(df):
         total_receivable_of_total_assets = 0
         if df.total_assets[i]:
             total_receivable_of_total_assets = total_receivable / df.total_assets[i] * 100 
+        if recv_of_total_assets >= 20:
+            flag = False
         list.append([df.record_date[i], \
             df.total_assets[i]/y_unit, df.bill_payable[i]/y_unit, df.accounts_payable[i]/y_unit,\
             df.pre_receivable[i]/y_unit, total_payable/y_unit, \
@@ -169,12 +184,13 @@ def income_analysis_payable_receivable(df):
     list.append([biaozhun, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #1-5
 def income_analysis_fixed_assets(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     #gudingzichan  < 40%
     #
     i = 0
@@ -193,6 +209,8 @@ def income_analysis_fixed_assets(df):
         total_fixed_of_total_assets = 0
         if df.total_assets[i]:
             total_fixed_of_total_assets = total_fixed/df.total_assets[i] * 100
+        if total_fixed_of_total_assets >= 40:
+            flag = False
         list.append([df.record_date[i], df.fixed_asset_sum[i]/y_unit, \
             df.construction_in_process_sum[i]/y_unit,\
             df.project_goods_and_material[i]/y_unit,\
@@ -209,12 +227,13 @@ def income_analysis_fixed_assets(df):
     list.append([biaozhun, 0,0,0,0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #1-6
 def income_analysis_invest(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     #invest ratio  < 10%
     biaozhun = '看投资类资产，判断公司的专注程度:\
         投资类资产我们只看一点，那就是与公司主业无关的投资类资产与总资产的比率。\
@@ -240,6 +259,9 @@ def income_analysis_invest(df):
         if df.total_assets[i]:
             total_invest_of_total_assets = total_invest/df.total_assets[i] * 100
 
+        if total_invest_of_total_assets  >= 10:
+            flag = False
+
         list.append([df.record_date[i], df.tradable_fnncl_assets[i]/y_unit, \
             df.saleable_finacial_assets[i]/y_unit,\
             df.lt_equity_invest[i]/y_unit, df.invest_property[i]/y_unit, \
@@ -251,12 +273,13 @@ def income_analysis_invest(df):
 
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #1-7
 def income_analysis_roe(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     # 15% < roe  < 39%
     biaozhun='看归母净利润，判断公司自有资本的获利能力:\归母净利润主要看两点，一是规模，二是增长率。\
     用“归母净利润”和“归母股东权益”可以计算出公司的净资产收益率，也叫 ROE。 \
@@ -276,6 +299,9 @@ def income_analysis_roe(df):
         roe = 0
         if  df.total_quity_atsopc[i]:
             roe = df.net_profit_atsopc_x[i] / df.total_quity_atsopc[i] * 100 
+        if roe < 15 :
+            flag = False
+
         list.append([df.record_date[i], df.net_profit_atsopc_x[i]/y_unit, \
             df.net_profit_atsopc_new_x[i] * 100, \
             df.total_quity_atsopc[i]/y_unit, \
@@ -285,12 +311,13 @@ def income_analysis_roe(df):
     list.append([biaozhun, 0,0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #2-1
 def income_analysis_revenue(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     # revenue_yoy > 10%
     # (cash_ratio = cash / revenue) > 100%
     biaozhun='看营业收入，判断公司的行业地位及成长能力:\
@@ -314,6 +341,8 @@ def income_analysis_revenue(df):
         if df.total_revenue_x[i]:
             cash_ratio = df.cash_received_of_sales_service[i] / df.total_revenue_x[i] * 100
         condi = df.total_revenue_new_x[i] * 100 > 10 and cash_ratio > 100
+        if condi is False:
+            flag = False
         list.append([df.record_date[i], df.total_revenue_x[i] / y_unit, \
             df.total_revenue_new_x[i] * 100, \
             df.cash_received_of_sales_service[i]/y_unit, \
@@ -323,12 +352,13 @@ def income_analysis_revenue(df):
     list.append([biaozhun,0,0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #2-2
 def income_analysis_gross(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     # gross_ratio > 40%
     biaozhun='看毛利率，判断公司产品的竞争力:\
             高毛利率说明公司的产品或服务有很强的竞争力。\
@@ -350,6 +380,8 @@ def income_analysis_gross(df):
         if df.total_revenue_x[i]:
             gross_ratio = gross / df.total_revenue_x[i] * 100
         condi = gross_ratio > 40
+        if condi is False:
+            flag = False
         list.append([df.record_date[i], df.total_revenue_x[i] / y_unit, \
             df.operating_cost[i]/y_unit, \
             gross / y_unit, \
@@ -359,13 +391,14 @@ def income_analysis_gross(df):
     list.append([biaozhun, 0,0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 
 #2-3
 def income_analysis_costfee(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     # costfee_ratio > 40%
     biaozhun='看费用率，判断公司成本管控能力:\
             毛利率高，费用率低，经营成果才可能好。\
@@ -397,6 +430,9 @@ def income_analysis_costfee(df):
             costfee_ratio = costfee_p / gross_ratio * 100 
 
         condi = gross_ratio > 40 and costfee_ratio < 60
+
+        if condi is False:
+            flag = False
         list.append([df.record_date[i], df.total_revenue_x[i] / y_unit, \
             df.operating_cost[i]/y_unit, \
             gross / y_unit, \
@@ -410,12 +446,13 @@ def income_analysis_costfee(df):
     list.append([biaozhun, 0, 0,0,0,0,0,0,0,0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #2-4
 def income_analysis_main_profit(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     # profit_ratio > 40%
     biaozhun='看主营利润，判断公司的盈利能力及利润质量:\
             主营利润是一家公司最主要的利润来源，主营利润小于 0 的公司，直接淘汰。\
@@ -462,6 +499,9 @@ def income_analysis_main_profit(df):
             main_profit_of_total_profit = main_profit / total_profit * 100
 
         condi = main_profit_of_total_profit > 80
+        if condi is False:
+            flag = False
+
         list.append([df.record_date[i], df.total_revenue_x[i] / y_unit, \
             df.operating_cost[i]/y_unit, \
             df.operating_taxes_and_surcharge[i] / y_unit, \
@@ -481,13 +521,14 @@ def income_analysis_main_profit(df):
     list.append([biaozhun, 0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 
 #2-5
 def income_analysis_net_profit(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     # ncf_ratio > 100%
     biaozhun='看净利润，判断公司的经营成果及含金量:\
             净利润金额越大越好。净利润小于 0 的公司，直接淘汰掉。\
@@ -521,6 +562,8 @@ def income_analysis_net_profit(df):
             net_profit_of_ncf_from_oa  = df.ncf_from_oa[i]  * 100/  df.net_profit[i]
 
         condi = net_profit_of_ncf_from_oa > 100 
+        if condi is False:
+            flag = False
         list.append([df.record_date[i], \
             df.ncf_from_oa[i]/ y_unit, \
             df.ncf_from_oa_new[i] * 100, \
@@ -530,7 +573,7 @@ def income_analysis_net_profit(df):
     list.append([biaozhun,biaozhun2,0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #3-1
 #cash flow
@@ -539,6 +582,7 @@ def income_analysis_net_profit(df):
 def income_analysis_paid_assets(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     # paid_assets_of_nc  [10% ~ 60%]
     biaozhun='看“购买固定资产、无形资产和其他长期资产支付的现金”，判断公司未来的成长能力:\
             “购买固定资产、无形资产和其他长期资产支付的现金”金额越大，公司未来成长能力越强。\
@@ -566,6 +610,8 @@ def income_analysis_paid_assets(df):
             disposal_assets_of_ncf  = df.net_cash_of_disposal_assets[i] / df.ncf_from_oa[i] * 100  
 
         condi = paid_assets_of_ncf  > 10 and paid_assets_of_ncf < 60 
+        if condi is False:
+            flag = False
         list.append([df.record_date[i], \
             df.ncf_from_oa[i]/ y_unit, \
             df.cash_paid_for_assets[i] / y_unit, \
@@ -576,7 +622,7 @@ def income_analysis_paid_assets(df):
     list.append([biaozhun,0,0,0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 #3-3
 #bonus
@@ -585,6 +631,7 @@ def income_analysis_paid_assets(df):
 def income_analysis_ncf_of_oa_ia_fa(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True
     # ncf_from_oa > 0
     biaozhun=' 看三大活动现金流量净额的组合类型，选出最佳类型的公司:\
         优秀的公司一般是“正负负”和“正正负”类型。\
@@ -600,6 +647,8 @@ def income_analysis_ncf_of_oa_ia_fa(df):
     #    'result'])
     for i in range(df_len):
         condi = df.ncf_from_oa[i] > 0 
+        if condi is False :
+            flag = False
         list.append([df.record_date[i], \
             df.ncf_from_oa[i]/ y_unit, \
             df.ncf_from_ia[i]/ y_unit, \
@@ -608,13 +657,14 @@ def income_analysis_ncf_of_oa_ia_fa(df):
     list.append([biaozhun, 0,0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 
 #3-5
 def income_analysis_net_increase(df):
     y_unit=10000*10000
     df_len=len(df)
+    flag = True 
     # net_increase_in_cce > 0
     biaozhun='看“现金及现金等价物的净增加额”，判断公司的稳定性:\
         “现金及现金等价物的净增加额”持续小于 0 的公司，很难稳定持续的保持现有的竞争力。\
@@ -628,6 +678,8 @@ def income_analysis_net_increase(df):
     #    'result'])
     for i in range(df_len):
         condi = df.net_increase_in_cce[i] > 0 
+        if condi is False:
+            flag = False
         list.append([df.record_date[i], \
             df.net_increase_in_cce[i]/ y_unit, \
             df.final_balance_of_cce[i]/ y_unit, \
@@ -635,7 +687,7 @@ def income_analysis_net_increase(df):
     list.append([biaozhun, 0,0,0])
     df_ret = pd.DataFrame(list)
     df_ret= df_ret.T
-    return df_ret
+    return df_ret, flag
 
 
 
@@ -668,51 +720,55 @@ def fina_data_analysis(df):
         stock_name=stock_name[pos_s+1: pos_e]
         group_df.insert(1, 'stock_name' , stock_name, allow_duplicates=False)
 
-        ret_df = asset_df = income_analysis_assets(group_df)
+        ret_df, flag = asset_df, flag_asset = income_analysis_assets(group_df)
         
-        liab_df  = income_analysis_liab(group_df)
+        liab_df, flag_liab  = income_analysis_liab(group_df)
         ret_df = pd.concat([ret_df, liab_df]) 
 
-        loan_df  = income_analysis_loan(group_df)
+        loan_df, flag_loan  = income_analysis_loan(group_df)
         ret_df = pd.concat([ret_df, loan_df]) 
 
-        pay_recv_df = income_analysis_payable_receivable(group_df)
+        pay_recv_df, flag_pay_recv = income_analysis_payable_receivable(group_df)
         ret_df = pd.concat([ret_df, pay_recv_df]) 
 
-        fix_assets_df = income_analysis_fixed_assets(group_df)
+        fix_assets_df, flag_fix_assets = income_analysis_fixed_assets(group_df)
         ret_df = pd.concat([ret_df, fix_assets_df]) 
 
-        invest_df = income_analysis_invest(group_df)
+        invest_df, flag_invest = income_analysis_invest(group_df)
         ret_df = pd.concat([ret_df, invest_df]) 
 
-        roe_df = income_analysis_roe(group_df)
+        roe_df, flag_roe = income_analysis_roe(group_df)
         ret_df = pd.concat([ret_df, roe_df]) 
 
-        revenue_df = income_analysis_revenue(group_df)
+        revenue_df, flag_revnue = income_analysis_revenue(group_df)
         ret_df = pd.concat([ret_df, revenue_df]) 
 
-        gross_df = income_analysis_gross(group_df)
+        gross_df, flag_gross = income_analysis_gross(group_df)
         ret_df = pd.concat([ret_df, gross_df]) 
 
-        costfee_df = income_analysis_costfee(group_df)
+        costfee_df, flag_costfee = income_analysis_costfee(group_df)
         ret_df = pd.concat([ret_df, costfee_df]) 
 
-        main_profit_df = income_analysis_main_profit(group_df)
+        main_profit_df, flag_main_frofit = income_analysis_main_profit(group_df)
         ret_df = pd.concat([ret_df, main_profit_df]) 
 
-        net_profit_df = income_analysis_net_profit(group_df)
+        net_profit_df, flag_net_profit = income_analysis_net_profit(group_df)
         ret_df = pd.concat([ret_df, net_profit_df]) 
 
-        paid_assets_df = income_analysis_paid_assets(group_df)
+        paid_assets_df, flag_paid_asset = income_analysis_paid_assets(group_df)
         ret_df = pd.concat([ret_df, paid_assets_df]) 
 
-        ncf_df = income_analysis_ncf_of_oa_ia_fa(group_df)
+        ncf_df, flag_ncf = income_analysis_ncf_of_oa_ia_fa(group_df)
         ret_df = pd.concat([ret_df, ncf_df]) 
 
-        net_increase_df = income_analysis_net_increase(group_df)
+        net_increase_df, flag_net_increase = income_analysis_net_increase(group_df)
         ret_df = pd.concat([ret_df, net_increase_df]) 
 
         ret_df.to_csv('./csv_data/' + stock_code + '_' + stock_name + '.csv', encoding='gbk')
+        
+        if flag and flag_net_increase and flag_ncf and flag_paid_asset and flag_net_profit and flag_main_frofit and flag_costfee and flag_gross \
+            and flag_revnue and flag_roe and flag_invest and flag_fix_assets and flag_asset and flag_liab and flag_loan and flag_pay_recv :
+            print("################################### %s, %s ################################\n"% (stock_code, stock_name))
     
     pass
 

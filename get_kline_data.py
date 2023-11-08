@@ -247,7 +247,13 @@ def get_kline_data2(code=None, count=None, period=None):
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
-    api_param = json.loads(response_array[0])
+    try:
+        api_param = json.loads(response_array[0])
+    except Exception as e:
+        print(e)
+    finally:
+        pass
+
     name = api_param['data']['name']
 
     rawdata = api_param['data']['klines']
