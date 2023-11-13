@@ -202,7 +202,7 @@ def cgi_write_to_file( df):
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(holder_url, element_value))
             elif 'jigou' in col_name[j]:
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(jigou_url, element_value))
-            elif ('a_pct' in col_name[j]) or ('hk_deltam' in col_name[j]):
+            elif ('a_pct' in col_name[j])  or ('hk_deltam' in col_name[j]) or ('zig' in col_name[j]):
                 if float(element_value) > 0:
                     print('           <a> <font color="red"> %s </font></a>\n'%(element_value))
                 else:
