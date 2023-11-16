@@ -161,6 +161,8 @@ if __name__ == '__main__':
     df=hsgt_get_all_data()
     all_df, latest_date = hsgt_handle_all_data(df)
 
+    zig_p_df = all_df[all_df.is_zig > 0]
+
     save_dir = "hsgt"
     exec_command = "mkdir -p " + (save_dir)
     print(exec_command)
@@ -177,27 +179,27 @@ if __name__ == '__main__':
     newfile=save_dir + '/' + file_name + '.html'
     comm_handle_html_head(newfile, 'hsgt', latest_date)
     hsgt_handle_html_special(newfile)
-    comm_handle_html_body(newfile, all_df, 'p_money')
+    comm_handle_html_body(newfile, zig_p_df, 'p_money')
     comm_handle_html_end(newfile)
 
     file_name=save_dir + '-' + datetime.datetime.strptime(latest_date,'%Y-%m-%d').strftime("%Y-%m-%d-%w") + '-r2'
     newfile=save_dir + '/' + file_name + '.html'
     comm_handle_html_head(newfile, 'hsgt', latest_date)
     hsgt_handle_html_special(newfile)
-    comm_handle_html_body(newfile, all_df, 'p_continous_day')
+    comm_handle_html_body(newfile, zig_p_df, 'p_continous_day')
     comm_handle_html_end(newfile)
 
     file_name=save_dir + '-' + datetime.datetime.strptime(latest_date,'%Y-%m-%d').strftime("%Y-%m-%d-%w") + '-r3'
     newfile=save_dir + '/' + file_name + '.html'
     comm_handle_html_head(newfile, 'hsgt', latest_date)
     hsgt_handle_html_special(newfile)
-    comm_handle_html_body(newfile, all_df, 'p_minus_money')
+    comm_handle_html_body(newfile, zig_p_df, 'p_minus_money')
     comm_handle_html_end(newfile)
 
     file_name=save_dir + '-' + datetime.datetime.strptime(latest_date,'%Y-%m-%d').strftime("%Y-%m-%d-%w") + '-r4'
     newfile=save_dir + '/' + file_name + '.html'
     comm_handle_html_head(newfile, 'hsgt', latest_date)
     hsgt_handle_html_special(newfile)
-    comm_handle_html_body(newfile, all_df, 'p_minus_continous_day')
+    comm_handle_html_body(newfile, zig_p_df, 'p_minus_continous_day')
     comm_handle_html_end(newfile)
 

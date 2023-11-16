@@ -534,7 +534,7 @@ def comm_write_to_file(f, k, df, filename):
                 elif item_name in [ 'dragon', 'lhb']:
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (dragon_url, element_value))
-                elif item_name in ['a_pct', 'zig' , 'op_yoy', 'net_yoy' ,  'h0' , 'h1' , 'h2' , 'delta1', 'delta1_m', 'money_total', 'm_per_day']:  
+                elif item_name in ['a_pct', 'zig' , 'op_yoy', 'net_yoy' ,  'h0' , 'h1' , 'h2' , 'delta1', 'delta1_m', 'money_total', 'm_per_day', 'hk_deltam']:  
                     if float(element_value) > 0:
                         f.write('           <a> <font color="red"> %s </font></a>\n'%(element_value))
                     else:
@@ -584,7 +584,7 @@ def comm_write_to_file(f, k, df, filename):
                         f.write('           <a href="%s" target="_blank"> %s[hsgt]</a>\n'%(hsgt_url, element_value))
                     elif(j == 2):
                         f.write('           <a href="%s" target="_blank"> %s</a>\n'%(xueqiu_url, element_value))
-                    elif list(df)[j] in ['a_pct', 'zig' , 'op_yoy' , 'net_yoy' , 'zlje' , 'h0' , 'h1' , 'h2' , 'delta1', 'delta1_m', 'money_total', 'm_per_day']:  
+                    elif list(df)[j] in ['a_pct', 'zig' , 'op_yoy' , 'net_yoy' , 'zlje' , 'h0' , 'h1' , 'h2' , 'delta1', 'delta1_m', 'money_total', 'm_per_day', 'hk_deltam' ]:  
                         if float(element_value) > 0:
                             f.write('           <a> <font color="red"> %s </font></a>\n'%(element_value))
                         else:

@@ -303,7 +303,8 @@ if __name__ == '__main__':
     df_global  = kline_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
 
     #delete 68???? kechuangban
-    df = k_df = df_global[~(df_global.stock_code.str[:2] == '68')]
+    df = df_global[~(df_global.stock_code.str[:2] == '68')]
+    df = k_df = df[df.is_zig > 0]
 
     #zig
     print('#############################################################')

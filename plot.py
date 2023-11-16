@@ -271,7 +271,8 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     if debug:
         print('figure_name:%s' % figure_name)
     
-    if False:
+    #if False:
+    if True:
         fig.savefig(figure_name)
     else:
         os.system("echo " + figure_name + "> ./" + figure_name)
