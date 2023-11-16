@@ -15,4 +15,4 @@ cp ../get_daily_zlje.py $target
 cp ../file_interface.py $target
 
 cp ../zig.py $target
-cp ../plot.py $target
+cp ./plot.py $target

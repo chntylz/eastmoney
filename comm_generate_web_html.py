@@ -198,6 +198,10 @@ def cgi_write_to_file( df):
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(xueqiu_url, element_value))
             elif(j == col_len - 1):
                 print('           <a> %.2f</a>\n'%(element_value))
+            elif 'share_holding' in col_name[j]:
+                print('           <a> %.2f</a>\n'%(element_value/1000/1000))
+            elif 'total_mv' in col_name[j]:
+                print('           <a> %.2f</a>\n'%(element_value/1000/1000/1000))
             elif 'holder_change' in col_name[j]:
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(holder_url, element_value))
             elif 'jigou' in col_name[j]:
@@ -233,7 +237,7 @@ def cgi_hsgt_part_body():
     print ('   code or name <input type="text" name="name" />')
     print ('   <input type="submit" />')
     print ('   </form>')
-    print ('   <a href="%s" target="_blank"> [picture]</a>' % ('../html/test.png'))
+    print ('   <a href="%s" target="_blank"> [picture]</a>' % ('../test.png'))
     print ('   <p></p>')
     pass
     
