@@ -400,7 +400,8 @@ if __name__ == '__main__':
     cross3line_df = df[(df.is_cross3line == 1)]
     html_cross3line_df = convert_to_html_df(cross3line_df)
     if len(html_cross3line_df):
-        html_cross3line_df = html_cross3line_df.sort_values('a_pct', ascending=0)
+        #html_cross3line_df = html_cross3line_df.sort_values('a_pct', ascending=0)
+        html_cross3line_df = html_cross3line_df.sort_values('zig', ascending=1)
         generate_html(html_cross3line_df)
     else:
         print('#error, html_cross3line_df len < 1')
@@ -425,6 +426,7 @@ if __name__ == '__main__':
     print('start zlje')
     curr_dir=curr_day_w+'-zlje'
     zlje_df = combine_zlje_data(db_table=zlje_table, first_df=k_df, second_df=None)
+    zlje_df = zlje_df.sort_values('zig', ascending=1)
     if debug:
         print(zlje_df)
     html_zlje_df = convert_to_html_df(zlje_df)
@@ -455,6 +457,7 @@ if __name__ == '__main__':
     print('start dragon')
     curr_dir=curr_day_w+'-dragon'
     dragon_df = combine_zlje_data(db_table=dragon_table, first_df=k_df, second_df=None)
+    dragon_df = dragon_df.sort_values('zig', ascending=1)
     if debug:
         print(dragon_df)
     html_dragon_df = convert_to_html_df(dragon_df)
@@ -477,6 +480,7 @@ if __name__ == '__main__':
         print('holder_df', holder_df)
     
     holder_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=holder_df)
+
     if debug:
         print('holder_df', holder_df)
     html_holder_df = convert_to_html_df(holder_df)
