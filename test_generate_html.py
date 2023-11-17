@@ -426,10 +426,10 @@ if __name__ == '__main__':
     print('start zlje')
     curr_dir=curr_day_w+'-zlje'
     zlje_df = combine_zlje_data(db_table=zlje_table, first_df=k_df, second_df=None)
-    zlje_df = zlje_df.sort_values('zig', ascending=1)
     if debug:
         print(zlje_df)
     html_zlje_df = convert_to_html_df(zlje_df)
+    html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
     if len(html_zlje_df):
         generate_html(html_zlje_df)
     else:
@@ -457,10 +457,10 @@ if __name__ == '__main__':
     print('start dragon')
     curr_dir=curr_day_w+'-dragon'
     dragon_df = combine_zlje_data(db_table=dragon_table, first_df=k_df, second_df=None)
-    dragon_df = dragon_df.sort_values('zig', ascending=1)
     if debug:
         print(dragon_df)
     html_dragon_df = convert_to_html_df(dragon_df)
+    html_dragon_df = html_dragon_df.sort_values('zig', ascending=1)
     if len(html_dragon_df):
         generate_html(html_dragon_df)
     else:
