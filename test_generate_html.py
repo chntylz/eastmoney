@@ -429,7 +429,7 @@ if __name__ == '__main__':
     if debug:
         print(zlje_df)
     html_zlje_df = convert_to_html_df(zlje_df)
-    html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
+    #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
     if len(html_zlje_df):
         generate_html(html_zlje_df)
     else:
