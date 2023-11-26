@@ -8,7 +8,7 @@ nowdate=datetime.datetime.now().date()
 #nowdate=nowdate-datetime.timedelta(1)
 src_dir=nowdate.strftime("%Y-%m-%d")
 stock_data_dir="stock_data"
-file_name='basic'
+file_name='volume'
 target_html=file_name + '-index.html'
 
 def showImageInHTML(imageTypes,savedir):
@@ -74,6 +74,8 @@ def showImageInHTML(imageTypes,savedir):
 
         #f.write('<h2  align="center" style="color:blue ; font-size:34px">别人贪婪时我恐惧 别人恐惧时我贪婪</h2>\n')
         f.write('<table class="gridtable">\n')
+        
+       
 
 
         i=0
@@ -87,14 +89,8 @@ def showImageInHTML(imageTypes,savedir):
         for image in images:
             # '2019-07-10.html' -> '2019-07-10' 
             tmp_image=image[0:image.rfind('.')]
-            print("tmp_image=%s" % (tmp_image))
-            tmp_tmp_image=tmp_image
-            if 'new' in tmp_image:
-                print(tmp_image)
-                tmp_tmp_image=tmp_image[0:tmp_image.rfind('new')-1]
-                print(tmp_tmp_image)
-               
-            image = stock_data_dir + '/' + tmp_tmp_image + '/' + image
+            print("%s" % (tmp_image))
+            image = stock_data_dir + '/' + tmp_image + '/' + image
 
 
             if i % column == 0:
@@ -127,28 +123,9 @@ def getAllFiles(directory):
     for dirpath, dirnames,filenames in os.walk(directory):
         if filenames!=[]:
             for file in filenames:
-                if ('index' in file) or \
-                        ('dragon' in file) or \
-                        ('zlje' in file) or \
-                        ('repurchase' in file) or \
-                        ('holder' in file) or \
-                        ('fund' in file) or \
-                        ('zheli' in file)  or \
-                        ('macd' in file)  or \
-                        ('zig' in file) or \
-                        ('hsgt' in file ) or \
-                        ('test' in file ) or \
-                        ('quad' in file)  or \
-                        ('finance' in file) or \
-                        ('peach' in file) or \
-                        ('cuptea' in file) or \
-                        ('duckhead' in file) or \
-                        ('cross3line' in file) or \
-                        ('volume' in file) or \
-                        ('jigou' in file) or \
-                        ('5days' in file) :
+                if (file_name + '-index') in file:
                     continue;
-                else:
+                if file_name in file:
                     files.append(dirpath+'/'+file)
     # files.sort(key=len)
     files=sorted(files, reverse=True)
@@ -167,4 +144,6 @@ def cur_file_dir():
         
 if __name__ == '__main__':
     savedir=cur_file_dir()#获取当前.py脚本文件的文件路径
+    print('savedir:%s' % savedir)
     showImageInHTML(('html'), savedir)#浏览所有jpg,png,gif文件
+

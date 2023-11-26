@@ -125,6 +125,10 @@ def showImageInHTML(imageTypes,savedir):
         f.write('</td>\n')
  
         f.write('<td>\n')
+        f.write('     <a href="volume-index.html"  target="_blank"> volume </a>\n')
+        f.write('</td>\n')
+ 
+        f.write('<td>\n')
         f.write('     <a href="./stock_data/finance/finance.html"  target="_blank"> finance </a>\n')
         f.write('</td>\n')
         f.write('<td>\n')
