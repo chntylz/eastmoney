@@ -304,6 +304,7 @@ if __name__ == '__main__':
 
     #delete 68???? kechuangban
     df = df_global[~(df_global.stock_code.str[:2] == '68')]
+
     df = k_df = df[df.is_zig > 0]
 
     #zig

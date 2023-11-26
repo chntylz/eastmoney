@@ -17,7 +17,7 @@ eastmoney_cols = " record_date, stock_code, stock_name, open, close, high, low,\
         volume, amount, amplitude, percent, chg, turnoverrate,\
         pre_close, pe, pb, mkt_cap, circulation_mkt, zlje, \
         is_peach , is_zig , is_quad ,\
-        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line "
+        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume "
 
 
 class HData_eastmoney_day(object):
@@ -95,7 +95,8 @@ class HData_eastmoney_day(object):
 		is_up_days float, 
 		is_cup_tea float, 
 		is_duck_head float,
-		is_cross3line float
+		is_cross3line float, 
+	    is_d_volume	float
                );
             alter table eastmoney_d_table add primary key(stock_code,record_date);
             ''')

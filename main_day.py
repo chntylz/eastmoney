@@ -68,6 +68,9 @@ def handle_raw_df(df):
         df['is_duck_head'] = 0
     if 'is_cross3line' not in df.columns:
         df['is_cross3line'] = 0
+    if 'is_d_volum' not in df.columns:
+        df['is_d_voulum'] = 0
+
 
     df=df.fillna(0)
    
@@ -76,7 +79,7 @@ def handle_raw_df(df):
         'volume', 'amount', 'amplitude', 'percent', 'chg', 'turnoverrate',\
         'pre_close', 'pe', 'pb', 'mkt_cap', 'circulation_mkt', 'zlje',\
         'is_peach' , 'is_zig' , 'is_quad' ,\
-        'is_macd', 'is_2d3pct', 'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' ]
+        'is_macd', 'is_2d3pct', 'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line', 'is_d_volume' ]
         
     #resort conlums
     df = df[new_cols]

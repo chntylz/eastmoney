@@ -1,4 +1,4 @@
-#!/usr/bin/env python  
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # 2019-05-24, aaron
 #time
@@ -93,6 +93,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
         draw_flag = False
         is_cross3line = 0
+        is_d_volume = 0
         is_peach = 0
         is_zig = 0
         is_quad = 0
@@ -166,7 +167,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if len(detail_info) <= within_days  or (detail_info is None):
             # print('NaN: code:%s, name:%s' % (nowcode, nowname ))
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
             continue
          
         db_max_date = detail_info['record_date'][len(detail_info)-1]
@@ -342,7 +343,16 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     (nowcode, nowname ))
                 if debug:
                     print('is_peach %s' % is_peach)
+        ################################################################################################
+        #is_d_volume        
+        if (V >= (2 * REF(V, 1))):
+            is_d_volume = 1
 
+        if is_d_volume:
+            print("[is_d_volume] volume is bigger than last day: code:%s, name:%s" % \
+                (nowcode, nowname ))
+        if debug:
+            print('is_d_volume %s' % is_d_volume)
         ################################################################################################
 
         #is_zig
@@ -691,7 +701,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         except:
             print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                    is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line])
+                    is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
             continue
         else:
             pass
@@ -724,7 +734,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             if H2_days.value > 200:
                 print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
                 update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line])
+                        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
                 continue
 
             if debug:
@@ -840,18 +850,18 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         ###############################################################################################
         
         update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
 
         if debug:
             print('#############################################################################')
             print([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
 
     if debug:
         print('update_list:%s'% update_list)
 
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
-            'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' ]
+            'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume']
     update_df=pd.DataFrame(update_list, columns=data_column)
     if debug:
         print(update_df)
@@ -881,6 +891,7 @@ def update_peach_zig_quad(nowdate, df, df1):
     tmp_df['is_cup_tea']  = tmp_df1['is_cup_tea']
     tmp_df['is_duck_head']  = tmp_df1['is_duck_head']
     tmp_df['is_cross3line']  = tmp_df1['is_cross3line']
+    tmp_df['is_d_volume']  = tmp_df1['is_d_volume']
 
     tmp_df.to_csv('./csv/cross_condition.csv', encoding='gbk')
 
