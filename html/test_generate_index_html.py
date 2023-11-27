@@ -125,10 +125,6 @@ def showImageInHTML(imageTypes,savedir):
         f.write('</td>\n')
  
         f.write('<td>\n')
-        f.write('     <a href="volume-index.html"  target="_blank"> volume </a>\n')
-        f.write('</td>\n')
- 
-        f.write('<td>\n')
         f.write('     <a href="./stock_data/finance/finance.html"  target="_blank"> finance </a>\n')
         f.write('</td>\n')
         f.write('<td>\n')
@@ -151,6 +147,10 @@ def showImageInHTML(imageTypes,savedir):
         f.write('<td>\n')
         f.write('     <a href="../cgi-bin/comm_update.cgi"  target="_blank">comm_update </a>\n')
         f.write('</td>\n')
+        f.write('<td>\n')
+        f.write('     <a href="volume-index.html"  target="_blank"> volume </a>\n')
+        f.write('</td>\n')
+ 
         f.write('    </tr>\n')
 
         f.write('</h2>\n')

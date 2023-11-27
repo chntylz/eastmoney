@@ -319,11 +319,25 @@ if __name__ == '__main__':
     else:
         print('#error, html_zig_df len < 1')
 
+    #double_volume
+    print('#############################################################')
+    print('start double volume')
+    curr_dir=curr_day_w+'-volume'
+    volume_df = df[(df.is_d_volume == 1) & (df.is_zig > 0) & (df.percent > 3.0)]
+    html_volume_df =  convert_to_html_df(volume_df)
+    if len(html_volume_df):
+        html_volume_df = html_volume_df.sort_values('zig', ascending=1)
+        generate_html(html_volume_df)
+    else:
+        print('#error, html_volume_df len < 1')
+
+
+
     #quad
     print('#############################################################')
     print('start quad')
     curr_dir=curr_day_w+'-quad'
-    quad_df = df[(df.is_quad == 1) & (df.is_zig >= 0)]
+    quad_df = df[(df.is_quad == 1) & (df.is_zig > 0)]
     html_quad_df =  convert_to_html_df(quad_df)
     if len(html_quad_df):
         html_quad_df = html_quad_df.sort_values('zig', ascending=1)
@@ -336,7 +350,7 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start peach')
     curr_dir=curr_day_w+'-peach'
-    peach_df = df[(df.is_peach == 1) & (df.is_zig >= 0)]
+    peach_df = df[(df.is_peach == 1) & (df.is_zig > 0)]
     html_peach_df = convert_to_html_df(peach_df)
     if len(html_peach_df):
         html_peach_df = html_peach_df.sort_values('zig', ascending=1)
@@ -348,7 +362,7 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start 5days')
     curr_dir=curr_day_w+'-5days'
-    up_days_df = df[(df.is_up_days == 1) & (df.is_zig >= 0)]
+    up_days_df = df[(df.is_up_days == 1) & (df.is_zig > 0)]
     html_up_days_df = convert_to_html_df(up_days_df)
     if len(html_up_days_df):
         html_up_days_df = html_up_days_df.sort_values('zig', ascending=1)
@@ -360,7 +374,7 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start macd')
     curr_dir=curr_day_w+'-macd'
-    macd_df = df[(df.is_macd == 1) & (df.is_zig >= 0)]
+    macd_df = df[(df.is_macd == 1) & (df.is_zig > 0)]
     html_macd_df = convert_to_html_df(macd_df)
     if len(html_macd_df):
         html_macd_df = html_macd_df.sort_values('zig', ascending=1)
@@ -373,7 +387,7 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start cup_tea')
     curr_dir=curr_day_w+'-cuptea'
-    cuptea_df = df[(df.is_cup_tea == 1) & (df.is_zig >= 0)]
+    cuptea_df = df[(df.is_cup_tea == 1) & (df.is_zig > 0)]
     html_cuptea_df = convert_to_html_df(cuptea_df)
     if len(html_cuptea_df):
         html_cuptea_df = html_cuptea_df.sort_values('zig', ascending=1)
@@ -385,7 +399,7 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start duck_head')
     curr_dir=curr_day_w+'-duckhead'
-    duckhead_df = df[(df.is_duck_head == 1) & (df.is_zig >= 0)]
+    duckhead_df = df[(df.is_duck_head == 1) & (df.is_zig > 0)]
     html_duckhead_df = convert_to_html_df(duckhead_df)
     if len(html_duckhead_df):
         html_duckhead_df = html_duckhead_df.sort_values('zig', ascending=1)
@@ -413,7 +427,7 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start basic')
     curr_dir=curr_day_w
-    basic_df = df[(df.is_2d3pct > 1) & (df.is_zig >= 0)]
+    basic_df = df[(df.is_2d3pct > 1) & (df.is_zig > 0)]
     html_basic_df = convert_to_html_df(basic_df)
     html_basic_df = html_basic_df.sort_values('zig', ascending=1)
     if len(html_basic_df):

@@ -68,8 +68,8 @@ def handle_raw_df(df):
         df['is_duck_head'] = 0
     if 'is_cross3line' not in df.columns:
         df['is_cross3line'] = 0
-    if 'is_d_volum' not in df.columns:
-        df['is_d_voulum'] = 0
+    if 'is_d_volume' not in df.columns:
+        df['is_d_volume'] = 0
 
 
     df=df.fillna(0)
