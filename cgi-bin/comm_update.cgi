@@ -178,7 +178,7 @@ def show_realdata():
     xq_simple_df = hdata_xq_simple.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"), \
             end_date=nowdate.strftime("%Y-%m-%d"))
     i = 0
-    eastmoney_begin = 10
+    eastmoney_begin = 0
     for i in range(length):
         new_date        = str_date
         new_date        = str_date[2:]
@@ -193,7 +193,7 @@ def show_realdata():
         if new_name == '5GETF':
             eastmoney_begin = i
 
-        if i > eastmoney_begin:
+        if i >= eastmoney_begin:
             if debug: 
                 print('use xq realtime data')
 
