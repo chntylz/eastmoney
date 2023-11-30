@@ -169,6 +169,8 @@ if __name__ == '__main__':
                 end_date=nowdate.strftime("%Y-%m-%d")
                 )
         hdata_day.copy_from_stringio(df)
+    else:
+        print('#ERROR df is null')
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
