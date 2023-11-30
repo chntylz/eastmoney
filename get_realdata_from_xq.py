@@ -163,7 +163,7 @@ if __name__ == '__main__':
     if len(df):
         df=df.fillna(0)
         df.insert(0, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
-        df.to_csv('./csv/df_xq_simple_today.csv', encoding='gbk')
+        df.to_csv('./csv/df_xq_simple_'+ datetime.datetime.now().strftime('%Y-%m-%d-%H-%M')  +'.csv', encoding='gbk')
         hdata_day.delete_data_from_hdata(
                 start_date=nowdate.strftime("%Y-%m-%d"),
                 end_date=nowdate.strftime("%Y-%m-%d")
