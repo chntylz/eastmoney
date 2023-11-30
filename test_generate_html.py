@@ -319,11 +319,11 @@ if __name__ == '__main__':
     else:
         print('#error, html_zig_df len < 1')
 
-    #double_volume
+    #double_volume  and turnoverrate > 4
     print('#############################################################')
     print('start double volume')
     curr_dir=curr_day_w+'-volume'
-    volume_df = df[(df.is_d_volume == 1) & (df.is_zig > 0) & (df.percent > 3.0)]
+    volume_df = df[(df.is_d_volume == 1) & (df.is_zig > 0) & (df.percent > 3.0) & (df.turnoverrate > 4.0)]
     html_volume_df =  convert_to_html_df(volume_df)
     if len(html_volume_df):
         html_volume_df = html_volume_df.sort_values('zig', ascending=1)
@@ -474,12 +474,14 @@ if __name__ == '__main__':
     dragon_df = combine_zlje_data(db_table=dragon_table, first_df=k_df, second_df=None)
     if debug:
         print(dragon_df)
-    html_dragon_df = convert_to_html_df(dragon_df)
-    html_dragon_df = html_dragon_df.sort_values('zig', ascending=1)
-    if len(html_dragon_df):
-        generate_html(html_dragon_df)
-    else:
-        print('#error, html_dragon_df len < 1')
+    if len(dragon_df):
+        dragon_df = dragon_df[(dragon_df.percent > 0.0)]
+        html_dragon_df = convert_to_html_df(dragon_df)
+        html_dragon_df = html_dragon_df.sort_values('zig', ascending=1)
+        if len(html_dragon_df):
+            generate_html(html_dragon_df)
+        else:
+            print('#error, html_dragon_df len < 1')
 
     #holder
     print('#############################################################')
