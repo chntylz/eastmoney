@@ -236,7 +236,7 @@ def get_daily_zlje2(url=None):
     # 添加无头headlesss
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(chrome_options=chrome_options)
+    browser = webdriver.Chrome(options=chrome_options)
 
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
     browser.maximize_window()  # 最大化窗口
