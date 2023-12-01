@@ -161,7 +161,8 @@ if __name__ == '__main__':
     df=hsgt_get_all_data()
     all_df, latest_date = hsgt_handle_all_data(df)
 
-    zig_p_df = all_df[all_df.is_zig > 0]
+    #zig_p_df = all_df[all_df.is_zig > 0]
+    zig_p_df = all_df
 
     save_dir = "hsgt"
     exec_command = "mkdir -p " + (save_dir)
