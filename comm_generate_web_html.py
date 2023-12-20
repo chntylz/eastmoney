@@ -703,7 +703,6 @@ def comm_handle_html_body(filename, all_df, select='topy10'):
             elif select == 'p_minus_money':
                 conti_df = hsgt_get_continuous_info(all_df, 'p_minus_money')
                 #select condition
-                conti_df = conti_df[conti_df.zig > 0]
                 conti_df = conti_df[ (conti_df.money_total / conti_df.conti_day < -1000) & (conti_df.money_total < -2000) &(conti_df.delta1_m < -1000)] 
                 comm_write_to_file(f, -1, conti_df, filename)
 
@@ -717,7 +716,6 @@ def comm_handle_html_body(filename, all_df, select='topy10'):
             elif select == 'p_minus_continous_day':
                 conti_df = hsgt_get_continuous_info(all_df, 'p_minus_continous_day')
                 #select condition
-                conti_df = conti_df[conti_df.zig > 0]
                 conti_df = conti_df[conti_df.money_total < -2000] 
                 comm_write_to_file(f, -1, conti_df, filename)
             

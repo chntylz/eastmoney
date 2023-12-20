@@ -136,7 +136,7 @@ if __name__ == '__main__':
                 #if int(code) < 688767:
                 #    continue
                 #k_df, api_param = get_kline_data2(code, 700)
-                k_df, api_param = get_kline_data2(code, 2)
+                k_df, api_param = get_kline_data2(code, 4)
                 k_df = handle_raw_df(k_df)
                 if k_df is None:
                     continue
