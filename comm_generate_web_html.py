@@ -189,7 +189,7 @@ def cgi_write_to_file( df):
                 print('        <td>\n')
 
             element_value = a_array[0][j] #get a[i][j] element
-            #df_cgi_column=['record_date', 'stock_code', 'stock_name', 'or_yoy', 'netprofit_yoy', 'conti_day']
+            #df_cgi_column=['record_date', 'stock_code', 'stock_name', 'or_yoy', 'netprofit_yoy', 'days']
             if(j == 0): 
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(cgi_url, element_value))
             elif(j == 1): 
@@ -394,28 +394,28 @@ def hsgt_get_continuous_info(df, select):
                 op_yoy, net_yoy, \
                 zlje, zlje_3, zlje_5, zlje_10, \
                 holder_0, holder_1, holder_2, jigou, \
-                delta1, delta1_m, i, money_total])  #i  == conti_day
+                delta1, delta1_m, i, money_total])  #i  == days
 
     data_column=['record_date', 'stock_code', 'stock_cname', 'total_mv', 'hk_pct', 'close', 'a_pct', \
             'peach', 'zig', 'quad', 'c3line', \
             'op_yoy', 'net_yoy', \
             'zlje', 'zl3', 'zl5', 'zl10', \
             'h0', 'h1', 'h2', 'jigou', \
-            'delta1', 'delta1_m', 'conti_day', 'money_total']
+            'delta1', 'delta1_m', 'days', 'money_total']
 
     ret_df = pd.DataFrame(data_list, columns=data_column)
-    ret_df['m_per_day'] = ret_df.money_total / ret_df.conti_day
+    ret_df['m_per_day'] = ret_df.money_total / ret_df.days
     ret_df=ret_df.round(2)
     #ret_df = ret_df.sort_values('money_total', ascending=0)
-    #ret_df = ret_df.sort_values('conti_day', ascending=0)
+    #ret_df = ret_df.sort_values('days', ascending=0)
     if select == 'p_money':
         ret_df = ret_df.sort_values('money_total', ascending=0)
     elif select == 'p_minus_money':
         ret_df = ret_df.sort_values('money_total', ascending=1)
     elif select == 'p_continous_day':
-        ret_df = ret_df.sort_values('conti_day', ascending=0)
+        ret_df = ret_df.sort_values('days', ascending=0)
     elif select == 'p_minus_continous_day':
-        ret_df = ret_df.sort_values('conti_day', ascending=0)
+        ret_df = ret_df.sort_values('days', ascending=0)
 
     return ret_df
 ############################################################################################################
@@ -502,12 +502,12 @@ def comm_write_to_file(f, k, df, filename):
             list(df)[8]=is_peach
             list(df)[9]=delta1
             list(df)[10]=delta1_m
-            list(df)[11]=conti_day
+            list(df)[11]=days
             list(df)[12]=money_total
             list(df)[13]=m_per_day
             '''
             if k == -1: # normal case
-                #data_column=['record_date', 'stock_code', 'stock_cname', 'hk_pct', 'close', 'delta1', 'delta1_m', 'conti_day', 'money_total']
+                #data_column=['record_date', 'stock_code', 'stock_cname', 'hk_pct', 'close', 'delta1', 'delta1_m', 'days', 'money_total']
                 if(j == 0): 
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (fina_url, element_value))
@@ -697,13 +697,13 @@ def comm_handle_html_body(filename, all_df, select='topy10'):
                 conti_df = hsgt_get_continuous_info(all_df, 'p_money')
                 #select condition
                 conti_df = conti_df[conti_df.zig > 0]
-                conti_df = conti_df[ (conti_df.money_total / conti_df.conti_day > 1000) & (conti_df.money_total > 2000) &(conti_df.delta1_m > 1000)] 
+                conti_df = conti_df[ (conti_df.money_total / conti_df.days > 1000) & (conti_df.money_total > 2000) &(conti_df.delta1_m > 1000)] 
                 comm_write_to_file(f, -1, conti_df, filename)
 
             elif select == 'p_minus_money':
                 conti_df = hsgt_get_continuous_info(all_df, 'p_minus_money')
                 #select condition
-                conti_df = conti_df[ (conti_df.money_total / conti_df.conti_day < -1000) & (conti_df.money_total < -2000) &(conti_df.delta1_m < -1000)] 
+                conti_df = conti_df[ (conti_df.money_total / conti_df.days < -1000) & (conti_df.money_total < -2000) &(conti_df.delta1_m < -1000)] 
                 comm_write_to_file(f, -1, conti_df, filename)
 
             elif select == 'p_continous_day':
@@ -827,7 +827,7 @@ def comm_handle_hsgt_data(df):
         hsgt_deltam         = (hsgt_df['share_holding'][0] - hsgt_df['share_holding'][1])\
                 * hsgt_df['close'][0] / 10000
         hsgt_deltam         = round(hsgt_deltam, 2)
-        conti_day, money_total= comm_get_hsgt_continous_info(hsgt_df)
+        days, money_total= comm_get_hsgt_continous_info(hsgt_df)
         
         is_zig              = hsgt_df['is_zig'][0]
         is_quad             = hsgt_df['is_quad'][0]
@@ -841,7 +841,7 @@ def comm_handle_hsgt_data(df):
         hsgt_delta1         = hsgt_df['percent'][0]
         hsgt_deltam         = hsgt_df['share_holding'][0] * hsgt_df['close'][0]/10000
         hsgt_deltam         = round(hsgt_deltam, 2)
-        conti_day           = 1
+        days           = 1
         money_total         = hsgt_deltam
         
         is_zig              = hsgt_df['is_zig'][0]
@@ -853,14 +853,14 @@ def comm_handle_hsgt_data(df):
         hsgt_percent        = 0
         hsgt_delta1         = 0
         hsgt_deltam         = 0
-        conti_day           = 0
+        days           = 0
         money_total         = 0
         is_zig              = 0
         is_quad             = 0
         is_peach            = 0
 
     return hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, \
-            conti_day, money_total, is_zig, is_quad, is_peach   
+            days, money_total, is_zig, is_quad, is_peach   
 
 
 
@@ -904,7 +904,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             f.write('%s \n' % stock_code)
 
         hsgt_df = hsgtdata.get_data_from_hdata(stock_code=stock_code, end_date=curr_day, limit=60)
-        hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, conti_day, money_total, \
+        hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, money_total, \
             is_zig, is_quad, is_peach = comm_handle_hsgt_data(hsgt_df)
         
         close = daily_df.close[i]
@@ -1010,21 +1010,21 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             jigou = str(float_ratio) + '+' + str(delta_ratio)
 
         data_list.append([new_date, stock_code, stock_name, close_p, close, \
-                hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, conti_day, \
+                hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, \
                 money_total, total_mv, industry_name, \
                 is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea, is_cross3line,\
                 zlje, zlje_3, zlje_5, zlje_10,h_chg, \
                 jigou])
 
     data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', \
-            'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'conti_day', \
+            'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', \
             'hk_m_total', 'total_mv', 'industry', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3', \
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ,\
             'jigou']
 
     ret_df=pd.DataFrame(data_list, columns=data_column)
-    ret_df['m_per_day'] = ret_df.hk_m_total / ret_df.conti_day
+    ret_df['m_per_day'] = ret_df.hk_m_total / ret_df.days
     ret_df = ret_df.fillna(0)
     ret_df=ret_df.round(2)
     if debug:
@@ -1035,7 +1035,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
             'jigou', \
             'hk_date', 'hk_share', 'hk_pct', \
-            'hk_delta1', 'hk_deltam', 'conti_day', \
+            'hk_delta1', 'hk_deltam', 'days', \
             'hk_m_total', 'm_per_day']
 
     ret_df=ret_df.loc[:,data_column]
