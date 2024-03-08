@@ -209,7 +209,7 @@ if __name__ == '__main__':
         browser.quit()
 
     df = pd.concat([df2, df3])
-    df = df.drop_duplicates()
+    df = df.drop_duplicates(subset=['symbol'], keep='first')
     df = df.reset_index(drop=True)
 
 #'''
