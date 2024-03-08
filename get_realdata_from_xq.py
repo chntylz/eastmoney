@@ -93,6 +93,8 @@ def get_data():
             browser.close()
 
 
+
+#order=desc
 def get_data2(browser):
 
 #url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
@@ -101,6 +103,39 @@ def get_data2(browser):
     #10000 is too big now, change to 5000
     url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
         + '?page=1&size=5000&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
+
+    browser.get(url)
+    browser.implicitly_wait(5)
+    print(url)
+    html = browser.page_source
+    s=html
+    f1 = s.find('{')
+    s = s[:f1] + '(' + s[f1 : ]  #add '(' before first '{' 
+    f2 = s.rfind('}')              #add ')' after last  '}' 
+    s = s[:f2+1] + ')' + s[f2+1 : ]
+    html=s
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+
+    api_param = json.loads(response_array[0])
+    rawdata = api_param['data']['list']
+    df = pd.DataFrame(rawdata)
+    del df['mapping_quote_current']
+    del df['dual_counter_mapping_symbol']
+    
+    return df
+
+
+#order=asc
+def get_data3(browser):
+
+#url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
+#        + '?page=1&size=10000&order=asc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
+
+    #10000 is too big now, change to 5000
+    url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
+        + '?page=1&size=5000&order=asc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
 
     browser.get(url)
     browser.implicitly_wait(5)
@@ -150,15 +185,34 @@ if __name__ == '__main__':
     wait = WebDriverWait(browser, 10)
 
     try:
-        df = get_data2(browser)
+       df = df2 = get_data2(browser)
     except:
         print('#ERROR get_data2()')
+        browser.close()
+        browser.quit()
+    finally:
+        #browser.close()
+        #browser.quit()
+        pass
+
+#'''
+    time.sleep(5)
+
+    try:
+        df3 = get_data3(browser)
+    except:
+        print('#ERROR get_data3()')
         browser.close()
         browser.quit()
     finally:
         browser.close()
         browser.quit()
 
+    df = pd.concat([df2, df3])
+    df = df.drop_duplicates()
+    df = df.reset_index(drop=True)
+
+#'''
 
     if len(df):
         df=df.fillna(0)
