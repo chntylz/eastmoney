@@ -116,7 +116,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         else:
             nowcode_new= 'SZ' + nowcode
         '''
-        nowcode_new=codestock_local.stock_code[i]
+        nowcode_new=codestock_local.stock_code[i]  #000001
         nowcode = nowcode_new[2:]
         nowcode = nowcode_new[:]
 
@@ -166,6 +166,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         # if len(detail_info) == 0 or (detail_info is None):
         if len(detail_info) <= within_days  or (detail_info is None):
             # print('NaN: code:%s, name:%s' % (nowcode, nowname ))
+            #error handle
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
                 is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
             continue
@@ -186,6 +187,83 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     (nowcode, db_max_date, nowdate.strftime("%Y%m%d")))
             
             continue
+            
+        ##############################################################################
+        #is_d_volume        
+        '''
+        T1:=C>=REF(C,1)*1.03 AND C<=REF(C,1)*1.05;
+        (涨幅在3%-5%之间)
+
+        T2:=DYNAINFO(17)>=1;
+        (量比大于1)
+
+        T3:=DYNAINFO(37)>0.05;
+        (换手率大于5%)
+
+        T4:=CAPITAL<200000000 AND CAPITAL>2000000;
+        (流通盘在2-200亿市值之间)
+
+        T5:=V>MA(V,5)AND REF(V,1)<MA(V,5);
+        (成交量持续放大)
+        T6:=IF(NAMELIKE('ST'),O,1) AND IF(NAMELIKE('*'),0,1);
+
+        T7:=C>MA(C,250);
+
+        T8:=C/O>1;
+
+        T1 AND T2 AND T3 AND T4 AND T5 AND T6 AND T7 AND T8,
+
+
+
+
+        为什么高手都喜欢在尾盘选股?湖南有位奇才，每天只在尾盘三十分钟选股，三年就实现了财富自由，操作方法也简单，尾盘进早盘出，无需承担盘中的风险，效率比较高，他的方法，宝合当下市场做了下优化，一共8个步
+        骤:
+        1.下午2点半，选出涨幅在 3%-5%的票加入自选;
+        2.删除量比小于1的，因为量比小于1，活跃度不够，后市难有大作为;
+        3.留下换手率大于 5%的，低于5%的股票关注度相对较低;
+        4.选择流通盘 2-200亿市值的，市值太小比较冷门，市值太大，不利于拉升;
+        5.选择短期内有阶段性放量的;
+        6.看k线形态，多头向上发散的最好;
+        7.分时图流畅，全天股价都在均价线上方运行的，搭配好当下的热点题材板块;
+        8.股价在两点半左右创出当日的新高后回踩不破均价线的
+        不过按照这样8个步骤在尾盘三十分钟筛选，时间可能不太够，所以宝叔也是给大家按照上面的思路编译了一个选股公式，
+        '''
+        #if (V >= (2 * REF(V, 1))):
+        #    is_d_volume = 1
+
+        percent = detail_info.percent[df_len-1]
+        cond1 =  3 <= percent and percent <= 5
+
+        turnoverrate = detail_info.turnoverrate[df_len-1]
+        cond2 = turnoverrate > 5
+
+        circulation_mkt = detail_info.circulation_mkt[df_len-1]
+        cond3 = 200 * 1000 * 1000 < circulation_mkt and circulation_mkt < 20 * 1000 * 1000 * 1000 
+
+        cond4 = V>MA(V,5) and REF(V,1)<MA(V,5)
+
+        cond5 = C>MA(C,250)
+        cond6 = C/O > 1
+
+
+        if cond1 and cond2 and cond3 and cond4 and cond5 and cond6:
+            is_d_volume =  1
+
+        if is_d_volume:
+            print("[is_d_volume] volume is bigger than last day: code:%s, name:%s" % \
+                (nowcode, nowname ))
+        if debug:
+            print('is_d_volume %s' % is_d_volume)
+
+        if is_d_volume > 0:
+            pass
+        else:
+            #error handle
+            update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
+            continue;
+        ################################################################################################
+
 
         ##############################################################################
         # dif: 12， 与26日的差别
@@ -344,17 +422,6 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 if debug:
                     print('is_peach %s' % is_peach)
         ################################################################################################
-        #is_d_volume        
-        if (V >= (2 * REF(V, 1))):
-            is_d_volume = 1
-
-        if is_d_volume:
-            print("[is_d_volume] volume is bigger than last day: code:%s, name:%s" % \
-                (nowcode, nowname ))
-        if debug:
-            print('is_d_volume %s' % is_d_volume)
-        ################################################################################################
-
         #is_zig
         #zig condition
         z_df, z_peers, z_d, z_k, z_buy_state=zig(detail_info)
@@ -379,7 +446,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
         if debug:
             print('is_zig=%s' % is_zig)
-            
+
+           
 
         ###############################################################################################
         #is_quad
@@ -483,8 +551,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                         break
 
             if c_less_ma5 and c_less_ma60:
-               is_quad = 1
-               print('### %s, %s, %s, is_quad=%d' %(str(nowdate), nowcode, nowname, is_quad))
+                is_quad = 1
+                if debug:
+                   print('### %s, %s, %s, is_quad=%d' %(str(nowdate), nowcode, nowname, is_quad))
 
         if debug:
             print('is_quad=%s' % is_quad)
@@ -498,7 +567,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         cond_4 = CROSS( REF(C, 1) , REF(MA(C, 5), 1))  or  CROSS( REF(C, 2) , REF(MA(C, 5), 2)) or  CROSS( REF(C, 3) , REF(MA(C, 5), 3)) # C cross ma5 exist in past 3 days
         if cond_1 and cond_2 and cond_3 and cond_4:
             is_macd = 1
-            print('### %s, %s, %s, is_macd=%d' %(str(nowdate), nowcode, nowname, is_macd))
+            if debug:
+                print('### %s, %s, %s, is_macd=%d' %(str(nowdate), nowcode, nowname, is_macd))
      
         ###############################################################################################
         #is_2d3pct
@@ -515,7 +585,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             
         is_2d3pct = i       
         if i > 1:
-            print('### %s, %s, %s, is_2d3pct=%d' %(str(nowdate), nowcode, nowname, is_2d3pct))
+            if debug:
+                print('### %s, %s, %s, is_2d3pct=%d' %(str(nowdate), nowcode, nowname, is_2d3pct))
+            pass
             
 
         ###############################################################################################
@@ -534,7 +606,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         #5day up, up range is lower than 10%
         if 5 == k and (C < REF(C, 5) * 1.1 ): 
             is_up_days = 1
-            print('### %s, %s, %s, is_up_days=%d' %(str(nowdate), nowcode, nowname, is_up_days))
+            if debug:
+                print('### %s, %s, %s, is_up_days=%d' %(str(nowdate), nowcode, nowname, is_up_days))
      
         ##############################################################################
         # old duck 
@@ -676,7 +749,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 
         if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
             is_duck_head = 1
-            print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
+            if debug:
+                print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
  
 
 
@@ -730,7 +804,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             #第二次最高价距离昨天的天数
             #H2_days = BARSLAST(REF(H, 1)== H2.value )      
             H2_days = BARSLAST(REF(C, 1)== H2 )      
-            print(nowcode,H2_days)
+            if debug:
+                print(nowcode,H2_days)
             if H2_days.value > 200:
                 print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
                 update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
@@ -836,13 +911,14 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if (cond_1 and cond_2 and cond_3 and cond_4 and cond_5):
         #if 1:
             is_cup_tea = 1
-            print('H1=%s, H1_days=%s, H1_date=%s, L1=%s , L1_days=%s, L1_date=%s, delta_H1_L1=[%s,%s]' % \
-                    (H1, H1_days, H1_date, L1, L1_days, L1_date, H1_days - L1_days, (L1 - H1)/H))
-            print('H2=%s, H2_days=%s, H2_date=%s, L2=%s , L2_days=%s, L2_date=%s, delta_L1_H2=[%s,%s]' % \
-                    (H2, H2_days, H2_date, L2, L2_days, L2_date, L1_days - H2_days, (H2 - L1)/ L1))
-            print('max_botton_days=%s' % max_botton_days) 
-            print(cond_1, cond_2, cond_3, cond_4, cond_5)
-            print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
+            if debug:
+                print('H1=%s, H1_days=%s, H1_date=%s, L1=%s , L1_days=%s, L1_date=%s, delta_H1_L1=[%s,%s]' % \
+                        (H1, H1_days, H1_date, L1, L1_days, L1_date, H1_days - L1_days, (L1 - H1)/H))
+                print('H2=%s, H2_days=%s, H2_date=%s, L2=%s , L2_days=%s, L2_date=%s, delta_L1_H2=[%s,%s]' % \
+                        (H2, H2_days, H2_date, L2, L2_days, L2_date, L1_days - H2_days, (H2 - L1)/ L1))
+                print('max_botton_days=%s' % max_botton_days) 
+                print(cond_1, cond_2, cond_3, cond_4, cond_5)
+                print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
         if debug:
             print(cond_1, cond_2, cond_3, cond_4, cond_5)
             print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
