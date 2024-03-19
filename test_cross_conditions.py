@@ -188,6 +188,77 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             continue
 
         ##############################################################################
+            
+        ##############################################################################
+        #is_d_volume        
+        '''
+        T1:=C>=REF(C,1)*1.03 AND C<=REF(C,1)*1.05;
+        (涨幅在3%-5%之间)
+
+        T2:=DYNAINFO(17)>=1;
+        (量比大于1)
+
+        T3:=DYNAINFO(37)>0.05;
+        (换手率大于5%)
+
+        T4:=CAPITAL<200000000 AND CAPITAL>2000000;
+        (流通盘在2-200亿市值之间)
+
+        T5:=V>MA(V,5)AND REF(V,1)<MA(V,5);
+        (成交量持续放大)
+        T6:=IF(NAMELIKE('ST'),O,1) AND IF(NAMELIKE('*'),0,1);
+
+        T7:=C>MA(C,250);
+
+        T8:=C/O>1;
+
+        T1 AND T2 AND T3 AND T4 AND T5 AND T6 AND T7 AND T8,
+
+
+
+
+        为什么高手都喜欢在尾盘选股?湖南有位奇才，每天只在尾盘三十分钟选股，三年就实现了财富自由，操作方法也简单，尾盘进早盘出，无需承担盘中的风险，效率比较高，他的方法，宝合当下市场做了下优化，一共8个步
+        骤:
+        1.下午2点半，选出涨幅在 3%-5%的票加入自选;
+        2.删除量比小于1的，因为量比小于1，活跃度不够，后市难有大作为;
+        3.留下换手率大于 5%的，低于5%的股票关注度相对较低;
+        4.选择流通盘 2-200亿市值的，市值太小比较冷门，市值太大，不利于拉升;
+        5.选择短期内有阶段性放量的;
+        6.看k线形态，多头向上发散的最好;
+        7.分时图流畅，全天股价都在均价线上方运行的，搭配好当下的热点题材板块;
+        8.股价在两点半左右创出当日的新高后回踩不破均价线的
+        不过按照这样8个步骤在尾盘三十分钟筛选，时间可能不太够，所以宝叔也是给大家按照上面的思路编译了一个选股公式，
+        '''
+        #if (V >= (2 * REF(V, 1))):
+        #    is_d_volume = 1
+
+        percent = detail_info.percent[df_len-1]
+        cond1 =  3 <= percent and percent <= 5
+
+        turnoverrate = detail_info.turnoverrate[df_len-1]
+        cond2 = turnoverrate > 5
+
+        circulation_mkt = detail_info.circulation_mkt[df_len-1]
+        cond3 = 200 * 1000 * 1000 < circulation_mkt and circulation_mkt < 20 * 1000 * 1000 * 1000 
+
+        cond4 = V>MA(V,5) and REF(V,1)<MA(V,5)
+
+        cond5 = C>MA(C,250)
+        cond6 = C/O > 1
+
+
+        if cond1 and cond2 and cond3 and cond4 and cond5 and cond6:
+            is_d_volume =  1
+
+        if is_d_volume:
+            print("[is_d_volume] volume is bigger than last day: code:%s, name:%s" % \
+                (nowcode, nowname ))
+        if debug:
+            print('is_d_volume %s' % is_d_volume)
+
+        ################################################################################################
+
+        ##############################################################################
         # dif: 12， 与26日的差别
         # dea:dif的9日以移动平均线
         # 计算MACD指标
@@ -343,16 +414,6 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     (nowcode, nowname ))
                 if debug:
                     print('is_peach %s' % is_peach)
-        ################################################################################################
-        #is_d_volume        
-        if (V >= (2 * REF(V, 1))):
-            is_d_volume = 1
-
-        if is_d_volume:
-            print("[is_d_volume] volume is bigger than last day: code:%s, name:%s" % \
-                (nowcode, nowname ))
-        if debug:
-            print('is_d_volume %s' % is_d_volume)
         ################################################################################################
 
         #is_zig
@@ -730,7 +791,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             #第二次最高价距离昨天的天数
             #H2_days = BARSLAST(REF(H, 1)== H2.value )      
             H2_days = BARSLAST(REF(C, 1)== H2 )      
-            print(nowcode,H2_days)
+            if debug:
+                print(nowcode,H2_days)
             if H2_days.value > 200:
                 print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
                 update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
