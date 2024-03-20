@@ -79,7 +79,7 @@ def cgi_write_headline_column(df):
 
   
 def cgi_handle_html_head(title_name, refresh=0):
-    print("Content-type: text/html")
+    print("Content-type: text/html;charset=utf-8\n\n")
     print("")
 
     print('<!DOCTYPE html>\n')

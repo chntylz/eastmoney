@@ -1,7 +1,11 @@
 #There must be 1 space after stock code!!!
-SZ002919 mingchenjiankang
-SZ300045 hualichuangtong
-SZ300811 bokexincai
-SH600660 fuyaoboli
-SH600584 changdiankeji
-SZ300552 wanjikeji
+SZ000922 佳电股份
+SZ002819 东方中科
+SZ002230 科大讯飞
+SZ000661 长春高新
+SZ002919 名臣健康
+SZ300045 华力创通
+SZ300811 铂科新材
+SH600660 福耀玻璃
+SH600584 长电科技
+SZ300552 万集科技
