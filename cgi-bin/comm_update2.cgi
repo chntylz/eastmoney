@@ -11,7 +11,7 @@ from comm_update import *
 
 if __name__ == '__main__':
 
-    file_name='./my_optional.txt'
+    file_name='my_optional2.txt'
     df=show_realdata(file_name)
     # df = df.sort_values('hk_m_total', ascending=0)
     df = df.sort_values('a_pct', ascending=0)

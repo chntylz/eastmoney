@@ -1,6 +1,6 @@
 target=/var/www/cgi-bin/
 
-cp comm_update.cgi  $target
+cp comm_update.*    $target
 cp my_optional.txt  $target
 cp hsgt-search.cgi  $target
 

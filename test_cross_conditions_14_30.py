@@ -84,6 +84,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
     stock_len=len(codestock_local)
     update_list=[]  #for update is_peach, is_zig, is_quad in database table
 
+    opt_list=[]
+
     for i in range(0,stock_len):
         #for i in range(0,5):
         #if (True):
@@ -128,6 +130,13 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         nowname = nowname[nowname.rfind('[') + 1:]
         nowname = nowname[:nowname.rfind(']')]
         # print(str(nowdate), nowcode, nowname, O, H, L, C)
+
+        if nowcode_new[0:1] == '6':
+            stock_code_new= 'SH' + nowcode_new
+        else:
+            stock_code_new= 'SZ' + nowcode_new
+
+
 
         if debug:
             print("code:%s, name:%s" % (nowcode, nowname ))
@@ -256,6 +265,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             print('is_d_volume %s' % is_d_volume)
 
         if is_d_volume > 0:
+            opt_list.append([stock_code_new, nowname])
             pass
         else:
             #error handle
@@ -939,6 +949,12 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
             'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume']
     update_df=pd.DataFrame(update_list, columns=data_column)
+
+    opt_column = [ 'stock_code', 'stock_name']
+    opt_df=pd.DataFrame(opt_list, columns=opt_column)
+    opt_df.to_csv('/var/www/cgi-bin/my_optional2.txt', sep=' ', index=False, header=False, encoding='utf-8')
+
+
     if debug:
         print(update_df)
     #hdata.update_allstock_hdatadate(update_df)
