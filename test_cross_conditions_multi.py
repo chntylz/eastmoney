@@ -83,8 +83,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     nowdate = datetime.datetime.strptime(nowdate,'%Y-%m-%d')
-    #codestock_local=get_stock_list()
     codestock_local=nowdata_df
+    stock_len=len(codestock_local)
     stock_len=1
     update_list=[]  #for update is_peach, is_zig, is_quad in database table
 
@@ -133,7 +133,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         nowname = symbol(nowcode)
         nowname = nowname[nowname.rfind('[') + 1:]
         nowname = nowname[:nowname.rfind(']')]
-        print(str(nowdate.strftime("%Y-%m-%d")), nowcode, nowname, O, H, L, C)
+        if debug:
+            print(str(nowdate.strftime("%Y-%m-%d")), nowcode, nowname, O, H, L, C)
 
         if nowcode_new[0:1] == '6':
             stock_code_new= 'SH' + nowcode_new
@@ -878,7 +879,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                             K))
                 if H2_cur_date <= cur_date_new or K > 3:
                     #funcat call, reset to original date
-                    T(str(nowdate))
+                    T(str(nowdate.strftime("%Y-%m-%d")))
                     break
 
                 T((cur_date_new.strftime('%Y%m%d')))
@@ -956,7 +957,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
     opt_column = [ 'stock_code', 'stock_name']
     opt_df=pd.DataFrame(opt_list, columns=opt_column)
-    opt_df.to_csv('/var/www/cgi-bin/my_optional2.txt', sep=' ', index=False, header=False, encoding='utf-8')
+    #opt_df.to_csv('/var/www/cgi-bin/my_optional2.txt', sep=' ', index=False, header=False, encoding='utf-8')
+
 
 
     if debug:
@@ -964,9 +966,11 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
     #hdata.update_allstock_hdatadate(update_df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    if debug:
+        print("start_time: %s, last_time: %s" % (start_time, last_time))
 
-    return update_df
+    #return update_df
+    return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume]
 
 def update_peach_zig_quad(nowdate, df, df1):
 
@@ -1004,8 +1008,10 @@ def update_peach_zig_quad(nowdate, df, df1):
 
 
 def worker(name):
+    if debug:
         print("Worker %s %s started" % (name[0], name[1]))
-        handle_df = calculate_peach_zig_quad(name[0], name[1])
+    handle_df = calculate_peach_zig_quad(name[0], name[1])
+    return handle_df
 
 if __name__ == '__main__':
 
@@ -1036,15 +1042,24 @@ if __name__ == '__main__':
     '''
 
 
+    #nowdate_df = nowdate_df.head(10)  # small size for test
     data_list = np.array(nowdate_df)
     data_list = data_list.tolist()
 
     processes = 4
     number = len(nowdate_df)
+    mplist = []
     with multiprocessing.Pool(int(processes)) as pool:
-       pool.map(worker, data_list)
-     
+       mplist.append(
+           pool.map(worker, data_list))
+    
+    data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
+        'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume']
 
+    update_df=pd.DataFrame(mplist[0], columns=data_column)
+    update_df.to_csv('./multi.txt', sep=',', index=False, header=False, encoding='utf-8')
+#print(update_df)
+#print(mplist)
 
 
     t2 = time.time()
