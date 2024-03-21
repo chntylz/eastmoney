@@ -34,6 +34,9 @@ set_data_backend(AaronDataBackend())
 
 from file_interface import *
 
+
+import multiprocessing
+
 hdata=HData_eastmoney_day("usr","usr")
 
 #debug switch
@@ -79,9 +82,10 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
+    nowdate = datetime.datetime.strptime(nowdate,'%Y-%m-%d')
     #codestock_local=get_stock_list()
     codestock_local=nowdata_df
-    stock_len=len(codestock_local)
+    stock_len=1
     update_list=[]  #for update is_peach, is_zig, is_quad in database table
 
     opt_list=[]
@@ -118,18 +122,18 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         else:
             nowcode_new= 'SZ' + nowcode
         '''
-        nowcode_new=codestock_local.stock_code[i]  #000001
+        nowcode_new=codestock_local #000001
         nowcode = nowcode_new[2:]
         nowcode = nowcode_new[:]
 
         #funcat call
-        T(str(nowdate))
+        T(str(nowdate.strftime("%Y-%m-%d")))
         S(nowcode)
 
         nowname = symbol(nowcode)
         nowname = nowname[nowname.rfind('[') + 1:]
         nowname = nowname[:nowname.rfind(']')]
-        # print(str(nowdate), nowcode, nowname, O, H, L, C)
+        print(str(nowdate.strftime("%Y-%m-%d")), nowcode, nowname, O, H, L, C)
 
         if nowcode_new[0:1] == '6':
             stock_code_new= 'SH' + nowcode_new
@@ -998,6 +1002,11 @@ def update_peach_zig_quad(nowdate, df, df1):
             )
         hdata.copy_from_stringio(tmp_df)
 
+
+def worker(name):
+        print("Worker %s %s started" % (name[0], name[1]))
+        handle_df = calculate_peach_zig_quad(name[0], name[1])
+
 if __name__ == '__main__':
 
     cript_name, para1 = check_input_parameter()
@@ -1013,10 +1022,30 @@ if __name__ == '__main__':
             end_date=nowdate.strftime("%Y-%m-%d")\
             )
 
+    '''
     handle_df = calculate_peach_zig_quad(nowdate, nowdate_df)
 
     if len(handle_df) > 3000:
         update_peach_zig_quad(nowdate, nowdate_df, handle_df) 
+
+    processes = 4
+    number = len(nowdate_df)
+    with multiprocessing.Pool(int(processes)) as pool:
+        pool.map(worker, range(number))
+
+    '''
+
+
+    data_list = np.array(nowdate_df)
+    data_list = data_list.tolist()
+
+    processes = 4
+    number = len(nowdate_df)
+    with multiprocessing.Pool(int(processes)) as pool:
+       pool.map(worker, data_list)
+     
+
+
 
     t2 = time.time()
 
