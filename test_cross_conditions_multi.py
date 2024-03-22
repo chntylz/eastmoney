@@ -136,6 +136,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if debug:
             print(str(nowdate.strftime("%Y-%m-%d")), nowcode, nowname, O, H, L, C)
 
+        stock_code_new=''
         if nowcode_new[0:1] == '6':
             stock_code_new= 'SH' + nowcode_new
         else:
@@ -271,6 +272,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
         if is_d_volume > 0:
             opt_list.append([stock_code_new, nowname])
+            with open('/var/www/cgi-bin/my_optional2.txt','a') as f:
+                f.write( '%s %s\n' %(stock_code_new, nowname))
             pass
         else:
             #error handle
@@ -976,11 +979,11 @@ def update_peach_zig_quad(nowdate, df, df1):
 
     tmp_df = df.sort_values('stock_code', ascending=0)
     tmp_df = tmp_df.reset_index(drop=True)
-    tmp_df.to_csv('./csv/cross_condition_1.csv', encoding='gbk')
+    tmp_df.to_csv('./csv/cross_condition_multi_1.csv', encoding='gbk')
 
     tmp_df1 = df1.sort_values('stock_code', ascending=0)
     tmp_df1 = tmp_df1.reset_index(drop=True)
-    tmp_df1.to_csv('./csv/cross_condition_2.csv', encoding='gbk')
+    tmp_df1.to_csv('./csv/cross_condition_multi_2.csv', encoding='gbk')
 
     tmp_df['is_peach'] = tmp_df1['is_peach']
     tmp_df['is_zig']   = tmp_df1['is_zig']
@@ -993,10 +996,12 @@ def update_peach_zig_quad(nowdate, df, df1):
     tmp_df['is_cross3line']  = tmp_df1['is_cross3line']
     tmp_df['is_d_volume']  = tmp_df1['is_d_volume']
 
-    tmp_df.to_csv('./csv/cross_condition.csv', encoding='gbk')
+    tmp_df.to_csv('./csv/cross_condition_multi.csv', encoding='gbk')
 
     if debug:
         print(tmp_df)
+
+    #return   #debug
 
     #delete first, then insert
     if len(tmp_df) > 3000:
@@ -1046,6 +1051,9 @@ if __name__ == '__main__':
     data_list = np.array(nowdate_df)
     data_list = data_list.tolist()
 
+    with open('/var/www/cgi-bin/my_optional2.txt','w') as f:  # w is used for the fisrt time 
+        f.write("#stock_code nowname\n")
+
     processes = 4
     number = len(nowdate_df)
     mplist = []
@@ -1058,6 +1066,9 @@ if __name__ == '__main__':
 
     update_df=pd.DataFrame(mplist[0], columns=data_column)
     update_df.to_csv('./multi.txt', sep=',', index=False, header=False, encoding='utf-8')
+
+    if len(update_df) > 3000:
+        update_peach_zig_quad(nowdate, nowdate_df, update_df) 
 #print(update_df)
 #print(mplist)
 

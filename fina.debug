@@ -33,3 +33,34 @@ df = pd.DataFrame(rawdata)
 return df, api_param
 
 
+==================
+
+import pandas as pd
+import json
+import requests
+import re
+
+import time
+import datetime
+
+from bs4 import BeautifulSoup
+
+url='https://money.finance.sina.com.cn/corp/go.php/vFD_AchievementNotice/stockid/000571.phtml'
+
+response = requests.get(url)
+html_content = response.text
+
+
+# 使用BeautifulSoup解析HTML
+soup = BeautifulSoup(html_content, 'html.parser')
+
+# 找到所有的tr标签
+tr_tags = soup.find_all('tr')
+
+# 遍历所有的tr标签，并打印出具有特定class的标签
+for tr in tr_tags:
+    tr_class = tr.get('class')
+    if tr_class:  # 确保tr标签有class属性
+        print(f'<tr class="{tr_class}">...</tr>')
+
+#https://kimi.moonshot.cn/chat/cnt7p49rdij2slji2k20
