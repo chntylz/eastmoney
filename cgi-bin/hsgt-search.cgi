@@ -63,11 +63,12 @@ def plot_stock_picture(nowcode, nowname):
     plt.style.use('bmh')
     fig = plt.figure(figsize=(24, 30),dpi=80)
     new_nowcode = nowcode
+    '''
     if nowcode[0:1] == '6':
         new_nowcode = 'SH' + nowcode
     else:
         new_nowcode = 'SZ' + nowcode
-
+    '''
     detail_info = hdata_day.get_data_from_hdata(stock_code=new_nowcode, \
             end_date=nowdate.strftime("%Y-%m-%d"), \
             limit=600)
@@ -184,4 +185,10 @@ if __name__ == '__main__':
 
     cgi_generate_html(df)
       
+    if debug:
+        print(' ****************************************************aaron2 ***************************')
+
     plot_stock_picture(stock_code_tmp, name)
+    
+    if debug:
+        print('%s %s ' %(stock_code_tmp, name))
