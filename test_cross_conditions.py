@@ -34,6 +34,9 @@ set_data_backend(AaronDataBackend())
 
 from file_interface import *
 
+
+import multiprocessing
+
 hdata=HData_eastmoney_day("usr","usr")
 
 #debug switch
@@ -79,10 +82,12 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    #codestock_local=get_stock_list()
+    nowdate = datetime.datetime.strptime(nowdate,'%Y-%m-%d')
     codestock_local=nowdata_df
     stock_len=len(codestock_local)
+    stock_len=1
     update_list=[]  #for update is_peach, is_zig, is_quad in database table
+
 
     for i in range(0,stock_len):
         #for i in range(0,5):
@@ -116,18 +121,27 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         else:
             nowcode_new= 'SZ' + nowcode
         '''
-        nowcode_new=codestock_local.stock_code[i]
+        nowcode_new=codestock_local #000001
         nowcode = nowcode_new[2:]
         nowcode = nowcode_new[:]
 
         #funcat call
-        T(str(nowdate))
+        T(str(nowdate.strftime("%Y-%m-%d")))
         S(nowcode)
 
         nowname = symbol(nowcode)
         nowname = nowname[nowname.rfind('[') + 1:]
         nowname = nowname[:nowname.rfind(']')]
-        # print(str(nowdate), nowcode, nowname, O, H, L, C)
+        if debug:
+            print(str(nowdate.strftime("%Y-%m-%d")), nowcode, nowname, O, H, L, C)
+
+        stock_code_new=''
+        if nowcode_new[0:1] == '6':
+            stock_code_new= 'SH' + nowcode_new
+        else:
+            stock_code_new= 'SZ' + nowcode_new
+
+
 
         if debug:
             print("code:%s, name:%s" % (nowcode, nowname ))
@@ -166,6 +180,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         # if len(detail_info) == 0 or (detail_info is None):
         if len(detail_info) <= within_days  or (detail_info is None):
             # print('NaN: code:%s, name:%s' % (nowcode, nowname ))
+            #error handle
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
                 is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
             continue
@@ -186,8 +201,6 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     (nowcode, db_max_date, nowdate.strftime("%Y%m%d")))
             
             continue
-
-        ##############################################################################
             
         ##############################################################################
         #is_d_volume        
@@ -257,6 +270,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             print('is_d_volume %s' % is_d_volume)
 
         ################################################################################################
+
 
         ##############################################################################
         # dif: 12， 与26日的差别
@@ -415,7 +429,6 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 if debug:
                     print('is_peach %s' % is_peach)
         ################################################################################################
-
         #is_zig
         #zig condition
         z_df, z_peers, z_d, z_k, z_buy_state=zig(detail_info)
@@ -440,7 +453,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
         if debug:
             print('is_zig=%s' % is_zig)
-            
+
+           
 
         ###############################################################################################
         #is_quad
@@ -544,8 +558,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                         break
 
             if c_less_ma5 and c_less_ma60:
-               is_quad = 1
-               print('### %s, %s, %s, is_quad=%d' %(str(nowdate), nowcode, nowname, is_quad))
+                is_quad = 1
+                if debug:
+                   print('### %s, %s, %s, is_quad=%d' %(str(nowdate), nowcode, nowname, is_quad))
 
         if debug:
             print('is_quad=%s' % is_quad)
@@ -559,7 +574,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         cond_4 = CROSS( REF(C, 1) , REF(MA(C, 5), 1))  or  CROSS( REF(C, 2) , REF(MA(C, 5), 2)) or  CROSS( REF(C, 3) , REF(MA(C, 5), 3)) # C cross ma5 exist in past 3 days
         if cond_1 and cond_2 and cond_3 and cond_4:
             is_macd = 1
-            print('### %s, %s, %s, is_macd=%d' %(str(nowdate), nowcode, nowname, is_macd))
+            if debug:
+                print('### %s, %s, %s, is_macd=%d' %(str(nowdate), nowcode, nowname, is_macd))
      
         ###############################################################################################
         #is_2d3pct
@@ -576,7 +592,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             
         is_2d3pct = i       
         if i > 1:
-            print('### %s, %s, %s, is_2d3pct=%d' %(str(nowdate), nowcode, nowname, is_2d3pct))
+            if debug:
+                print('### %s, %s, %s, is_2d3pct=%d' %(str(nowdate), nowcode, nowname, is_2d3pct))
+            pass
             
 
         ###############################################################################################
@@ -595,7 +613,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         #5day up, up range is lower than 10%
         if 5 == k and (C < REF(C, 5) * 1.1 ): 
             is_up_days = 1
-            print('### %s, %s, %s, is_up_days=%d' %(str(nowdate), nowcode, nowname, is_up_days))
+            if debug:
+                print('### %s, %s, %s, is_up_days=%d' %(str(nowdate), nowcode, nowname, is_up_days))
      
         ##############################################################################
         # old duck 
@@ -737,7 +756,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 
         if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
             is_duck_head = 1
-            print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
+            if debug:
+                print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
  
 
 
@@ -851,7 +871,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                             K))
                 if H2_cur_date <= cur_date_new or K > 3:
                     #funcat call, reset to original date
-                    T(str(nowdate))
+                    T(str(nowdate.strftime("%Y-%m-%d")))
                     break
 
                 T((cur_date_new.strftime('%Y%m%d')))
@@ -898,13 +918,14 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if (cond_1 and cond_2 and cond_3 and cond_4 and cond_5):
         #if 1:
             is_cup_tea = 1
-            print('H1=%s, H1_days=%s, H1_date=%s, L1=%s , L1_days=%s, L1_date=%s, delta_H1_L1=[%s,%s]' % \
-                    (H1, H1_days, H1_date, L1, L1_days, L1_date, H1_days - L1_days, (L1 - H1)/H))
-            print('H2=%s, H2_days=%s, H2_date=%s, L2=%s , L2_days=%s, L2_date=%s, delta_L1_H2=[%s,%s]' % \
-                    (H2, H2_days, H2_date, L2, L2_days, L2_date, L1_days - H2_days, (H2 - L1)/ L1))
-            print('max_botton_days=%s' % max_botton_days) 
-            print(cond_1, cond_2, cond_3, cond_4, cond_5)
-            print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
+            if debug:
+                print('H1=%s, H1_days=%s, H1_date=%s, L1=%s , L1_days=%s, L1_date=%s, delta_H1_L1=[%s,%s]' % \
+                        (H1, H1_days, H1_date, L1, L1_days, L1_date, H1_days - L1_days, (L1 - H1)/H))
+                print('H2=%s, H2_days=%s, H2_date=%s, L2=%s , L2_days=%s, L2_date=%s, delta_L1_H2=[%s,%s]' % \
+                        (H2, H2_days, H2_date, L2, L2_days, L2_date, L1_days - H2_days, (H2 - L1)/ L1))
+                print('max_botton_days=%s' % max_botton_days) 
+                print(cond_1, cond_2, cond_3, cond_4, cond_5)
+                print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
         if debug:
             print(cond_1, cond_2, cond_3, cond_4, cond_5)
             print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
@@ -925,24 +946,28 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
             'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume']
     update_df=pd.DataFrame(update_list, columns=data_column)
+
+
+
     if debug:
         print(update_df)
     #hdata.update_allstock_hdatadate(update_df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    if debug:
+        print("start_time: %s, last_time: %s" % (start_time, last_time))
 
-    return update_df
+    return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume]
 
 def update_peach_zig_quad(nowdate, df, df1):
 
     tmp_df = df.sort_values('stock_code', ascending=0)
     tmp_df = tmp_df.reset_index(drop=True)
-    tmp_df.to_csv('./csv/cross_condition_1.csv', encoding='gbk')
+    tmp_df.to_csv('./csv/cross_condition.csv', encoding='gbk')
 
     tmp_df1 = df1.sort_values('stock_code', ascending=0)
     tmp_df1 = tmp_df1.reset_index(drop=True)
-    tmp_df1.to_csv('./csv/cross_condition_2.csv', encoding='gbk')
+    tmp_df1.to_csv('./csv/cross_condition.csv', encoding='gbk')
 
     tmp_df['is_peach'] = tmp_df1['is_peach']
     tmp_df['is_zig']   = tmp_df1['is_zig']
@@ -960,6 +985,8 @@ def update_peach_zig_quad(nowdate, df, df1):
     if debug:
         print(tmp_df)
 
+    #return   #debug
+
     #delete first, then insert
     if len(tmp_df) > 3000:
         hdata.delete_data_from_hdata(\
@@ -967,6 +994,13 @@ def update_peach_zig_quad(nowdate, df, df1):
             end_date=nowdate.strftime("%Y-%m-%d")\
             )
         hdata.copy_from_stringio(tmp_df)
+
+
+def worker(name):
+    if debug:
+        print("Worker %s %s started" % (name[0], name[1]))
+    handle_df = calculate_peach_zig_quad(name[0], name[1])
+    return handle_df
 
 if __name__ == '__main__':
 
@@ -983,12 +1017,29 @@ if __name__ == '__main__':
             end_date=nowdate.strftime("%Y-%m-%d")\
             )
 
-    handle_df = calculate_peach_zig_quad(nowdate, nowdate_df)
+    #nowdate_df = nowdate_df.head(10)  # small size for test
+    data_list = np.array(nowdate_df)
+    data_list = data_list.tolist()
 
-    if len(handle_df) > 3000:
-        update_peach_zig_quad(nowdate, nowdate_df, handle_df) 
+
+    processes = 4
+    number = len(nowdate_df)
+    mplist = []
+    with multiprocessing.Pool(int(processes)) as pool:
+       mplist.append(
+           pool.map(worker, data_list))
+    
+    data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
+        'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume']
+
+    update_df=pd.DataFrame(mplist[0], columns=data_column)
+    update_df.to_csv('./multi.txt', sep=',', index=False, header=False, encoding='utf-8')
+
+    if len(update_df) > 3000:
+        update_peach_zig_quad(nowdate, nowdate_df, update_df) 
+    if debug:
+        print(update_df)
+        print(mplist)
 
     t2 = time.time()
-
-    
     print("t2-t1=%s"%(t2-t1)) 

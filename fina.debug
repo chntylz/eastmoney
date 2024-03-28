@@ -35,32 +35,39 @@ return df, api_param
 
 ==================
 
-import pandas as pd
-import json
 import requests
-import re
-
-import time
-import datetime
-
 from bs4 import BeautifulSoup
 
-url='https://money.finance.sina.com.cn/corp/go.php/vFD_AchievementNotice/stockid/000571.phtml'
+# 目标网页URL
+url = 'https://money.finance.sina.com.cn/corp/go.php/vFD_AchievementNotice/stockid/000922.phtml'
 
+# 发送HTTP请求
 response = requests.get(url)
-html_content = response.text
+data=[]
 
-
-# 使用BeautifulSoup解析HTML
-soup = BeautifulSoup(html_content, 'html.parser')
-
-# 找到所有的tr标签
-tr_tags = soup.find_all('tr')
-
-# 遍历所有的tr标签，并打印出具有特定class的标签
-for tr in tr_tags:
-    tr_class = tr.get('class')
-    if tr_class:  # 确保tr标签有class属性
-        print(f'<tr class="{tr_class}">...</tr>')
-
-#https://kimi.moonshot.cn/chat/cnt7p49rdij2slji2k20
+# 检查请求是否成功
+if response.status_code == 200:
+    # 使用BeautifulSoup解析HTML内容
+    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    # 找到页面中的所有表格
+    tables = soup.find_all('table')
+    
+    # 遍历每个表格
+    for table in tables:
+        # 遍历表格中的所有行
+        for row in table.find_all('tr'):
+            # 获取每一行的数据
+            row_data = []
+            for cell in row.find_all('td'):
+                # 提取单元格文本并去除空白字符
+                text = cell.get_text(strip=True)
+                row_data.append(text)
+            # 打印或处理每一行的数据
+            print(row_data)
+            data.append(row_data)
+            
+    # 将数据列表转换为DataFrame
+    df = pd.DataFrame(data, columns=['Column1', 'Column2', 'Column3'])  # 根据实际情况替换列名
+else:
+    print('请求失败，状态码:', response.status_code)
