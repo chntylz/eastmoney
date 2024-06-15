@@ -200,7 +200,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         ##############################################################################
         #is_d_volume        
         '''
-        T1:=C>=REF(C,1)*1.03 AND C<=REF(C,1)*1.05;
+        T1:=C>=REF(C,1)*1.03 AND C<=REF(C,1)*1.06;
         (涨幅在3%-5%之间)
 
         T2:=DYNAINFO(17)>=1;
