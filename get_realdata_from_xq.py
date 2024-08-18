@@ -104,6 +104,10 @@ def get_data2(browser):
     url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
         + '?page=1&size=5000&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
 
+    #20240809
+    url='https://stock.xueqiu.com/v5/stock/screener/quote/list.json'\
+        + '?page=1&size=5000&order=desc&order_by=percent&market=CN&type=sh_sz'
+
     browser.get(url)
     browser.implicitly_wait(5)
     print(url)
@@ -136,6 +140,9 @@ def get_data3(browser):
     #10000 is too big now, change to 5000
     url='https://xueqiu.com/service/v5/stock/screener/quote/list'\
         + '?page=1&size=5000&order=asc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
+    #20240809
+    url='https://stock.xueqiu.com/v5/stock/screener/quote/list.json'\
+        + '?page=1&size=5000&order=desc&order_by=percent&market=CN&type=sh_sz'
 
     browser.get(url)
     browser.implicitly_wait(5)
