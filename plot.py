@@ -15,6 +15,9 @@ import pandas as pd
 # get data
 #import pandas_datareader as pdr
 
+import matplotlib
+matplotlib.use('Agg') # set the backend before importing pyplot
+
 # visual
 import matplotlib.pyplot as plt
 #import mpl_finance as mpf

@@ -185,22 +185,12 @@ if __name__ == '__main__':
     nowdate=datetime.datetime.now().date()
     date_string = nowdate.strftime('%Y-%m-%d')
     
-    df  = get_all_season_fund('2021-12-31')
-    df2 = get_all_season_fund('2022-03-31')
-    df3 = get_all_season_fund('2022-06-30')
-    df4 = get_all_season_fund('2022-09-30')
-    df5 = get_all_season_fund('2023-03-31')
-    df6 = get_all_season_fund('2023-06-30')
-    df7 = get_all_season_fund('2023-09-30')
+    df  = get_all_season_fund('2023-12-31')
+    df2 = get_all_season_fund('2024-03-31')
+    df3 = get_all_season_fund('2024-06-30')
 
     df = pd.concat([df, df2])
     df = pd.concat([df, df3])
-    df = pd.concat([df, df4])
-    df = pd.concat([df, df5])
-    df = pd.concat([df, df6])
-    df = pd.concat([df, df7])
-    
-    #df  = get_all_season_fund('2021-06-30')
 
 
     df.to_csv('./csv/test_eastmoney_fund.csv', encoding='gbk')
