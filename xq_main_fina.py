@@ -202,14 +202,29 @@ if __name__ == '__main__':
 
     get_xq_data._init()
 
-# 添加无头headlesss
+    # 添加无头headlesss
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
+    #chrome_options.add_argument('--headless')
+    chrome_options.add_argument(
+            'user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36')
+
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+
+    chrome_options.add_argument("blink-settings=imagesEnabled=false")
+    chrome_options.add_argument("disable-infobars");
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+
+
     browser = webdriver.Chrome(chrome_options=chrome_options)
 
-#browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
+    with open('./stealth.min.js') as f:
+        js = f.read()
+    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        "source": js
+        })
+
 
 
     get_xq_data.set_browser(browser)

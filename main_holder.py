@@ -107,6 +107,9 @@ if __name__ == '__main__':
         else:
             i = i + 1
 
+            if i>300:
+                break
+
     df.to_csv('./csv/holder_all_df_' + str(i) + '.csv', encoding='gbk')
     df = df.drop_duplicates(subset=['SECURITY_CODE', 'END_DATE'], keep='first')
     
