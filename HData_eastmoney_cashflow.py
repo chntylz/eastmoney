@@ -13,32 +13,76 @@ from io import StringIO
 debug = 0
 
 '''
-    'security_code',
-    'security_name_abbr',
-    'reportdate',
-    'basic_eps',  每股收益
-    'total_operate_income', 营业总收入
-    'parent_netprofit',     净利润
-    'weightavg_roe',   净资产收益率
-    'ystz',  营收入同比增长
-    'sjltz', 净利润同比增长
-    'bps',   每股净资产
-    'mgjyxjje',每股经营现金流量
-    'xsmll',    销售毛利率
-    'yshz',     营收季度环比增长率
-    'sjlhz',    净利润环比增长率
-    'qdate',     2024Q2
+              security_code ,
+              security_name_abbr ,
+              industry_name ,
+              report_date ,
+
+              netcash_operate ,     经营性现金流量净额
+              netcash_operate_ratio ,经营性现金流量净额占比
+              sales_services ,销售商品、提供劳务收到的现金
+
+              sales_services_ratio ,销售商品、提供劳务收到的现金占比
+              pay_staff_cash ,  支付给职工以及为职工支付的现金
+              psc_ratio ,支付给职工以及为职工支付的现金占比
+              netcash_invest ,投资活动产生的现金流量净额
+
+              netcash_invest_ratio ,投资活动产生的现金流量净额占比
+              receive_invest_income ,取得投资收益收到的现金
+              rii_ratio ,取得投资收益收到的现金占比
+
+              construct_long_asset ,购建固定资产、无形资产和其他长期资产支付的现金
+              cla_ratio ,购建固定资产、无形资产和其他长期资产支付的现金占比
+              netcash_finance ,融资性现金流量净额
+
+              netcash_finance_ratio ,融资性现金流量净额占比
+              cce_add ,现金及现金等价物净增加额
+              cce_add_ratio ,现金及现金等价物净增加额占比
+
+              customer_deposit_add ,
+              cda_ratio ,
+              deposit_iofi_other ,
+              dio_ratio ,
+
+              loan_advance_add ,
+              laa_ratio ,
+              receive_interest_commission ,
+
+              ric_ratio ,
+              invest_pay_cash ,
+              ipc_ratio ,
+              begin_cce ,
+
+              begin_cce_ratio ,
+              end_cce ,
+              end_cce_ratio ,
+              receive_origic_premium ,
+
+              rop_ratio ,
+              pay_origic_compensate ,
+              poc_ratio 
+
+
 '''
 
 
-eastmoney_cols =" stock_code, stock_name, record_date, basic_eps,\
-               total_operate_income, parent_netprofit, weightavg_roe, ystz,\
-              sjltz, bps, mgjyxjje, xsmll, yshz, sjlhz, qdate "
+#eastmoney_cols = " security_code, security_name_abbr, industry_name, report_date,\
+eastmoney_cols = " stock_code, stock_name, industry_name, record_date,\
+    netcash_operate, netcash_operate_ratio, sales_services,\
+    sales_services_ratio, pay_staff_cash, psc_ratio, netcash_invest,\
+    netcash_invest_ratio, receive_invest_income, rii_ratio,\
+    construct_long_asset, cla_ratio, netcash_finance,\
+    netcash_finance_ratio, cce_add, cce_add_ratio,\
+    customer_deposit_add, cda_ratio, deposit_iofi_other, dio_ratio,\
+    loan_advance_add, laa_ratio, receive_interest_commission,\
+    ric_ratio, invest_pay_cash, ipc_ratio, begin_cce,\
+    begin_cce_ratio, end_cce, end_cce_ratio, receive_origic_premium,\
+    rop_ratio, pay_origic_compensate, poc_ratio "
 
-class HData_eastmoney_fina(object):
+class HData_eastmoney_cashflow(object):
     def __init__(self,user,password):
         # self.aaa = aaa
-        self.eastmoney_fina_table=[]
+        self.eastmoney_cashflow_table=[]
         self.user=user
         self.password=password
 
@@ -58,7 +102,7 @@ class HData_eastmoney_fina(object):
 
     def table_is_exist(self):
         self.db_connect()
-        self.cur.execute("select count(*) from pg_class where relname = 'eastmoney_fina_table' ;")
+        self.cur.execute("select count(*) from pg_class where relname = 'eastmoney_cashflow_table' ;")
         ans=self.cur.fetchall()
         #print(list(ans[0])[0])
         if list(ans[0])[0]:
@@ -83,30 +127,64 @@ class HData_eastmoney_fina(object):
         #sjltz  float,  jinglirun tongbi
         # 创建stocks表
         self.cur.execute('''
-            drop table if exists eastmoney_fina_table;
-            create table eastmoney_fina_table(
-                stock_code  varchar,
-                stock_name  varchar,
+            drop table if exists eastmoney_cashflow_table;
+            create table eastmoney_cashflow_table(
+                stock_code  varchar, 
+                stock_name  varchar, 
+                industry_name  varchar, 
                 record_date  date,
-                basic_eps  float,
-                total_operate_income  float,
-                parent_netprofit  float,
-                weightavg_roe  float,
-                ystz  float, 
-                sjltz  float,
-                bps  float,
-                mgjyxjje  float,
-                xsmll  float,
-                yshz  float,
-                sjlhz  float,
-                qdate varchar
+
+                netcash_operate  float,
+                netcash_operate_ratio  float,
+                sales_services  float,
+
+                sales_services_ratio  float,
+                pay_staff_cash  float,
+                psc_ratio  float,
+                netcash_invest  float,
+
+                netcash_invest_ratio  float,
+                receive_invest_income  float,
+                rii_ratio  float,
+
+                construct_long_asset  float,
+                cla_ratio  float,
+                netcash_finance  float,
+
+                netcash_finance_ratio  float,
+                cce_add  float,
+                cce_add_ratio  float,
+
+                customer_deposit_add  float,
+                cda_ratio  float,
+                deposit_iofi_other  float,
+                dio_ratio  float,
+
+                loan_advance_add  float,
+                laa_ratio  float,
+                receive_interest_commission  float,
+
+                ric_ratio  float,
+                invest_pay_cash  float,
+                ipc_ratio  float,
+                begin_cce  float,
+
+                begin_cce_ratio  float,
+                end_cce  float,
+                end_cce_ratio  float,
+                receive_origic_premium  float,
+
+                rop_ratio  float,
+                pay_origic_compensate  float,
+                poc_ratio float
+
             );
-            alter table eastmoney_fina_table add primary key(stock_code,record_date);
+            alter table eastmoney_cashflow_table add primary key(stock_code,record_date);
             ''')
         self.conn.commit()
         self.db_disconnect()
 
-        print("db_eastmoney_fina_table_create finish")
+        print("db_eastmoney_cashflow_table_create finish")
         pass
 
     def copy_from_stringio(self, df):
@@ -122,7 +200,7 @@ class HData_eastmoney_fina(object):
 
         self.db_connect()
         try:
-            self.cur.copy_from(buffer, table='eastmoney_fina_table', sep=",")
+            self.cur.copy_from(buffer, table='eastmoney_cashflow_table', sep=",")
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             print("Error: %s" % error)
@@ -138,7 +216,7 @@ class HData_eastmoney_fina(object):
     def db_get_maxdate_of_stock(self,stock_code):#获取某支股票的最晚日期
 
         self.db_connect()
-        self.cur.execute("select max(record_date) from eastmoney_fina_table \
+        self.cur.execute("select max(record_date) from eastmoney_cashflow_table \
                 where stock_code=\'" + stock_code+ "\' ;")
         ans=self.cur.fetchall()
         if(len(ans)==0):
@@ -196,24 +274,24 @@ class HData_eastmoney_fina(object):
                     if debug:
                         print(sql_cmd)
                     if(sql_cmd != ""):
-                        final_cmd = "insert into eastmoney_fina_table ("\
+                        cashflowl_cmd = "insert into eastmoney_cashflow_table ("\
                                 + eastmoney_cols + \
                                 " ) values "+sql_cmd+";"
                         if debug:
-                            print(final_cmd)
-                        self.cur.execute(final_cmd)
+                            print(cashflowl_cmd)
+                        self.cur.execute(cashflowl_cmd)
                         self.conn.commit()
                         sql_cmd = ""
 
             if debug:
                 print(sql_cmd)
             if(sql_cmd != ""):
-                final_cmd = "insert into eastmoney_fina_table ("\
+                cashflowl_cmd = "insert into eastmoney_cashflow_table ("\
                         + eastmoney_cols + \
                         " ) values "+sql_cmd+";"
                 if debug:
-                    print(final_cmd)
-                self.cur.execute(final_cmd)
+                    print(cashflowl_cmd)
+                self.cur.execute(cashflowl_cmd)
                 self.conn.commit()
 
         if debug:
@@ -272,18 +350,18 @@ class HData_eastmoney_fina(object):
                         t=''.join(sql_cmd)
                         print(t)
                     if len(sql_cmd):
-                        final_sql = [] 
-                        final_sql.append("insert into eastmoney_fina_table (")
-                        final_sql.append(eastmoney_cols)
-                        final_sql.append( " ) values ")
-                        final_sql.append(''.join(sql_cmd))
-                        final_sql.append( "  on conflict (stock_code, record_date) do nothing ; ")
-                        #print(''.join(final_sql))
+                        cashflowl_sql = [] 
+                        cashflowl_sql.append("insert into eastmoney_cashflow_table (")
+                        cashflowl_sql.append(eastmoney_cols)
+                        cashflowl_sql.append( " ) values ")
+                        cashflowl_sql.append(''.join(sql_cmd))
+                        cashflowl_sql.append( "  on conflict (stock_code, record_date) do nothing ; ")
+                        #print(''.join(cashflowl_sql))
                         sql_cmd = []
                         if debug:
-                            print(final_sql)
+                            print(cashflowl_sql)
                         t2 = time.time()
-                        self.cur.execute(''.join(final_sql))
+                        self.cur.execute(''.join(cashflowl_sql))
                         t3 = time.time()
                         self.conn.commit()
                         t4 = time.time()
@@ -298,15 +376,15 @@ class HData_eastmoney_fina(object):
                 print(t)
 
             if len(sql_cmd):
-                final_sql = []
-                final_sql.append("insert into eastmoney_fina_table (")
-                final_sql.append(eastmoney_cols)
-                final_sql.append( " ) values ")
-                final_sql.append(''.join(sql_cmd))
-                final_sql.append( "  on conflict (stock_code, record_date) do nothing; ")
-                #print(''.join(final_sql))
+                cashflowl_sql = []
+                cashflowl_sql.append("insert into eastmoney_cashflow_table (")
+                cashflowl_sql.append(eastmoney_cols)
+                cashflowl_sql.append( " ) values ")
+                cashflowl_sql.append(''.join(sql_cmd))
+                cashflowl_sql.append( "  on conflict (stock_code, record_date) do nothing; ")
+                #print(''.join(cashflowl_sql))
                 sql_cmd = []
-                self.cur.execute(''.join(final_sql))
+                self.cur.execute(''.join(cashflowl_sql))
                 self.conn.commit()
 
 
@@ -330,7 +408,7 @@ class HData_eastmoney_fina(object):
         if data is None:
             print("None")
         else:
-            data.to_sql(name='eastmoney_fina_table', con=self.conn, if_exists = 'replace', index=False)
+            data.to_sql(name='eastmoney_cashflow_table', con=self.conn, if_exists = 'replace', index=False)
             pass
 
         if debug:
@@ -339,89 +417,10 @@ class HData_eastmoney_fina(object):
 
         self.db_disconnect()
 
-    def update_allstock_hdatadate(self, data):
-
-        self.db_connect()
-
-        t1=time.time()
-
-        if debug:
-            print(" update_perstock_hdatadate begin")
-
-        if data is None:
-            print("None")
-        else:
-            length = len(data)
-            sql_cmd = ""
-            sql_head="UPDATE eastmoney_fina_table SET is_zig = tmp.is_zig, \
-                    is_quad=tmp.is_quad, is_peach=tmp.is_peach FROM ( VALUES "
-
-            sql_tail=" ) AS tmp (record_date, stock_code, is_peach, is_zig, is_quad ) \
-                    WHERE eastmoney_fina_table.record_date = tmp.record_date \
-                    and eastmoney_fina_table.stock_code = tmp.stock_code;"
-
-            each_num = 1000
-            for i in range(0,length):
-                if debug:
-                    print (i)
-
-                str_temp = ""
-                str_temp+="DATE "+"\'"+str(data.iloc[i,0])+"\'" + ","
-                column_size = data.shape[1]
-
-                if debug:
-                    print('column_size=%d'% (column_size))
-                '''
-                for j in range(1, column_size - 1):
-                    str_temp+="\'"+str(data.iloc[i,j])+"\'" + ","
-                str_temp+="\'"+str(data.iloc[i,column_size-1])+"\'" 
-                '''
-                str_temp+="\'"+str(data.iloc[i,1])+"\'" + ","
-                for j in range(2, column_size - 1):
-                    str_temp+=str(data.iloc[i,j])+ ","
-                str_temp+=str(data.iloc[i,column_size-1]) 
-
-                sql_cmd= sql_cmd + "("+str_temp+")"
-
-                if i % each_num == 0 or i == (length -1):
-                    pass
-                else:
-                    sql_cmd = sql_cmd+ ","
-
-                if i % each_num == 0:
-                    if debug:
-                        print(sql_cmd)
-                    if(sql_cmd != ""):
-                        final_sql=sql_head +sql_cmd+ sql_tail
-                        if debug:
-                            print('final_sql=%s'%(final_sql))
-                            
-                        self.cur.execute(final_sql)
-                        self.conn.commit()
-                        sql_cmd = ""
-
-            if debug:
-                print(sql_cmd)
-            if(sql_cmd != ""):
-                final_sql=sql_head +sql_cmd+ sql_tail
-                if debug:
-                    print('final_sql=%s'%(final_sql))
-                    
-                self.cur.execute(final_sql)
-                self.conn.commit()
-                pass
-
-        if debug:
-            print(time.time()-t1)
-            print(" insert_perstock_hdatadate finish")
-
-        self.db_disconnect()
-
-
     #fix bug: delete zero when the stock is closed
     def delete_amount_is_zero(self):
         self.db_connect()
-        sql_temp="delete from eastmoney_fina_table where amount = 0;"
+        sql_temp="delete from eastmoney_cashflow_table where amount = 0;"
         self.cur.execute(sql_temp)
 
         self.conn.commit()
@@ -443,7 +442,7 @@ class HData_eastmoney_fina(object):
 
         sql_temp += "select"
         sql_temp += eastmoney_cols
-        sql_temp += "from eastmoney_fina_table"
+        sql_temp += "from eastmoney_cashflow_table"
 
         if stock_code is None and start_date is None and end_date is None:
             pass
@@ -518,7 +517,7 @@ class HData_eastmoney_fina(object):
         
         and_flag = False
 
-        sql_temp = "delete from eastmoney_fina_table"
+        sql_temp = "delete from eastmoney_cashflow_table"
 
         if stock_code is None and start_date is None and end_date is None:
             self.db_disconnect()
@@ -562,11 +561,7 @@ class HData_eastmoney_fina(object):
         pass
  
 
-#alter table eastmoney_fina_table add  "up_days" int not null default 0;
 
 
-#update eastmoney_fina_table set is_zig=0 where record_date = '2018-10-08' and stock_code = '002732';
 
-#UPDATE eastmoney_fina_table SET is_zig = tmp.is_zig, is_quad=tmp.is_quad FROM    (VALUES ( DATE  '2018-06-13', '600647', 11, 1), ( DATE  '2018-06-12', '600647', 12, 1) ) AS tmp (record_date, stock_code, is_zig, is_quad ) WHERE eastmoney_fina_table.record_date = tmp.record_date and eastmoney_fina_table.stock_code = tmp.stock_code;
-#select * from eastmoney_fina_table where stock_code ='600647' and (record_date='2018-06-13' or record_date='2018-06-12' ); 
         

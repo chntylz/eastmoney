@@ -41,7 +41,7 @@ hdata=HData_eastmoney_day("usr","usr")
 
 #debug switch
 debug = 0
-debug = 0
+debug = 1
 within_days = 8
 
 #return the day(j) and cross_flag(true or false) if P is true during with_days, P is cross(5, 30), etc
@@ -999,6 +999,7 @@ def update_peach_zig_quad(nowdate, df, df1):
 def worker(name):
     if debug:
         print("Worker %s %s started" % (name[0], name[1]))
+        print(name)
     handle_df = calculate_peach_zig_quad(name[0], name[1])
     return handle_df
 

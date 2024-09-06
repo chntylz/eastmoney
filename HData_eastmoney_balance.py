@@ -13,32 +13,47 @@ from io import StringIO
 debug = 0
 
 '''
-    'security_code',
-    'security_name_abbr',
-    'reportdate',
-    'basic_eps',  每股收益
-    'total_operate_income', 营业总收入
-    'parent_netprofit',     净利润
-    'weightavg_roe',   净资产收益率
-    'ystz',  营收入同比增长
-    'sjltz', 净利润同比增长
-    'bps',   每股净资产
-    'mgjyxjje',每股经营现金流量
-    'xsmll',    销售毛利率
-    'yshz',     营收季度环比增长率
-    'sjlhz',    净利润环比增长率
-    'qdate',     2024Q2
+      
+    'security_code', 
+    'security_name_abbr', 
+    'industry_name',
+    'report_date', 
+    'total_assets', 总资产
+    'fixed_asset', 固定资产
+    'monetaryfunds',货币资金
+    'monetaryfunds_ratio', 货币资金同比增长率
+    'accounts_rece', 应收账款
+    'accounts_rece_ratio',应收账款同比增长率
+    'inventory', 存货
+    'inventory_ratio', 存货同比增长率
+    'total_liabilities', 总负债
+    'accounts_payable', 应付账款
+    'accounts_payable_ratio', 应付账款同比增长率
+    'advance_receivables',预收账款
+    'advance_receivables_ratio', 预收账款同比增长率
+    'total_equity', 股东权益合计
+    'total_equity_ratio',股东权益同比增长率
+    'total_assets_ratio', 总资产同比增长率
+    'total_liab_ratio', 总负债同比增长率f
+    'current_ratio',  流动比率
+    'debt_asset_ratio',   资产负债率=（负债总额÷资产总额）×100%  资产负债率是企业负债总额占企业资产总额的百分比。这个指标反映了在企业的全部资产中由债权人提给的资产所占比重的大小, 反映了债权人向企业提给信贷资金的危机程度, 也反映了企业举债经营的能力
+               
 '''
 
 
-eastmoney_cols =" stock_code, stock_name, record_date, basic_eps,\
-               total_operate_income, parent_netprofit, weightavg_roe, ystz,\
-              sjltz, bps, mgjyxjje, xsmll, yshz, sjlhz, qdate "
+#eastmoney_cols = " security_code, security_name_abbr, industry_name, report_date,\
+eastmoney_cols = " stock_code, stock_name, industry_name, record_date,\
+    total_assets, fixed_asset, monetaryfunds, monetaryfunds_ratio,\
+    accounts_rece, accounts_rece_ratio, inventory, inventory_ratio,\
+    total_liabilities, accounts_payable, accounts_payable_ratio,\
+    advance_receivables, advance_receivables_ratio, total_equity,\
+    total_equity_ratio, total_assets_ratio, total_liab_ratio,\
+    current_ratio, debt_asset_ratio "
 
-class HData_eastmoney_fina(object):
+class HData_eastmoney_balance(object):
     def __init__(self,user,password):
         # self.aaa = aaa
-        self.eastmoney_fina_table=[]
+        self.eastmoney_balance_table=[]
         self.user=user
         self.password=password
 
@@ -58,7 +73,7 @@ class HData_eastmoney_fina(object):
 
     def table_is_exist(self):
         self.db_connect()
-        self.cur.execute("select count(*) from pg_class where relname = 'eastmoney_fina_table' ;")
+        self.cur.execute("select count(*) from pg_class where relname = 'eastmoney_balance_table' ;")
         ans=self.cur.fetchall()
         #print(list(ans[0])[0])
         if list(ans[0])[0]:
@@ -83,30 +98,38 @@ class HData_eastmoney_fina(object):
         #sjltz  float,  jinglirun tongbi
         # 创建stocks表
         self.cur.execute('''
-            drop table if exists eastmoney_fina_table;
-            create table eastmoney_fina_table(
-                stock_code  varchar,
-                stock_name  varchar,
+            drop table if exists eastmoney_balance_table;
+            create table eastmoney_balance_table(
+                stock_code  varchar, 
+                stock_name  varchar, 
+                industry_name  varchar, 
                 record_date  date,
-                basic_eps  float,
-                total_operate_income  float,
-                parent_netprofit  float,
-                weightavg_roe  float,
-                ystz  float, 
-                sjltz  float,
-                bps  float,
-                mgjyxjje  float,
-                xsmll  float,
-                yshz  float,
-                sjlhz  float,
-                qdate varchar
+                total_assets  float, 
+                fixed_asset  float, 
+                monetaryfunds  float,
+                monetaryfunds_ratio  float,
+                accounts_rece  float, 
+                accounts_rece_ratio  float, 
+                inventory  float, 
+                inventory_ratio  float,
+                total_liabilities  float, 
+                accounts_payable  float, 
+                accounts_payable_ratio  float,
+                advance_receivables  float, 
+                advance_receivables_ratio  float, 
+                total_equity  float,
+                total_equity_ratio  float, 
+                total_assets_ratio  float, 
+                total_liab_ratio  float,
+                current_ratio  float, 
+                debt_asset_ratio  float
             );
-            alter table eastmoney_fina_table add primary key(stock_code,record_date);
+            alter table eastmoney_balance_table add primary key(stock_code,record_date);
             ''')
         self.conn.commit()
         self.db_disconnect()
 
-        print("db_eastmoney_fina_table_create finish")
+        print("db_eastmoney_balance_table_create finish")
         pass
 
     def copy_from_stringio(self, df):
@@ -122,7 +145,7 @@ class HData_eastmoney_fina(object):
 
         self.db_connect()
         try:
-            self.cur.copy_from(buffer, table='eastmoney_fina_table', sep=",")
+            self.cur.copy_from(buffer, table='eastmoney_balance_table', sep=",")
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             print("Error: %s" % error)
@@ -138,7 +161,7 @@ class HData_eastmoney_fina(object):
     def db_get_maxdate_of_stock(self,stock_code):#获取某支股票的最晚日期
 
         self.db_connect()
-        self.cur.execute("select max(record_date) from eastmoney_fina_table \
+        self.cur.execute("select max(record_date) from eastmoney_balance_table \
                 where stock_code=\'" + stock_code+ "\' ;")
         ans=self.cur.fetchall()
         if(len(ans)==0):
@@ -196,24 +219,24 @@ class HData_eastmoney_fina(object):
                     if debug:
                         print(sql_cmd)
                     if(sql_cmd != ""):
-                        final_cmd = "insert into eastmoney_fina_table ("\
+                        balancel_cmd = "insert into eastmoney_balance_table ("\
                                 + eastmoney_cols + \
                                 " ) values "+sql_cmd+";"
                         if debug:
-                            print(final_cmd)
-                        self.cur.execute(final_cmd)
+                            print(balancel_cmd)
+                        self.cur.execute(balancel_cmd)
                         self.conn.commit()
                         sql_cmd = ""
 
             if debug:
                 print(sql_cmd)
             if(sql_cmd != ""):
-                final_cmd = "insert into eastmoney_fina_table ("\
+                balancel_cmd = "insert into eastmoney_balance_table ("\
                         + eastmoney_cols + \
                         " ) values "+sql_cmd+";"
                 if debug:
-                    print(final_cmd)
-                self.cur.execute(final_cmd)
+                    print(balancel_cmd)
+                self.cur.execute(balancel_cmd)
                 self.conn.commit()
 
         if debug:
@@ -272,18 +295,18 @@ class HData_eastmoney_fina(object):
                         t=''.join(sql_cmd)
                         print(t)
                     if len(sql_cmd):
-                        final_sql = [] 
-                        final_sql.append("insert into eastmoney_fina_table (")
-                        final_sql.append(eastmoney_cols)
-                        final_sql.append( " ) values ")
-                        final_sql.append(''.join(sql_cmd))
-                        final_sql.append( "  on conflict (stock_code, record_date) do nothing ; ")
-                        #print(''.join(final_sql))
+                        balancel_sql = [] 
+                        balancel_sql.append("insert into eastmoney_balance_table (")
+                        balancel_sql.append(eastmoney_cols)
+                        balancel_sql.append( " ) values ")
+                        balancel_sql.append(''.join(sql_cmd))
+                        balancel_sql.append( "  on conflict (stock_code, record_date) do nothing ; ")
+                        #print(''.join(balancel_sql))
                         sql_cmd = []
                         if debug:
-                            print(final_sql)
+                            print(balancel_sql)
                         t2 = time.time()
-                        self.cur.execute(''.join(final_sql))
+                        self.cur.execute(''.join(balancel_sql))
                         t3 = time.time()
                         self.conn.commit()
                         t4 = time.time()
@@ -298,15 +321,15 @@ class HData_eastmoney_fina(object):
                 print(t)
 
             if len(sql_cmd):
-                final_sql = []
-                final_sql.append("insert into eastmoney_fina_table (")
-                final_sql.append(eastmoney_cols)
-                final_sql.append( " ) values ")
-                final_sql.append(''.join(sql_cmd))
-                final_sql.append( "  on conflict (stock_code, record_date) do nothing; ")
-                #print(''.join(final_sql))
+                balancel_sql = []
+                balancel_sql.append("insert into eastmoney_balance_table (")
+                balancel_sql.append(eastmoney_cols)
+                balancel_sql.append( " ) values ")
+                balancel_sql.append(''.join(sql_cmd))
+                balancel_sql.append( "  on conflict (stock_code, record_date) do nothing; ")
+                #print(''.join(balancel_sql))
                 sql_cmd = []
-                self.cur.execute(''.join(final_sql))
+                self.cur.execute(''.join(balancel_sql))
                 self.conn.commit()
 
 
@@ -330,7 +353,7 @@ class HData_eastmoney_fina(object):
         if data is None:
             print("None")
         else:
-            data.to_sql(name='eastmoney_fina_table', con=self.conn, if_exists = 'replace', index=False)
+            data.to_sql(name='eastmoney_balance_table', con=self.conn, if_exists = 'replace', index=False)
             pass
 
         if debug:
@@ -339,89 +362,10 @@ class HData_eastmoney_fina(object):
 
         self.db_disconnect()
 
-    def update_allstock_hdatadate(self, data):
-
-        self.db_connect()
-
-        t1=time.time()
-
-        if debug:
-            print(" update_perstock_hdatadate begin")
-
-        if data is None:
-            print("None")
-        else:
-            length = len(data)
-            sql_cmd = ""
-            sql_head="UPDATE eastmoney_fina_table SET is_zig = tmp.is_zig, \
-                    is_quad=tmp.is_quad, is_peach=tmp.is_peach FROM ( VALUES "
-
-            sql_tail=" ) AS tmp (record_date, stock_code, is_peach, is_zig, is_quad ) \
-                    WHERE eastmoney_fina_table.record_date = tmp.record_date \
-                    and eastmoney_fina_table.stock_code = tmp.stock_code;"
-
-            each_num = 1000
-            for i in range(0,length):
-                if debug:
-                    print (i)
-
-                str_temp = ""
-                str_temp+="DATE "+"\'"+str(data.iloc[i,0])+"\'" + ","
-                column_size = data.shape[1]
-
-                if debug:
-                    print('column_size=%d'% (column_size))
-                '''
-                for j in range(1, column_size - 1):
-                    str_temp+="\'"+str(data.iloc[i,j])+"\'" + ","
-                str_temp+="\'"+str(data.iloc[i,column_size-1])+"\'" 
-                '''
-                str_temp+="\'"+str(data.iloc[i,1])+"\'" + ","
-                for j in range(2, column_size - 1):
-                    str_temp+=str(data.iloc[i,j])+ ","
-                str_temp+=str(data.iloc[i,column_size-1]) 
-
-                sql_cmd= sql_cmd + "("+str_temp+")"
-
-                if i % each_num == 0 or i == (length -1):
-                    pass
-                else:
-                    sql_cmd = sql_cmd+ ","
-
-                if i % each_num == 0:
-                    if debug:
-                        print(sql_cmd)
-                    if(sql_cmd != ""):
-                        final_sql=sql_head +sql_cmd+ sql_tail
-                        if debug:
-                            print('final_sql=%s'%(final_sql))
-                            
-                        self.cur.execute(final_sql)
-                        self.conn.commit()
-                        sql_cmd = ""
-
-            if debug:
-                print(sql_cmd)
-            if(sql_cmd != ""):
-                final_sql=sql_head +sql_cmd+ sql_tail
-                if debug:
-                    print('final_sql=%s'%(final_sql))
-                    
-                self.cur.execute(final_sql)
-                self.conn.commit()
-                pass
-
-        if debug:
-            print(time.time()-t1)
-            print(" insert_perstock_hdatadate finish")
-
-        self.db_disconnect()
-
-
     #fix bug: delete zero when the stock is closed
     def delete_amount_is_zero(self):
         self.db_connect()
-        sql_temp="delete from eastmoney_fina_table where amount = 0;"
+        sql_temp="delete from eastmoney_balance_table where amount = 0;"
         self.cur.execute(sql_temp)
 
         self.conn.commit()
@@ -443,7 +387,7 @@ class HData_eastmoney_fina(object):
 
         sql_temp += "select"
         sql_temp += eastmoney_cols
-        sql_temp += "from eastmoney_fina_table"
+        sql_temp += "from eastmoney_balance_table"
 
         if stock_code is None and start_date is None and end_date is None:
             pass
@@ -518,7 +462,7 @@ class HData_eastmoney_fina(object):
         
         and_flag = False
 
-        sql_temp = "delete from eastmoney_fina_table"
+        sql_temp = "delete from eastmoney_balance_table"
 
         if stock_code is None and start_date is None and end_date is None:
             self.db_disconnect()
@@ -562,11 +506,7 @@ class HData_eastmoney_fina(object):
         pass
  
 
-#alter table eastmoney_fina_table add  "up_days" int not null default 0;
 
 
-#update eastmoney_fina_table set is_zig=0 where record_date = '2018-10-08' and stock_code = '002732';
 
-#UPDATE eastmoney_fina_table SET is_zig = tmp.is_zig, is_quad=tmp.is_quad FROM    (VALUES ( DATE  '2018-06-13', '600647', 11, 1), ( DATE  '2018-06-12', '600647', 12, 1) ) AS tmp (record_date, stock_code, is_zig, is_quad ) WHERE eastmoney_fina_table.record_date = tmp.record_date and eastmoney_fina_table.stock_code = tmp.stock_code;
-#select * from eastmoney_fina_table where stock_code ='600647' and (record_date='2018-06-13' or record_date='2018-06-12' ); 
         

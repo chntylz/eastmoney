@@ -33,7 +33,6 @@ balance
 http://data.eastmoney.com/bbsj/202106/zcfz.html
 http://datacenter-web.eastmoney.com/api/data/get?callback=jQuery11230002487053379782944_1626683115977&st=NOTICE_DATE%2CSECURITY_CODE&sr=-1%2C-1&ps=50&p=1&type=RPT_DMSK_FN_BALANCE&sty=ALL&token=894050c76af8597a853f5b408b759f5d&filter=(SECURITY_TYPE_CODE+in+(%22058001001%22%2C%22058001008%22))(REPORT_DATE%3D%272021-06-30%27)
 
-
 利润表
 income
 http://data.eastmoney.com/bbsj/202106/lrb.html
@@ -44,6 +43,42 @@ http://datacenter-web.eastmoney.com/api/data/get?callback=jQuery1123033303123159
 现金流量表
 cashflow
 http://data.eastmoney.com/bbsj/202106/xjll.html
+
+------------------------------------------------------------------
+
+20240906
+业绩报表
+cpd
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112302295057226083017_1725597423881&sortColumns=UPDATE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_LICO_FN_CPD&columns=ALL&filter=(REPORTDATE%3D%272024-06-30%27)
+change to ->
+order by REPORTDATE and CSECURITY_CODE, pagesize=500, pagenumber=150
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112302295057226083017_1725597423881&sortColumns=REPORTDATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=500&pageNumber=150&reportName=RPT_LICO_FN_CPD&columns=ALL
+
+
+资产负债表
+balance
+https://data.eastmoney.com/bbsj/202406/zcfz.html
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery1123062742764734556_1725595827452&sortColumns=NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_DMSK_FN_BALANCE&columns=ALL&filter=(SECURITY_TYPE_CODE+in+(%22058001001%22%2C%22058001008%22))(TRADE_MARKET_CODE!%3D%22069001017%22)(REPORT_DATE%3D%272024-06-30%27)
+change to ->
+order by REPORT_DATE and CSECURITY_CODE, pagesize=500, pagenumber=150
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery1123062742764734556_1725595827452&sortColumns=REPORT_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=500&pageNumber=150&reportName=RPT_DMSK_FN_BALANCE&columns=ALL
+
+利润表
+income
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery1123042893057157239967_1725596942438&sortColumns=NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_DMSK_FN_INCOME&columns=ALL&filter=(SECURITY_TYPE_CODE+in+(%22058001001%22%2C%22058001008%22))(TRADE_MARKET_CODE!%3D%22069001017%22)(REPORT_DATE%3D%272024-06-30%27)
+change to -> 
+order by REPORT_DATE and CSECURITY_CODE, pagesize=500, pagenumber=150
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery1123042893057157239967_1725596942438&sortColumns=REPORT_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=500&pageNumber=150&reportName=RPT_DMSK_FN_INCOME&columns=ALL
+
+
+现金流量表
+cashflow
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112306324084828446912_1725597270087&sortColumns=NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_DMSK_FN_CASHFLOW&columns=ALL&filter=(SECURITY_TYPE_CODE+in+(%22058001001%22%2C%22058001008%22))(TRADE_MARKET_CODE!%3D%22069001017%22)(REPORT_DATE%3D%272024-06-30%27)
+
+change to -> 
+order by REPORT_DATE and CSECURITY_CODE, pagesize=500, pagenumber=150
+https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112306324084828446912_1725597270087&sortColumns=REPORT_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=500&pageNumber=150&reportName=RPT_DMSK_FN_CASHFLOW&columns=ALL
+
 '''
 
 def get_headers():
@@ -162,8 +197,8 @@ def handle_raw_df(df):
     if 'payyear' in df.columns:
         del df['payyear']
 
-    if 'publishname' in df.columns:
-        del df['publishname']
+    #if 'publishname' in df.columns:
+    #   del df['publishname']
 
     if 'zxgxl' in df.columns:
         del df['zxgxl']
@@ -197,9 +232,112 @@ def handle_raw_df(df):
     if 'secucode' in df.columns:
         del df['secucode']
 
-    df=df.fillna(0)
+    #balance del begin
+
+    if 'industry_code'  in df.columns: 
+        del df['industry_code']
+
+    if 'market'  in df.columns: 
+        del df['market']
+
+    if 'date_type_code'  in df.columns: 
+        del df['date_type_code']
+
+    if 'report_type_code'  in df.columns: 
+        del df['report_type_code']
+
+
+    if 'data_state'  in df.columns: 
+        del df['data_state']
+
+    if 'cash_deposit_pbc'  in df.columns: 
+        del df['cash_deposit_pbc']
+
+    if 'cdp_ratio'  in df.columns: 
+        del df['cdp_ratio']
+
+    if 'loan_advance'  in df.columns:
+        del df['loan_advance']
+
+
+    if 'loan_advance_ratio'  in df.columns: 
+        del df['loan_advance_ratio']
+
+    if 'available_sale_finasset'  in df.columns: 
+        del df['available_sale_finasset']
+
+    if 'asf_ratio'  in df.columns:
+        del df['asf_ratio']
+
+    if 'loan_pbc'  in df.columns: 
+        del df['loan_pbc']
+
+    if 'loan_pbc_ratio'  in df.columns: 
+        del df['loan_pbc_ratio']
+
+
+
+    if 'accept_deposit'  in df.columns: 
+        del df['accept_deposit']
+
+    if 'accept_deposit_ratio'  in df.columns:
+        del df['accept_deposit_ratio']
+
+    if 'sell_repo_finasset'  in df.columns: 
+        del df['sell_repo_finasset']
+
+    if 'srf_ratio'  in df.columns: 
+        del df['srf_ratio']
+
+
+    if 'settle_excess_reserve'  in df.columns: 
+        del df['settle_excess_reserve']
+
+    if 'ser_ratio'  in df.columns:
+        del df['ser_ratio']
+
+    if 'borrow_fund'  in df.columns: 
+        del df['borrow_fund']
+
+    if 'borrow_fund_ratio'  in df.columns: 
+        del df['borrow_fund_ratio']
+
+    if 'agent_trade_security'  in df.columns: 
+        del df['agent_trade_security']
+
+
+
+    if 'ats_ratio'  in df.columns:
+        del df['ats_ratio']
+
+    if 'premium_rece'  in df.columns: 
+        del df['premium_rece']
+
+    if 'premium_rece_ratio'  in df.columns: 
+        del df['premium_rece_ratio']
+
+    if 'short_loan'  in df.columns: 
+        del df['short_loan']
+
+
+    if 'short_loan_ratio'  in df.columns:
+        del df['short_loan_ratio']
+
+    if 'advance_premium'  in df.columns: 
+        del df['advance_premium']
+
+    if 'advance_premium_ratio'  in df.columns: 
+        del df['advance_premium_ratio']
+    #balance del  end
+
     
-    df['reportdate'] = df['reportdate'].apply(lambda x: get_date_from_str(x))
+    if 'reportdate' in df.columns:
+        df['reportdate'] = df['reportdate'].apply(lambda x: get_date_from_str(x))
+
+    if 'report_date' in df.columns:
+        df['report_date'] = df['report_date'].apply(lambda x: get_date_from_str(x))
+
+    df=df.fillna(0)
 
     return df
 
@@ -244,7 +382,8 @@ def get_fina_data(page=1):
     df = pd.DataFrame(rawdata)
     
     if len(df):
-       df = handle_raw_df(df)
+        df.columns = df.columns.map(lambda x:x.lower()) #大写 to 小写
+        df = handle_raw_df(df)
 
     return df, api_param
 
@@ -317,6 +456,115 @@ def get_fina_data2(page=1):
     return df, api_param
 
 
+#20240906
+def get_fina_data3(fina='cpd', page=1):
+    
+    timestamp=str(round(time.time() * 1000))
+    
+    cpd_url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback='\
+            + 'jQuery112302295057226083017_'\
+            + timestamp \
+            + '&sortColumns=REPORTDATE%2CSECURITY_CODE&sortTypes=-1%2C-1&'\
+            + 'pageSize=500'\
+            + '&pageNumber='\
+            + str(page) \
+            + '&reportName=RPT_LICO_FN_CPD&columns=ALL'
+
+    balance_url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback='\
+            + 'jQuery1123062742764734556_'\
+            + timestamp \
+            + '&sortColumns=REPORT_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&'\
+            + 'pageSize=500&'\
+            + 'pageNumber='\
+            + str(page) \
+            + '&reportName=RPT_DMSK_FN_BALANCE&columns=ALL'
+
+    income_url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback='\
+            + 'jQuery1123042893057157239967_'\
+            + timestamp \
+            + '&sortColumns=REPORT_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&'\
+            + 'pageSize=500&'\
+            + 'pageNumber='\
+            + str(page) \
+            + '&reportName=RPT_DMSK_FN_INCOME&columns=ALL'
+
+    cashflow_url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback='\
+            + 'jQuery112306324084828446912_'\
+            + timestamp \
+            + '&sortColumns=REPORT_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&'\
+            + 'pageSize=500&'\
+            + 'pageNumber='\
+            + str(page) \
+            + '&reportName=RPT_DMSK_FN_CASHFLOW&columns=ALL'
+
+    if fina == 'cpd':
+        url = cpd_url;
+    elif fina == 'balance':
+        url = balance_url;
+    elif fina == 'income':
+        url = income_url;
+    elif fina == 'cashflow':
+        url = cashflow_url;
+    else :
+        url = cpd_url;
+
+    print(url)
+
+    # 添加无头headlesss
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+
+    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+    browser.maximize_window()  # 最大化窗口
+    wait = WebDriverWait(browser, 10)
+
+
+    html = ''
+    try:
+        browser.get(url)
+        browser.implicitly_wait(5)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+
+    if debug:
+        print(html)
+ 
+    p1 = re.compile(r'[(](.*?)[)]', re.S)  #'xxx(yyy)zzz', 提取括号的内容yyy
+
+    #把中间的'(' ')' 替换成'-', 才能正确的把json 解析出来
+    s=html
+    f1 = s.find('(')
+    s = s[:f1] + '~' + s[f1+1 : ]  #first '(' -> '~'
+    f2 = s.rfind(')')              #last  ')' -> '@'
+    s = s[:f2] + '@' + s[f2+1 : ]
+
+    s = s.replace('(', '-')
+    s = s.replace(')', '-')
+
+    s = s.replace('~', '(' )
+    s = s.replace('@', ')' )
+
+    response_array = re.findall(p1, s)
+    api_param = json.loads(response_array[0])
+
+    rawdata = api_param['result']['data']
+    df = pd.DataFrame(rawdata)
+    
+    if len(df):
+       df = handle_raw_df(df)
+
+    return df, api_param
+
+
+
+    
     
 if __name__ == '__main__':
 

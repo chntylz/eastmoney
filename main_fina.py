@@ -17,7 +17,7 @@ from get_fina_data import *
 
 
 debug=0
-debug=0
+debug=1
 
 para1 = 0
 
@@ -34,7 +34,7 @@ def check_table():
     table_exist = hdata_fina.table_is_exist() 
     print('table_exist=%d' % table_exist)
     if table_exist:
-        #hdata_fina.db_hdata_eastmoney_create()
+        hdata_fina.db_hdata_eastmoney_create()
         print('table already exist')
     else:
         hdata_fina.db_hdata_eastmoney_create()
@@ -68,8 +68,7 @@ if __name__ == '__main__':
     #每次最多只能得到500条数据
     while (1):
         try:
-            #f_df, api_param = get_fina_data(i)
-            f_df, api_param = get_fina_data2(i)
+            f_df, api_param = get_fina_data3('cpd', i)
             if len(f_df):
 
                 if debug:
@@ -85,9 +84,19 @@ if __name__ == '__main__':
             break
         else:
             i = i + 1
+            if i>300:
+                break
 
     df.to_csv('./csv/fina_all_df_' + str(i) + '.csv', encoding='gbk')
-    df = df.drop_duplicates(subset=['security_code', 'reportdate'], keep='first')
+    try :
+        df = df.drop_duplicates(subset=['security_code', 'reportdate'], keep='first')
+    except Exception as e:
+        print(e)
+    
+    try :
+        df = df.drop_duplicates(subset=['security_code', 'report_date'], keep='first')
+    except Exception as e:
+        print(e)
    
     if get_all == 1:
         hdata_fina.copy_from_stringio(df)
@@ -100,3 +109,12 @@ if __name__ == '__main__':
 
     t2 = time.time()
     print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+
+
+#read csv data, then import to database
+'''
+df = pd.read_csv('./csv/fina_all_df_301.csv',encoding='gbk', index_col=[0], dtype={'security_code':str})
+df = df.drop_duplicates(subset=['security_code', 'reportdate'], keep='first')
+df = df.reset_index(drop=True)
+hdata_fina.copy_from_stringio(df)
+'''
