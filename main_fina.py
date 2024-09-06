@@ -19,6 +19,8 @@ from get_fina_data import *
 debug=0
 debug=1
 
+pagesize=150
+
 para1 = 0
 
 hdata_fina=HData_eastmoney_fina("usr","usr")
@@ -84,7 +86,7 @@ if __name__ == '__main__':
             break
         else:
             i = i + 1
-            if i>300:
+            if i>pagesize:
                 break
 
     df.to_csv('./csv/fina_all_df_' + str(i) + '.csv', encoding='gbk')

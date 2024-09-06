@@ -37,6 +37,31 @@ debug = 0
     'total_liab_ratio', 总负债同比增长率f
     'current_ratio',  流动比率
     'debt_asset_ratio',   资产负债率=（负债总额÷资产总额）×100%  资产负债率是企业负债总额占企业资产总额的百分比。这个指标反映了在企业的全部资产中由债权人提给的资产所占比重的大小, 反映了债权人向企业提给信贷资金的危机程度, 也反映了企业举债经营的能力
+
+    cash_deposit_pbc,
+    cdp_ratio,
+    loan_advance,
+    loan_advance_ratio,
+    available_sale_finasset,
+    asf_ratio,
+    loan_pbc,
+    loan_pbc_ratio,
+    accept_deposit,
+    accept_deposit_ratio,
+    sell_repo_finasset,
+    srf_ratio,
+    settle_excess_reserve,
+    ser_ratio,
+    borrow_fund,
+    borrow_fund_ratio,
+    agent_trade_security,
+    ats_ratio,
+    premium_rece,
+    premium_rece_ratio,
+    short_loan,
+    short_loan_ratio,
+    advance_premium,
+    advance_premium_ratio,
                
 '''
 
@@ -47,8 +72,12 @@ eastmoney_cols = " stock_code, stock_name, industry_name, record_date,\
     accounts_rece, accounts_rece_ratio, inventory, inventory_ratio,\
     total_liabilities, accounts_payable, accounts_payable_ratio,\
     advance_receivables, advance_receivables_ratio, total_equity,\
-    total_equity_ratio, total_assets_ratio, total_liab_ratio,\
-    current_ratio, debt_asset_ratio "
+    total_equity_ratio, total_assets_ratio, total_liab_ratio, \
+    current_ratio, debt_asset_ratio,\
+    cash_deposit_pbc,  cdp_ratio, loan_advance, loan_advance_ratio, available_sale_finasset, \
+    asf_ratio, loan_pbc, loan_pbc_ratio, accept_deposit, accept_deposit_ratio, sell_repo_finasset, srf_ratio, \
+    settle_excess_reserve, ser_ratio, borrow_fund, borrow_fund_ratio, agent_trade_security, \
+    ats_ratio, premium_rece, premium_rece_ratio, short_loan, short_loan_ratio, advance_premium,  advance_premium_ratio  " 
 
 class HData_eastmoney_balance(object):
     def __init__(self,user,password):
@@ -122,7 +151,32 @@ class HData_eastmoney_balance(object):
                 total_assets_ratio  float, 
                 total_liab_ratio  float,
                 current_ratio  float, 
-                debt_asset_ratio  float
+                debt_asset_ratio  float,
+
+                cash_deposit_pbc    float,
+                cdp_ratio    float,
+                loan_advance    float,
+                loan_advance_ratio    float,
+                available_sale_finasset    float,
+                asf_ratio    float,
+                loan_pbc    float,
+                loan_pbc_ratio    float,
+                accept_deposit    float,
+                accept_deposit_ratio    float,
+                sell_repo_finasset    float,
+                srf_ratio    float,
+                settle_excess_reserve    float,
+                ser_ratio    float,
+                borrow_fund    float,
+                borrow_fund_ratio    float,
+                agent_trade_security    float,
+                ats_ratio    float,
+                premium_rece    float,
+                premium_rece_ratio    float,
+                short_loan    float,
+                short_loan_ratio    float,
+                advance_premium    float,
+                advance_premium_ratio    float
             );
             alter table eastmoney_balance_table add primary key(stock_code,record_date);
             ''')

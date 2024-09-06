@@ -120,6 +120,40 @@ class HData_eastmoney_income(object):
                 industry_name  varchar, 
                 record_date  date,
 
+                parent_netprofit  float, 
+                total_operate_income  float, 
+                total_operate_cost float,
+                toe_ratio  float, 
+                operate_cost  float, 
+                operate_expense  float, 
+                operate_expense_ratio float,
+                sale_expense  float, 
+                manage_expense  float, 
+                finance_expense  float, 
+                operate_profit float,
+                total_profit  float, 
+                income_tax  float, 
+                operate_income  float, 
+                interest_ni float,
+                interest_ni_ratio  float, 
+                fee_commission_ni  float, 
+                fcn_ratio float,
+                operate_tax_add  float, 
+                manage_expense_bank  float, 
+                fcn_calculate float,
+                interest_ni_calculate  float, 
+                earned_premium  float, 
+                earned_premium_ratio  float,
+                invest_income  float, 
+                surrender_value  float, 
+                compensate_expense  float, 
+                toi_ratio  float,
+                operate_profit_ratio  float, 
+                parent_netprofit_ratio  float,
+                deduct_parent_netprofit  float, 
+                dpn_ratio float 
+
+
             );
             alter table eastmoney_income_table add primary key(stock_code,record_date);
             ''')

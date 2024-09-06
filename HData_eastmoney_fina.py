@@ -27,13 +27,14 @@ debug = 0
     'xsmll',    销售毛利率
     'yshz',     营收季度环比增长率
     'sjlhz',    净利润环比增长率
+    'publishname',
     'qdate',     2024Q2
 '''
 
 
 eastmoney_cols =" stock_code, stock_name, record_date, basic_eps,\
                total_operate_income, parent_netprofit, weightavg_roe, ystz,\
-              sjltz, bps, mgjyxjje, xsmll, yshz, sjlhz, qdate "
+              sjltz, bps, mgjyxjje, xsmll, yshz, sjlhz, publishname, qdate "
 
 class HData_eastmoney_fina(object):
     def __init__(self,user,password):
@@ -99,6 +100,7 @@ class HData_eastmoney_fina(object):
                 xsmll  float,
                 yshz  float,
                 sjlhz  float,
+                publishname varchar,
                 qdate varchar
             );
             alter table eastmoney_fina_table add primary key(stock_code,record_date);

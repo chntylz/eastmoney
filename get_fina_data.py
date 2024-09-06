@@ -246,88 +246,8 @@ def handle_raw_df(df):
     if 'report_type_code'  in df.columns: 
         del df['report_type_code']
 
-
     if 'data_state'  in df.columns: 
         del df['data_state']
-
-    if 'cash_deposit_pbc'  in df.columns: 
-        del df['cash_deposit_pbc']
-
-    if 'cdp_ratio'  in df.columns: 
-        del df['cdp_ratio']
-
-    if 'loan_advance'  in df.columns:
-        del df['loan_advance']
-
-
-    if 'loan_advance_ratio'  in df.columns: 
-        del df['loan_advance_ratio']
-
-    if 'available_sale_finasset'  in df.columns: 
-        del df['available_sale_finasset']
-
-    if 'asf_ratio'  in df.columns:
-        del df['asf_ratio']
-
-    if 'loan_pbc'  in df.columns: 
-        del df['loan_pbc']
-
-    if 'loan_pbc_ratio'  in df.columns: 
-        del df['loan_pbc_ratio']
-
-
-
-    if 'accept_deposit'  in df.columns: 
-        del df['accept_deposit']
-
-    if 'accept_deposit_ratio'  in df.columns:
-        del df['accept_deposit_ratio']
-
-    if 'sell_repo_finasset'  in df.columns: 
-        del df['sell_repo_finasset']
-
-    if 'srf_ratio'  in df.columns: 
-        del df['srf_ratio']
-
-
-    if 'settle_excess_reserve'  in df.columns: 
-        del df['settle_excess_reserve']
-
-    if 'ser_ratio'  in df.columns:
-        del df['ser_ratio']
-
-    if 'borrow_fund'  in df.columns: 
-        del df['borrow_fund']
-
-    if 'borrow_fund_ratio'  in df.columns: 
-        del df['borrow_fund_ratio']
-
-    if 'agent_trade_security'  in df.columns: 
-        del df['agent_trade_security']
-
-
-
-    if 'ats_ratio'  in df.columns:
-        del df['ats_ratio']
-
-    if 'premium_rece'  in df.columns: 
-        del df['premium_rece']
-
-    if 'premium_rece_ratio'  in df.columns: 
-        del df['premium_rece_ratio']
-
-    if 'short_loan'  in df.columns: 
-        del df['short_loan']
-
-
-    if 'short_loan_ratio'  in df.columns:
-        del df['short_loan_ratio']
-
-    if 'advance_premium'  in df.columns: 
-        del df['advance_premium']
-
-    if 'advance_premium_ratio'  in df.columns: 
-        del df['advance_premium_ratio']
     #balance del  end
 
     
