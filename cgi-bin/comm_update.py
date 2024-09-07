@@ -8,14 +8,31 @@ import numpy as np
 import pandas as pd
 
 from HData_hsgt import *
+from HData_eastmoney_fina import *
+from HData_eastmoney_holder import *
+
+
+
 from HData_xq_fina import *
 from HData_xq_holder import *
-from HData_eastmoney_holder import *
 from HData_xq_simple_day import * 
 
+
+
+
 hdata_hsgt=HData_hsgt("usr","usr")
+
+#eastmoney
+hdata_fina=HData_eastmoney_fina("usr","usr")
+hdata_holder=HData_eastmoney_holder("usr","usr")
+
+#xueqiu
+'''
 hdata_fina=HData_xq_fina("usr","usr")
 hdata_holder=HData_xq_holder("usr","usr")
+'''
+
+
 hdata_xq_simple = HData_xq_simple_day('usr', 'usr')
 
 from comm_generate_web_html import *
@@ -244,7 +261,27 @@ def show_realdata(file_name):
         else:
             stock_code_new= 'SZ' + new_code 
 
+        #eastmoney fina
+        fina_df = hdata_fina.get_data_from_hdata(stock_code = new_code)  # eastmoney
+        #fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code_new)  #xueqiu
+        fina_df = fina_df.sort_values('record_date', ascending=0)
+        fina_df = fina_df.reset_index(drop=True)
         
+        op_yoy = net_yoy = 0
+        fina_date = new_date
+        if len(fina_df):
+            fina_date = fina_df['record_date'][0]
+            op_yoy = fina_df['ystz'][0]
+            net_yoy = fina_df['sjltz'][0]
+
+            if debug:
+                print(stock_code_new)
+                print(fina_df)
+        fina=str(round(op_yoy,2)) +' ' + str(round(net_yoy,2))
+        new_date = fina_date + '<br>'+ fina + '</br>'
+        
+		#xueqiu
+        '''
         fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code_new)
         
         fina_df = fina_df.sort_values('record_date', ascending=0)
@@ -261,12 +298,40 @@ def show_realdata(file_name):
             if debug:
                 print(stock_code_new)
                 print(fina_df)
-
+        
         fina=str(round(op_yoy,2)) +' ' + str(round(net_yoy,2))
         new_date = fina_date + '<br>'+ fina + '</br>'
+        '''
         #### fina end ####
+
+
         
         #### holder start ####
+		# eastmoney holder
+        holder_df = hdata_holder.get_data_from_hdata(stock_code = new_code)
+        holder_df = holder_df .sort_values('record_date', ascending=0)
+        holder_df = holder_df .reset_index(drop=True)
+        h0 = h1 = h2 = h_num = h_avg = delta_price  = 0
+        if len(holder_df) > 0:
+            h0 = round(holder_df['holder_num_ratio'][0], 2)
+            h_num = round(holder_df['holder_num'][0]/10000, 2)
+            h_avg = round(holder_df['avg_hold_num'][0]/10000,2)
+            delta_price  = round(holder_df['interval_chrate'][0],2)
+        if len(holder_df) > 1:
+            h1 = round(holder_df['holder_num_ratio'][1], 2)
+        if len(holder_df) > 2:
+            h2 = round(holder_df['holder_num_ratio'][2], 2)
+
+        '''
+        h_chg = str(h0) + ' ' + str(h1) + ' ' + str(h2) +' '\
+                + str(h_avg) + ' '+ str(delta_price )
+        '''
+        h_chg = '<br>'+ str(h0) + '%' +' ' + str(h1) + '%' + ' ' + str(h2) + '%' + ' </br>'\
+                + 't' + str(h_num) + ' ' + 'a' + str(h_avg) + ' '+ 'd' + str(delta_price)
+
+
+        #xueqiu holder
+        '''
         holder_df = hdata_holder.get_data_from_hdata(stock_code = new_code)
         holder_df = holder_df .sort_values('record_date', ascending=0)
         holder_df = holder_df .reset_index(drop=True)
@@ -282,6 +347,8 @@ def show_realdata(file_name):
             h2 = round(holder_df['chg'][2], 2)
         h_chg = '<br>'+ str(h0) + '%' +' ' + str(h1) + '%' + ' ' + str(h2) + '%' + ' </br>'\
                 + 't' + str(h_num) + ' ' + 'a' + str(h_avg) + ' '+ 'd' + str(delta_price) 
+        '''
+        #### holder end ####
 
 
         #### fund start ####
@@ -289,7 +356,7 @@ def show_realdata(file_name):
         #print('stock_code =%s, fund_info：%s' % (new_code, fund_info))
         #### fund end ####
 
-        #### holder jigou ####
+        #### jigou ####
         jigou_df = hdata_jigou.get_data_from_hdata(stock_code = new_code)
         jigou_df = jigou_df.sort_values('record_date', ascending=False)
         jigou_df = jigou_df.reset_index(drop=True)
