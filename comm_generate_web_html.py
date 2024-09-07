@@ -24,6 +24,8 @@ from HData_hsgt import *
 from HData_eastmoney_day import *
 from HData_eastmoney_holder import *
 from HData_eastmoney_jigou import *
+from HData_eastmoney_fina import *
+
 from HData_xq_fina import *
 from HData_xq_holder import *
 
@@ -41,10 +43,10 @@ hsgtdata=HData_hsgt("usr","usr")
 hdata_day=HData_eastmoney_day("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
 hdata_jigou=HData_eastmoney_jigou("usr","usr")
-#hdata_fina=HData_eastmoney_fund("usr","usr")
+hdata_fina=HData_eastmoney_fina("usr","usr")
 
 #xueqiu
-hdata_fina=HData_xq_fina("usr","usr")
+#hdata_fina=HData_xq_fina("usr","usr")
 #hdata_holder=HData_xq_holder("usr","usr")
 
 
@@ -939,6 +941,26 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             stock_code_new= 'SH' + stock_code 
         else:
             stock_code_new= 'SZ' + stock_code 
+
+        #eastmoney fina
+        fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code)  # eastmoney
+        #fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code_new)  #xueqiu
+        fina_df = fina_df.sort_values('record_date', ascending=0)
+        fina_df = fina_df.reset_index(drop=True)
+        
+        fina_date = curr_day
+        op_yoy = net_yoy = 0
+        if len(fina_df):
+            fina_date = fina_df['record_date'][0]
+            op_yoy = fina_df['ystz'][0]
+            net_yoy = fina_df['sjltz'][0]
+
+            if debug:
+                print(stock_code_new)
+                print(fina_df)
+        
+        #xueqiu fina 
+        '''
         #fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code)  # eastmoney
         fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code_new)  #xueqiu
         fina_df = fina_df.sort_values('record_date', ascending=0)
@@ -954,6 +976,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             if debug:
                 print(stock_code_new)
                 print(fina_df)
+        '''
 
         fina=str(round(op_yoy,2)) +' ' + str(round(net_yoy,2))
         new_date = fina_date + '<br>'+ fina + '</br>'
