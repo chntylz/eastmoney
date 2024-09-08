@@ -378,6 +378,8 @@ def get_fina_data2(page=1):
 
 #20240906
 def get_fina_data3(fina='cpd', page=1):
+
+    time.sleep(random.randint(1, 2))
     
     timestamp=str(round(time.time() * 1000))
     
@@ -491,7 +493,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_fina_data2(2)
+    df, api_param = get_fina_data3('cpd', 1)
     print(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
