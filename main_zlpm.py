@@ -31,7 +31,7 @@ def check_table():
     table_exist = hdata_zlpm.table_is_exist() 
     print('table_exist=%d' % table_exist)
     if table_exist:
-        hdata_zlpm.db_hdata_eastmoney_create()
+        #hdata_zlpm.db_hdata_eastmoney_create()
         print('table already exist')
     else:
         hdata_zlpm.db_hdata_eastmoney_create()
@@ -49,6 +49,10 @@ if __name__ == '__main__':
     if len(df) > 3000:
         #check table exist
         check_table()
+        hdata_zlpm.delete_data_from_hdata(
+                start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
+                end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
+                )
         hdata_zlpm.copy_from_stringio(df)
 
 

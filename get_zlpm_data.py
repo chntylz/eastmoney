@@ -21,6 +21,7 @@ import os
 import re
 
 
+from file_interface import *
 
 
 '''
@@ -190,25 +191,25 @@ def get_zlpm_data2():
     api_param = json.loads(response_array[0])
     rawdata = api_param['data']['diff']
     data_df = pd.DataFrame(rawdata)
-    tmp_column = ['close', 'percent', 'stock_code', 'stock_name', 'industry', 'percent_5day', 'percent_10day', \
-            'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
+
+    tmp_column = ['close', 'percent', 'stock_code', 'stock_name','zljlre', 'industry', 'percent_5day', 'record_date', 'percent_10day', \
+            'zljzb_5day', 'zljzb_10day', 'zljzb_1day', 'zljzb_pm_1day', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
 
 
     if len(data_df):
         del data_df['f1']
         del data_df['f13']
-        del data_df['f62']
-        del data_df['f124']
         del data_df['f265']
         data_df = data_df.replace('-',0)
         data_df.columns = tmp_column	
-        data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
 
-        new_column = ['stock_code', 'record_date', 'stock_name', 'close', 'percent',  'industry', 'percent_5day', 'percent_10day', \
-            'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
+        new_column = ['stock_code', 'record_date', 'stock_name', 'close', 'percent', 'zljlre', 'industry', 'percent_5day', 'percent_10day', \
+            'zljzb_5day', 'zljzb_10day', 'zljzb_1day', 'zljzb_pm_1day', 'zljzb_pm_5day', 'zljzb_pm_10day' ]
 
 
         data_df = data_df.loc[:, new_column]
+        data_df['record_date'] = data_df['record_date'].apply(lambda x: get_date_from_timestamp(int(x)*1000))
+
 
         #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
