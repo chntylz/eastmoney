@@ -24,22 +24,6 @@ dict_industry={}
 
 debug=0
 debug=0
-
-'''
-today_date=datetime.datetime.now().date()
-#test
-nowdate=today_date
-lastdate=nowdate-datetime.timedelta(1)
-
-curr_day=nowdate.strftime("%Y-%m-%d")
-curr_day_w=nowdate.strftime("%Y-%m-%d-%w")
-last_day=lastdate.strftime("%Y-%m-%d")
-print("curr_day:%s, last_day:%s"%(curr_day, last_day))
-
-stock_data_dir="stock_data"
-curr_dir=curr_day_w+'-zig'
-'''
-
  
 if __name__ == '__main__':
 
@@ -58,7 +42,6 @@ if __name__ == '__main__':
     print("curr_day:%s, last_day:%s"%(curr_day, last_day))
 
     stock_data_dir="stock_data"
-    curr_dir=curr_day_w+'-zig'
 
     df_global  = kline_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
 

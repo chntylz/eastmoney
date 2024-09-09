@@ -160,7 +160,7 @@ def convert_to_html_df(df, curr_dir, curr_day):
         print('#error, html_df data len < 1, return None')
     return html_df
 
-def combine_zlje_data(db_table=None, first_df=None, second_df=None):
+def combine_zlje_data(db_table=None, first_df=None, second_df=None, curr_day=None):
 
     if first_df is None:
         return None
@@ -307,6 +307,7 @@ if __name__ == '__main__':
     #delete 68???? kechuangban
     df = df_global[~(df_global.stock_code.str[:2] == '68')]
 
+    '''
     #zlje
     print('#############################################################')
     print('start zlje')
@@ -320,6 +321,7 @@ if __name__ == '__main__':
         generate_html(df_global, html_zlje_df, stock_data_dir, curr_dir, curr_day)
     else:
         print('#error, html_zlje_df len < 1')
+    '''
  
 
 
@@ -453,7 +455,6 @@ if __name__ == '__main__':
     else:
         print('#error, html_basic_df len < 1')
 
-    '''    
     #zlje
     print('#############################################################')
     print('start zlje')
@@ -467,7 +468,6 @@ if __name__ == '__main__':
         generate_html(df_global, html_zlje_df, stock_data_dir, curr_dir, curr_day)
     else:
         print('#error, html_zlje_df len < 1')
-    '''    
      
     #jigou
     print('#############################################################')

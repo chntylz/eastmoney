@@ -50,11 +50,6 @@ hdata_fina=HData_eastmoney_fina("usr","usr")
 #hdata_holder=HData_xq_holder("usr","usr")
 
 
-#get basic stock info
-basic_df = zlpm_data(stock_code=None, start_date=None, end_date=None, limit=0)
-basic_df = basic_df.set_index('stock_code')
-
-
 debug=0
 #debug=1
 
@@ -894,12 +889,18 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
 
     daily_df = input_df
 
+    #get basic stock info
+    basic_df = zlpm_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
+    basic_df = basic_df.set_index('stock_code')
+
+    print(basic_df)
+
     data_list = []
     len_df = len(daily_df)
     i = 0
     for i in range(len_df):
         stock_code=daily_df.stock_code[i]
-        stock_name = symbol(stock_code)
+        stock_name = basic_df.loc[stock_code]['stock_name']
         pos_s=stock_name.rfind('[')
         pos_e=stock_name.rfind(']')
         stock_name=stock_name[pos_s+1: pos_e]
@@ -912,8 +913,16 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, money_total, \
             is_zig, is_quad, is_peach = comm_handle_hsgt_data(hsgt_df)
         
-        close = daily_df.close[i]
-        close_p = daily_df.percent[i]
+        if 'close' in daily_df.columns:
+            close = daily_df.close[i]
+        if 'percent' in daily_df.columns:
+            close_p = daily_df.percent[i]
+
+        if 'close_x' in daily_df.columns:
+            close = daily_df.close_x[i]
+        if 'percent_x' in daily_df.columns:
+            close_p = daily_df.percent_x[i]
+
         is_zig  =daily_df.is_zig[i]
         is_quad =daily_df.is_quad[i]
         is_peach=daily_df.is_peach[i]
@@ -922,6 +931,8 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         is_cup_tea=daily_df.is_cup_tea[i]
         is_cross3line=daily_df.is_cross3line[i]
         total_mv=round(daily_df.mkt_cap[i] / unit_yi, 2)
+
+
 
         industry_name = ''
         try:

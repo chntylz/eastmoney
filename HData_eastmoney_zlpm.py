@@ -32,7 +32,7 @@ debug = 0
 '''
 
 
-new_column = ' stock_code, record_date, stock_name, close, percent, zljlre, industry, percent_5day, percent_10day, \
+eastmoney_cols = ' stock_code, record_date, stock_name, close, percent, zljlre, industry, percent_5day, percent_10day, \
             zljzb_5day, zljzb_10day, zljzb_1day, zljzb_pm_1day, zljzb_pm_5day, zljzb_pm_10day ' 
 
 class HData_eastmoney_zlpm(object):
