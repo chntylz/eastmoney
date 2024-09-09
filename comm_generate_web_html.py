@@ -901,9 +901,6 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     for i in range(len_df):
         stock_code=daily_df.stock_code[i]
         stock_name = basic_df.loc[stock_code]['stock_name']
-        pos_s=stock_name.rfind('[')
-        pos_e=stock_name.rfind(']')
-        stock_name=stock_name[pos_s+1: pos_e]
         
         #save stock_code to txt_file
         with open(txt_file,'a') as f:
