@@ -11,11 +11,22 @@ from HData_hsgt import *
 from HData_eastmoney_fina import *
 from HData_eastmoney_holder import *
 
+from HData_eastmoney_day import * 
 
 
 from HData_xq_fina import *
 from HData_xq_holder import *
 from HData_xq_simple_day import * 
+
+from comm_generate_web_html import *
+from get_daily_zlje import *
+
+from HData_eastmoney_zlje import *
+from HData_eastmoney_zlje_3 import *
+from HData_eastmoney_zlje_5 import *
+from HData_eastmoney_zlje_10 import *
+
+
 
 
 
@@ -34,16 +45,7 @@ hdata_holder=HData_xq_holder("usr","usr")
 
 
 hdata_xq_simple = HData_xq_simple_day('usr', 'usr')
-
-from comm_generate_web_html import *
-
-from HData_eastmoney_zlje import *
-from HData_eastmoney_zlje_3 import *
-from HData_eastmoney_zlje_5 import *
-from HData_eastmoney_zlje_10 import *
-
-from get_daily_zlje import *
-
+hdata_eastmoney_day = HData_eastmoney_day('usr', 'usr')
 
 debug=0
 
@@ -194,6 +196,12 @@ def show_realdata(file_name):
 
     xq_simple_df = hdata_xq_simple.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"), \
             end_date=nowdate.strftime("%Y-%m-%d"))
+    
+    et_simple_df = hdata_eastmoney_day.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"), \
+            end_date=nowdate.strftime("%Y-%m-%d"))
+
+    if debug: 
+        print(et_simple_df)
     i = 0
     eastmoney_begin = 0
     for i in range(length):
@@ -214,30 +222,36 @@ def show_realdata(file_name):
             if debug: 
                 print('use xq realtime data')
 
+            real_df = et_simple_df[et_simple_df['stock_code'] == new_code]
+            real_df = real_df.reset_index(drop=True)
+
+            if len(real_df):
+                new_pre_price   = real_df['pre_close'][0] 
+                new_price       = real_df['close'][0]
+                new_percent     = real_df['percent'][0]
+                total_mv        = round(real_df['mkt_cap'][0]/10000/10000, 2)
+
+            tmp_zlje_df = zlje_df[zlje_df['stock_code'] == new_code]
+            tmp_zlje_df = tmp_zlje_df.reset_index(drop=True)
+            new_price       = tmp_zlje_df['zxj'][0]
+            new_percent     = tmp_zlje_df['zdf'][0]
+
+            '''
             real_df = xq_simple_df[xq_simple_df['stock_code'] == stock_code_new]
             real_df = real_df.reset_index(drop=True)
+
             if len(real_df):
                 new_pre_price   = real_df['current'][0] - real_df['chg'][0]
                 new_price       = real_df['current'][0]
                 new_percent     = real_df['percent'][0]
                 total_mv        = round(real_df['market_capital'][0]/10000/10000, 2)
+            '''
 
         else:
             if debug: 
                 print('use eastmoney data')
 
-        '''
-        real_df  =  get_his_data(stock_code_new, def_cnt=2)
-        if len(real_df) > 1:
-            new_pre_price   = real_df['close'][0]
-            new_price       = real_df['close'][1]
-            new_percent     = real_df['percent'][1]
-        elif len(real_df) > 0:
-            new_pre_price   = 0
-            new_price       = real_df['close'][0]
-            new_percent     = real_df['percent'][0]
-        '''
-      
+     
         hsgt_df = hdata_hsgt.get_data_from_hdata(stock_code=new_code, limit=60)
         
 
@@ -245,6 +259,10 @@ def show_realdata(file_name):
                 new_hsgt_delta1, new_hsgt_deltam,\
                 conti_day, money_total, \
                 is_zig, is_quad, is_peach = comm_handle_hsgt_data(hsgt_df)
+
+        is_zig = real_df['is_zig'][0] 
+        is_quad = real_df['is_quad'][0] 
+        is_peach = real_df['is_peach'][0] 
         
         #### zlje start ####
         zlje    = get_zlje(zlje_df,     new_code, curr_date=str_date)
