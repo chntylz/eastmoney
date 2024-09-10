@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     df, api_param = get_zlpm_data2()
     
-    df.to_csv('./csv/zlpm_df.csv', encoding='gbk')
+    df.to_csv('./csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') +'_zlpm_df.csv', encoding='gbk')
     
     if len(df) > 3000:
         #check table exist
