@@ -1018,6 +1018,7 @@ if __name__ == '__main__':
             end_date=nowdate.strftime("%Y-%m-%d")\
             )
 
+
     #nowdate_df = nowdate_df.head(10)  # small size for test
     data_list = np.array(nowdate_df)
     data_list = data_list.tolist()
@@ -1033,6 +1034,10 @@ if __name__ == '__main__':
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
         'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume']
 
+    if debug:
+        print(mplist)
+        print('**********************************************8')
+        print(mplist[0])
     update_df=pd.DataFrame(mplist[0], columns=data_column)
     update_df.to_csv('./multi.txt', sep=',', index=False, header=False, encoding='utf-8')
 
