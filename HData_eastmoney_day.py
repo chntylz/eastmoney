@@ -68,37 +68,37 @@ class HData_eastmoney_day(object):
         self.cur.execute('''
             drop table if exists eastmoney_d_table;
             create table eastmoney_d_table(
-		record_date date, 
-		stock_code varchar, 
-		stock_name varchar, 
-		open float, 
-		close float, 
-		high float, 
-		low float, 
-		volume float, 
-		amount float, 
-		amplitude float, 
-		percent float, 
-		chg float, 
-		turnoverrate float, 
-		pre_close float, 
-		pe float, 
-		pb float, 
-		mkt_cap float, 
-		circulation_mkt float, 
-		zlje float, 
-		is_peach  float, 
-		is_zig  float, 
-		is_quad  float, 
-		is_macd float, 
-		is_2d3pct float, 
-		is_up_days float, 
-		is_cup_tea float, 
-		is_duck_head float,
-		is_cross3line float, 
-	    is_d_volume	float
-               );
-            alter table eastmoney_d_table add primary key(stock_code,record_date);
+                record_date date, 
+                stock_code varchar, 
+                stock_name varchar, 
+                open float, 
+                close float, 
+                high float, 
+                low float, 
+                volume float, 
+                amount float, 
+                amplitude float, 
+                percent float, 
+                chg float, 
+                turnoverrate float, 
+                pre_close float, 
+                pe float, 
+                pb float, 
+                mkt_cap float, 
+                circulation_mkt float, 
+                zlje float, 
+                is_peach  float, 
+                is_zig  float, 
+                is_quad  float, 
+                is_macd float, 
+                is_2d3pct float, 
+                is_up_days float, 
+                is_cup_tea float, 
+                is_duck_head float,
+                is_cross3line float, 
+                is_d_volume	float
+            );
+        alter table eastmoney_d_table add primary key(stock_code,record_date);
             ''')
         self.conn.commit()
         self.db_disconnect()

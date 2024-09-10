@@ -39,6 +39,8 @@ from HData_eastmoney_zlje_5 import *
 from HData_eastmoney_zlje_10 import *
 
 
+import multiprocessing
+
 hsgtdata=HData_hsgt("usr","usr")
 hdata_day=HData_eastmoney_day("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
@@ -892,8 +894,10 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     #get basic stock info
     basic_df = zlpm_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
     basic_df = basic_df.set_index('stock_code')
+    
+    if debug:
+        print(basic_df)
 
-    print(basic_df)
 
     data_list = []
     len_df = len(daily_df)
@@ -1068,6 +1072,221 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     ret_df['m_per_day'] = ret_df.hk_m_total / ret_df.days
     ret_df = ret_df.fillna(0)
     ret_df=ret_df.round(2)
+    if debug:
+        print(ret_df)
+
+    data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', \
+            'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\
+            'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
+            'jigou', \
+            'hk_date', 'hk_share', 'hk_pct', \
+            'hk_delta1', 'hk_deltam', 'days', \
+            'hk_m_total', 'm_per_day']
+
+    ret_df=ret_df.loc[:,data_column]
+
+    if 'pbuy' in input_df.columns:
+        ret_df.insert(12, 'dragon', round(input_df['pbuy'] / 10000/10000, 2))
+        ret_df.insert(12, 'lhb', round(input_df['jmmoney'] / 10000/10000, 2))
+ 
+    return ret_df
+
+
+'''
+        0    record_date date, 
+        1    stock_code varchar, 
+        2    stock_name varchar, 
+        3    open float, 
+        4    close float, 
+        5    high float, 
+        6    low float, 
+        7    volume float, 
+        8    amount float, 
+        9    amplitude float, 
+        10    percent float, 
+        11    chg float, 
+        12    turnoverrate float, 
+        13    pre_close float, 
+        14    pe float, 
+        15    pb float, 
+        16    mkt_cap float, 
+        17    circulation_mkt float, 
+        18    zlje float, 
+        19    is_peach  float, 
+        20    is_zig  float, 
+        21    is_quad  float, 
+        22    is_macd float, 
+        23    is_2d3pct float, 
+        24    is_up_days float, 
+        25    is_cup_tea float, 
+        26    is_duck_head float,
+        27    is_cross3line float, 
+        28    is_d_volume	float
+
+'''
+
+def comm_generate_real_dataframe(data):
+    
+    unit_yi = 10000 * 10000
+
+    curr_day = data[0]
+    stock_code = data[1]
+    stock_name = data[2]
+
+    print("%s %s" % (curr_day, stock_code))
+    if debug:
+        print("%s %s" % (curr_day, stock_code))
+
+    #get basic stock info
+    basic_df = zlpm_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
+    basic_df = basic_df.set_index('stock_code')
+
+    zlje_df   = get_zlje_data_from_db(url='url',     curr_date=curr_day)
+    zlje_3_df = get_zlje_data_from_db(url='url_3',   curr_date=curr_day)
+    zlje_5_df = get_zlje_data_from_db(url='url_5',   curr_date=curr_day)
+    zlje_10_df = get_zlje_data_from_db(url='url_10', curr_date=curr_day)
+
+
+    hsgt_df = hsgtdata.get_data_from_hdata(stock_code=stock_code, end_date=curr_day, limit=60)
+    hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, money_total, \
+        is_zig, is_quad, is_peach = comm_handle_hsgt_data(hsgt_df)
+
+    close = data[4]
+    close_p = data[10]
+    is_zig  = data[20]
+    is_quad = data[21]
+    is_peach= data[19]
+
+    is_2d3pct   = data[23]
+    is_cup_tea  = data[25]
+    is_cross3line = data[27]
+    
+    total_mv=round(data[16] / unit_yi, 2)
+
+
+    industry_name = ''
+    '''
+    try:
+        industry_name = basic_df.loc[stock_code]['industry']
+    except:
+        industry_name = 'Null'
+        print('except industry_name %s %s' % (stock_code, stock_name))
+    insert_industry(dict_industry, industry_name)
+    '''
+
+    zlje = get_zlje(zlje_df, stock_code, curr_date=curr_day)
+    zlje_3 = get_zlje(zlje_3_df, stock_code, curr_date=curr_day)
+    zlje_5 = get_zlje(zlje_5_df, stock_code, curr_date=curr_day)
+    zlje_10 = get_zlje(zlje_10_df, stock_code, curr_date=curr_day)
+
+    #eastmoney fina
+    fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code)  # eastmoney
+    fina_df = fina_df.sort_values('record_date', ascending=0)
+    fina_df = fina_df.reset_index(drop=True)
+    
+    fina_date = curr_day
+    op_yoy = net_yoy = 0
+    if len(fina_df):
+        fina_date = fina_df['record_date'][0]
+        op_yoy = fina_df['ystz'][0]
+        net_yoy = fina_df['sjltz'][0]
+
+        if debug:
+            print(fina_df)
+    
+    fina=str(round(op_yoy,2)) +' ' + str(round(net_yoy,2))
+    new_date = fina_date + '<br>'+ fina + '</br>'
+    #### fina end ####
+
+    #### holder start ####
+    # eastmoney holder
+    holder_df = hdata_holder.get_data_from_hdata(stock_code = stock_code)
+    holder_df = holder_df .sort_values('record_date', ascending=0)
+    holder_df = holder_df .reset_index(drop=True)
+    h0 = h1 = h2 = h_num = h_avg = delta_price  = 0
+    if len(holder_df) > 0:
+        h0 = round(holder_df['holder_num_ratio'][0], 2)
+        h_num = round(holder_df['holder_num'][0]/10000, 2)
+        h_avg = round(holder_df['avg_hold_num'][0]/10000,2)
+        delta_price  = round(holder_df['interval_chrate'][0],2)
+    if len(holder_df) > 1:
+        h1 = round(holder_df['holder_num_ratio'][1], 2)
+    if len(holder_df) > 2:
+        h2 = round(holder_df['holder_num_ratio'][2], 2)
+
+    h_chg = '<br>'+ str(h0) + '%' +' ' + str(h1) + '%' + ' ' + str(h2) + '%' + ' </br>'\
+            + 't' + str(h_num) + ' ' + 'a' + str(h_avg) + ' '+ 'd' + str(delta_price)
+
+
+#        #### holder jigou ####
+    jigou_df = hdata_jigou.get_data_from_hdata(stock_code = stock_code)
+    jigou_df = jigou_df.sort_values('record_date', ascending=False)
+    jigou_df = jigou_df.reset_index(drop=True)
+    float_ratio = delta_ratio = 0
+    if len(jigou_df) > 0:
+        float_ratio = jigou_df['freeshares_ratio'][0]
+        delta_ratio = jigou_df['delta_ratio'][0]
+    
+    jigou = ''
+    if delta_ratio < 0:
+        jigou = str(float_ratio) + str(delta_ratio)
+    else:
+        jigou = str(float_ratio) + '+' + str(delta_ratio)
+
+    return [new_date, stock_code, stock_name, close_p, close, \
+            hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, \
+            money_total, total_mv, industry_name, \
+            is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea, is_cross3line,\
+            zlje, zlje_3, zlje_5, zlje_10,h_chg, \
+            jigou]
+
+def worker(data):
+    if debug:
+        print(data)
+
+    return comm_generate_real_dataframe(data)
+                
+    
+
+
+def comm_generate_web_dataframe_multi(input_df, curr_dir, curr_day, dict_industry):
+    
+    print("comm_generate_web_dataframe_multi")
+    unit_yi = 10000 * 10000
+    shell_cmd = 'mkdir -p stock_data/' + curr_dir
+    os.system(shell_cmd)
+
+    txt_file = 'stock_data/' + curr_dir + '/' + curr_day +'.txt'
+    
+    with open(txt_file,'w') as f:
+        f.write('\n')
+
+    daily_df = input_df
+    data_list = np.array(daily_df)
+    data_list = data_list.tolist()
+
+    if debug:
+        print(data_list)
+
+    processes = 4
+    mplist = []
+    with multiprocessing.Pool(processes) as pool:
+        mplist.append(
+            pool.map(worker, data_list))
+
+
+    data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', \
+            'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', \
+            'hk_m_total', 'total_mv', 'industry', \
+            'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3', \
+            'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ,\
+            'jigou']
+
+    ret_df=pd.DataFrame(mplist, columns=data_column)
+    ret_df['m_per_day'] = ret_df.hk_m_total / ret_df.days
+    ret_df = ret_df.fillna(0)
+    ret_df=ret_df.round(2)
+    ret_df.to_csv('./csv/test_comm_multi.csv', encoding='gbk')
     if debug:
         print(ret_df)
 

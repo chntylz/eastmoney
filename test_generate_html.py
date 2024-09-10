@@ -145,6 +145,21 @@ def get_current_k_data(date):
         print(df.head(2))
     return df
 
+def convert_to_html_df_multi(df, curr_dir, curr_day):
+    dict_industry.clear()
+    if len(df) < 1:
+        print('#error, df data len < 1, return')
+        return df
+    df = df.reset_index(drop=True)
+    if len(df):
+        html_df = comm_generate_web_dataframe_multi(df, curr_dir, curr_day, dict_industry )
+        if debug:
+            print('dict_industry:%s' % dict_industry)
+    else:
+        html_df = df
+        print('#error, html_df data len < 1, return None')
+    return html_df
+
 def convert_to_html_df(df, curr_dir, curr_day):
     dict_industry.clear()
     if len(df) < 1:
