@@ -2,6 +2,7 @@
 #coding:utf-8
 import os,sys
 import datetime
+from sys import argv
 
 debug=0
 
@@ -9,7 +10,7 @@ nowdate=datetime.datetime.now().date()
 #nowdate=nowdate-datetime.timedelta(1)
 src_dir=nowdate.strftime("%Y-%m-%d")
 stock_data_dir="stock_data"
-file_name='cuptea'
+file_name='5days'
 target_html=file_name + '-index.html'
 
 def showImageInHTML(imageTypes,savedir):
@@ -149,9 +150,28 @@ def cur_file_dir():
         return path
     elif os.path.isfile(path):
         return os.path.dirname(path)
+def check_input_parameter():
+# 如果执行的方式错误输出使用方法
+    USAGE = '''
+        用法错误，正确方式如下：
+        python demo.py 1
+        '''
+    if len(argv) > 2:
+        print(USAGE)  # 如果传入的参数不足，输出正确用法
+        exit(1) # 异常退出(下面的代码将不会被执行)
+
+    script_name, para1 = argv  # 将传入的参数赋值进行使用
+    print("%s, %s"%(script_name, para1))
+
+    return script_name, para1
+
 
         
 if __name__ == '__main__':
+    cript_name, para1 = check_input_parameter()
+    file_name=para1
+    target_html=file_name + '-index.html'
+    print(target_html)
     savedir=cur_file_dir()#获取当前.py脚本文件的文件路径
     print('savedir:%s' % savedir)
     showImageInHTML(('html'), savedir)#浏览所有jpg,png,gif文件
