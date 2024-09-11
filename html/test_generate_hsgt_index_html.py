@@ -3,6 +3,7 @@
 import os,sys
 import datetime
 
+debug=0
 
 nowdate=datetime.datetime.now().date()
 #nowdate=nowdate-datetime.timedelta(1)
@@ -92,7 +93,8 @@ def showImageInHTML(imageTypes,savedir):
         for image in images:
             # '2019-07-10.html' -> '2019-07-10' 
             tmp_image=image[0:image.rfind('.')]
-            print("%s" % (tmp_image))
+            if debug:
+                print("%s" % (tmp_image))
             #image = tmp_image + '/' + image
 
 
