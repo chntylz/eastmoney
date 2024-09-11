@@ -33,13 +33,14 @@ from file_interface import *
 hdata_jigou=HData_eastmoney_jigou("usr","usr")
 
 debug = 0
-debug = 1
+#debug = 1
 
 browser = ''
 
 def get_jigou_data(stock_code, record_date):
     retry = 3
 
+    time.sleep(random.randint(1, 2))
 
     df = pd.DataFrame()
 
@@ -82,7 +83,8 @@ def get_jigou_data(stock_code, record_date):
     try :
         api_param = json.loads(response_array[0])
     except Exception as e:
-        print("retry ...") 
+        if debug:
+            print("retry ...") 
         retry = retry - 1
         browser.get(url)
         browser.implicitly_wait(5)
@@ -95,24 +97,27 @@ def get_jigou_data(stock_code, record_date):
         try :
             api_param = json.loads(response_array[0])
         except Exception as e:
+            if debug:
+                print(e)
+                print(s)
+            return df
+        if debug:
             print(e)
             print(s)
-            return df
-        print(e)
-        print(s)
-        print(response_array)
-        print('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
+            print(response_array)
+            print('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
 
 
     rawdata = ''
     try:
         rawdata = api_param['result']['data']
     except Exception as e:
-        print(api_param)
-        print(e)
-        print('get_jigou_data rawdata is none %s %s' % (stock_code, record_date))
+        if debug:
+            print(api_param)
+            print(e)
+            print('get_jigou_data rawdata is none %s %s' % (stock_code, record_date))
 
-        print("retry ...") 
+            print("retry ...") 
         retry = retry - 1
         browser.get(url)
         browser.implicitly_wait(5)
@@ -126,16 +131,19 @@ def get_jigou_data(stock_code, record_date):
             api_param = json.loads(response_array[0])
             rawdata = api_param['result']['data']
         except Exception as e:
+            if debug:
+                print(e)
+                print(s)
+            return df,df
+        if debug:
             print(e)
             print(s)
-            return df,df
-        print(e)
-        print(s)
-        print(response_array)
-        print('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
+            print(response_array)
+            print('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
 
 
-    print("retry=%d"% retry) 
+    if debug:
+        print("retry=%d"% retry) 
 
     data_df = pd.DataFrame(rawdata)
     data_df = data_df.fillna(0)
@@ -186,11 +194,15 @@ def get_jigou():
     r_len = len(r_df)
 
     position, date_list = get_curr_season()
+    if debug:
+        print('position: %s' % position )
+        print('data_list: %s' % date_list )
     new_date_list = []
 
     #which season data will be fetched
     table_exist = hdata_jigou.table_is_exist()
-    print('table_exist=%d' % table_exist)
+    if debug:
+        print('table_exist=%d' % table_exist)
     if table_exist:
         new_date_list.append(date_list[position])
     else:
@@ -252,7 +264,7 @@ if __name__ == '__main__':
     date_string = nowdate.strftime('%Y-%m-%d')
     
     df  = get_jigou()
-    df.to_csv('./csv/jigou_'+ date_string + '.csv', encoding='gbk')
+    df.to_csv('./csv/'+ date_string + '_jigou_.csv', encoding='gbk')
     #df = pd.read_csv('./csv/jigou_2021-11-29.csv',encoding='gbk', converters={'stock_code': lambda x: str(x)})
 
     if len(df):
