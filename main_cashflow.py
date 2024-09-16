@@ -17,9 +17,9 @@ from get_fina_data import *
 
 
 debug=0
-debug=1
+debug=0
 
-pagesize=150
+pagesize=300
 
 para1 = 0
 
