@@ -33,7 +33,7 @@ from file_interface import *
 hdata_jigou=HData_eastmoney_jigou("usr","usr")
 
 debug = 0
-#debug = 1
+debug = 1
 
 browser = ''
 
@@ -150,7 +150,8 @@ def get_jigou_data(stock_code, record_date):
 
     data_df.columns = data_df.columns.map(lambda x:x.lower())
     data_df['report_date'] = data_df['report_date'].apply(lambda x: x[:10])
-    data_df = data_df[data_df['org_type_name'] == '机构汇总']
+    #data_df = data_df[data_df['org_type_name'] == '机构汇总']
+    data_df = data_df[data_df['org_type_name'] == '基金']
     #data_df.to_csv('./csv/jigou_'+ stock_code + '_' + record_date + '.csv', encoding='gbk')
 
     '''
@@ -215,6 +216,9 @@ def get_jigou():
             stock_code = r_df['stock_code'][i]
 
             #record_date = '2021-09-30'
+            if debug:
+                print("%s, %s"%(stock_code, record_date))
+                
             tmp_df , raw_df = get_jigou_data(stock_code, record_date)
             if debug:
                 print(tmp_df)
@@ -290,3 +294,39 @@ check_table()
 hdata_jigou.copy_from_stringio(df)
 '''
 
+'''
+from get_jigou_data import *
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--headless')
+browser = webdriver.Chrome(options=chrome_options)
+
+# browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
+browser.maximize_window()  # 最大化窗口
+wait = WebDriverWait(browser, 10)
+
+url='https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_MAIN_ORGHOLD&columns=ALL&quoteColumns=&filter=(SECURITY_CODE%3D%22600519%22)(REPORT_DATE%3D%272024-06-30%27)&pageNumber=1&pageSize=8&sortTypes=&sortColumns=&source=WEB&client=WEB&callback=jQuery112307224581864083242&'
+
+
+
+stock_code='600519'
+record_date='2024-06-30'
+
+browser.get(url)
+browser.implicitly_wait(5)
+html = browser.page_source
+
+
+s=html
+
+p1 = re.compile(r'[(](.*?)[)]', re.S)
+response_array = re.findall(p1, s)
+api_param = json.loads(response_array[0])
+rawdata = api_param['result']['data']
+data_df = pd.DataFrame(rawdata)
+data_df = data_df.fillna(0)
+
+data_df.columns = data_df.columns.map(lambda x:x.lower())
+data_df['report_date'] = data_df['report_date'].apply(lambda x: x[:10])
+
+'''
