@@ -31,7 +31,7 @@ debug = 0
     'accounts_payable_ratio', 应付账款同比增长率
     'advance_receivables',预收账款
     'advance_receivables_ratio', 预收账款同比增长率
-    'total_equity', 股东权益合计
+    'total_equity', 股东权益合计=资产总额-负债总额
     'total_equity_ratio',股东权益同比增长率
     'total_assets_ratio', 总资产同比增长率
     'total_liab_ratio', 总负债同比增长率f
