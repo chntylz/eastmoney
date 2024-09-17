@@ -764,7 +764,7 @@ def fina_data_analysis(df):
         net_increase_df, flag_net_increase = income_analysis_net_increase(group_df)
         ret_df = pd.concat([ret_df, net_increase_df]) 
 
-        ret_df.to_csv('./csv_data/' + stock_code + '_' + stock_name + '.csv', encoding='gbk')
+        ret_df.to_csv('./csv_data/xq_' + stock_code + '_' + stock_name + '.csv', encoding='gbk')
         
         if flag and flag_net_increase and flag_ncf and flag_paid_asset and flag_net_profit and flag_main_frofit and flag_costfee and flag_gross \
             and flag_revnue and flag_roe and flag_invest and flag_fix_assets and flag_asset and flag_liab and flag_loan and flag_pay_recv :
