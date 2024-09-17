@@ -100,25 +100,25 @@ def income_analysis_loan(df):
                 '应付利息', '一年内到期的非流动负债', \
                 '长期借款', '应付债券', '长期应付款', '有息负债总额','result'])
     '''
-    list.append([df.stock_name[0], 'currency_funds', 'st_loan', \
+    list.append([df.stock_name[0], 'monetaryfunds', 'short_loan', \
                 'interest_payable', 'noncurrent_liab_due_in1y', \
                 'lt_loan', 'bond_payable', 'lt_payable', 'total_loan','result'])
     '''
     for i in range(df_len):
         if debug:
-            print('record_date=%s, i=%d, currency_funds=%f, st_loan=%f, interest_payable=%f, \
+            print('record_date=%s, i=%d, monetaryfunds=%f, short_loan=%f, interest_payable=%f, \
                 noncurrent_liab_due_in1y=%f, lt_loan=%f, bond_payable=%f, lt_payable=%f, \
                 total_loan=%f '\
-                %(df.record_date[i], i, df.currency_funds[i]/y_unit, df.st_loan[i]/y_unit, \
+                %(df.record_date[i], i, df.monetaryfunds[i]/y_unit, df.short_loan[i]/y_unit, \
                 df.interest_payable[i]/y_unit, df.noncurrent_liab_due_in1y[i]/y_unit, \
                 df.lt_loan[i]/y_unit, df.bond_payable[i]/y_unit, df.lt_payable[i]/y_unit, \
                 df.total_loan[i]/y_unit))
-        if df.currency_funds[i] <= df.total_loan[i]:
+        if df.monetaryfunds[i] <= df.total_loan[i]:
             flag = False
-        list.append([df.record_date[i], df.currency_funds[i]/y_unit, df.st_loan[i]/y_unit, \
+        list.append([df.record_date[i], df.monetaryfunds[i]/y_unit, df.short_loan[i]/y_unit, \
                 df.interest_payable[i]/y_unit, df.noncurrent_liab_due_in1y[i]/y_unit, \
                 df.lt_loan[i]/y_unit, df.bond_payable[i]/y_unit, df.lt_payable[i]/y_unit, \
-                df.total_loan[i]/y_unit, df.currency_funds[i] > df.total_loan[i] ])
+                df.total_loan[i]/y_unit, df.monetaryfunds[i] > df.total_loan[i] ])
 
     biaozhun='看有息负债和货币资金，排除偿债风险:\
             有息负债和货币资金主要看两者大小，对于资产负债率大于40%的公司，\
@@ -813,7 +813,7 @@ def get_data_from_fina_income_balance_cashflow():
 
     '''
     df['total_loan'] = 0
-    df['total_loan']  = df.st_loan+ df.interest_payable \
+    df['total_loan']  = df.short_loan+ df.interest_payable \
         + df.noncurrent_liab_due_in1y + df.lt_loan \
         + df.bond_payable + df.lt_payable
 
