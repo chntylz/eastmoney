@@ -20,6 +20,8 @@ from get_daily_zlje import *
 
 import multiprocessing
 
+from bs4 import BeautifulSoup
+
 debug = 0
 debug = 0
 
@@ -56,13 +58,57 @@ def worker(data):
     if debug:
         print(data[2])
 
-    df = get_sina_fina()
+    df = get_sina_fina_by_soup()
 
-    #return data[2]
+    return data[2]
+    return df
+    
+def get_sina_fina_by_soup():
+    browser = open_broswer()
+
+
+    data = []
+
+    url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
+    browser.get(url)
+    html_doc=browser.page_source
+    close_broser(browser)
+
+    soup = BeautifulSoup(html_doc, 'html.parser')
+
+
+
+    for idx, tr in enumerate(soup.find_all('tr')):
+        if idx != 0:
+            tds = tr.find_all('td')
+            
+            if(len(tds) !=5):
+                continue
+                
+            if debug:
+                #print(tds)
+                #print(len(tds))
+                print(tds[0].contents[0].text)
+                print(tds[1].contents[0])
+                print(tds[2].contents[0])
+                print(tds[3].contents[0])
+                print(tds[4].contents[0])
+                print('--------------------------------')
+            data.append([tds[0].contents[0].text, tds[1].contents[0], \
+                    tds[2].contents[0], tds[3].contents[0], tds[4].contents[0]])
+
+
+    if debug:
+        print(data)
+
+    df = pd.DataFrame(data)
+    df = df.T
+
     return df
 
+
     
-def get_sina_fina():
+def get_sina_fina_by_selenium():
     browser = open_broswer()
 
 
@@ -92,7 +138,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df=get_daily_zlje2()
-    stock_df=stock_df.head(40)
+    stock_df=stock_df.head(4)
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
 
@@ -104,7 +150,7 @@ if __name__ == '__main__':
        mplist.append(
                       pool.map(worker, data_list))
 
-    print(mplist)
+    print(mplist[0])
 
 
 
