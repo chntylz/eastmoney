@@ -75,6 +75,41 @@ def get_sina_real_data(browser, url):
     soup = BeautifulSoup(html_doc, 'html.parser')
 
 
+    ####################################################
+    tbodys = soup.find_all('tbody')
+    i=0
+    for i in range(len(tbodys)):
+        if '报表日期' in tbodys[i].text: #check where valid data is located tbodys 
+            print(" right tbody is found")
+            print(i)
+            break
+        else:
+            if debug:
+                print(i)
+            pass
+
+    tbody = tbodys[i]
+    
+    tmp_str = ''
+    for idx, tr in enumerate(tbody.find_all('tr')):
+        if debug:
+            print('--------------------------------')
+        if idx != 0:
+            tds = tr.find_all('td')
+            length = len(tds)
+            for i in range(length):
+                if i == 0:
+                    if debug:
+                        print(tds[0].contents[0].text)
+                        tmp_str=(tds[0].contents[0].text)
+                else:
+                    if debug:
+                        print(tds[i].contents[0])
+                    tmp_str = tmp_str + ',' + tds[i].contents[0]
+            data.append([tmp_str])
+
+
+    '''
     for idx, tr in enumerate(soup.find_all('tr')):
         if idx != 0:
             tds = tr.find_all('td')
@@ -96,6 +131,8 @@ def get_sina_real_data(browser, url):
                     tds[2].contents[0].replace(',',''), 
                     tds[3].contents[0].replace(',',''), 
                     tds[4].contents[0].replace(',','')])
+
+    '''
 
     df = pd.DataFrame(data)
     df = df.T
@@ -120,7 +157,8 @@ def get_sina_fina_by_soup(stock_code):
 
     this_year = int(time.strftime("%Y", time.localtime()))
     #get continuous 5 years data
-    for yy in range(1):
+    target_years = 5
+    for yy in range(target_years):
         year = this_year - yy
         url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/'\
             + stock_code \
