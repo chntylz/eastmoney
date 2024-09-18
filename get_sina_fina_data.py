@@ -1,6 +1,27 @@
 #!/#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#balance
+#https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/part/displaytype/4.phtml
+#https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2024/displaytype/4.phtml
+
+
+#income
+#https://money.finance.sina.com.cn/corp/go.php/vFD_ProfitStatement/stockid/600660/ctrl/2024/displaytype/4.phtml
+
+#cashflow
+#https://money.finance.sina.com.cn/corp/go.php/vFD_CashFlow/stockid/600660/ctrl/2024/displaytype/4.phtml
+
+
+#fina
+#https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/600660/displaytype/4.phtml
+#https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/600660/ctrl/2024/displaytype/4.phtml
+
+
+# soup tbody handle refer to follow link
+#https://codenews.cc/view/146129
+#https://blog.csdn.net/qq_16912257/article/details/53332474
+
 import pandas as pd
 import json
 import requests
@@ -101,11 +122,11 @@ def get_sina_real_data(browser, url):
                 if i == 0:
                     if debug:
                         print(tds[0].contents[0].text)
-                        tmp_str=(tds[0].contents[0].text)
+                        tmp_str=(tds[0].contents[0].text.replace(',',''))
                 else:
                     if debug:
                         print(tds[i].contents[0])
-                    tmp_str = tmp_str + ',' + tds[i].contents[0]
+                    tmp_str = tmp_str + ',' + tds[i].contents[0].replace(',','')
             data.append([tmp_str])
 
 
@@ -149,17 +170,12 @@ def get_sina_fina_by_soup(stock_code):
 
     browser = open_browser()
 
-    #url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
-
-    url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/'\
-        + stock_code \
-        + '/ctrl/2023/displaytype/4.phtml'
-
     this_year = int(time.strftime("%Y", time.localtime()))
     #get continuous 5 years data
     target_years = 5
     for yy in range(target_years):
         year = this_year - yy
+        #url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
         url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/'\
             + stock_code \
             + '/ctrl/'\
