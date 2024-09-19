@@ -170,7 +170,7 @@ def get_sina_comm_data(browser, url):
 
     return data
 
-def handle_sina_comm_data(data, stock_code, stock_name, year, tmp_column, data_column):
+def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_column, data_column):
 
     df = pd.DataFrame(data)
     df = df.T
@@ -178,7 +178,7 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, tmp_column, data_c
     df['stock_code'] = stock_code
     df['stock_name'] = stock_name
 
-    df.to_csv('./csv_data/'+ year + '_' + stock_code + '.csv', encoding='utf-8-sig')
+    df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_tmp.csv', encoding='utf-8-sig')
 
     if '银行' in stock_name:
         return df
@@ -203,7 +203,61 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, tmp_column, data_c
     df = df.drop(index=[0])  #delete row0
     df = df.reset_index(drop=True)
 
-    df.to_csv('./csv_data/'+ year + '_' + stock_code + '_new.csv', encoding='utf-8-sig')
+    df.to_csv('./csv_data/'+ year + '_' + target_type + '_' + stock_code + '.csv', encoding='utf-8-sig')
+
+    return df
+
+
+def get_sina_income_data(stock_code, stock_name, year, browser):
+
+    target_type = 'income'
+
+    #https://money.finance.sina.com.cn/corp/go.php/vFD_ProfitStatement/stockid/600660/ctrl/2024/displaytype/4.phtml
+    url_income = 'https://money.finance.sina.com.cn/corp/go.php/vFD_ProfitStatement/stockid/'\
+        + stock_code \
+        + '/ctrl/'\
+        + year\
+        + '/displaytype/4.phtml'
+
+    #catch html data
+    data = get_sina_comm_data(browser, url_balance)
+
+    tmp_column = ['record_date', 'hbzj', 'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
+    'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
+    'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
+    'ldzchj', 'ffdkjdk', 'kgcsjrzc', 'cyzdqtz', 'cqysk', \
+    'cqgqtz', 'tzxfdc', 'zjgchj', 'zjgc', 'gcwz', 'gdzcjqlhj', \
+    'gdzcje', 'gdzcql', 'scxswzc', 'gyxswzc', 'yqzc', 'syqzc', \
+    'wxzc', 'kfzc', 'sy', 'cqdtfy', 'dysdszc', 'qtfldzc', 'fldzchj', \
+    'zczj', 'dqjk', 'jyxjrfz', 'yfpjjyfzk', 'yfpj', 'yfzk', \
+    'yskx', 'yfsxfjyj', 'yfzgxc', 'yjsf', 'qtyfkhj', 'yflx', \
+    'yfgl', 'qtyfk', 'ytfy', 'ynnddysy', 'yfdqzq', 'ynndqdfldfz', \
+    'qtldfz', 'ldfzhj', 'cqjk', 'yfzq', 'zlfz', 'cqyfzgxc', \
+    'cqyfkhj', 'cqyfk', 'zxyfk', 'yjfldfz', 'dysdsfz', \
+    'cqdysy', 'qtfldfz', 'fldfzhj', 'fzhj', 'sszbhgb', 'zbgj', \
+    'jkcg', 'qtzhsy', 'zxcb', 'yygj', 'ybfxzb', 'wfplr', \
+    'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj', \
+    'stock_code', 'stock_name']
+
+    data_column = ['record_date', 'stock_code', 'stock_name', 'hbzj', \
+    'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
+    'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
+    'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
+    'ldzchj', 'ffdkjdk', 'kgcsjrzc', 'cyzdqtz', 'cqysk', \
+    'cqgqtz', 'tzxfdc', 'zjgchj', 'zjgc', 'gcwz', 'gdzcjqlhj', \
+    'gdzcje', 'gdzcql', 'scxswzc', 'gyxswzc', 'yqzc', 'syqzc', \
+    'wxzc', 'kfzc', 'sy', 'cqdtfy', 'dysdszc', 'qtfldzc', 'fldzchj', \
+    'zczj', 'dqjk', 'jyxjrfz', 'yfpjjyfzk', 'yfpj', 'yfzk', \
+    'yskx', 'yfsxfjyj', 'yfzgxc', 'yjsf', 'qtyfkhj', 'yflx', \
+    'yfgl', 'qtyfk', 'ytfy', 'ynnddysy', 'yfdqzq', 'ynndqdfldfz', \
+    'qtldfz', 'ldfzhj', 'cqjk', 'yfzq', 'zlfz', 'cqyfzgxc', \
+    'cqyfkhj', 'cqyfk', 'zxyfk', 'yjfldfz', 'dysdsfz', \
+    'cqdysy', 'qtfldfz', 'fldfzhj', 'fzhj', 'sszbhgb', 'zbgj', \
+    'jkcg', 'qtzhsy', 'zxcb', 'yygj', 'ybfxzb', 'wfplr', \
+    'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj']
+
+
+    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_column, data_column)
 
     return df
 
@@ -211,6 +265,9 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, tmp_column, data_c
 
 
 def get_sina_balance_data(stock_code, stock_name, year, browser):
+
+    target_type = 'balance'
+
     #url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
     url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/'\
         + stock_code \
@@ -256,15 +313,16 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
     'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj']
 
 
-    df = handle_sina_comm_data(data, stock_code, stock_name, year, tmp_column, data_column)
+    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_column, data_column)
 
     return df
 
 
 def get_sina_real_data(stock_code, stock_name, year, browser):
     
-    df =  balance_df = get_sina_balance_data(stock_code, stock_name, year, browser)
-
+    df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
+    #df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
+    df = df_income 
     return df
 
 def get_sina_fina_by_soup(stock_code, stock_name):
