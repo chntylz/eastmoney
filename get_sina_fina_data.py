@@ -108,7 +108,7 @@ def get_sina_comm_data(browser, url):
             print(i)
             break
         else:
-            if debug:
+            if False:
                 print(i)
             pass
 
@@ -180,18 +180,17 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_c
 
     df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_tmp.csv', encoding='utf-8-sig')
 
-    if '银行' in stock_name:
+    if target_type == 'balance' and  '银行' in stock_name:
         return df
 
     try:
         df.columns = tmp_column  #change column name
     except Exception as e:
-        print(len(df.columns), len(tmp_column), url_balance)
+        print(len(df.columns), len(tmp_column), stock_code, stock_name, year, target_type)
 
 
     #change column order
     df = df.loc[:, data_column] 
-    
 
     if debug:
         print(df)
@@ -220,41 +219,22 @@ def get_sina_income_data(stock_code, stock_name, year, browser):
         + '/displaytype/4.phtml'
 
     #catch html data
-    data = get_sina_comm_data(browser, url_balance)
+    data = get_sina_comm_data(browser, url_income)
 
-    tmp_column = ['record_date', 'hbzj', 'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
-    'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
-    'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
-    'ldzchj', 'ffdkjdk', 'kgcsjrzc', 'cyzdqtz', 'cqysk', \
-    'cqgqtz', 'tzxfdc', 'zjgchj', 'zjgc', 'gcwz', 'gdzcjqlhj', \
-    'gdzcje', 'gdzcql', 'scxswzc', 'gyxswzc', 'yqzc', 'syqzc', \
-    'wxzc', 'kfzc', 'sy', 'cqdtfy', 'dysdszc', 'qtfldzc', 'fldzchj', \
-    'zczj', 'dqjk', 'jyxjrfz', 'yfpjjyfzk', 'yfpj', 'yfzk', \
-    'yskx', 'yfsxfjyj', 'yfzgxc', 'yjsf', 'qtyfkhj', 'yflx', \
-    'yfgl', 'qtyfk', 'ytfy', 'ynnddysy', 'yfdqzq', 'ynndqdfldfz', \
-    'qtldfz', 'ldfzhj', 'cqjk', 'yfzq', 'zlfz', 'cqyfzgxc', \
-    'cqyfkhj', 'cqyfk', 'zxyfk', 'yjfldfz', 'dysdsfz', \
-    'cqdysy', 'qtfldfz', 'fldfzhj', 'fzhj', 'sszbhgb', 'zbgj', \
-    'jkcg', 'qtzhsy', 'zxcb', 'yygj', 'ybfxzb', 'wfplr', \
-    'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj', \
-    'stock_code', 'stock_name']
+    tmp_column = ['record_date', 'yyzsr', 'yysr', 'yyzcb', 'yycb', 'yysjjfj', 'xsfy', \
+    'glfy', 'cwfy', 'yffy', 'zcjzss', 'gyjzbdsy', 'tzsy', 'qzdlyqyhhyqydtzsy', \
+    'hdsy', 'yylr', 'jyywsr', 'jyywzc', 'qzfldzcczss', 'lrze', \
+    'jsdsfy', 'jlr', 'gsymgssyzdjlr', 'ssgdsy', 'jbmgsyymg', \
+    'xsmgsyymg', 'qtzhsy', 'zhsyze', 'gsymgssyzdzhsyze', \
+    'gsyssgddzhsyze', 'stock_code', 'stock_name']
 
-    data_column = ['record_date', 'stock_code', 'stock_name', 'hbzj', \
-    'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
-    'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
-    'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
-    'ldzchj', 'ffdkjdk', 'kgcsjrzc', 'cyzdqtz', 'cqysk', \
-    'cqgqtz', 'tzxfdc', 'zjgchj', 'zjgc', 'gcwz', 'gdzcjqlhj', \
-    'gdzcje', 'gdzcql', 'scxswzc', 'gyxswzc', 'yqzc', 'syqzc', \
-    'wxzc', 'kfzc', 'sy', 'cqdtfy', 'dysdszc', 'qtfldzc', 'fldzchj', \
-    'zczj', 'dqjk', 'jyxjrfz', 'yfpjjyfzk', 'yfpj', 'yfzk', \
-    'yskx', 'yfsxfjyj', 'yfzgxc', 'yjsf', 'qtyfkhj', 'yflx', \
-    'yfgl', 'qtyfk', 'ytfy', 'ynnddysy', 'yfdqzq', 'ynndqdfldfz', \
-    'qtldfz', 'ldfzhj', 'cqjk', 'yfzq', 'zlfz', 'cqyfzgxc', \
-    'cqyfkhj', 'cqyfk', 'zxyfk', 'yjfldfz', 'dysdsfz', \
-    'cqdysy', 'qtfldfz', 'fldfzhj', 'fzhj', 'sszbhgb', 'zbgj', \
-    'jkcg', 'qtzhsy', 'zxcb', 'yygj', 'ybfxzb', 'wfplr', \
-    'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj']
+    data_column = ['record_date', 'stock_code', 'stock_name', 'yyzsr', 'yysr', 'yyzcb', 'yycb', 'yysjjfj', 'xsfy', \
+    'glfy', 'cwfy', 'yffy', 'zcjzss', 'gyjzbdsy', 'tzsy', 'qzdlyqyhhyqydtzsy', \
+    'hdsy', 'yylr', 'jyywsr', 'jyywzc', 'qzfldzcczss', 'lrze', \
+    'jsdsfy', 'jlr', 'gsymgssyzdjlr', 'ssgdsy', 'jbmgsyymg', \
+    'xsmgsyymg', 'qtzhsy', 'zhsyze', 'gsymgssyzdzhsyze', \
+    'gsyssgddzhsyze'
+    ]
 
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_column, data_column)
@@ -320,8 +300,8 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
 
 def get_sina_real_data(stock_code, stock_name, year, browser):
     
-    df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
-    #df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
+    #df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
+    df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
     df = df_income 
     return df
 
