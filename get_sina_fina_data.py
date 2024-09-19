@@ -77,20 +77,29 @@ def close_broser(browser):
 
 def worker(data):
     if debug:
-        print(data[2])
+        print(data)
+    stock_code = data[2]
+    stock_name = data[3]
 
-    get_sina_fina_by_soup(data[2])
+    get_sina_fina_by_soup(stock_code, stock_name)
 
-    pass
+    return
     
-def get_sina_real_data(browser, url):
+def get_sina_real_data(stock_code, stock_name, year, browser):
+    
+    #url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
+    url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/'\
+        + stock_code \
+        + '/ctrl/'\
+        + year\
+        + '/displaytype/4.phtml'
 
-    print(url)
+    print(url_balance)
     if debug:
-        print(url)
+        print(url_balance)
 
     data = []
-    browser.get(url)
+    browser.get(url_balance)
     html_doc=browser.page_source
 
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -100,7 +109,7 @@ def get_sina_real_data(browser, url):
     tbodys = soup.find_all('tbody')
     i=0
     for i in range(len(tbodys)):
-        if '报表日期' in tbodys[i].text: #check where valid data is located tbodys 
+        if '报表日期' in tbodys[i].text or '报告日期' in tbodys[i].text: #check where valid data is located tbodys 
             print(" right tbody is found")
             print(i)
             break
@@ -111,24 +120,34 @@ def get_sina_real_data(browser, url):
 
     tbody = tbodys[i]
     
-    tmp_str = ''
     for idx, tr in enumerate(tbody.find_all('tr')):
-        if debug:
-            print('--------------------------------')
-        if idx != 0:
-            tds = tr.find_all('td')
-            length = len(tds)
-            for i in range(length):
-                if i == 0:
-                    if debug:
-                        print(tds[0].contents[0].text)
-                        tmp_str=(tds[0].contents[0].text.replace(',',''))
-                else:
-                    if debug:
-                        print(tds[i].contents[0])
-                    tmp_str = tmp_str + ',' + tds[i].contents[0].replace(',','')
-            data.append([tmp_str])
+        
+        tds = tr.find_all('td')
+        length = len(tds)
 
+        if False:
+            print('--------------------------------')
+            print(tds)
+
+        if length == 2:
+            data.append([tds[0].contents[0].text.replace(',',''), 
+                tds[1].contents[0].replace(',','').replace('--','0')]) 
+        elif length == 3:
+            data.append([tds[0].contents[0].text.replace(',','').replace('--','0'), 
+                tds[1].contents[0].replace(',','').replace('--','0'), 
+                tds[2].contents[0].replace(',','').replace('--','0')])
+        elif length == 4:
+            data.append([tds[0].contents[0].text.replace(',','').replace('--','0'), 
+                tds[1].contents[0].replace(',','').replace('--','0'), 
+                tds[2].contents[0].replace(',','').replace('--','0'),
+                tds[3].contents[0].replace(',','').replace('--','0')])
+        elif length == 5:
+            data.append([tds[0].contents[0].text.replace(',','').replace('--','0'), 
+                tds[1].contents[0].replace(',','').replace('--','0'), 
+                tds[2].contents[0].replace(',','').replace('--','0'),
+                tds[3].contents[0].replace(',','').replace('--','0'),
+                tds[4].contents[0].replace(',','').replace('--','0')])
+        
 
     '''
     for idx, tr in enumerate(soup.find_all('tr')):
@@ -154,38 +173,97 @@ def get_sina_real_data(browser, url):
                     tds[4].contents[0].replace(',','')])
 
     '''
+    tmp_column = ['record_date', 'hbzj', 'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
+    'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
+    'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
+    'ldzchj', 'ffdkjdk', 'kgcsjrzc', 'cyzdqtz', 'cqysk', \
+    'cqgqtz', 'tzxfdc', 'zjgchj', 'zjgc', 'gcwz', 'gdzcjqlhj', \
+    'gdzcje', 'gdzcql', 'scxswzc', 'gyxswzc', 'yqzc', 'syqzc', \
+    'wxzc', 'kfzc', 'sy', 'cqdtfy', 'dysdszc', 'qtfldzc', 'fldzchj', \
+    'zczj', 'dqjk', 'jyxjrfz', 'yfpjjyfzk', 'yfpj', 'yfzk', \
+    'yskx', 'yfsxfjyj', 'yfzgxc', 'yjsf', 'qtyfkhj', 'yflx', \
+    'yfgl', 'qtyfk', 'ytfy', 'ynnddysy', 'yfdqzq', 'ynndqdfldfz', \
+    'qtldfz', 'ldfzhj', 'cqjk', 'yfzq', 'zlfz', 'cqyfzgxc', \
+    'cqyfkhj', 'cqyfk', 'zxyfk', 'yjfldfz', 'dysdsfz', \
+    'cqdysy', 'qtfldfz', 'fldfzhj', 'fzhj', 'sszbhgb', 'zbgj', \
+    'jkcg', 'qtzhsy', 'zxcb', 'yygj', 'ybfxzb', 'wfplr', \
+    'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj', \
+    'stock_code', 'stock_name']
+
+    data_column = ['record_date', 'stock_code', 'stock_name', 'hbzj', \
+    'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
+    'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
+    'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
+    'ldzchj', 'ffdkjdk', 'kgcsjrzc', 'cyzdqtz', 'cqysk', \
+    'cqgqtz', 'tzxfdc', 'zjgchj', 'zjgc', 'gcwz', 'gdzcjqlhj', \
+    'gdzcje', 'gdzcql', 'scxswzc', 'gyxswzc', 'yqzc', 'syqzc', \
+    'wxzc', 'kfzc', 'sy', 'cqdtfy', 'dysdszc', 'qtfldzc', 'fldzchj', \
+    'zczj', 'dqjk', 'jyxjrfz', 'yfpjjyfzk', 'yfpj', 'yfzk', \
+    'yskx', 'yfsxfjyj', 'yfzgxc', 'yjsf', 'qtyfkhj', 'yflx', \
+    'yfgl', 'qtyfk', 'ytfy', 'ynnddysy', 'yfdqzq', 'ynndqdfldfz', \
+    'qtldfz', 'ldfzhj', 'cqjk', 'yfzq', 'zlfz', 'cqyfzgxc', \
+    'cqyfkhj', 'cqyfk', 'zxyfk', 'yjfldfz', 'dysdsfz', \
+    'cqdysy', 'qtfldfz', 'fldfzhj', 'fzhj', 'sszbhgb', 'zbgj', \
+    'jkcg', 'qtzhsy', 'zxcb', 'yygj', 'ybfxzb', 'wfplr', \
+    'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj']
+
 
     df = pd.DataFrame(data)
     df = df.T
+
+    df['stock_code'] = stock_code
+    df['stock_name'] = stock_name
+
+    print(len(df.columns), len(tmp_column), url_balance)
+    df.to_csv('./csv_data/'+ year + '_' + stock_code + '.csv', encoding='utf-8-sig')
+
+    if '银行' in stock_name:
+        return df
+
+    try:
+        df.columns = tmp_column  #change column name
+    except Exception as e:
+        print(len(df.columns), len(tmp_column), url_balance)
+
+    print(len(df.columns), len(tmp_column), url_balance)
+
+    #change column order
+    df = df.loc[:, data_column] 
+    
 
     if debug:
         print(data)
         print(df)
 
-    pass
+    '''
+    delete column or row: https://blog.csdn.net/songyunli1111/article/details/79306639
+    #df.drop(columns=['B', 'C']) #delete column name 'B' and 'C'
+    '''
+    df = df.drop(index=[0])  #delete row0
+    df = df.reset_index(drop=True)
 
-def get_sina_fina_by_soup(stock_code):
+    df.to_csv('./csv_data/'+ year + '_' + stock_code + '_new.csv', encoding='utf-8-sig')
+
+    return df
+
+def get_sina_fina_by_soup(stock_code, stock_name):
     
     time.sleep(random.randint(1, 2))
 
+    df = pd.DataFrame()
     browser = open_browser()
 
     this_year = int(time.strftime("%Y", time.localtime()))
     #get continuous 5 years data
     target_years = 5
+    target_years = 1
     for yy in range(target_years):
-        year = this_year - yy
-        #url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
-        url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/'\
-            + stock_code \
-            + '/ctrl/'\
-            + str(year)\
-            + '/displaytype/4.phtml'
-        get_sina_real_data(browser, url)
+        year = str(this_year - yy)
+        df = get_sina_real_data(stock_code, stock_name, year, browser)
 
     close_broser(browser)
 
-    return 
+    return df
 
 
     
@@ -194,8 +272,8 @@ def get_sina_fina_by_selenium():
 
     data = []
 
-    url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
-    browser.get(url)
+    url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
+    browser.get(url_balance)
     table = browser.find_element('xpath', '//*[@id="BalanceSheetNewTable0"]')
     rows = table.find_elements(By.TAG_NAME, "tr")
     for row in rows:
@@ -265,8 +343,8 @@ browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": js})
 
 data = []
 
-url='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
-browser.get(url)
+url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
+browser.get(url_balance)
 
 
 
