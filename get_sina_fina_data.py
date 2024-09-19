@@ -84,22 +84,16 @@ def worker(data):
     get_sina_fina_by_soup(stock_code, stock_name)
 
     return
-    
-def get_sina_real_data(stock_code, stock_name, year, browser):
-    
-    #url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
-    url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/'\
-        + stock_code \
-        + '/ctrl/'\
-        + year\
-        + '/displaytype/4.phtml'
 
-    print(url_balance)
+
+def get_sina_comm_data(browser, url):
+
+    print(url)
     if debug:
-        print(url_balance)
+        print(url)
 
     data = []
-    browser.get(url_balance)
+    browser.get(url)
     html_doc=browser.page_source
 
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -173,6 +167,60 @@ def get_sina_real_data(stock_code, stock_name, year, browser):
                     tds[4].contents[0].replace(',','')])
 
     '''
+
+    return data
+
+def handle_sina_comm_data(data, stock_code, stock_name, year, tmp_column, data_column):
+
+    df = pd.DataFrame(data)
+    df = df.T
+
+    df['stock_code'] = stock_code
+    df['stock_name'] = stock_name
+
+    df.to_csv('./csv_data/'+ year + '_' + stock_code + '.csv', encoding='utf-8-sig')
+
+    if '银行' in stock_name:
+        return df
+
+    try:
+        df.columns = tmp_column  #change column name
+    except Exception as e:
+        print(len(df.columns), len(tmp_column), url_balance)
+
+
+    #change column order
+    df = df.loc[:, data_column] 
+    
+
+    if debug:
+        print(df)
+
+    '''
+    delete column or row: https://blog.csdn.net/songyunli1111/article/details/79306639
+    #df.drop(columns=['B', 'C']) #delete column name 'B' and 'C'
+    '''
+    df = df.drop(index=[0])  #delete row0
+    df = df.reset_index(drop=True)
+
+    df.to_csv('./csv_data/'+ year + '_' + stock_code + '_new.csv', encoding='utf-8-sig')
+
+    return df
+
+
+
+
+def get_sina_balance_data(stock_code, stock_name, year, browser):
+    #url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/600660/ctrl/2023/displaytype/4.phtml'
+    url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/'\
+        + stock_code \
+        + '/ctrl/'\
+        + year\
+        + '/displaytype/4.phtml'
+
+    #catch html data
+    data = get_sina_comm_data(browser, url_balance)
+
     tmp_column = ['record_date', 'hbzj', 'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
     'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
     'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
@@ -208,41 +256,14 @@ def get_sina_real_data(stock_code, stock_name, year, browser):
     'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj']
 
 
-    df = pd.DataFrame(data)
-    df = df.T
+    df = handle_sina_comm_data(data, stock_code, stock_name, year, tmp_column, data_column)
 
-    df['stock_code'] = stock_code
-    df['stock_name'] = stock_name
+    return df
 
-    print(len(df.columns), len(tmp_column), url_balance)
-    df.to_csv('./csv_data/'+ year + '_' + stock_code + '.csv', encoding='utf-8-sig')
 
-    if '银行' in stock_name:
-        return df
-
-    try:
-        df.columns = tmp_column  #change column name
-    except Exception as e:
-        print(len(df.columns), len(tmp_column), url_balance)
-
-    print(len(df.columns), len(tmp_column), url_balance)
-
-    #change column order
-    df = df.loc[:, data_column] 
+def get_sina_real_data(stock_code, stock_name, year, browser):
     
-
-    if debug:
-        print(data)
-        print(df)
-
-    '''
-    delete column or row: https://blog.csdn.net/songyunli1111/article/details/79306639
-    #df.drop(columns=['B', 'C']) #delete column name 'B' and 'C'
-    '''
-    df = df.drop(index=[0])  #delete row0
-    df = df.reset_index(drop=True)
-
-    df.to_csv('./csv_data/'+ year + '_' + stock_code + '_new.csv', encoding='utf-8-sig')
+    df =  balance_df = get_sina_balance_data(stock_code, stock_name, year, browser)
 
     return df
 
