@@ -43,6 +43,15 @@ import multiprocessing
 
 from bs4 import BeautifulSoup
 
+
+from HData_sina_balance import *
+from HData_sina_income import *
+from HData_sina_cashflow import *
+
+hdata_sina_balance = HData_sina_balance("usr","usr")
+hdata_sina_income  = HData_sina_income("usr","usr")
+hdata_sina_cashflow= HData_sina_cashflow("usr","usr")
+
 debug = 0
 debug = 1
 
@@ -137,7 +146,7 @@ def get_sina_comm_data(browser, url):
                 abbr = tmp[start+1 : end]
                 abbr = abbr.lower()
                 gen_cols.append(abbr)
-                if debug:
+                if False:
                     print('href:%s'% href)
                     print('tmp:%s' % tmp)
                     print('start:%d'%start)
@@ -147,7 +156,7 @@ def get_sina_comm_data(browser, url):
                 if debug:
                     print('error: %s' % tds)
                 if '报表日期' in tds[0].contents[0].text or '报告日期' in tds[0].contents[0].text:
-                    abbr = 'report_date'
+                    abbr = 'record_date'
                     print('abbr:%s'%abbr)
                     gen_cols.append(abbr)
                 else:
@@ -248,6 +257,10 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
     '''
     df = df.drop(index=[0])  #delete row0
     df = df.reset_index(drop=True)
+    
+    #str to date format  for database format
+    df['record_date']=df['record_date'].apply(lambda x: datetime.datetime.strptime(x,'%Y-%m-%d'))
+
 
     df.to_csv('./csv_data/'+ year + '_' + target_type + '_' + stock_code + '.csv', encoding='utf-8-sig')
 
@@ -269,6 +282,10 @@ def get_sina_cashflow_data(stock_code, stock_name, year, browser):
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
+    hdata_sina_cashflow.db_hdata_sina_create()
+    hdata_sina_cashflow.copy_from_stringio(df)
+
+
     return df
 
 
@@ -288,6 +305,8 @@ def get_sina_income_data(stock_code, stock_name, year, browser):
     data, data_column = get_sina_comm_data(browser, url)
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
+    hdata_sina_income.db_hdata_sina_create()
+    hdata_sina_income.copy_from_stringio(df)
 
     return df
 
@@ -309,6 +328,9 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
     data, data_column = get_sina_comm_data(browser, url)
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
+
+    hdata_sina_balance.db_hdata_sina_create()
+    hdata_sina_balance.copy_from_stringio(df)
 
     return df
 
@@ -435,12 +457,13 @@ html_doc=browser.page_source
 
 soup = BeautifulSoup(html_doc, 'html.parser')
 
+data, data_column = get_sina_comm_data(browser, url)
 
 ####################################################
 tbodys = soup.find_all('tbody')
 i=0
 for i in range(len(tbodys)):
-    if '报表日期' in tbodys[i].text or '报告日期' in tbodys[i].text: #check where valid data is located tbodys 
+    if '报表日期' in tbodys[i].text or '报告日期' in tbodys[i].text: #check where valid data is located tbodys
         print(" right tbody is found")
         print(i)
         break
@@ -451,21 +474,10 @@ for i in range(len(tbodys)):
 
 tbody = tbodys[i]
 
+trs = tbody.find_all('tr')
+tr=trs[0]
+tds=tr.find_all('td')
 
-
-table = browser.find_element('xpath', '//*[@id="BalanceSheetNewTable0"]')
-
-main_table = driver.find_element(By.XPATH, '//*[@id="BalanceSheetNewTable0"]/tr/td')
-for x in main_table:
-   print(x.text)
-
-rows = table.find_elements(By.TAG_NAME, "tr")
-for row in rows:
-    cols = row.find_elements(By.TAG_NAME, "td")
-    cols_data = [col.text for col in cols] # 提取每一列的文本数据
-    data.append(cols_data) # 将每一行的数据添加到数据列表中
-
-#print(data)
 
 
 
@@ -475,12 +487,8 @@ df = df.T
 
 
 
-main_table = browser.find_element('xpath', '//*[@id="BalanceSheetNewTable0"]').get_attribute("outerHtml")
-df_new=pd.read_html(main_table)[0]
-print(df_new)
 
 browser.close()
 browser.quit()
-
 
 '''
