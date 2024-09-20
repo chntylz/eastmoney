@@ -93,6 +93,7 @@ def get_sina_comm_data(browser, url):
         print(url)
 
     data = []
+    gen_cols = []
     browser.get(url)
     html_doc=browser.page_source
 
@@ -113,15 +114,52 @@ def get_sina_comm_data(browser, url):
             pass
 
     tbody = tbodys[i]
+
     
     for idx, tr in enumerate(tbody.find_all('tr')):
         
+        abbr = ''
         tds = tr.find_all('td')
         length = len(tds)
 
         if False:
             print('--------------------------------')
             print(tds)
+        
+        #'/corp/view/vFD_FinanceSummaryHistory.php?stockid=600660&type=TOTLIABSHAREQUI&cate=zcfz0'
+        if length >=2:
+            try:
+                
+                href = tds[0].contents[0].attrs['href']
+                tmp=href[href.find('type'):]
+                start=tmp.find('=')
+                end=tmp.find('&')
+                abbr = tmp[start+1 : end]
+                abbr = abbr.lower()
+                gen_cols.append(abbr)
+                if debug:
+                    print('href:%s'% href)
+                    print('tmp:%s' % tmp)
+                    print('start:%d'%start)
+                    print('end:%d' % end)
+                    print('abbr:%s' % abbr)
+            except Exception as e:
+                if debug:
+                    print('error: %s' % tds)
+                if '报表日期' in tds[0].contents[0].text or '报告日期' in tds[0].contents[0].text:
+                    abbr = 'report_date'
+                    print('abbr:%s'%abbr)
+                    gen_cols.append(abbr)
+                else:
+                    href = tds[0].contents[0].find_all('a')
+                    href = href[0].attrs['href']
+                    tmp=href[href.find('type'):]
+                    start=tmp.find('=')
+                    end=tmp.find('&')
+                    abbr = tmp[start+1 : end]
+                    abbr = abbr.lower()
+                    print('abbr:%s'%abbr)
+                    gen_cols.append(abbr)
 
         if length == 2:
             data.append([tds[0].contents[0].text.replace(',',''), 
@@ -141,7 +179,8 @@ def get_sina_comm_data(browser, url):
                 tds[2].contents[0].replace(',','').replace('--','0'),
                 tds[3].contents[0].replace(',','').replace('--','0'),
                 tds[4].contents[0].replace(',','').replace('--','0')])
-        
+       
+
 
     '''
     for idx, tr in enumerate(soup.find_all('tr')):
@@ -168,29 +207,37 @@ def get_sina_comm_data(browser, url):
 
     '''
 
-    return data
+    i = 0
+    for i, col in enumerate(gen_cols):
+        gen_cols[i]=col.replace('\n','').replace(' ','')
 
-def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_column, data_column):
+        
+    return data, gen_cols
 
+def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column):
+
+    if debug:
+        print('len(data)=%d, len(data_column)=%d '%(len(data), len(data_column)))
+        print(data_column)
+    
     df = pd.DataFrame(data)
     df = df.T
 
+    #change column name
+    df.columns = data_column
+    #change column order
+    #df = df.loc[:, data_column]
+
     df['stock_code'] = stock_code
     df['stock_name'] = stock_name
+    
+    if debug:
+        print(np.array(df[0:1])[0])  #print the first row of df
 
     df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_tmp.csv', encoding='utf-8-sig')
 
     if target_type == 'balance' and  '银行' in stock_name:
         return df
-
-    try:
-        df.columns = tmp_column  #change column name
-    except Exception as e:
-        print(len(df.columns), len(tmp_column), stock_code, stock_name, year, target_type)
-
-
-    #change column order
-    df = df.loc[:, data_column] 
 
     if debug:
         print(df)
@@ -218,50 +265,9 @@ def get_sina_cashflow_data(stock_code, stock_name, year, browser):
         + '/displaytype/4.phtml'
 
     #catch html data
-    data = get_sina_comm_data(browser, url)
+    data, data_column = get_sina_comm_data(browser, url)
 
-    tmp_column = ['record_date', 'xssptglwsddxj', 'sddsffh', 'sddqtyjyhdygdxj', 'jyhdxjlrxj', \
-    'gmspjslwzfdxj', 'zfgzgyjwzgzfdxj', 'zfdgxsf', 'zfdqtyjyhdygdxj', \
-    'jyhdxjlcxj', 'jyhdcsdxjllje', 'shtzssddxj', 'qdtzsyssddxj', \
-    'czgdzcwxzchqtcqzcsshdxjje', 'czzgsjqtyydwsddxjje', 'sddqtytzhdygdxj', \
-    'tzhdxjlrxj', 'gjgdzcwxzchqtcqzcszfdxj', 'tzszfdxj', \
-    'qdzgsjqtyydwzfdxjje', 'zfdqtytzhdygdxj', 'tzhdxjlcxj', 'tzhdcsdxjllje', \
-    'xstzsddxj', 'qzzgsxsssgdtzsddxj', 'qdjksddxj', \
-    'fxzqsddxj', 'sdqtyczhdygdxj', 'czhdxjlrxj', 'chzwzfdxj', 'fpgllrhcflxszfdxj', \
-    'qzzgszfgssgddgllr', 'zfqtyczhdyg dxj', \
-    'czhdxjlcxj', 'czhdcsdxjllje', 'hsbddxjjxjdjwdyx', \
-    'xjjxjdjwjzje', 'qcxjjxjdjwye', 'qmxjjxjdjwye', 'jlr', 'ssgdqy', \
-    'wqrdtzss', 'zcjzzb', 'gdzczjyqzczhscxwzzj', \
-    'wxzctx', 'cqdtfytx', 'dtfydjs', \
-    'ytfydzj', 'czgdzcwxzchqtcqzcdss', 'gdzcbfss', \
-    'gyjzbdss', 'dysyzj', 'yjfz', 'cwfy', 'tzss', \
-    'dysdszcjs', 'dysdsfzzj', 'chdjs', 'jyxysxmdjs', 'jyxyfxmdzj', \
-    'ywgswjskdjs', 'yjsswwgkdzj', 'qt', 'jyhdcsxjllje', 'zwzwzb', \
-    'ynndqdkzhgszq', 'rzzrgdzc', 'xjdqmye', 'xjdqcye', 'xjdjwdqmye', \
-    'xjdjwdqcye', 'xjjxjdjwdjzje', 'stock_code', 'stock_name'          ]
-
-    data_column = ['record_date', 'stock_code', 'stock_name', 'xssptglwsddxj', 'sddsffh', 'sddqtyjyhdygdxj', 'jyhdxjlrxj', \
-    'gmspjslwzfdxj', 'zfgzgyjwzgzfdxj', 'zfdgxsf', 'zfdqtyjyhdygdxj', \
-    'jyhdxjlcxj', 'jyhdcsdxjllje', 'shtzssddxj', 'qdtzsyssddxj', \
-    'czgdzcwxzchqtcqzcsshdxjje', 'czzgsjqtyydwsddxjje', 'sddqtytzhdygdxj', \
-    'tzhdxjlrxj', 'gjgdzcwxzchqtcqzcszfdxj', 'tzszfdxj', \
-    'qdzgsjqtyydwzfdxjje', 'zfdqtytzhdygdxj', 'tzhdxjlcxj', 'tzhdcsdxjllje', \
-    'xstzsddxj', 'qzzgsxsssgdtzsddxj', 'qdjksddxj', \
-    'fxzqsddxj', 'sdqtyczhdygdxj', 'czhdxjlrxj', 'chzwzfdxj', 'fpgllrhcflxszfdxj', \
-    'qzzgszfgssgddgllr', 'zfqtyczhdyg dxj', \
-    'czhdxjlcxj', 'czhdcsdxjllje', 'hsbddxjjxjdjwdyx', \
-    'xjjxjdjwjzje', 'qcxjjxjdjwye', 'qmxjjxjdjwye', 'jlr', 'ssgdqy', \
-    'wqrdtzss', 'zcjzzb', 'gdzczjyqzczhscxwzzj', \
-    'wxzctx', 'cqdtfytx', 'dtfydjs', \
-    'ytfydzj', 'czgdzcwxzchqtcqzcdss', 'gdzcbfss', \
-    'gyjzbdss', 'dysyzj', 'yjfz', 'cwfy', 'tzss', \
-    'dysdszcjs', 'dysdsfzzj', 'chdjs', 'jyxysxmdjs', 'jyxyfxmdzj', \
-    'ywgswjskdjs', 'yjsswwgkdzj', 'qt', 'jyhdcsxjllje', 'zwzwzb', \
-    'ynndqdkzhgszq', 'rzzrgdzc', 'xjdqmye', 'xjdqcye', 'xjdjwdqmye', \
-    'xjdjwdqcye', 'xjjxjdjwdjzje']
-
-
-    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_column, data_column)
+    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
     return df
 
@@ -279,25 +285,9 @@ def get_sina_income_data(stock_code, stock_name, year, browser):
         + '/displaytype/4.phtml'
 
     #catch html data
-    data = get_sina_comm_data(browser, url)
+    data, data_column = get_sina_comm_data(browser, url)
 
-    tmp_column = ['record_date', 'yyzsr', 'yysr', 'yyzcb', 'yycb', 'yysjjfj', 'xsfy', \
-    'glfy', 'cwfy', 'yffy', 'zcjzss', 'gyjzbdsy', 'tzsy', 'qzdlyqyhhyqydtzsy', \
-    'hdsy', 'yylr', 'jyywsr', 'jyywzc', 'qzfldzcczss', 'lrze', \
-    'jsdsfy', 'jlr', 'gsymgssyzdjlr', 'ssgdsy', 'jbmgsyymg', \
-    'xsmgsyymg', 'qtzhsy', 'zhsyze', 'gsymgssyzdzhsyze', \
-    'gsyssgddzhsyze', 'stock_code', 'stock_name']
-
-    data_column = ['record_date', 'stock_code', 'stock_name', 'yyzsr', 'yysr', 'yyzcb', 'yycb', 'yysjjfj', 'xsfy', \
-    'glfy', 'cwfy', 'yffy', 'zcjzss', 'gyjzbdsy', 'tzsy', 'qzdlyqyhhyqydtzsy', \
-    'hdsy', 'yylr', 'jyywsr', 'jyywzc', 'qzfldzcczss', 'lrze', \
-    'jsdsfy', 'jlr', 'gsymgssyzdjlr', 'ssgdsy', 'jbmgsyymg', \
-    'xsmgsyymg', 'qtzhsy', 'zhsyze', 'gsymgssyzdzhsyze', \
-    'gsyssgddzhsyze'
-    ]
-
-
-    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_column, data_column)
+    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
     return df
 
@@ -316,54 +306,19 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
         + '/displaytype/4.phtml'
 
     #catch html data
-    data = get_sina_comm_data(browser, url)
+    data, data_column = get_sina_comm_data(browser, url)
 
-    tmp_column = ['record_date', 'hbzj', 'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
-    'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
-    'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
-    'ldzchj', 'ffdkjdk', 'kgcsjrzc', 'cyzdqtz', 'cqysk', \
-    'cqgqtz', 'tzxfdc', 'zjgchj', 'zjgc', 'gcwz', 'gdzcjqlhj', \
-    'gdzcje', 'gdzcql', 'scxswzc', 'gyxswzc', 'yqzc', 'syqzc', \
-    'wxzc', 'kfzc', 'sy', 'cqdtfy', 'dysdszc', 'qtfldzc', 'fldzchj', \
-    'zczj', 'dqjk', 'jyxjrfz', 'yfpjjyfzk', 'yfpj', 'yfzk', \
-    'yskx', 'yfsxfjyj', 'yfzgxc', 'yjsf', 'qtyfkhj', 'yflx', \
-    'yfgl', 'qtyfk', 'ytfy', 'ynnddysy', 'yfdqzq', 'ynndqdfldfz', \
-    'qtldfz', 'ldfzhj', 'cqjk', 'yfzq', 'zlfz', 'cqyfzgxc', \
-    'cqyfkhj', 'cqyfk', 'zxyfk', 'yjfldfz', 'dysdsfz', \
-    'cqdysy', 'qtfldfz', 'fldfzhj', 'fzhj', 'sszbhgb', 'zbgj', \
-    'jkcg', 'qtzhsy', 'zxcb', 'yygj', 'ybfxzb', 'wfplr', \
-    'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj', \
-    'stock_code', 'stock_name']
-
-    data_column = ['record_date', 'stock_code', 'stock_name', 'hbzj', \
-    'jyxjrzc', 'ysjrzc', 'yspjjyszk', 'yspj', 'yszk', \
-    'yskxrz', 'yfkx', 'qtyskhj', 'yslx', 'ysgl', 'qtysk', 'mrfsjrzc', \
-    'ch', 'hfwcydsdzc', 'ynndqdfldzc', 'dtfy', 'dclldzcsy', 'qtldzc', \
-    'ldzchj', 'ffdkjdk', 'kgcsjrzc', 'cyzdqtz', 'cqysk', \
-    'cqgqtz', 'tzxfdc', 'zjgchj', 'zjgc', 'gcwz', 'gdzcjqlhj', \
-    'gdzcje', 'gdzcql', 'scxswzc', 'gyxswzc', 'yqzc', 'syqzc', \
-    'wxzc', 'kfzc', 'sy', 'cqdtfy', 'dysdszc', 'qtfldzc', 'fldzchj', \
-    'zczj', 'dqjk', 'jyxjrfz', 'yfpjjyfzk', 'yfpj', 'yfzk', \
-    'yskx', 'yfsxfjyj', 'yfzgxc', 'yjsf', 'qtyfkhj', 'yflx', \
-    'yfgl', 'qtyfk', 'ytfy', 'ynnddysy', 'yfdqzq', 'ynndqdfldfz', \
-    'qtldfz', 'ldfzhj', 'cqjk', 'yfzq', 'zlfz', 'cqyfzgxc', \
-    'cqyfkhj', 'cqyfk', 'zxyfk', 'yjfldfz', 'dysdsfz', \
-    'cqdysy', 'qtfldfz', 'fldfzhj', 'fzhj', 'sszbhgb', 'zbgj', \
-    'jkcg', 'qtzhsy', 'zxcb', 'yygj', 'ybfxzb', 'wfplr', \
-    'gsymgsgdqyhj', 'ssgdqy', 'syzqyhgdqyhj', 'fzhsyzqyhgdqyzj']
-
-
-    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, tmp_column, data_column)
+    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
     return df
 
 
 def get_sina_real_data(stock_code, stock_name, year, browser):
     
-    #df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
-    #df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
+    df = pd.DataFrame()
+    df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
+    df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
     df_cashflow  = get_sina_cashflow_data(stock_code, stock_name, year, browser)
-    df = df_cashflow 
     return df
 
 def get_sina_fina_by_soup(stock_code, stock_name):
@@ -441,6 +396,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+from bs4 import BeautifulSoup
+import pandas as pd
+
 # 添加无头headlesss
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument('--headless')
@@ -467,6 +425,33 @@ url_balance='https://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stoc
 browser.get(url_balance)
 
 
+url = 'https://money.finance.sina.com.cn/corp/go.php/vFD_ProfitStatement/stockid/600660/ctrl/2024/displaytype/4.phtml'
+browser.get(url)
+
+url = 'https://money.finance.sina.com.cn/corp/go.php/vFD_CashFlow/stockid/600660/ctrl/2024/displaytype/4.phtml'
+browser.get(url)
+
+html_doc=browser.page_source
+
+soup = BeautifulSoup(html_doc, 'html.parser')
+
+
+####################################################
+tbodys = soup.find_all('tbody')
+i=0
+for i in range(len(tbodys)):
+    if '报表日期' in tbodys[i].text or '报告日期' in tbodys[i].text: #check where valid data is located tbodys 
+        print(" right tbody is found")
+        print(i)
+        break
+    else:
+        if False:
+            print(i)
+        pass
+
+tbody = tbodys[i]
+
+
 
 table = browser.find_element('xpath', '//*[@id="BalanceSheetNewTable0"]')
 
@@ -485,7 +470,6 @@ for row in rows:
 
 
 
-import pandas as pd
 df = pd.DataFrame(data)
 df = df.T
 
