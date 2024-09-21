@@ -18,7 +18,7 @@
 #https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/600660/ctrl/2024/displaytype/4.phtml
 
 
-# soup tbody handle refer to follow link
+# how to handle soup tbody, please refer to follow link
 #https://codenews.cc/view/146129
 #https://blog.csdn.net/qq_16912257/article/details/53332474
 
@@ -47,13 +47,15 @@ from bs4 import BeautifulSoup
 from HData_sina_balance import *
 from HData_sina_income import *
 from HData_sina_cashflow import *
+from HData_sina_fina import *
 
 hdata_sina_balance = HData_sina_balance("usr","usr")
 hdata_sina_income  = HData_sina_income("usr","usr")
 hdata_sina_cashflow= HData_sina_cashflow("usr","usr")
+hdata_sina_fina    = HData_sina_fina("usr","usr")
 
 debug = 0
-debug = 1
+debug = 0
 
 
 def open_browser():
@@ -97,7 +99,6 @@ def worker(data):
 
 def get_sina_comm_data(browser, url):
 
-    print(url)
     if debug:
         print(url)
 
@@ -114,8 +115,9 @@ def get_sina_comm_data(browser, url):
     i=0
     for i in range(len(tbodys)):
         if '报表日期' in tbodys[i].text or '报告日期' in tbodys[i].text: #check where valid data is located tbodys 
-            print(" right tbody is found")
-            print(i)
+            if debug:
+                print(" right tbody is found")
+                print(i)
             break
         else:
             if False:
@@ -143,7 +145,10 @@ def get_sina_comm_data(browser, url):
                 tmp=href[href.find('type'):]
                 start=tmp.find('=')
                 end=tmp.find('&')
-                abbr = tmp[start+1 : end]
+                if end > 0:
+                    abbr = tmp[start+1 : end]
+                else:
+                    abbr = tmp[start+1 : ]
                 abbr = abbr.lower()
                 gen_cols.append(abbr)
                 if False:
@@ -157,7 +162,8 @@ def get_sina_comm_data(browser, url):
                     print('error: %s' % tds)
                 if '报表日期' in tds[0].contents[0].text or '报告日期' in tds[0].contents[0].text:
                     abbr = 'record_date'
-                    print('abbr:%s'%abbr)
+                    if debug:
+                        print('abbr:%s'%abbr)
                     gen_cols.append(abbr)
                 else:
                     href = tds[0].contents[0].find_all('a')
@@ -165,14 +171,18 @@ def get_sina_comm_data(browser, url):
                     tmp=href[href.find('type'):]
                     start=tmp.find('=')
                     end=tmp.find('&')
-                    abbr = tmp[start+1 : end]
+                    if end > 0:
+                        abbr = tmp[start+1 : end]
+                    else:
+                        abbr = tmp[start+1 : end]
                     abbr = abbr.lower()
-                    print('abbr:%s'%abbr)
+                    if debug:
+                        print('abbr:%s'%abbr)
                     gen_cols.append(abbr)
 
         if length == 2:
             data.append([tds[0].contents[0].text.replace(',',''), 
-                tds[1].contents[0].replace(',','').replace('--','0')]) 
+                tds[1].contents[0].replace(',','').replace('--','0').replace('\'','0')]) 
         elif length == 3:
             data.append([tds[0].contents[0].text.replace(',','').replace('--','0'), 
                 tds[1].contents[0].replace(',','').replace('--','0'), 
@@ -232,18 +242,21 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
     df = pd.DataFrame(data)
     df = df.T
 
-    #change column name
-    df.columns = data_column
-    #change column order
-    #df = df.loc[:, data_column]
+    try:
+        #change column name
+        df.columns = data_column
+
+        #change column order
+        #df = df.loc[:, data_column]
+    except Exception as e:
+        print(data, stock_code, stock_name, year, target_type, data_column)
 
     df['stock_code'] = stock_code
     df['stock_name'] = stock_name
     
     if debug:
         print(np.array(df[0:1])[0])  #print the first row of df
-
-    df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_tmp.csv', encoding='utf-8-sig')
+        df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_tmp.csv', encoding='utf-8-sig')
 
     if target_type == 'balance' and  '银行' in stock_name:
         return df
@@ -262,9 +275,72 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
     df['record_date']=df['record_date'].apply(lambda x: datetime.datetime.strptime(x,'%Y-%m-%d'))
 
 
-    df.to_csv('./csv_data/'+ year + '_' + target_type + '_' + stock_code + '.csv', encoding='utf-8-sig')
+    if debug:
+        df.to_csv('./csv_data/'+ year + '_' + target_type + '_' + stock_code + '.csv', encoding='utf-8-sig')
 
     return df
+
+
+def get_sina_fina_data(stock_code, stock_name, year, browser):
+
+    target_type = 'fina'
+
+    #https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/600660/ctrl/2024/displaytype/4.phtml
+    url = 'https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/'\
+        + stock_code \
+        + '/ctrl/'\
+        + year\
+        + '/displaytype/4.phtml'
+
+    #catch html data
+    data, data_column = get_sina_comm_data(browser, url)
+
+
+
+    data_column = [ 'record_date', 'diluted_eps', 'weighted_eps', 'eps_adjusted', 'eps_after_deducting_non_recurring_gains_and_losses', \
+    'net_assets_per_share_before_adjustment', 'net_assets_per_share_adjusted', 'operating_cash_flow_per_share', \
+    'capital_reserve_per_share', 'retained_eps', 'adjusted_net_assets_per_share', 'total_asset_profit_rate', \
+    'main_business_profit_rate', 'total_asset_net_profit_rate', 'cost_and_expense_profit_rate', \
+    'operating_profit_rate', 'main_business_cost_rate', 'net_profit_margin', 'return_on_equity', \
+    'return_on_net_assets', 'return_on_assets', 'gross_profit_margin', 'proportion_of_three_expenses', \
+    'non_main_business_proportion', 'main_business_profit_proportion', 'dividend_payout_rate', \
+    'investment_return_rate', 'main_business_profit', 'net_asset_return_rate', \
+    'weighted_net_asset_return_rate', 'net_profit_after_deducting_non_recurring_gains_and_losses', \
+    'main_business_income_growth_rate', 'net_profit_growth_rate', 'net_asset_growth_rate', \
+    'total_asset_growth_rate', 'accounts_receivable_turnover_rate_times', 'accounts_receivable_turnover_days_days', \
+    'inventory_turnover_days_days', 'inventory_turnover_rate_times', 'fixed_asset_turnover_rate_times', \
+    'total_asset_turnover_rate_times', 'total_asset_turnover_days_days', 'current_asset_turnover_rate_times', \
+    'current_asset_turnover_days_days', 'shareholders_equity_turnover_rate_times', 'current_ratio', \
+    'quick_ratio', 'cash_ratio', 'interest_coverage_ratio', 'long_term_debt_to_working_capital_ratio', \
+    'shareholders_equity_ratio', 'long_term_debt_ratio', 'shareholders_equity_to_fixed_assets_ratio', \
+    'liabilities_to_owners_equity_ratio', 'long_term_assets_to_long_term_funds_ratio', \
+    'capitalization_ratio', 'fixed_asset_net_value_ratio', 'capitalization_fix_ratio', 'equity_ratio', \
+    'liquidation_value_ratio', 'fixed_assets_ratio', 'asset_liability_ratio', 'total_assets', \
+    'net_operating_cash_flow_to_sales_revenue_ratio', 'operating_cash_flow_return_on_assets', \
+    'net_operating_cash_flow_to_net_profit_ratio', 'net_operating_cash_flow_to_debt_ratio', \
+    'cash_flow_ratio', 'short_term_stock_investment', 'short_term_bond_investment_yuan', \
+    'short_term_other_operating_investment_yuan', 'long_term_stock_investment_yuan', \
+    'long_term_bond_investment_yuan', 'long_term_other_operating_investment_yuan', \
+    'accounts_receivable_within_1_year_yuan', 'accounts_receivable_within_1_2_years_yuan', \
+    'accounts_receivable_within_2_3_years_yuan', 'accounts_receivable_within_3_years_yuan', \
+    'prepayments_within_1_year_yuan', 'prepayments_within_1_2_years_yuan', \
+    'prepayments_within_2_3_years_yuan', 'prepayments_within_3_years_yuan', \
+    'other_receivables_within_1_year_yuan', 'other_receivables_within_1_2_years_yuan', \
+    'other_receivables_within_2_3_years_yuan', 'other_receivables_within_3_years_yuan' ]
+
+    df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
+
+    try: 
+        #hdata_sina_fina.db_hdata_sina_create()
+        hdata_sina_fina.copy_from_stringio(df)
+    except Exception as e:
+        print("### insert data into database")
+        print(data, stock_code, stock_name, year, target_type, data_column)
+        
+
+
+    return df
+
 
 def get_sina_cashflow_data(stock_code, stock_name, year, browser):
 
@@ -282,8 +358,12 @@ def get_sina_cashflow_data(stock_code, stock_name, year, browser):
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
-    hdata_sina_cashflow.db_hdata_sina_create()
-    hdata_sina_cashflow.copy_from_stringio(df)
+    try:
+        #hdata_sina_cashflow.db_hdata_sina_create()
+        hdata_sina_cashflow.copy_from_stringio(df)
+    except Exception as e:
+        print("### insert data into database")
+        print(data, stock_code, stock_name, year, target_type, data_column)
 
 
     return df
@@ -305,8 +385,13 @@ def get_sina_income_data(stock_code, stock_name, year, browser):
     data, data_column = get_sina_comm_data(browser, url)
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
-    hdata_sina_income.db_hdata_sina_create()
-    hdata_sina_income.copy_from_stringio(df)
+
+    try:
+        #hdata_sina_income.db_hdata_sina_create()
+        hdata_sina_income.copy_from_stringio(df)
+    except Exception as e:
+        print("### insert data into database")
+        print(data, stock_code, stock_name, year, target_type, data_column)
 
     return df
 
@@ -329,8 +414,12 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
-    hdata_sina_balance.db_hdata_sina_create()
-    hdata_sina_balance.copy_from_stringio(df)
+    try:
+        #hdata_sina_balance.db_hdata_sina_create()
+        hdata_sina_balance.copy_from_stringio(df)
+    except Exception as e:
+        print("### insert data into database")
+        print(data, stock_code, stock_name, year, target_type, data_column)
 
     return df
 
@@ -341,6 +430,7 @@ def get_sina_real_data(stock_code, stock_name, year, browser):
     df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
     df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
     df_cashflow  = get_sina_cashflow_data(stock_code, stock_name, year, browser)
+    df_fina      = get_sina_fina_data(stock_code, stock_name, year, browser)
     return df
 
 def get_sina_fina_by_soup(stock_code, stock_name):
@@ -353,7 +443,6 @@ def get_sina_fina_by_soup(stock_code, stock_name):
     this_year = int(time.strftime("%Y", time.localtime()))
     #get continuous 5 years data
     target_years = 5
-    target_years = 1
     for yy in range(target_years):
         year = str(this_year - yy)
         df = get_sina_real_data(stock_code, stock_name, year, browser)
@@ -393,7 +482,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df=get_daily_zlje2()
-    stock_df=stock_df.head(4)
+    #stock_df=stock_df.head(4)
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
 

@@ -11,8 +11,151 @@ from io import StringIO
 
 
 debug = 0
+'''
+                                        eps_=_earnings_per_share
 
-sina_clos = " "
+
+
+
+
+'报告日期'                           'record_date'
+'摊薄每股收益(元)'                    'diluted_eps'
+'加权每股收益(元)'                    'weighted_eps'
+'每股收益_调整后(元)'                 'eps_adjusted'
+'扣除非经常性损益后的每股收益(元)'       'eps_after_deducting_non_recurring_gains_and_losses'
+
+'每股净资产_调整前(元)'                'net_assets_per_share_before_adjustment'
+'每股净资产_调整后(元)'                'net_assets_per_share_adjusted'
+'每股经营性现金流(元)'                 'operating_cash_flow_per_share'
+'每股资本公积金(元)'                  'capital_reserve_per_share'
+'每股未分配利润(元)'                  'retained_eps'
+
+'调整后的每股净资产(元)'               'adjusted_net_assets_per_share'
+'总资产利润率(%)'                     'total_asset_profit_rate'
+'主营业务利润率(%)'                   'main_business_profit_rate'
+'总资产净利润率(%)'                   'total_asset_net_profit_rate'
+'成本费用利润率(%)'                   'cost_and_expense_profit_rate'
+
+'营业利润率(%)'                      'operating_profit_rate'
+'主营业务成本率(%)'                   'main_business_cost_rate'
+'销售净利率(%)'                      'net_profit_margin'
+'股本报酬率(%)'                      'return_on_equity'
+'净资产报酬率(%)'                     'return_on_net_assets'
+'资产报酬率(%)'                      'return_on_assets'
+
+'销售毛利率(%)'                      'gross_profit_margin'
+'三项费用比重'                        'proportion_of_three_expenses'
+'非主营比重'                         'non_main_business_proportion'
+'主营利润比重'                        'main_business_profit_proportion'
+'股息发放率(%)'                      'dividend_payout_rate'
+'投资收益率(%)'                      'investment_return_rate'
+'主营业务利润(元)'                    'main_business_profit'
+
+'净资产收益率(%)'                     'net_asset_return_rate'
+'加权净资产收益率(%)'                 'weighted_net_asset_return_rate'
+'扣除非经常性损益后的净利润(元)'        'net_profit_after_deducting_non_recurring_gains_and_losses'
+'主营业务收入增长率(%)'                'main_business_income_growth_rate'
+'净利润增长率(%)'                     'net_profit_growth_rate'
+
+'净资产增长率(%)'                     'net_asset_growth_rate'
+'总资产增长率(%)'                     'total_asset_growth_rate'
+'应收账款周转率(次)'                  'accounts_receivable_turnover_rate_times'
+'应收账款周转天数(天)'                 'accounts_receivable_turnover_days_days'
+'存货周转天数(天)'                    'inventory_turnover_days_days'
+'存货周转率(次)'                      'inventory_turnover_rate_times'
+
+'固定资产周转率(次)'                  'fixed_asset_turnover_rate_times'
+'总资产周转率(次)'                    'total_asset_turnover_rate_times'
+'总资产周转天数(天)'                  'total_asset_turnover_days_days'
+'流动资产周转率(次)'                  'current_asset_turnover_rate_times'
+'流动资产周转天数(天)'                 'current_asset_turnover_days_days'
+
+'股东权益周转率(次)'                  'shareholders_equity_turnover_rate_times'
+'流动比率'                           'current_ratio'
+'速动比率'                           'quick_ratio'
+'现金比率(%)'                        'cash_ratio'
+'利息支付倍数'                        'interest_coverage_ratio'
+'长期债务与营运资金比率(%)'            'long_term_debt_to_working_capital_ratio'
+
+'股东权益比率(%)'                     'shareholders_equity_ratio'
+'长期负债比率(%)'                     'long_term_debt_ratio'
+'股东权益与固定资产比率(%)'            'shareholders_equity_to_fixed_assets_ratio'
+'负债与所有者权益比率(%)'              'liabilities_to_owners_equity_ratio'
+'长期资产与长期资金比率(%)'            'long_term_assets_to_long_term_funds_ratio'
+
+'资本化比率(%)'                      'capitalization_ratio'
+'固定资产净值率(%)'                   'fixed_asset_net_value_ratio'
+'资本固定化比率(%)'                   'capitalization_fix_ratio'
+'产权比率(%)'                        'equity_ratio'
+'清算价值比率(%)'                     'liquidation_value_ratio'
+'固定资产比重(%)'                     'fixed_assets_ratio'
+
+'资产负债率(%)'                      'asset_liability_ratio'
+'总资产(元)'                         'total_assets'
+'经营现金净流量对销售收入比率(%)'       'net_operating_cash_flow_to_sales_revenue_ratio'
+'资产的经营现金流量回报率(%)'           'operating_cash_flow_return_on_assets'
+
+'经营现金净流量与净利润的比率(%)'       'net_operating_cash_flow_to_net_profit_ratio'
+'经营现金净流量对负债比率(%)'           'net_operating_cash_flow_to_debt_ratio'
+'现金流量比率(%)'                     'cash_flow_ratio'
+'短期股票投资(元)'                    'short_term_stock_investment'
+'短期债券投资(元)'                    'short_term_bond_investment_yuan'
+
+'短期其它经营性投资(元)'               'short_term_other_operating_investment_yuan'
+'长期股票投资(元)'                    'long_term_stock_investment_yuan'
+'长期债券投资(元)'                    'long_term_bond_investment_yuan'
+'长期其它经营性投资(元)'               'long_term_other_operating_investment_yuan'
+'1年以内应收帐款(元)'                 'accounts_receivable_within_1_year_yuan'
+
+'1-2年以内应收帐款(元)'               'accounts_receivable_within_1_2_years_yuan'
+'2-3年以内应收帐款(元)'               'accounts_receivable_within_2_3_years_yuan'
+'3年以内应收帐款(元)'                 'accounts_receivable_within_3_years_yuan'
+'1年以内预付货款(元)'                 'prepayments_within_1_year_yuan'
+
+'1-2年以内预付货款(元)'               'prepayments_within_1_2_years_yuan'
+'2-3年以内预付货款(元)'               'prepayments_within_2_3_years_yuan'
+'3年以内预付货款(元)'                 'prepayments_within_3_years_yuan'
+'1年以内其它应收款(元)'                'other_receivables_within_1_year_yuan'
+
+'1-2年以内其它应收款(元)'              'other_receivables_within_1_2_years_yuan'
+'2-3年以内其它应收款(元)'              'other_receivables_within_2_3_years_yuan'
+'3年以内其它应收款(元)'                'other_receivables_within_3_years_yuan'
+'002261'                                'stock_code' 
+'拓维信息']                             'stock_name'
+
+'''
+
+sina_clos = " record_date,diluted_eps,weighted_eps,eps_adjusted,eps_after_deducting_non_recurring_gains_and_losses,\
+             net_assets_per_share_before_adjustment,net_assets_per_share_adjusted,operating_cash_flow_per_share,\
+             capital_reserve_per_share,retained_eps,adjusted_net_assets_per_share,total_asset_profit_rate,\
+             main_business_profit_rate,total_asset_net_profit_rate,cost_and_expense_profit_rate,\
+             operating_profit_rate,main_business_cost_rate,net_profit_margin,return_on_equity,\
+             return_on_net_assets,return_on_assets,gross_profit_margin,proportion_of_three_expenses,\
+             non_main_business_proportion,main_business_profit_proportion,dividend_payout_rate,\
+             investment_return_rate,main_business_profit,net_asset_return_rate,\
+             weighted_net_asset_return_rate,net_profit_after_deducting_non_recurring_gains_and_losses,\
+             main_business_income_growth_rate,net_profit_growth_rate,net_asset_growth_rate,\
+             total_asset_growth_rate,accounts_receivable_turnover_rate_times,accounts_receivable_turnover_days_days,\
+             inventory_turnover_days_days,inventory_turnover_rate_times,fixed_asset_turnover_rate_times,\
+             total_asset_turnover_rate_times,total_asset_turnover_days_days,current_asset_turnover_rate_times,\
+             current_asset_turnover_days_days,shareholders_equity_turnover_rate_times,current_ratio,\
+             quick_ratio,cash_ratio,interest_coverage_ratio,long_term_debt_to_working_capital_ratio,\
+             shareholders_equity_ratio,long_term_debt_ratio,shareholders_equity_to_fixed_assets_ratio,\
+             liabilities_to_owners_equity_ratio,long_term_assets_to_long_term_funds_ratio,\
+             capitalization_ratio,fixed_asset_net_value_ratio,capitalization_fix_ratio,equity_ratio,\
+             liquidation_value_ratio,fixed_assets_ratio,asset_liability_ratio,total_assets,\
+             net_operating_cash_flow_to_sales_revenue_ratio,operating_cash_flow_return_on_assets,\
+             net_operating_cash_flow_to_net_profit_ratio,net_operating_cash_flow_to_debt_ratio,\
+             cash_flow_ratio,short_term_stock_investment,short_term_bond_investment_yuan,\
+             short_term_other_operating_investment_yuan,long_term_stock_investment_yuan,\
+             long_term_bond_investment_yuan,long_term_other_operating_investment_yuan,\
+             accounts_receivable_within_1_year_yuan,accounts_receivable_within_1_2_years_yuan,\
+             accounts_receivable_within_2_3_years_yuan,accounts_receivable_within_3_years_yuan,\
+             prepayments_within_1_year_yuan,prepayments_within_1_2_years_yuan,\
+             prepayments_within_2_3_years_yuan,prepayments_within_3_years_yuan,\
+             other_receivables_within_1_year_yuan,other_receivables_within_1_2_years_yuan,\
+             other_receivables_within_2_3_years_yuan,other_receivables_within_3_years_yuan,\
+             stock_code, stock_name  "
 
 
 
@@ -66,6 +209,94 @@ class HData_sina_fina(object):
         self.cur.execute('''
             drop table if exists sina_fina_table;
             create table sina_fina_table(
+                record_date      date,
+                diluted_eps         float,
+                weighted_eps         float,
+                eps_adjusted         float,
+                eps_after_deducting_non_recurring_gains_and_losses         float,
+                net_assets_per_share_before_adjustment         float,
+                net_assets_per_share_adjusted         float,
+                operating_cash_flow_per_share         float,
+                capital_reserve_per_share         float,
+                retained_eps         float,
+                adjusted_net_assets_per_share         float,
+                total_asset_profit_rate         float,
+                main_business_profit_rate         float,
+                total_asset_net_profit_rate         float,
+                cost_and_expense_profit_rate         float,
+                operating_profit_rate         float,
+                main_business_cost_rate         float,
+                net_profit_margin         float,
+                return_on_equity         float,
+                return_on_net_assets         float,
+                return_on_assets         float,
+                gross_profit_margin         float,
+                proportion_of_three_expenses         float,
+                non_main_business_proportion         float,
+                main_business_profit_proportion         float,
+                dividend_payout_rate         float,
+                investment_return_rate         float,
+                main_business_profit         float,
+                net_asset_return_rate         float,
+                weighted_net_asset_return_rate         float,
+                net_profit_after_deducting_non_recurring_gains_and_losses         float,
+                main_business_income_growth_rate         float,
+                net_profit_growth_rate         float,
+                net_asset_growth_rate         float,
+                total_asset_growth_rate         float,
+                accounts_receivable_turnover_rate_times         float,
+                accounts_receivable_turnover_days_days         float,
+                inventory_turnover_days_days         float,
+                inventory_turnover_rate_times         float,
+                fixed_asset_turnover_rate_times         float,
+                total_asset_turnover_rate_times         float,
+                total_asset_turnover_days_days         float,
+                current_asset_turnover_rate_times         float,
+                current_asset_turnover_days_days         float,
+                shareholders_equity_turnover_rate_times         float,
+                current_ratio         float,
+                quick_ratio         float,
+                cash_ratio         float,
+                interest_coverage_ratio         float,
+                long_term_debt_to_working_capital_ratio         float,
+                shareholders_equity_ratio         float,
+                long_term_debt_ratio         float,
+                shareholders_equity_to_fixed_assets_ratio         float,
+                liabilities_to_owners_equity_ratio         float,
+                long_term_assets_to_long_term_funds_ratio         float,
+                capitalization_ratio         float,
+                fixed_asset_net_value_ratio         float,
+                capitalization_fix_ratio         float,
+                equity_ratio         float,
+                liquidation_value_ratio         float,
+                fixed_assets_ratio         float,
+                asset_liability_ratio         float,
+                total_assets         float,
+                net_operating_cash_flow_to_sales_revenue_ratio         float,
+                operating_cash_flow_return_on_assets         float,
+                net_operating_cash_flow_to_net_profit_ratio         float,
+                net_operating_cash_flow_to_debt_ratio         float,
+                cash_flow_ratio         float,
+                short_term_stock_investment         float,
+                short_term_bond_investment_yuan         float,
+                short_term_other_operating_investment_yuan         float,
+                long_term_stock_investment_yuan         float,
+                long_term_bond_investment_yuan         float,
+                long_term_other_operating_investment_yuan         float,
+                accounts_receivable_within_1_year_yuan         float,
+                accounts_receivable_within_1_2_years_yuan         float,
+                accounts_receivable_within_2_3_years_yuan         float,
+                accounts_receivable_within_3_years_yuan         float,
+                prepayments_within_1_year_yuan         float,
+                prepayments_within_1_2_years_yuan         float,
+                prepayments_within_2_3_years_yuan         float,
+                prepayments_within_3_years_yuan         float,
+                other_receivables_within_1_year_yuan         float,
+                other_receivables_within_1_2_years_yuan         float,
+                other_receivables_within_2_3_years_yuan         float,
+                other_receivables_within_3_years_yuan         float,
+                stock_code  varchar,
+                stock_name  varchar
             );
             alter table sina_fina_table add primary key(stock_code,record_date);
             ''')
