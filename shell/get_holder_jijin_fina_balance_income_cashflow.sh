@@ -42,6 +42,7 @@ file_array=(
             'main_balance.py'
             'main_income.py'
             'main_cashflow.py'
+            'get_sina_fina_data.py'
            )
 
 
@@ -73,7 +74,7 @@ do
     log "time python3 $target $input start $time" 
     tt_1=`date "+ %s"`
     log "begin run python3"
-    #time python3 $target $input >> $logfile    2>&1 
+    time python3 $target $input >> $logfile    2>&1 
     tt_2=`date "+ %s"`
     time=`date "+%Y_%m_%d_%H_%M_%S"`
     log "time python3 $target $input stop $time, cost time is $(($tt_2 - $tt_1))" 

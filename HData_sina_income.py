@@ -47,12 +47,11 @@ income
 '拓维信息']                                             'stock_name'
 '''
 
-sina_clos = " record_date, biztotinco, bizinco, biztotcost, bizcost, biztax, \
+sina_clos = " record_date, stock_code, stock_name, biztotinco, bizinco, biztotcost, bizcost, biztax, \
              salesexpe, manaexpe, finexpe, deveexpe, asseimpaloss, valuechgloss, \
              inveinco, assoinveprof, exchggain, perprofit, nonoreve, nonoexpe, \
              noncassetsdisl, totprofit, incotaxexpe, netprofit, parenetp, minysharrigh, \
-             basiceps, dilutedeps, othercompinco, compincoamt, parecompincoamt, minysharincoamt,\
-             stock_code, stock_name "
+             basiceps, dilutedeps, othercompinco, compincoamt, parecompincoamt, minysharincoamt "
 
 class HData_sina_income(object):
     def __init__(self,user,password):
@@ -105,6 +104,8 @@ class HData_sina_income(object):
             drop table if exists sina_income_table;
             create table sina_income_table(
                 record_date    date,
+                stock_code varchar,
+                stock_name varchar,
                 biztotinco    float,
                 bizinco    float,
                 biztotcost    float,
@@ -133,9 +134,7 @@ class HData_sina_income(object):
                 othercompinco    float,
                 compincoamt    float,
                 parecompincoamt    float,
-                minysharincoamt    float,
-                stock_code    varchar,
-                stock_name    varchar
+                minysharincoamt    float
                                 
             );
             alter table sina_income_table add primary key(stock_code,record_date);

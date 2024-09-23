@@ -105,7 +105,7 @@ debug = 0
  '000158'                                    'stock_code',
  '常山北明']                                 'stock_name'
 '''
-sina_clos = " record_date, curfds, tradfinasset, derifinaasset, notesaccorece, \
+sina_cols = " record_date, stock_code, stock_name, curfds, tradfinasset, derifinaasset, notesaccorece, \
 	notesrece, accorece, recfinanc, prep, otherrecetot, interece, dividrece, \
 	otherrece, purcresaasset, inve, accheldfors, expinoncurrasset, prepexpe, \
 	unseg, othercurrasse, totcurrasset, lendandloan, avaisellasse, holdinvedue, \
@@ -171,6 +171,8 @@ class HData_sina_balance(object):
             drop table if exists sina_balance_table;
             create table sina_balance_table(
                 record_date   date,
+                stock_code varchar,
+                stock_name varchar,
                 curfds   float,
                 tradfinasset   float,
                 derifinaasset   float,
@@ -258,9 +260,7 @@ class HData_sina_balance(object):
                 paresharrigh   float,
                 minysharrigh   float,
                 righaggr   float,
-                totliabsharequi float,
-                stock_code varchar,
-                stock_name varchar
+                totliabsharequi float
 
             );
             alter table sina_balance_table add primary key(stock_code,record_date);

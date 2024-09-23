@@ -112,17 +112,26 @@ def get_sina_comm_data(browser, url):
 
     ####################################################
     tbodys = soup.find_all('tbody')
+    
+   
     i=0
+    tbody_find = False
     for i in range(len(tbodys)):
         if '报表日期' in tbodys[i].text or '报告日期' in tbodys[i].text: #check where valid data is located tbodys 
+            tbody_find = True
             if debug:
-                print(" right tbody is found")
-                print(i)
+                print(" right tbody is found, i=%d" % i)
             break
         else:
             if False:
                 print(i)
             pass
+    
+
+    if tbody_find == False:
+        print('### correct tbodys_find is False , return')
+        return data, gen_cols
+        
 
     tbody = tbodys[i]
 
@@ -138,6 +147,7 @@ def get_sina_comm_data(browser, url):
             print(tds)
         
         #'/corp/view/vFD_FinanceSummaryHistory.php?stockid=600660&type=TOTLIABSHAREQUI&cate=zcfz0'
+        # we assume there must be 2 items exist
         if length >=2:
             try:
                 
@@ -251,9 +261,19 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
     except Exception as e:
         print(data, stock_code, stock_name, year, target_type, data_column)
 
+    '''
     df['stock_code'] = stock_code
     df['stock_name'] = stock_name
+    '''
     
+    # 在第 1 列位置插入新列 'stock_name'
+    new_column_data = [stock_name, stock_name, stock_name]
+    df.insert(1, 'stock_name', new_column_data)
+
+    # 在第 1 列位置插入新列 'stock_code'
+    new_column_data = [stock_code, stock_code, stock_code]
+    df.insert(1, 'stock_code', new_column_data)
+
     if debug:
         print(np.array(df[0:1])[0])  #print the first row of df
         df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_tmp.csv', encoding='utf-8-sig')
@@ -281,9 +301,36 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
     return df
 
 
+def sina_check_table(database):
+    table_exist = database.table_is_exist() 
+    print('table_exist=%d' % table_exist)
+    if table_exist:
+        #database.db_hdata_sina_create()
+        print('table already exist')
+    else:
+        database.db_hdata_sina_create()
+        print('table not exist, create')
+
+
+
+def sina_update_database(database, df, data, stock_code, stock_name, year, target_type, data_column):
+    
+    sina_check_table(database)
+
+    try:
+        #database.db_hdata_sina_create()
+        database.copy_from_stringio(df)
+    except Exception as e:
+        print("### insert data into database")
+        print(data, stock_code, stock_name, year, target_type, data_column)
+        print(df)
+
+
+
 def get_sina_fina_data(stock_code, stock_name, year, browser):
 
     target_type = 'fina'
+
 
     #https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/600660/ctrl/2024/displaytype/4.phtml
     url = 'https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/'\
@@ -292,10 +339,14 @@ def get_sina_fina_data(stock_code, stock_name, year, browser):
         + year\
         + '/displaytype/4.phtml'
 
+
+    df = pd.DataFrame()
+
     #catch html data
     data, data_column = get_sina_comm_data(browser, url)
-
-
+    if len(data) == 0 or len(data_column) == 0:
+        print('### get html source is NULL, return');
+        return df
 
     data_column = [ 'record_date', 'diluted_eps', 'weighted_eps', 'eps_adjusted', 'eps_after_deducting_non_recurring_gains_and_losses', \
     'net_assets_per_share_before_adjustment', 'net_assets_per_share_adjusted', 'operating_cash_flow_per_share', \
@@ -330,15 +381,8 @@ def get_sina_fina_data(stock_code, stock_name, year, browser):
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
-    try: 
-        #hdata_sina_fina.db_hdata_sina_create()
-        hdata_sina_fina.copy_from_stringio(df)
-    except Exception as e:
-        print("### insert data into database")
-        print(data, stock_code, stock_name, year, target_type, data_column)
-        
-
-
+    sina_update_database(hdata_sina_fina, df, data, stock_code, stock_name, year, target_type, data_column)
+       
     return df
 
 
@@ -353,18 +397,17 @@ def get_sina_cashflow_data(stock_code, stock_name, year, browser):
         + year\
         + '/displaytype/4.phtml'
 
+    df = pd.DataFrame()
+
     #catch html data
     data, data_column = get_sina_comm_data(browser, url)
+    if len(data) == 0 or len(data_column) == 0:
+        print('### get html source is NULL, return');
+        return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
-    try:
-        #hdata_sina_cashflow.db_hdata_sina_create()
-        hdata_sina_cashflow.copy_from_stringio(df)
-    except Exception as e:
-        print("### insert data into database")
-        print(data, stock_code, stock_name, year, target_type, data_column)
-
+    sina_update_database(hdata_sina_cashflow, df, data, stock_code, stock_name, year, target_type, data_column)
 
     return df
 
@@ -381,21 +424,19 @@ def get_sina_income_data(stock_code, stock_name, year, browser):
         + year\
         + '/displaytype/4.phtml'
 
+    df = pd.DataFrame()
+
     #catch html data
     data, data_column = get_sina_comm_data(browser, url)
+    if len(data) == 0 or len(data_column) == 0:
+        print('### get html source is NULL, return');
+        return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
-    try:
-        #hdata_sina_income.db_hdata_sina_create()
-        hdata_sina_income.copy_from_stringio(df)
-    except Exception as e:
-        print("### insert data into database")
-        print(data, stock_code, stock_name, year, target_type, data_column)
+    sina_update_database(hdata_sina_income, df, data, stock_code, stock_name, year, target_type, data_column)
 
     return df
-
-
 
 
 def get_sina_balance_data(stock_code, stock_name, year, browser):
@@ -409,17 +450,19 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
         + year\
         + '/displaytype/4.phtml'
 
+    url = 'https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/301603/ctrl/2021/displaytype/4.phtml'
+
+    df = pd.DataFrame()
+
     #catch html data
     data, data_column = get_sina_comm_data(browser, url)
+    if len(data) == 0 or len(data_column) == 0:
+        print('### get html source is NULL, return');
+        return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
-    try:
-        #hdata_sina_balance.db_hdata_sina_create()
-        hdata_sina_balance.copy_from_stringio(df)
-    except Exception as e:
-        print("### insert data into database")
-        print(data, stock_code, stock_name, year, target_type, data_column)
+    sina_update_database(hdata_sina_balance, df, data, stock_code, stock_name, year, target_type, data_column)
 
     return df
 
@@ -428,9 +471,11 @@ def get_sina_real_data(stock_code, stock_name, year, browser):
     
     df = pd.DataFrame()
     df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
+    '''
     df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
     df_cashflow  = get_sina_cashflow_data(stock_code, stock_name, year, browser)
     df_fina      = get_sina_fina_data(stock_code, stock_name, year, browser)
+    '''
     return df
 
 def get_sina_fina_by_soup(stock_code, stock_name):
@@ -480,8 +525,12 @@ if __name__ == '__main__':
 
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    print("start_time: %s" % start_time)
 
     stock_df=get_daily_zlje2()
+    print(stock_df.head(5))
+    stock_df = stock_df.sort_values('f12', ascending=1)
+    stock_df = stock_df.reset_index(drop=True)
     #stock_df=stock_df.head(4)
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
@@ -581,3 +630,23 @@ browser.close()
 browser.quit()
 
 '''
+
+
+'''
+import pandas as pd
+
+# 创建一个示例 DataFrame
+data = {
+    'A': [1, 2, 3],
+        'B': [4, 5, 6]
+}
+df = pd.DataFrame(data)
+
+# 在第 1 列位置插入新列 'C'
+new_column_data = [7, 8, 9]
+df.insert(1, 'C', new_column_data)
+print('插入新列 C 后的 DataFrame:')
+print(df)
+
+'''
+

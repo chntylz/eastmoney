@@ -89,7 +89,7 @@ cashflow
 '拓维信息'                                                             'stock_name'
 '''
 
-sina_clos = " record_date, laborgetcash, taxrefd, receotherbizcash, bizcashinfl, \
+sina_cols = " record_date, stock_code, stock_name, laborgetcash, taxrefd, receotherbizcash, bizcashinfl, \
              labopayc, payworkcash, paytax, payacticash, bizcashoutf, mananetr, \
              withinvgetcash, inveretugetcash, fixedassetnetc, subsnetc, receinvcash, \
              invcashinfl, acquassetcash, invpayc, subspaynetcash, payinvecash, \
@@ -102,7 +102,7 @@ sina_clos = " record_date, laborgetcash, taxrefd, receotherbizcash, bizcashinfl,
              valuechgloss, defeincoincr, estidebts, finexpe, inveloss, defetaxassetdecr, \
              defetaxliabincr, inveredu, receredu, payaincr, unseparachg, unfiparachg, \
              other, biznetcflow, debtintocapi, expiconvbd, finfixedasset, cashfinalbala, \
-             cashopenbala, equfinalbala, equopenbala, cashneti, stock_code, stock_name "
+             cashopenbala, equfinalbala, equopenbala, cashneti "
 
 
 
@@ -157,6 +157,8 @@ class HData_sina_cashflow(object):
             drop table if exists sina_cashflow_table;
             create table sina_cashflow_table(
                 record_date    date,
+                stock_code    varchar,
+                stock_name    varchar,
                 laborgetcash    float,
                 taxrefd    float,
                 receotherbizcash    float,
@@ -227,9 +229,7 @@ class HData_sina_cashflow(object):
                 cashopenbala    float,
                 equfinalbala    float,
                 equopenbala    float,
-                cashneti      float,
-                stock_code    varchar,
-                stock_name    varchar
+                cashneti      float
 
             );
             alter table sina_cashflow_table add primary key(stock_code,record_date);

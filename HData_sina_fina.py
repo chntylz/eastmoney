@@ -125,7 +125,7 @@ debug = 0
 
 '''
 
-sina_clos = " record_date,diluted_eps,weighted_eps,eps_adjusted,eps_after_deducting_non_recurring_gains_and_losses,\
+sina_cols = " record_date,stock_code, stock_name,diluted_eps,weighted_eps,eps_adjusted,eps_after_deducting_non_recurring_gains_and_losses,\
              net_assets_per_share_before_adjustment,net_assets_per_share_adjusted,operating_cash_flow_per_share,\
              capital_reserve_per_share,retained_eps,adjusted_net_assets_per_share,total_asset_profit_rate,\
              main_business_profit_rate,total_asset_net_profit_rate,cost_and_expense_profit_rate,\
@@ -154,9 +154,7 @@ sina_clos = " record_date,diluted_eps,weighted_eps,eps_adjusted,eps_after_deduct
              prepayments_within_1_year_yuan,prepayments_within_1_2_years_yuan,\
              prepayments_within_2_3_years_yuan,prepayments_within_3_years_yuan,\
              other_receivables_within_1_year_yuan,other_receivables_within_1_2_years_yuan,\
-             other_receivables_within_2_3_years_yuan,other_receivables_within_3_years_yuan,\
-             stock_code, stock_name  "
-
+             other_receivables_within_2_3_years_yuan,other_receivables_within_3_years_yuan "
 
 
 class HData_sina_fina(object):
@@ -210,6 +208,8 @@ class HData_sina_fina(object):
             drop table if exists sina_fina_table;
             create table sina_fina_table(
                 record_date      date,
+                stock_code    varchar,
+                stock_name    varchar,
                 diluted_eps         float,
                 weighted_eps         float,
                 eps_adjusted         float,
@@ -294,9 +294,7 @@ class HData_sina_fina(object):
                 other_receivables_within_1_year_yuan         float,
                 other_receivables_within_1_2_years_yuan         float,
                 other_receivables_within_2_3_years_yuan         float,
-                other_receivables_within_3_years_yuan         float,
-                stock_code  varchar,
-                stock_name  varchar
+                other_receivables_within_3_years_yuan         float
             );
             alter table sina_fina_table add primary key(stock_code,record_date);
             ''')
