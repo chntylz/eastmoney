@@ -318,7 +318,7 @@ def sina_update_database(database, df, data, stock_code, stock_name, year, targe
     sina_check_table(database)
 
     try:
-        database.db_hdata_sina_create()
+        #database.db_hdata_sina_create()
         database.copy_from_stringio(df)
     except Exception as e:
         print("### insert data into database")
@@ -525,9 +525,9 @@ if __name__ == '__main__':
     print("start_time: %s" % start_time)
 
     stock_df=get_daily_zlje2()
-    print(stock_df.head(5))
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)
+    print(stock_df.head(5))
     #stock_df=stock_df.head(4)
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
