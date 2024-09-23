@@ -318,7 +318,7 @@ def sina_update_database(database, df, data, stock_code, stock_name, year, targe
     sina_check_table(database)
 
     try:
-        #database.db_hdata_sina_create()
+        database.db_hdata_sina_create()
         database.copy_from_stringio(df)
     except Exception as e:
         print("### insert data into database")
@@ -450,7 +450,6 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
         + year\
         + '/displaytype/4.phtml'
 
-    url = 'https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/301603/ctrl/2021/displaytype/4.phtml'
 
     df = pd.DataFrame()
 
@@ -471,11 +470,9 @@ def get_sina_real_data(stock_code, stock_name, year, browser):
     
     df = pd.DataFrame()
     df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
-    '''
     df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
     df_cashflow  = get_sina_cashflow_data(stock_code, stock_name, year, browser)
     df_fina      = get_sina_fina_data(stock_code, stock_name, year, browser)
-    '''
     return df
 
 def get_sina_fina_by_soup(stock_code, stock_name):
