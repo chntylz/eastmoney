@@ -266,12 +266,20 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
     df['stock_name'] = stock_name
     '''
     
+    len_of_df = len(df)
+
     # 在第 1 列位置插入新列 'stock_name'
-    new_column_data = [stock_name, stock_name, stock_name]
+    new_column_data = []
+    i = 0
+    for i in range(len_of_df):
+        new_column_data.append(stock_name)
     df.insert(1, 'stock_name', new_column_data)
 
     # 在第 1 列位置插入新列 'stock_code'
-    new_column_data = [stock_code, stock_code, stock_code]
+    new_column_data = []
+    i = 0
+    for i in range(len_of_df):
+        new_column_data.append(stock_code)
     df.insert(1, 'stock_code', new_column_data)
 
     if debug:
