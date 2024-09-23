@@ -5,6 +5,9 @@
 max_retry=100
 retry=0
 
+work_path=~/eastmoney/
+cd $work_path
+
 timeday=`date "+%Y_%m_%d"`
 logfile=~/eastmoney/runlog/"$timeday"_get_dragon_data.sh.log
 

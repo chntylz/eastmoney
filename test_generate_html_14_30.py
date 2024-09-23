@@ -44,6 +44,7 @@ if __name__ == '__main__':
     stock_data_dir="stock_data"
 
     df_global  = kline_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
+    print(df_global.head(5))
 
     #delete 68???? kechuangban
     df = df_global[~(df_global.stock_code.str[:2] == '68')]
