@@ -66,7 +66,7 @@ def showImageInHTML(imageTypes,savedir):
 
         f.write('<p>-----------------------------------我是分割线-----------------------------------</p>\n')
         f.write('<p  style="color:blue; font-size:27px">交易必读</p>')
-        f.write('<p  style="color:red; font-size:27px">1: 不买 zig< -1         不买 zig< -1        不买 zig< -1 </p>')
+        f.write('<p  style="color:red; font-size:27px">1: 不买 zig< -1,         不买 zig< -1,        不买 zig< -1 </p>')
         f.write('<p  style="color:green; font-size:27px">2. 老鸭头只有在牛市中具有参考价值</p>')
         f.write('<p>-----------------------------------我是分割线-----------------------------------</p>\n')
         f.write('\n')

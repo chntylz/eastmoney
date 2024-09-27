@@ -311,13 +311,17 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
 
 def sina_check_table(database):
     table_exist = database.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    if debug:
+        print('table_exist=%d' % table_exist)
+
     if table_exist:
         #database.db_hdata_sina_create()
-        print('table already exist')
+        if debug:
+            print('table already exist')
     else:
         database.db_hdata_sina_create()
-        print('table not exist, create')
+        if debug:
+            print('table not exist, create')
 
 
 
@@ -332,6 +336,7 @@ def sina_update_database(database, df, data, stock_code, stock_name, year, targe
         print("### insert data into database")
         print(data, stock_code, stock_name, year, target_type, data_column)
         print(df)
+        df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_error.csv', encoding='utf-8-sig')
 
 
 
