@@ -17,13 +17,25 @@ time=`date "+%Y_%m_%d_%H_%M_%S"`
 timeday=`date "+%Y_%m_%d"`
 logfile=~/eastmoney/runlog/"$timeday"_set_eastmoney_stock_update.sh.log
 
+#sed '1i 添加的内容' file 　　 #这是在第一行前添加字符串
+#sed '$i 添加的内容' file 　　 #这是在最后一行行前添加字符串
+#sed '$a添加的内容' file 　　 #这是在最后一行行后添加字符串
+#
+
+#check file if exist
+if [ ! -f $logfile ]; then
+    echo -e "[$(date)] - $1 start..."  >> $logfile
+fi
+
 
 #日志
 log() {
     if [ "$1" ]; then
-        echo -e "[$(date)] - $1"  >> $logfile
+        #echo -e "[$(date)] - $1"  >> $logfile
+        sed -i "1i [$(date)] - $1 " $logfile
     fi
 }
+
 
 log "*********************** begin ********************************"
 
