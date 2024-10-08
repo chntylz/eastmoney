@@ -1039,7 +1039,7 @@ if __name__ == '__main__':
         print('**********************************************8')
         print(mplist[0])
     update_df=pd.DataFrame(mplist[0], columns=data_column)
-    update_df.to_csv('./' + start_date + '/_multi.txt', sep=',', index=False, header=False, encoding='utf-8')
+    update_df.to_csv('./' + nowdate.strftime("%Y-%m-%d")  + '_multi.txt', sep=',', index=False, header=False, encoding='utf-8')
 
     if len(update_df) > 3000:
         update_peach_zig_quad(nowdate, nowdate_df, update_df) 

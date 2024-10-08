@@ -178,6 +178,11 @@ def get_realtime_data2():
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
 
+    with open('./stealth.min.js') as f:
+        js = f.read()
+
+    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": js})
+
 
     nowdate=datetime.datetime.now().date()
     if debug:
