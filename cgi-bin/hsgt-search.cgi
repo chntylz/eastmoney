@@ -71,7 +71,7 @@ def plot_stock_picture(nowcode, nowname):
     '''
     detail_info = hdata_day.get_data_from_hdata(stock_code=new_nowcode, \
             end_date=nowdate.strftime("%Y-%m-%d"), \
-            limit=600)
+            limit=300)
 
     if debug:
         print(detail_info)

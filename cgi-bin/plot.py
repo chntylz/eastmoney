@@ -297,9 +297,10 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
 
 
     #volume
-    volume_overlay(ax00, detail_info['open'], detail_info['close'], detail_info['volume'], colorup='r', colordown='g', width=0.5, alpha=0.8)
+    volume_overlay(ax00, detail_info['open'], detail_info['close'], detail_info['volume'], colorup='r', colordown='g', width=1, alpha=0.6)
     ax00.set_xticks(range(0, len(detail_info.index), step))
     ax00.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+    #ax00.set_xticklabels(detail_info['record_date'][::step],  rotation=degree)  #index transfer to date
     ax00.plot(ma_vol_50, label='MA50')
 
     ax03.legend();
