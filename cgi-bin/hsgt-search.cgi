@@ -163,9 +163,9 @@ def get_html_data(all_df):
         #var = all_df.to_html()
     return all_df
 
-def cgi_generate_html(df):
+def cgi_generate_html(df, name):
     cgi_handle_html_head('hsgt_serch')
-    cgi_handle_html_body(df, form=1)
+    cgi_handle_html_body(df, name, form=1)
     cgi_handle_html_end()
 
 
@@ -173,22 +173,29 @@ def cgi_generate_html(df):
 if __name__ == '__main__':
     
     form = cgi.FieldStorage()
-    name = form.getvalue('name', '000401')
-
-    all_df, stock_code_tmp = get_df_and_stock_code(name)
-    xueqiu_url, finance_url=get_xueqiu_url(stock_code_tmp)
-    df = get_html_data(all_df)
-
-    if debug:
-        print(df.head(10))
-        print(' ****************************************************aaron ***************************')
-
-    cgi_generate_html(df)
-      
-    if debug:
-        print(' ****************************************************aaron2 ***************************')
-
-    plot_stock_picture(stock_code_tmp, name)
+    #name = form.getvalue('name', '000401')  #set name = 000401 as default
+    name = form.getvalue('name')  #set name = None as default
     
-    if debug:
-        print('%s %s ' %(stock_code_tmp, name))
+
+    if name is None:
+        cgi_handle_html_head('hsgt_serch')
+        cgi_hsgt_part_body(name)
+        cgi_handle_html_end()
+    else:
+        all_df, stock_code_tmp = get_df_and_stock_code(name)
+        xueqiu_url, finance_url=get_xueqiu_url(stock_code_tmp)
+        df = get_html_data(all_df)
+        
+        if debug:
+            print(df.head(10))
+            print(' ****************************************************aaron ***************************')
+        
+        cgi_generate_html(df, stock_code_tmp)
+          
+        if debug:
+            print(' ****************************************************aaron2 ***************************')
+
+        #plot_stock_picture(stock_code_tmp, name)
+         
+        if debug:
+            print('%s %s ' %(stock_code_tmp, name))

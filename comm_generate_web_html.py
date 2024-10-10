@@ -234,16 +234,16 @@ def cgi_write_to_file( df):
     pass
 
 
-def cgi_hsgt_part_body():
+def cgi_hsgt_part_body(name):
     print ('   <form action="hsgt-search.cgi">')
     print ('   code or name <input type="text" name="name" />')
     print ('   <input type="submit" />')
     print ('   </form>')
-    print ('   <a href="%s" target="_blank"> [picture]</a>' % ('../test.png'))
+    print ('   <a href="../picture/%s.png" target="_blank"> [picture]</a>' % (name))
     print ('   <p></p>')
     pass
     
-def cgi_handle_html_body(df, form=0):
+def cgi_handle_html_body(df, name, form=0):
     print('<body>\n')
     print('\n')
     print('\n')
@@ -254,7 +254,7 @@ def cgi_handle_html_body(df, form=0):
     print('\n')
 
     if form:
-        cgi_hsgt_part_body()
+        cgi_hsgt_part_body(name)
 
     cgi_write_to_file(df)
 
