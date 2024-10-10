@@ -8,7 +8,7 @@ retry=0
 work_path=~/eastmoney/
 cd $work_path
 
-timeday=`date "+%Y_%m_%d"`
+timeday=`date "+%Y_%m_%d_%w"`
 logfile=~/eastmoney/runlog/"$timeday"_get_dragon_data.sh.log
 #
 #sed '1i 添加的内容' file 　　 #这是在第一行前添加字符串

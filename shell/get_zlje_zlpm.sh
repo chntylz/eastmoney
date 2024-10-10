@@ -14,7 +14,7 @@ cd $work_path
 mkdir -p runlog
 time=`date "+%Y_%m_%d_%H_%M_%S"`
 
-timeday=`date "+%Y_%m_%d"`
+timeday=`date "+%Y_%m_%d_%w"`
 logfile=~/eastmoney/runlog/"$timeday"_get_zlje_zlpm.sh.log
 
 #

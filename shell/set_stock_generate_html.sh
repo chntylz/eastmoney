@@ -4,7 +4,7 @@
 cd ~/eastmoney/html
 mkdir -p runlog
 time=`date "+%Y_%m_%d_%H_%M_%S"`
-time=`date "+%Y_%m_%d"`
+time=`date "+%Y_%m_%d_%w"`
 logfile=~/eastmoney/runlog/"$time"_generate_html.log
 
 #
@@ -53,7 +53,6 @@ fi
 comm_generate='test_generate_comm_index_html.py'
 
 file_array=(
-            '5days'
             '5days' 
             'cross3line'
             'cuptea'

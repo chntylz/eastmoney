@@ -14,7 +14,7 @@ cd $work_path
 mkdir -p runlog
 time=`date "+%Y_%m_%d_%H_%M_%S"`
 
-timeday=`date "+%Y_%m_%d"`
+timeday=`date "+%Y_%m_%d_%w"`
 logfile=~/eastmoney/runlog/"$timeday"_get_holder_jijin_fina_balance_income_cashflow.sh.log
 
 #sed '1i 添加的内容' file 　　 #这是在第一行前添加字符串
@@ -42,7 +42,7 @@ log "*********************** begin ********************************"
 
 #check holiday
 log "source ~/linux_server_conf/set_stock_workday.sh"
-source ~/linux_server_conf/set_stock_workday.sh
+source ~/eastmoney/shell/is_workday.sh
 
 input=1
 

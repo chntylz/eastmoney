@@ -340,7 +340,8 @@ if __name__ == '__main__':
  
 
 
-    df = k_df = df[df.is_zig > 0]
+    #df = k_df = df[df.is_zig > 0]
+    k_df = df
 
     #zig
     print('#############################################################')
@@ -446,8 +447,8 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start cross3line')
     curr_dir=curr_day_w+'-cross3line'
-    #cross3line_df = df[(df.is_cross3line == 1) & (df.is_zig >= 0)]
-    cross3line_df = df[(df.is_cross3line == 1)]
+    cross3line_df = df[(df.is_cross3line == 1) & (df.is_zig >= 0)]
+    #cross3line_df = df[(df.is_cross3line == 1)]
     html_cross3line_df = convert_to_html_df(cross3line_df, curr_dir, curr_day)
     if len(html_cross3line_df):
         #html_cross3line_df = html_cross3line_df.sort_values('a_pct', ascending=0)

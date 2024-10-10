@@ -258,8 +258,13 @@ if __name__ == '__main__':
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
-
-   
+    
+    with open('./stealth.min.js') as f:
+        js = f.read()
+    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+    "source": js
+    })
+     
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 

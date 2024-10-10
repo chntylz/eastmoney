@@ -193,15 +193,39 @@ def show_realdata(file_name):
     zlje_5_df = get_zlje_data_from_db(url='url_5',   curr_date=str_date)
     zlje_10_df = get_zlje_data_from_db(url='url_10', curr_date=str_date)
     ####get zlje end####
+   
+    retry = 0
+    nowdate=datetime.datetime.now().date()
+    nowdate=nowdate-datetime.timedelta(retry)
 
-    xq_simple_df = hdata_xq_simple.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"), \
-            end_date=nowdate.strftime("%Y-%m-%d"))
-    
+    #xq_simple_df = hdata_xq_simple.get_data_from_hdata( start_date, end_date)
     et_simple_df = hdata_eastmoney_day.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"), \
             end_date=nowdate.strftime("%Y-%m-%d"))
 
+
+    #check valid data
+    while True:
+        if debug:
+            print('retry=%d' % retry)
+
+        if len(et_simple_df) > 0:
+            break;
+        
+        retry = retry + 1
+
+        nowdate=datetime.datetime.now().date()
+        nowdate=nowdate-datetime.timedelta(retry)
+
+        start_date=nowdate.strftime("%Y-%m-%d")
+        end_date=nowdate.strftime("%Y-%m-%d")
+
+        et_simple_df = hdata_eastmoney_day.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
+                end_date=nowdate.strftime("%Y-%m-%d"))
+
+
     if debug: 
         print(et_simple_df)
+
     i = 0
     eastmoney_begin = 0
     for i in range(length):
@@ -225,16 +249,23 @@ def show_realdata(file_name):
             real_df = et_simple_df[et_simple_df['stock_code'] == new_code]
             real_df = real_df.reset_index(drop=True)
 
+            if len(real_df) == 0:
+                print('error: %s %s %s '%(new_date, new_code, new_name))
+                continue
+
             if len(real_df):
                 new_pre_price   = real_df['pre_close'][0] 
                 new_price       = real_df['close'][0]
                 new_percent     = real_df['percent'][0]
                 total_mv        = round(real_df['mkt_cap'][0]/10000/10000, 2)
 
+            #get total_mv from daily db, get price percent from zlje1
             tmp_zlje_df = zlje_df[zlje_df['stock_code'] == new_code]
             tmp_zlje_df = tmp_zlje_df.reset_index(drop=True)
             new_price       = tmp_zlje_df['zxj'][0]
             new_percent     = tmp_zlje_df['zdf'][0]
+            new_pre_price   = round(100*new_price/(new_percent+100), 2)
+
 
             '''
             real_df = xq_simple_df[xq_simple_df['stock_code'] == stock_code_new]

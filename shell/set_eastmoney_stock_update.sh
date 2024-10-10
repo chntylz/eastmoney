@@ -14,7 +14,7 @@ cd $work_path
 mkdir -p runlog
 time=`date "+%Y_%m_%d_%H_%M_%S"`
 
-timeday=`date "+%Y_%m_%d"`
+timeday=`date "+%Y_%m_%d_%w"`
 logfile=~/eastmoney/runlog/"$timeday"_set_eastmoney_stock_update.sh.log
 
 #sed '1i 添加的内容' file 　　 #这是在第一行前添加字符串

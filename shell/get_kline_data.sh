@@ -5,7 +5,7 @@
 max_retry=100
 retry=0
 
-timeday=`date "+%Y_%m_%d"`
+timeday=`date "+%Y_%m_%d_%w"`
 logfile=~/eastmoney/runlog/"$timeday"_get_kline_data.sh.log
 
 #

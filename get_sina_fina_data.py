@@ -497,7 +497,7 @@ def get_sina_fina_by_soup(stock_code, stock_name):
 
     this_year = int(time.strftime("%Y", time.localtime()))
     #get continuous 5 years data
-    target_years = 5
+    target_years = 1
     for yy in range(target_years):
         year = str(this_year - yy)
         df = get_sina_real_data(stock_code, stock_name, year, browser)
