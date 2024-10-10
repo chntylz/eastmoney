@@ -90,6 +90,8 @@ def check_is_bottom(nowdate, nowcode, nowname, within):
 
 
 def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name):
+    step = 20
+    degree = 30
     if debug:
         print("code:%s, name:%s" % (nowcode, nowname ))
 
@@ -101,7 +103,7 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
         
         return
 
-    if debug:
+    if False:
         print(detail_info)
     
     #fix NaN bug
@@ -144,20 +146,67 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     # 计算MACD指标
     dif, dea, macd_hist = talib.MACD(np.array(detail_info['close'], dtype=float), fastperiod=12, slowperiod=26, signalperiod=9)
 
+    '''
+    #创建数据
+    x = np.linspace(-5, 5, 100)
+    y1 = np.sin(x)
+    y2 = np.cos(x)
+
+    #创建figure窗口，figsize设置窗口的大小
+    plt.figure(num=3, figsize=(8, 5))
+    #画曲线1
+    plt.plot(x, y1)
+    #画曲线2
+    plt.plot(x, y2, color='blue', linewidth=5.0, linestyle='--')    
+    #设置坐标轴范围
+    plt.xlim((-5, 5))
+    plt.ylim((-2, 2))
+    #设置坐标轴名称
+    plt.xlabel('xxxxxxxxxxx')
+    plt.ylabel('yyyyyyyyyyy')
+    #设置坐标轴刻度
+    my_x_ticks = np.arange(-5, 5, 0.5)
+    #对比范围和名称的区别
+    #my_x_ticks = np.arange(-5, 2, 0.5)
+    my_y_ticks = np.arange(-2, 2, 0.3)
+    plt.xticks(my_x_ticks)
+    plt.yticks(my_y_ticks)
+
+    #显示出所有设置
+    plt.show()
+
+    '''
   
-    plt.title(nowcode + ': ' + nowname)
+    '''
+
+    add_axes(rect,projection,polar,frame_on,)
+    rect元组： (left, bottom, width, height), 
+            所有值均为画布figure的宽度和高度的比例值，
+            参数left与bottom为矩形绘图区域axes左下角的点所在位置占画布长度与宽度的比例；
+            参数width与height为绘图区域axes的长与宽占画布长度与宽度的比例
+    projection  可选参数，坐标系的投影类型，默认为矩形
+    polar   可选参数，当取值为True，相当于projection=‘polar’
+    '''
+    date_series=detail_info['record_date']
+    dates = date_series.tolist()
+
+    h_delta = 0.02
+
+    #plt.title(nowcode + ': ' + nowname)  #this will add xy axis system [0.0-1.0]
     
-    ax05  = fig.add_axes([0, 0.8, 1, 0.1])
-    ax05.grid()
-    ax04  = fig.add_axes([0, 0.55, 1, 0.25])
-    ax03  = fig.add_axes([0, 0.3, 1, 0.25])
-    ax02 = fig.add_axes([0, 0.2, 1, 0.1])
-    ax01 = fig.add_axes([0, 0.1, 1, 0.1])
-    ax00 = fig.add_axes([0, 0,   1, 0.1])
+    ax05 = fig.add_axes([0, 0.72, 1, 0.1])
+    #ax05.grid()    
+    ax04 = fig.add_axes([0, 0.55, 1, 0.15])
+    ax03 = fig.add_axes([0, 0.38, 1, 0.15])
+    ax02 = fig.add_axes([0, 0.26, 1, 0.1])
+    ax01 = fig.add_axes([0, 0.14, 1, 0.1])
+    ax00 = fig.add_axes([0, 0.02, 1, 0.1])
 
     #zig
-    ax05.set_xticks(range(0, len(detail_info.index), 10))
-    ax05.set_xticklabels(detail_info.index[::10])
+    ax05.set_title(nowcode + '-zig-' + nowname)
+    ax05.set_xticks(range(0, len(detail_info.index), step))
+    #ax05.set_xticklabels(detail_info.index[::step])
+    ax05.set_xticklabels(date_series[::step],  rotation=degree)
 
     #add label and vlines for zig
     z_df, z_peers, z_d, z_k, z_buy_state=zig(detail_info)
@@ -168,8 +217,8 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
         x1 = z_peers[i]
         y1 = z_df[z_peers[i]]
 
-        text1=str(z_d[x1]) + '-' + str(z_k[x1])
-        ax05.annotate(text1, xy=(x1, y1 ), xytext=(x1+2 , y1), color="b",arrowprops=dict(facecolor='red', shrink=0.05))
+        text1=str(z_d[x1]) + '-' + str(z_k[x1]) + '-' + str(dates[x1])
+        ax05.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b",arrowprops=dict(facecolor='red', shrink=0.05))
 
         if i == 0 or i == (z_len - 1):
             #skip plot.vlines for first and last
@@ -203,9 +252,8 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
 
 
     #boll, candles
-    ax04.set_title(nowcode + '-' + nowname)
-    ax04.set_xticks(range(0, len(detail_info.index), 10))
-    ax04.set_xticklabels(detail_info.index[::10])
+    ax04.set_xticks(range(0, len(detail_info.index), step))
+    ax04.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
     candlestick2_ochl(ax04, detail_info['open'], detail_info['close'], detail_info['high'],
                                   detail_info['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
     #boll
@@ -215,13 +263,16 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     ax04.plot(lowerband, label="bottom")
 
     #candles
-    ax03.set_xticks(range(0, len(detail_info.index), 10))
-    ax03.set_xticklabels(detail_info.index[::10])
+    ax03.set_xticks(range(0, len(detail_info.index), step))
+    ax03.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
     candlestick2_ochl(ax03, detail_info['open'], detail_info['close'], detail_info['high'],
-                                  detail_info['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
+        detail_info['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
     #plt.rcParams['font.sans-serif']=['Microsoft JhengHei'] 
 
     #k-line
+    #print("ma_5:->")
+    #print(ma_5)
+    #print("ma_5:<-")
     ax03.plot(ma_5, label='MA5')
     ax03.plot(ma_13, label='MA13')
     ax03.plot(ma_21, label='MA21')
@@ -229,8 +280,8 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     #kd
     ax02.plot(detail_info['k'], label='K-Value')
     ax02.plot(detail_info['d'], label='D-Value')
-    ax02.set_xticks(range(0, len(detail_info.index), 10))
-    ax02.set_xticklabels(detail_info.index[::10])
+    ax02.set_xticks(range(0, len(detail_info.index), step))
+    ax02.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
 
     #macd
     ax01.plot(dif, color="y", label="dif")
@@ -241,14 +292,14 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     ax01.bar(detail_info.index, red_hist, label="Red-MACD", color='r')
     ax01.bar(detail_info.index, green_hist, label="Green-MACD", color='g')
 
-    ax01.set_xticks(range(0, len(detail_info.index), 10))
-    ax01.set_xticklabels(detail_info.index[::10])
+    ax01.set_xticks(range(0, len(detail_info.index), step))
+    ax01.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
 
 
     #volume
     volume_overlay(ax00, detail_info['open'], detail_info['close'], detail_info['volume'], colorup='r', colordown='g', width=0.5, alpha=0.8)
-    ax00.set_xticks(range(0, len(detail_info.index), 10))
-    ax00.set_xticklabels(detail_info.index[::10])
+    ax00.set_xticks(range(0, len(detail_info.index), step))
+    ax00.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
     ax00.plot(ma_vol_50, label='MA50')
 
     ax03.legend();
