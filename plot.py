@@ -49,7 +49,7 @@ set_data_backend(AaronDataBackend())
 
 #debug switch
 debug = 0
-debug = 1
+#debug = 1
 
 
 def check_is_bottom(nowdate, nowcode, nowname, within):
@@ -82,7 +82,8 @@ def check_is_bottom(nowdate, nowcode, nowname, within):
         X_20=SMA(X_19,2,1);
         X_21=IF(X_19>REF(X_19,1) and REF(X_19,1)<REF(X_19,2) and X_19<23,1.5,0);
         if X_16 and  X_15 and X_17 and X_21:
-            print('check_is_bottom ### %s, %s, %s' %(str(nowdate), nowcode, nowname))
+            if debug:
+                print('check_is_bottom ### %s, %s, %s' %(str(nowdate), nowcode, nowname))
             is_bottom = True
             break
 
@@ -225,7 +226,8 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
             #skip plot.vlines for first and last
             continue
 
-        print("y1:%s" % y1)
+        if debug:
+            print("y1:%s" % y1)
         if z_buy_state[i] == 1:
             ax05.vlines(x1, 0, y1, colors='red')
         else:
@@ -236,7 +238,8 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     if z_len >= 3:  # it should have one valid zig data at least
         if z_peers[-1] - z_peers[-2] < 10: #delta days  < 10 from today
             if z_buy_state[-2] == 1:  #valid zig must 1, that means valley
-                print('%s gold node, buy it!!' % nowcode )
+                if debug:
+                    print('%s gold node, buy it!!' % nowcode )
                 buy_flag = '-buy'
 
     #check the last zig status
@@ -301,7 +304,7 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     volume_overlay(ax00, detail_info['open'], detail_info['close'], detail_info['volume'], \
         colorup='r', colordown='g', width=0.5, alpha=0.8)
     ax00.set_xticks(range(0, len(detail_info.index), step))
-    ax00.set_xticklabels(detail_info.index[::step])
+    ax00.set_xticklabels(detail_info['record_date'][::step], rotation=degree)
     #ax00.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
     ax00.plot(ma_vol_50, label='MA50')
 
