@@ -243,7 +243,7 @@ def cgi_hsgt_part_body(name):
     print ('   <p></p>')
     pass
     
-def cgi_handle_html_body(df, name, form=0):
+def cgi_handle_html_body(df, name=None, form=0):
     print('<body>\n')
     print('\n')
     print('\n')

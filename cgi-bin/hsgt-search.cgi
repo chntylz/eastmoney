@@ -173,8 +173,8 @@ def cgi_generate_html(df, name):
 if __name__ == '__main__':
     
     form = cgi.FieldStorage()
-    #name = form.getvalue('name', '000401')  #set name = 000401 as default
-    name = form.getvalue('name')  #set name = None as default
+    #name = form.getvalue('name')  #set name = None as default
+    name = form.getvalue('name', '600660')  #set name = 600660 as default
     
 
     if name is None:
