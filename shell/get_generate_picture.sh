@@ -15,7 +15,7 @@ mkdir -p runlog
 time=`date "+%Y_%m_%d_%H_%M_%S"`
 
 timeday=`date "+%Y_%m_%d_%w"`
-logfile=~/eastmoney/runlog/"$timeday"_get_zlje_zlpm.sh.log
+logfile=~/eastmoney/runlog/"$timeday"_test_generate_picture.sh.log
 
 #
 #sed '1i 添加的内容' file 　　 #这是在第一行前添加字符串
@@ -37,7 +37,7 @@ log() {
     fi
 }
 
-log "*********************** begin get_zlje_zlpm.py ********************************"
+log "*********************** begin test_generate_picture.py ********************************"
 
 #check holiday
 log "source ~/eastmoney/shell/is_workday.sh"
@@ -61,19 +61,9 @@ fi
 #start
 
 file_array=(
-            'get_daily_zlje.py'
-            'main_zlpm.py'
+            'test_generate_picture.py'
            )
 
-
-#14:30-14:40 return
-
-hh=`date '+%H'`
-mm=`date '+%M'`
-if [ $hh -eq 14 -a  $mm -gt 29 -a $mm -lt 40 ]  ; then
-    log 'it is 14:30~14:40 exit'
-    exit
-fi
 
 
 for value in ${file_array[@]}
@@ -85,22 +75,7 @@ do
     cd $work_path
 
     #9:00~15:00
-    if [ "$target" = "get_daily_zlje.py" -o \
-        "$target" = "main_zlpm.py" ];then
-
-        hh=`date '+%H'`
-        judge_time=16
-        judge_time2=9
-        weekday=`date '+%w'`
-        log "weekday is $weekday, hour is $hh"
-
-        if [[ $hh -ge $judge_time ]] && [[ $hh -lt $judge_time2 ]] && [[ weekday -ne 0 ||  weekday -ne 6  ]];  # >=16:00
-        then
-            log "$hh behind $judge_time,  continue "  # stock is already close, continue
-            continue
-        else
-            log "$hh in front of $judge_time "
-        fi
+    if [ "$target" = "test_generate_picture.py" ];then
 
         log "cd $work_path"  
         cd $work_path

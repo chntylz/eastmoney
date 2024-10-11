@@ -251,7 +251,13 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
 
     
     #check whether it is bottom or not, 2020-05-01
-    if check_is_bottom(nowdate, nowcode, nowname, 3):
+    bottom_flag = False
+    try:
+        bottom_flag = check_is_bottom(nowdate, nowcode, nowname, 3)
+    except Exception as e:
+        print(e)
+    
+    if bottom_flag:
         buy_flag = buy_flag + '-bottom'
 
 
