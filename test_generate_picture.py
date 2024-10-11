@@ -62,7 +62,7 @@ if __name__ == '__main__':
             )
 
 
-    #nowdate_df = nowdate_df.head(10)  # small size for test
+    #nowdate_df = nowdate_df.head(1)  # small size for test
     data_list = np.array(nowdate_df)
     data_list = data_list.tolist()
 

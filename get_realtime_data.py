@@ -177,19 +177,19 @@ def get_realtime_data2():
     # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
-
+    
     with open('./stealth.min.js') as f:
         js = f.read()
-
+    
     browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": js})
-
-
+    
+    
     nowdate=datetime.datetime.now().date()
     if debug:
         print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
-
+    
     #https://quote.eastmoney.com/center/gridlist.html?st=ChangePercent&sr=-1#hs_a_board 
-
+    
     timestamp=str(round(time.time() * 1000))
     url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
             + '=jQuery1124044204950317612046_'\

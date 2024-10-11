@@ -326,10 +326,16 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     exec_command = "mkdir -p " + save_dir
     os.system(exec_command)
 
-    exec_command_1 = "mv " + figure_name + " " + save_dir + "/"
+    exec_command_1 = "cp -f " + figure_name + "  /var/www/html/picture/"
     if debug:
         print("%s"%(exec_command_1))
     os.system(exec_command_1)
+
+    exec_command_2 = "rm -f " + figure_name
+    if debug:
+        print("%s"%(exec_command_2))
+    os.system(exec_command_2)
+
 
     plt.clf()
     plt.cla()

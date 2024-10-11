@@ -195,7 +195,7 @@ if __name__ == '__main__':
         if debug:
             print(' ****************************************************aaron2 ***************************')
 
-        #plot_stock_picture(stock_code_tmp, name)
+        plot_stock_picture(stock_code_tmp, name)
          
         if debug:
             print('%s %s ' %(stock_code_tmp, name))
