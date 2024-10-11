@@ -21,6 +21,7 @@ import pandas as pd
 import os
 import re
 
+from comm_selenium import *
 
 
 from HData_eastmoney_zlje import *
@@ -233,21 +234,8 @@ def get_daily_zlje2(url=None):
 
     print(url)
 
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-    
-    with open('./stealth.min.js') as f:
-        js = f.read()
-    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-    "source": js
-    })
-    
+    browser = get_broswer()
+   
     html = ''
     try: 
         browser.get(url)

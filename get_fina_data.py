@@ -11,6 +11,7 @@ import datetime
 
 import random
 
+from comm_selenium import *
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -323,15 +324,7 @@ def get_fina_data2(page=1):
 
     print(url)
 
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(chrome_options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-
+    browser = get_broswer()
 
     html = ''
     try:
@@ -432,15 +425,7 @@ def get_fina_data3(fina='cpd', page=1):
 
     print(url)
 
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(chrome_options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-
+    browser = get_broswer()
 
     html = ''
     try:

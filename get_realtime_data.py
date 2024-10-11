@@ -10,6 +10,7 @@ import re
 import time
 import datetime
 
+from comm_selenium import *
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -167,22 +168,8 @@ def get_realtime_data():
 
 def get_realtime_data2():
     
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver', chrome_options=chrome_options)
 
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-    
-    with open('./stealth.min.js') as f:
-        js = f.read()
-    
-    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": js})
-    
+
     
     nowdate=datetime.datetime.now().date()
     if debug:
@@ -201,6 +188,8 @@ def get_realtime_data2():
             + timestamp
 
     print(url)
+
+    browser = get_broswer()
 
     html = ''
     try:

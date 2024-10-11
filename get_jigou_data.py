@@ -12,6 +12,7 @@ import re
 import time
 import datetime
 
+from comm_selenium import *
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -251,19 +252,7 @@ def check_table():
 
 if __name__ == '__main__':
  
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-    
-    with open('./stealth.min.js') as f:
-        js = f.read()
-    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-    "source": js
-    })
+    browser = get_broswer() 
      
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -302,13 +291,9 @@ hdata_jigou.copy_from_stringio(df)
 '''
 from get_jigou_data import *
 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument('--headless')
-browser = webdriver.Chrome(options=chrome_options)
+from comm_selenium import *
 
-# browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-browser.maximize_window()  # 最大化窗口
-wait = WebDriverWait(browser, 10)
+browser = get_broswer()
 
 url='https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_MAIN_ORGHOLD&columns=ALL&quoteColumns=&filter=(SECURITY_CODE%3D%22600519%22)(REPORT_DATE%3D%272024-06-30%27)&pageNumber=1&pageSize=8&sortTypes=&sortColumns=&source=WEB&client=WEB&callback=jQuery112307224581864083242&'
 

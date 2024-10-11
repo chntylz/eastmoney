@@ -31,7 +31,7 @@ def _init():
 def set_browser(key):
     _global_browser[0] = key
 
-def get_browser():
+def xq_get_browser():
     return  _global_browser[0]
 
 def xq_login(driver):
@@ -88,17 +88,7 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     url += str(count)
 
     print(url)
-    '''
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(chrome_options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-    '''
-    _global_browser = get_browser()
+    _global_browser = xq_get_browser()
     try:
         pass
         # xq_login2(_global_browser)
@@ -158,18 +148,7 @@ def xq_get_holder_data(symbol, page=1, size=10):
     data_df = pd.DataFrame()
     print(url)
 
-    '''
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    browser = webdriver.Chrome(chrome_options=chrome_options)
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-    '''
-
-    _global_browser = get_browser()
+    _global_browser = xq_get_browser()
     try:
         pass
         # xq_login2(browser)
@@ -232,7 +211,7 @@ def xq_get_fund(stock_code, report_date):
     html = ''
     print(url)
 
-    _global_browser = get_browser()
+    _global_browser = xq_get_browser()
     try:
         _global_browser.implicitly_wait(15)
         #time.sleep(5)

@@ -20,6 +20,7 @@ import get_xq_data
 from xq_get_basic_data import * 
 from file_interface import * 
 
+from comm_selenium import *
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -202,31 +203,7 @@ if __name__ == '__main__':
 
     get_xq_data._init()
 
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    #chrome_options.add_argument('--headless')
-    chrome_options.add_argument(
-            'user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36')
-
-    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-
-    chrome_options.add_argument("blink-settings=imagesEnabled=false")
-    chrome_options.add_argument("disable-infobars");
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-
-
-    browser = webdriver.Chrome(chrome_options=chrome_options)
-
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
-    with open('./stealth.min.js') as f:
-        js = f.read()
-    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source": js
-        })
-
-
-
+    browser = get_broswer()
     get_xq_data.set_browser(browser)
     get_xq_data.xq_login2(browser)
 

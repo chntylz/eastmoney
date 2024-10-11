@@ -9,6 +9,7 @@ import re
 import time
 import datetime
 
+from comm_selenium import *
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -22,7 +23,7 @@ import re
 import json
 
 
-debug=1
+debug=0
 debug=0
 
 import random
@@ -211,22 +212,8 @@ def get_kline_data2(code=None, count=None, period=None):
 
     print(url)
 
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--disable-software-rasterizer")
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument("blink-settings=imagesEnabled=false")
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    browser = webdriver.Chrome(chrome_options=chrome_options)
 
-
-    # browser = webdriver.PhantomJS() # 会报警高提示不建议使用phantomjs，建议chrome添加无头
-    browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
+    browser = get_broswer()
 
     html = ''
     try:
