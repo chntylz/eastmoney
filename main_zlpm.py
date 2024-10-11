@@ -46,7 +46,7 @@ if __name__ == '__main__':
     
     df.to_csv('./csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') +'_zlpm_df.csv', encoding='gbk')
     
-    if len(df) > 3000:
+    if len(df) > 0:
         #check table exist
         check_table()
         hdata_zlpm.delete_data_from_hdata(
@@ -54,6 +54,9 @@ if __name__ == '__main__':
                 end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
                 )
         hdata_zlpm.copy_from_stringio(df)
+    else:
+        print('zlpm dataframe is null')
+
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

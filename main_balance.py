@@ -55,9 +55,6 @@ if __name__ == '__main__':
     nowdate=nowdate-datetime.timedelta(int(para1))
     print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
-    #check table exist
-    check_table()
-
     
     if int(para1):
         print('get history balance data')
@@ -101,11 +98,17 @@ if __name__ == '__main__':
         print(e)
    
    
-    if get_all == 1:
-        hdata_balance.copy_from_stringio(df)
+    if len(df) > 0:
+        #check table exist
+        check_table()
+       
+        if get_all == 1:
+            hdata_balance.copy_from_stringio(df)
+        else:
+            #PostgreSQL数据库如果不存在则插入，存在则更新
+            hdata_balance.insert_all_stock_data_2(df)
     else:
-        #PostgreSQL数据库如果不存在则插入，存在则更新
-        hdata_balance.insert_all_stock_data_2(df)
+        print('balance dataframe is null')
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
