@@ -73,12 +73,13 @@ while ( i < df_len):
 x = df['record_date'].to_numpy()
 y = df['close'].to_numpy()
 z = df['holder_num'].to_numpy()
-z = z/10000.0
+#z = z/10000.0
 
 print('len(x)=%d, len(y)=%d, len(z)=%d'  % (len(x), len(y), len(z)))
-print(x)
-print(y)
-print(z)
+print('[x: %s ]' % x)
+print('[holder_df.record_date: %s]' % holder_df.record_date)
+print('[y: %s ]' % y)
+print('[z: %s ]' % z)
 
 fig = plt.figure(figsize=(24, 30),dpi=240)
 ax = fig.add_subplot(111)
@@ -90,6 +91,27 @@ ax.set_xticklabels(df['record_date'][::20],rotation=45)
 
 ax2 = ax.twinx()
 ax2.plot(x,z, '-r', label = 'holder_num')
+
+
+h_len = len(df)
+i = 0
+j = 0
+
+for i in range(h_len):
+    print('i:%d j:%d' % (i, j))
+    if j >= len(holder_df):
+        break
+    if df.record_date[i] == holder_df.record_date[j]:
+        j = j+1
+        x1 = i
+        y1 = df.holder_num[i]
+        #text1 = str(df.record_date[i]) + '-' + str(df.holder_num[i])
+        text1 = str(df.holder_num[i])
+        ax2.annotate(text1, xy=(x1, y1), xytext=(x1-20, y1),fontsize = 8, color="b")
+    i = i + 1
+    
+
+
 fig.legend(loc=1, bbox_to_anchor=(1,1), bbox_transform=ax.transAxes)
 
 ax.set_xlabel(" %s x [units]" % nowcode)
