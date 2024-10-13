@@ -49,7 +49,7 @@ set_data_backend(AaronDataBackend())
 
 #debug switch
 debug = 0
-debug = 1
+#debug = 1
 
 
 def check_is_bottom(nowdate, nowcode, nowname, within):
@@ -222,14 +222,14 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
         print("code:%s, name:%s" % (nowcode, nowname ))
 
     c_holder_df = combine_holder(day_df, holder_df)
-    c_fina_df = combine_holder(day_df, fina_df)
+    c_fina_df = combine_fina(day_df, fina_df)
 
     if debug:
-        print(day_df.head(2))
-        print(holder_df.head(2))
-        print(fina_df.head(2))
-        print(c_holder_df.head(2))
-        print(c_fina_df.head(2))
+        print('day_df: %s' % day_df.head(2))
+        print('holder_df: %s' % holder_df.head(2))
+        print('fina_df: %s' % fina_df.head(2))
+        print('c_holder_df: %s' % c_holder_df.head(2))
+        print('c_fina_df: %s' % c_fina_df.head(2))
  
 
     #skip ST
@@ -331,6 +331,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
 
     #plt.title(nowcode + ': ' + nowname)  #this will add xy axis system [0.0-1.0]
     
+    #                    left  bottom right height
     ax06 = fig.add_axes([0.05, 0.84, 0.95, 0.1])
     ax05 = fig.add_axes([0.05, 0.72, 0.95, 0.1])
     ax05.grid()    
@@ -342,6 +343,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
 
     ####################################################################################################################
     #holder
+    ax06.set_title(nowcode) 
     #c_holder_df['holder_num']= c_holder_df['holder_num'].apply(lambda x: x/10000)
     holder = c_holder_df['holder_num']
     c_close = c_holder_df['close']
@@ -362,7 +364,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
     i = 0
     j = 0
     for i in range(h_len):
-        print('i:%d j:%d' % (i, j))
+        #print('i:%d j:%d' % (i, j))
         if j >= len(holder_df):
             break
         if c_holder_df.record_date[i] == holder_df.record_date[j]:
@@ -375,7 +377,68 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
         i = i + 1
 
     ####################################################################################################################
+    #fina
+    yy_rate = c_fina_df['main_business_income_growth_rate']
+    if debug:
+        print('[yy_rate:%s]' % yy_rate)
+    c_close = c_fina_df['close']
+    if debug:
+        print('fina: %s' % c_fina_df['main_business_income_growth_rate'])
+        print('record_date: %s' % c_fina_df['record_date'])
+    ax05.plot(c_close, label = 'close')
+    ax05.set_xticks(range(0, len(c_fina_df.index), step))
+    ax05.set_xticklabels(c_fina_df['record_date'][::step],  rotation=degree)
 
+    #***************************************************************#
+    ax05_sub0 = ax05.twinx()
+    ax05_sub0.plot(yy_rate,  '-r', label = 'yy_rate')
+    ax05_sub0.legend();
+    ax05.legend();
+
+    #mark yy_rate
+    f_len = len(c_fina_df)
+    i = 0
+    j = 0
+    for i in range(f_len):
+        #print('i:%d j:%d' % (i, j))
+        if j >= len(fina_df):
+            break
+        if c_fina_df.record_date[i] == fina_df.record_date[j]:
+            j = j+1
+            x1 = i
+            y1 = c_fina_df.main_business_income_growth_rate[i]
+            #text1 = str(c_fina_df.record_date[i]) + '-' + str(c_fina_df.main_business_income_growth_rate[i])
+            text1 = str(c_fina_df.main_business_income_growth_rate[i])
+            ax05_sub0.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+        i = i + 1
+    #***************************************************************#
+    net_rate = c_fina_df['net_profit_growth_rate']
+    if debug:
+        print('[net_rate:%s]' % net_rate)
+
+    ax05_sub1 = ax05.twinx()
+    ax05_sub1.plot(net_rate,  '-b', label = 'net_rate')
+    ax05_sub1.legend();
+    ax05.legend();
+
+    #mark yy_rate
+    f_len = len(c_fina_df)
+    i = 0
+    j = 0
+    for i in range(f_len):
+        #print('i:%d j:%d' % (i, j))
+        if j >= len(fina_df):
+            break
+        if c_fina_df.record_date[i] == fina_df.record_date[j]:
+            j = j+1
+            x1 = i
+            y1 = c_fina_df.net_profit_growth_rate[i]
+            #text1 = str(c_fina_df.record_date[i]) + '-' + str(c_fina_df.net_profit_growth_rate[i])
+            text1 = str(c_fina_df.net_profit_growth_rate[i])
+            ax05_sub1.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+        i = i + 1
+
+    #debug
     #if False:
     if True:
         ####################################################################################################################

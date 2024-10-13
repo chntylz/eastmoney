@@ -191,7 +191,7 @@ def get_holder_data2(is_all=1, pagesize=500, pagenumber=1):
     else:
         url = url_latest
 
-    print('url= %s ' % url)
+    print(' get_holder_data2 url= %s ' % url)
 
     browser = get_broswer()
 

@@ -16,7 +16,8 @@ from HData_sina_fina import *
 import multiprocessing
 
 debug=0
-#debug=1
+debug=1
+debug=0
 
 
 hdata_day=HData_eastmoney_day("usr","usr")
@@ -36,7 +37,7 @@ def plot_stock_picture(nowdate, nowcode, nowname):
             end_date=nowdate.strftime("%Y-%m-%d"), \
             limit=300)
 
-    fina_df = hdata_holder.get_data_from_hdata(stock_code=new_nowcode, \
+    fina_df = hdata_fina.get_data_from_hdata(stock_code=new_nowcode, \
             end_date=nowdate.strftime("%Y-%m-%d"), \
             limit=300)
 
@@ -61,6 +62,11 @@ def worker(name):
     stock_code = name[1]
     stock_name = name[2]
     stock_name = name[1]
+
+    #debug
+    if stock_code != '600660':
+        #return
+        pass
 
     plot_stock_picture(nowdate, stock_code, stock_name)
     return
