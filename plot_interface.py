@@ -81,6 +81,7 @@ print('[holder_df.record_date: %s]' % holder_df.record_date)
 print('[y: %s ]' % y)
 print('[z: %s ]' % z)
 
+
 fig = plt.figure(figsize=(24, 30),dpi=240)
 ax = fig.add_subplot(111)
 ax.plot(x,y, '-', label = 'close')

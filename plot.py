@@ -49,7 +49,7 @@ set_data_backend(AaronDataBackend())
 
 #debug switch
 debug = 0
-#debug = 1
+debug = 1
 
 
 def check_is_bottom(nowdate, nowcode, nowname, within):
@@ -90,13 +90,147 @@ def check_is_bottom(nowdate, nowcode, nowname, within):
     return is_bottom
             
 
+def combine_fina(a_df, b_df):
+    aa=a_df
+    bb=b_df
 
-def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name):
+    df = aa.append(bb, ignore_index=True, sort=False)
+    df = df.sort_values('record_date')
+    df = df.reset_index(drop=True)
+    df = df.fillna(0)
+    df_len = len(df)
+
+
+    i = 0
+    tmp_c = 0
+    tmp_profit_rate = 0
+    tmp_netprofit_rate = 0
+
+    #find the first valid data
+    while ( i < df_len):
+        if(df.close[i]):  
+            tmp_c = df.close[i]
+            break
+        i = i + 1
+
+    i = 0
+    while ( i < df_len):
+        if(df.main_business_income_growth_rate[i]):
+            tmp_profit_rate = df.main_business_income_growth_rate[i]
+            break
+        i = i + 1
+
+
+    i = 0
+    while ( i < df_len):
+        if(df.net_profit_growth_rate[i]):
+            tmp_netprofit_rate = df.net_profit_growth_rate[i]
+            break
+        i = i + 1
+
+    #set 0 with valid data
+    i = 0
+    while ( i < df_len):
+        if(df.close[i] == 0):  
+            #df.close[i] = tmp_c       
+            df.loc[i,'close'] = tmp_c
+
+        if(df.main_business_income_growth_rate[i] == 0):  
+            #df.main_business_income_growth_rate[i] = tmp_profit_rate
+            df.loc[i,'main_business_income_growth_rate'] = tmp_profit_rate
+
+        if(df.net_profit_growth_rate[i] == 0):  
+            #df.net_profit_growth_rate[i] = tmp_netprofit_rate
+            df.loc[i,'net_profit_growth_rate'] = tmp_netprofit_rate
+
+        if(df.close[i]):    
+            tmp_c = df.close[i]        
+
+        if(df.main_business_income_growth_rate[i]):
+            tmp_profit_rate = df.main_business_income_growth_rate[i]
+
+        if(df.net_profit_growth_rate[i]):
+            tmp_netprofit_rate = df.net_profit_growth_rate[i]
+
+        i = i + 1
+
+    return df
+
+
+
+def combine_holder(a_df, b_df):
+    aa=a_df
+    bb=b_df
+
+    df = aa.append(bb, ignore_index=True, sort=False)
+    df = df.sort_values('record_date')
+    df = df.reset_index(drop=True)
+    df = df.fillna(0)
+    df_len = len(df)
+
+
+    i = 0
+    tmp_c = 0
+    tmp_h = 0
+
+    #find the first valid data
+    while ( i < df_len):
+        if(df.close[i]):  
+            tmp_c = df.close[i]
+            break
+        i = i + 1
+
+    i = 0
+    while ( i < df_len):
+        if(df.holder_num[i]):
+            tmp_h = df.holder_num[i]
+            break
+        i = i + 1
+
+    #set 0 with valid data
+    i = 0
+    while ( i < df_len):
+        if(df.close[i] == 0):  
+            #df.close[i] = tmp_c       
+            df.loc[i,'close'] = tmp_c
+
+        if(df.holder_num[i] == 0):  
+            #df.holder_num[i] = tmp_h
+            df.loc[i,'holder_num'] = tmp_h
+
+        if(df.close[i]):    
+            tmp_c = df.close[i]        
+
+        if(df.holder_num[i]):
+            tmp_h = df.holder_num[i]
+
+        i = i + 1
+
+    return df
+
+
+
+def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir, fig, sub_name):
+
     step = 20
     degree = 30
+
+    buy_flag = ''
+    z_status = ''
+
     if debug:
         print("code:%s, name:%s" % (nowcode, nowname ))
 
+    c_holder_df = combine_holder(day_df, holder_df)
+    c_fina_df = combine_holder(day_df, fina_df)
+
+    if debug:
+        print(day_df.head(2))
+        print(holder_df.head(2))
+        print(fina_df.head(2))
+        print(c_holder_df.head(2))
+        print(c_fina_df.head(2))
+ 
 
     #skip ST
     if ('ST' in nowname):
@@ -106,10 +240,10 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
         return
 
     if False:
-        print(detail_info)
+        print(day_df)
     
     #fix NaN bug
-    if len(detail_info) < 3  or (detail_info is None):
+    if len(day_df) < 3  or (day_df is None):
         # print('NaN: code:%s, name:%s' % (nowcode, nowname ))
         return
     
@@ -121,32 +255,33 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     today_p = round (today_p.value, 4)
 
 
-    #detail_info.index = detail_info.index.format(formatter=lambda x: x.strftime('%Y-%m-%d'))
-    #print(detail_info.index[2])
+    #day_df.index = day_df.index.format(formatter=lambda x: x.strftime('%Y-%m-%d'))
+    #print(day_df.index[2])
     
-    detail_info['close'].fillna(value=0, inplace=True)   
+    day_df['close'].fillna(value=0, inplace=True)   
     
-    ma_5  = talib.MA(np.array(detail_info['close'], dtype=float), 5)
-    ma_13 = talib.MA(np.array(detail_info['close'], dtype=float), 13)
-    ma_21 = talib.MA(np.array(detail_info['close'], dtype=float), 21)
+    ma_5  = talib.MA(np.array(day_df['close'], dtype=float), 5)
+    ma_13 = talib.MA(np.array(day_df['close'], dtype=float), 13)
+    ma_21 = talib.MA(np.array(day_df['close'], dtype=float), 21)
     if debug:
         print("ma_5.size:%d, ma_13.size:%d, ma_21.size:%d" % (ma_5.size, ma_13.size, ma_21.size))
     
-    detail_info['k'], detail_info['d'] = talib.STOCH(detail_info['high'], detail_info['low'], detail_info['close'])
-    detail_info['k'].fillna(value=0, inplace=True)
-    detail_info['d'].fillna(value=0, inplace=True)
+    day_df['k'], day_df['d'] = talib.STOCH(day_df['high'], day_df['low'], day_df['close'])
+    day_df['k'].fillna(value=0, inplace=True)
+    day_df['d'].fillna(value=0, inplace=True)
 
     #ma_vol
-    ma_vol_50 = talib.MA(np.array(detail_info['volume'], dtype=float), 50)
+    ma_vol_50 = talib.MA(np.array(day_df['volume'], dtype=float), 50)
+    ma_vol_100 = talib.MA(np.array(day_df['volume'], dtype=float), 100)
 
     # 调用talib计算MACD指标
-    # detail_info['MACD'],detail_info['MACDsignal'],detail_info['MACDhist'] = talib.MACD(np.array(detail_info['close']),
+    # day_df['MACD'],day_df['MACDsignal'],day_df['MACDhist'] = talib.MACD(np.array(day_df['close']),
     #                                    fastperiod=6, slowperiod=12, signalperiod=9)   
 
     # dif: 12， 与26日的差别
     # dea:dif的9日以移动平均线
     # 计算MACD指标
-    dif, dea, macd_hist = talib.MACD(np.array(detail_info['close'], dtype=float), fastperiod=12, slowperiod=26, signalperiod=9)
+    dif, dea, macd_hist = talib.MACD(np.array(day_df['close'], dtype=float), fastperiod=12, slowperiod=26, signalperiod=9)
 
     '''
     #创建数据
@@ -189,134 +324,190 @@ def plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name
     projection  可选参数，坐标系的投影类型，默认为矩形
     polar   可选参数，当取值为True，相当于projection=‘polar’
     '''
-    date_series=detail_info['record_date']
+    date_series=day_df['record_date']
     dates = date_series.tolist()
 
     h_delta = 0.02
 
     #plt.title(nowcode + ': ' + nowname)  #this will add xy axis system [0.0-1.0]
     
-    ax05 = fig.add_axes([0, 0.72, 1, 0.1])
+    ax06 = fig.add_axes([0.05, 0.84, 0.95, 0.1])
+    ax05 = fig.add_axes([0.05, 0.72, 0.95, 0.1])
     ax05.grid()    
-    ax04 = fig.add_axes([0, 0.55, 1, 0.15])
-    ax03 = fig.add_axes([0, 0.38, 1, 0.15])
-    ax02 = fig.add_axes([0, 0.26, 1, 0.1])
-    ax01 = fig.add_axes([0, 0.14, 1, 0.1])
-    ax00 = fig.add_axes([0, 0.02, 1, 0.1])
+    ax04 = fig.add_axes([0.05, 0.55, 0.95, 0.15])
+    ax03 = fig.add_axes([0.05, 0.38, 0.95, 0.15])
+    ax02 = fig.add_axes([0.05, 0.26, 0.95, 0.1])
+    ax01 = fig.add_axes([0.05, 0.14, 0.95, 0.1])
+    ax00 = fig.add_axes([0.05, 0.02, 0.95, 0.1])
 
-    #zig
-    ax05.set_title(nowcode + '-zig-' + nowname)
-    ax05.set_xticks(range(0, len(detail_info.index), step))
-    #ax05.set_xticklabels(detail_info.index[::step])
-    ax05.set_xticklabels(date_series[::step],  rotation=degree)
+    ####################################################################################################################
+    #holder
+    #c_holder_df['holder_num']= c_holder_df['holder_num'].apply(lambda x: x/10000)
+    holder = c_holder_df['holder_num']
+    c_close = c_holder_df['close']
+    if debug:
+        print('holder: %s' % c_holder_df['holder_num'])
+        print('record_date: %s' % c_holder_df['record_date'])
+    #holder = holder/10000.0
+    ax06.plot(c_close, label = 'close')
+    ax06.set_xticks(range(0, len(c_holder_df.index), step))
+    ax06.set_xticklabels(c_holder_df['record_date'][::step],  rotation=degree)
 
-    #add label and vlines for zig
-    z_df, z_peers, z_d, z_k, z_buy_state=zig(detail_info)
-    ax05.plot(z_df)
-    z_len = len(z_peers)
-    for i in range(z_len): 
-        #print("i%d"%i)
-        x1 = z_peers[i]
-        y1 = z_df[z_peers[i]]
+    ax06_sub = ax06.twinx()
+    ax06_sub.plot(holder,  '-r', label = 'holder')
+    ax06_sub.legend();
+    ax06.legend();
+    #mark holder num
+    h_len = len(c_holder_df)
+    i = 0
+    j = 0
+    for i in range(h_len):
+        print('i:%d j:%d' % (i, j))
+        if j >= len(holder_df):
+            break
+        if c_holder_df.record_date[i] == holder_df.record_date[j]:
+            j = j+1
+            x1 = i
+            y1 = c_holder_df.holder_num[i]
+            #text1 = str(c_holder_df.record_date[i]) + '-' + str(c_holder_df.holder_num[i])
+            text1 = str(c_holder_df.holder_num[i])
+            ax06_sub.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+        i = i + 1
 
-        text1=str(z_d[x1]) + '-' + str(z_k[x1]) + '-' + str(dates[x1])
-        ax05.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b",arrowprops=dict(facecolor='red', shrink=0.05))
+    ####################################################################################################################
 
-        if i == 0 or i == (z_len - 1):
-            #skip plot.vlines for first and last
-            continue
+    #if False:
+    if True:
+        ####################################################################################################################
+        #boll, candles
+        ax04.set_xticks(range(0, len(day_df.index), step))
+        ax04.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        candlestick2_ochl(ax04, day_df['open'], day_df['close'], day_df['high'],
+                                      day_df['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
+        #boll
+        upperband, middleband, lowerband = talib.BBANDS(np.array(day_df['close']),timeperiod=20, nbdevdn=2, nbdevup=2)
+        ax04.plot(upperband, label="upper")
+        ax04.plot(middleband, label="middle")
+        ax04.plot(lowerband, label="bottom")
+        ax04.legend();
+        ####################################################################################################################
 
+        #candles
+        ax03.set_xticks(range(0, len(day_df.index), step))
+        ax03.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        candlestick2_ochl(ax03, day_df['open'], day_df['close'], day_df['high'],
+            day_df['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
+        #plt.rcParams['font.sans-serif']=['Microsoft JhengHei'] 
+
+        #k-line
+        #print("ma_5:->")
+        #print(ma_5)
+        #print("ma_5:<-")
+        ax03.plot(ma_5, label='MA5')
+        ax03.plot(ma_13, label='MA13')
+        ax03.plot(ma_21, label='MA21')
+        ax03.legend();
+
+        #add zig together with candles
+        #add label and vlines for zig
+        z_df, z_peers, z_d, z_k, z_buy_state=zig(day_df)
         if debug:
-            print("y1:%s" % y1)
-        if z_buy_state[i] == 1:
-            ax05.vlines(x1, 0, y1, colors='red')
+            print('z_df: %s'    % z_df)
+            print('z_peers: %s' % z_peers)
+            print('z_d: %s'     % z_d)
+            print('z_k: %s'     % z_k)
+            print('z_buy_state: %s' % z_buy_state)
+
+        ax03_sub = ax03.twinx()
+        ax03_sub.plot(z_df, label = 'candles-zig')
+        z_len = len(z_peers)
+        for i in range(z_len): 
+            #print("i%d"%i)
+            x1 = z_peers[i]
+            y1 = z_df[z_peers[i]]
+
+            text1=str(z_d[x1]) + '-' + str(z_k[x1]) + '-' + str(dates[x1])
+
+            #https://matplotlib.net/stable/api/_as_gen/matplotlib.axes.Axes.annotate.html#matplotlib.axes.Axes.annotate
+            #https://matplotlib.net/stable/gallery/text_labels_and_annotations/annotation_demo.html#sphx-glr-gallery-text-labels-and-annotations-annotation-demo-py
+            #ax05.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b",\
+            #        arrowprops=dict(facecolor='red', shrink=0.05))
+            ax03_sub.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b")
+
+            if i == 0 or i == (z_len - 1):
+                #skip plot.vlines for first and last
+                continue
+
+            if debug:
+                print("y1:%s" % y1)
+            if z_buy_state[i] == 1:
+                ax03_sub.vlines(x1, 0, y1, colors='red', linewidth=1)
+            else:
+                ax03_sub.vlines(x1, 0, y1, colors='green', linewidth=1)
+
+        #calculate buy or sell
+        if z_len >= 3:  # it should have one valid zig data at least
+            if z_peers[-1] - z_peers[-2] < 10: #delta days  < 10 from today
+                if z_buy_state[-2] == 1:  #valid zig must 1, that means valley
+                    if debug:
+                        print('%s gold node, buy it!!' % nowcode )
+                    buy_flag = '-buy'
+
+        #check the last zig status
+        if z_len >=2:
+            z_status = '-z' + str(z_buy_state[-2])+ '_' + str(z_peers[-1] - z_peers[-2])
         else:
-            ax05.vlines(x1, 0, y1, colors='green')
-
-    #calculate buy or sell
-    buy_flag = ''
-    if z_len >= 3:  # it should have one valid zig data at least
-        if z_peers[-1] - z_peers[-2] < 10: #delta days  < 10 from today
-            if z_buy_state[-2] == 1:  #valid zig must 1, that means valley
-                if debug:
-                    print('%s gold node, buy it!!' % nowcode )
-                buy_flag = '-buy'
-
-    #check the last zig status
-    z_status = ''
-    if z_len >=2:
-        z_status = '-z' + str(z_buy_state[-2])+ '_' + str(z_peers[-1] - z_peers[-2])
-    else:
-        z_status = '-z0'
-
-    
-    #check whether it is bottom or not, 2020-05-01
-    bottom_flag = False
-    try:
-        bottom_flag = check_is_bottom(nowdate, nowcode, nowname, 3)
-    except Exception as e:
-        print(e)
-    
-    if bottom_flag:
-        buy_flag = buy_flag + '-bottom'
+            z_status = '-z0'
 
 
-    #boll, candles
-    ax04.set_xticks(range(0, len(detail_info.index), step))
-    ax04.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
-    candlestick2_ochl(ax04, detail_info['open'], detail_info['close'], detail_info['high'],
-                                  detail_info['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
-    #boll
-    upperband, middleband, lowerband = talib.BBANDS(np.array(detail_info['close']),timeperiod=20, nbdevdn=2, nbdevup=2)
-    ax04.plot(upperband, label="upper")
-    ax04.plot(middleband, label="middle")
-    ax04.plot(lowerband, label="bottom")
-
-    #candles
-    ax03.set_xticks(range(0, len(detail_info.index), step))
-    ax03.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
-    candlestick2_ochl(ax03, detail_info['open'], detail_info['close'], detail_info['high'],
-        detail_info['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
-    #plt.rcParams['font.sans-serif']=['Microsoft JhengHei'] 
-
-    #k-line
-    #print("ma_5:->")
-    #print(ma_5)
-    #print("ma_5:<-")
-    ax03.plot(ma_5, label='MA5')
-    ax03.plot(ma_13, label='MA13')
-    ax03.plot(ma_21, label='MA21')
-
-    #kd
-    ax02.plot(detail_info['k'], label='K-Value')
-    ax02.plot(detail_info['d'], label='D-Value')
-    ax02.set_xticks(range(0, len(detail_info.index), step))
-    ax02.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
-
-    #macd
-    ax01.plot(dif, color="y", label="dif")
-    ax01.plot(dea, color="b", label="dea")
-    red_hist = np.where(macd_hist > 0 , macd_hist, 0)
-    green_hist = np.where(macd_hist < 0 , macd_hist, 0)
-
-    ax01.bar(detail_info.index, red_hist, label="Red-MACD", color='r')
-    ax01.bar(detail_info.index, green_hist, label="Green-MACD", color='g')
-
-    ax01.set_xticks(range(0, len(detail_info.index), step))
-    ax01.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        #check whether it is bottom or not, 2020-05-01
+        bottom_flag = False
+        try:
+            bottom_flag = check_is_bottom(nowdate, nowcode, nowname, 3)
+        except Exception as e:
+            print(e)
+        
+        if bottom_flag:
+            buy_flag = buy_flag + '-bottom'
 
 
-    #volume
-    volume_overlay(ax00, detail_info['open'], detail_info['close'], detail_info['volume'], \
-        colorup='r', colordown='g', width=0.5, alpha=0.8)
-    ax00.set_xticks(range(0, len(detail_info.index), step))
-    ax00.set_xticklabels(detail_info['record_date'][::step], rotation=degree)
-    #ax00.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
-    ax00.plot(ma_vol_50, label='MA50')
 
-    ax03.legend();
-    ax02.legend();
-    ax01.legend();
+
+        ####################################################################################################################
+        #kd
+        ax02.plot(day_df['k'], label='K-Value')
+        ax02.plot(day_df['d'], label='D-Value')
+        ax02.set_xticks(range(0, len(day_df.index), step))
+        ax02.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        ax02.legend();
+        ####################################################################################################################
+
+        #macd
+        ax01.plot(dif, color="y", label="dif")
+        ax01.plot(dea, color="b", label="dea")
+        red_hist = np.where(macd_hist > 0 , macd_hist, 0)
+        green_hist = np.where(macd_hist < 0 , macd_hist, 0)
+
+        ax01.bar(day_df.index, red_hist, label="Red-MACD", color='r')
+        ax01.bar(day_df.index, green_hist, label="Green-MACD", color='g')
+
+        ax01.set_xticks(range(0, len(day_df.index), step))
+        ax01.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        ax01.legend();
+
+       ####################################################################################################################
+
+
+        #volume
+        volume_overlay(ax00, day_df['open'], day_df['close'], day_df['volume'], \
+            colorup='r', colordown='g', width=0.5, alpha=0.8)
+        ax00.set_xticks(range(0, len(day_df.index), step))
+        ax00.set_xticklabels(day_df['record_date'][::step], rotation=degree)
+        #ax00.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        #ax00.plot(ma_vol_50, label='MA50')
+        ax00.plot(ma_vol_100, label='MA100')
+        ax00.legend();
+        ####################################################################################################################
 
     figure_name = nowcode + '.png'
 
