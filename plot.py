@@ -49,7 +49,8 @@ set_data_backend(AaronDataBackend())
 
 #debug switch
 debug = 0
-#debug = 1
+debug = 1
+debug = 0
 
 
 def check_is_bottom(nowdate, nowcode, nowname, within):
@@ -209,6 +210,165 @@ def combine_holder(a_df, b_df):
     return df
 
 
+def close_plot(axes,c_holder_df, step, degree):
+    df = c_holder_df
+    axes.set_title(df.stock_code[0]) 
+    c_close = df['close']
+    if debug:
+        print('record_date: %s' % df['record_date'])
+        print('c_close: %s' % c_close)
+    axes.plot(c_close, label = 'close')
+    axes.set_xticks(range(0, len(df.index), step))
+    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.legend();
+
+
+
+
+def holder_plot(axes, holder_df, c_holder_df, step, degree):
+    df = c_holder_df
+    #holder
+    holder = c_holder_df['holder_num']
+    if debug:
+        print('holder_num: %s' % holder)
+    axes.plot(holder,  '-r', label = 'holder')
+    axes.set_xticks(range(0, len(df.index), step))
+    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.legend();
+    #mark holder num
+    h_len = len(c_holder_df)
+    i = 0
+    j = 0
+    for i in range(h_len):
+        #print('i:%d j:%d' % (i, j))
+        if j >= len(holder_df):
+            break
+        #compare original holder data with new combined data
+        if c_holder_df.record_date[i] == holder_df.record_date[j]:  
+            j = j+1
+            x1 = i
+            y1 = c_holder_df.holder_num[i]
+            #text1 = str(c_holder_df.record_date[i]) + '-' + str(c_holder_df.holder_num[i])
+            text1 = str(c_holder_df.holder_num[i])
+            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+        i = i + 1
+
+
+def fina_yy_plot(axes, fina_df, c_fina_df, step, degree):
+    df = c_fina_df
+    #yy_rate
+    yy_rate = c_fina_df['main_business_income_growth_rate']
+    if debug:
+        print('yy_rate : %s' % yy_rate  )
+    axes.plot(yy_rate ,  '-r', label = 'yy_rate ')
+    axes.set_xticks(range(0, len(df.index), step))
+    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.legend();
+    #mark add
+    df_len = len(c_fina_df)
+    i = 0
+    j = 0
+    for i in range(df_len):
+        #print('i:%d j:%d' % (i, j))
+        if j >= len(fina_df):
+            break
+        #compare original data with new combined data
+        if c_fina_df.record_date[i] == fina_df.record_date[j]:  
+            j = j+1
+            x1 = i
+            y1 = c_fina_df.main_business_income_growth_rate[i]
+            text1 = str(c_fina_df.main_business_income_growth_rate[i])
+            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+        i = i + 1
+
+
+def fina_net_plot(axes, fina_df, c_fina_df, step, degree):
+    df = c_fina_df
+    #net_rate
+    net_rate = c_fina_df['net_profit_growth_rate']
+    if debug:
+        print('net_rate : %s' % net_rate  )
+    axes.plot(net_rate ,  '-b', label = 'net_rate ')
+    axes.set_xticks(range(0, len(df.index), step))
+    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.legend();
+    #mark add
+    df_len = len(c_fina_df)
+    i = 0
+    j = 0
+    for i in range(df_len):
+        #print('i:%d j:%d' % (i, j))
+        if j >= len(fina_df):
+            break
+        #compare original data with new combined data
+        if c_fina_df.record_date[i] == fina_df.record_date[j]:  
+            j = j+1
+            x1 = i
+            y1 = c_fina_df.net_profit_growth_rate[i]
+            text1 = str(c_fina_df.net_profit_growth_rate[i])
+            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+        i = i + 1
+
+
+def zig_plot(axes, day_df):
+
+    buy_flag = ''
+    z_status = ''
+
+    date_series=day_df['record_date']
+    dates = date_series.tolist()
+
+    #add label and vlines for zig
+    z_df, z_peers, z_d, z_k, z_buy_state=zig(day_df)
+    if debug:
+        print('z_df: %s'    % z_df)
+        print('z_peers: %s' % z_peers)
+        print('z_d: %s'     % z_d)
+        print('z_k: %s'     % z_k)
+        print('z_buy_state: %s' % z_buy_state)
+
+    axes.plot(z_df, label = 'candles-zig')
+    z_len = len(z_peers)
+    for i in range(z_len): 
+        #print("i%d"%i)
+        x1 = z_peers[i]
+        y1 = z_df[z_peers[i]]
+
+        text1=str(z_d[x1]) + '-' + str(z_k[x1]) + '-' + str(dates[x1])
+
+        #https://matplotlib.net/stable/api/_as_gen/matplotlib.axes.Axes.annotate.html#matplotlib.axes.Axes.annotate
+        #https://matplotlib.net/stable/gallery/text_labels_and_annotations/annotation_demo.html#sphx-glr-gallery-text-labels-and-annotations-annotation-demo-py
+        #axes.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b",\
+        #        arrowprops=dict(facecolor='red', shrink=0.05))
+        axes.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b")
+
+        if i == 0 or i == (z_len - 1):
+            #skip plot.vlines for first and last
+            continue
+
+        if debug:
+            print("y1:%s" % y1)
+        if z_buy_state[i] == 1:
+            axes.vlines(x1, 0, y1, colors='red', linewidth=1)
+        else:
+            axes.vlines(x1, 0, y1, colors='green', linewidth=1)
+
+    #calculate buy or sell
+    if z_len >= 3:  # it should have one valid zig data at least
+        if z_peers[-1] - z_peers[-2] < 10: #delta days  < 10 from today
+            if z_buy_state[-2] == 1:  #valid zig must 1, that means valley
+                if debug:
+                    print('%s gold node, buy it!!' % nowcode )
+                buy_flag = '-buy'
+
+    #check the last zig status
+    if z_len >=2:
+        z_status = '-z' + str(z_buy_state[-2])+ '_' + str(z_peers[-1] - z_peers[-2])
+    else:
+        z_status = '-z0'
+
+    return buy_flag, z_status
+
 
 def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir, fig, sub_name):
 
@@ -343,100 +503,31 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
 
     ####################################################################################################################
     #holder
-    ax06.set_title(nowcode) 
-    #c_holder_df['holder_num']= c_holder_df['holder_num'].apply(lambda x: x/10000)
-    holder = c_holder_df['holder_num']
-    c_close = c_holder_df['close']
-    if debug:
-        print('holder: %s' % c_holder_df['holder_num'])
-        print('record_date: %s' % c_holder_df['record_date'])
-    #holder = holder/10000.0
-    ax06.plot(c_close, label = 'close')
-    ax06.set_xticks(range(0, len(c_holder_df.index), step))
-    ax06.set_xticklabels(c_holder_df['record_date'][::step],  rotation=degree)
+    axes = ax06
+    close_plot(axes, c_holder_df, step, degree)
 
-    ax06_sub = ax06.twinx()
-    ax06_sub.plot(holder,  '-r', label = 'holder')
-    ax06_sub.legend();
-    ax06.legend();
-    #mark holder num
-    h_len = len(c_holder_df)
-    i = 0
-    j = 0
-    for i in range(h_len):
-        #print('i:%d j:%d' % (i, j))
-        if j >= len(holder_df):
-            break
-        if c_holder_df.record_date[i] == holder_df.record_date[j]:
-            j = j+1
-            x1 = i
-            y1 = c_holder_df.holder_num[i]
-            #text1 = str(c_holder_df.record_date[i]) + '-' + str(c_holder_df.holder_num[i])
-            text1 = str(c_holder_df.holder_num[i])
-            ax06_sub.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
-        i = i + 1
+    axes_sub0 = axes.twinx()
+    holder_plot(axes_sub0, holder_df, c_holder_df, step, degree)
+
+    #add zig together with candles
+    axes_sub1 = axes.twinx()
+    buy_flag, z_status = zig_plot(axes_sub1, c_holder_df)
 
     ####################################################################################################################
     #fina
-    yy_rate = c_fina_df['main_business_income_growth_rate']
-    if debug:
-        print('[yy_rate:%s]' % yy_rate)
-    c_close = c_fina_df['close']
-    if debug:
-        print('fina: %s' % c_fina_df['main_business_income_growth_rate'])
-        print('record_date: %s' % c_fina_df['record_date'])
-    ax05.plot(c_close, label = 'close')
-    ax05.set_xticks(range(0, len(c_fina_df.index), step))
-    ax05.set_xticklabels(c_fina_df['record_date'][::step],  rotation=degree)
+    axes = ax05
+    close_plot(axes, c_fina_df, step, degree)
 
-    #***************************************************************#
-    ax05_sub0 = ax05.twinx()
-    ax05_sub0.plot(yy_rate,  '-r', label = 'yy_rate')
-    ax05_sub0.legend();
-    ax05.legend();
+    axes_sub0 = axes.twinx()
+    fina_yy_plot(axes_sub0, fina_df, c_fina_df, step, degree)
 
-    #mark yy_rate
-    f_len = len(c_fina_df)
-    i = 0
-    j = 0
-    for i in range(f_len):
-        #print('i:%d j:%d' % (i, j))
-        if j >= len(fina_df):
-            break
-        if c_fina_df.record_date[i] == fina_df.record_date[j]:
-            j = j+1
-            x1 = i
-            y1 = c_fina_df.main_business_income_growth_rate[i]
-            #text1 = str(c_fina_df.record_date[i]) + '-' + str(c_fina_df.main_business_income_growth_rate[i])
-            text1 = str(c_fina_df.main_business_income_growth_rate[i])
-            ax05_sub0.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
-        i = i + 1
-    #***************************************************************#
-    net_rate = c_fina_df['net_profit_growth_rate']
-    if debug:
-        print('[net_rate:%s]' % net_rate)
-
-    ax05_sub1 = ax05.twinx()
-    ax05_sub1.plot(net_rate,  '-b', label = 'net_rate')
-    ax05_sub1.legend();
-    ax05.legend();
-
-    #mark yy_rate
-    f_len = len(c_fina_df)
-    i = 0
-    j = 0
-    for i in range(f_len):
-        #print('i:%d j:%d' % (i, j))
-        if j >= len(fina_df):
-            break
-        if c_fina_df.record_date[i] == fina_df.record_date[j]:
-            j = j+1
-            x1 = i
-            y1 = c_fina_df.net_profit_growth_rate[i]
-            #text1 = str(c_fina_df.record_date[i]) + '-' + str(c_fina_df.net_profit_growth_rate[i])
-            text1 = str(c_fina_df.net_profit_growth_rate[i])
-            ax05_sub1.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
-        i = i + 1
+    axes_sub1 = axes.twinx()
+    fina_net_plot(axes_sub1, fina_df, c_fina_df, step, degree)
+    
+    #add zig together with candles
+    axes_sub2 = axes.twinx()
+    buy_flag, z_status = zig_plot(axes_sub2, c_fina_df)
+    ####################################################################################################################
 
     #debug
     #if False:
@@ -472,56 +563,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
         ax03.legend();
 
         #add zig together with candles
-        #add label and vlines for zig
-        z_df, z_peers, z_d, z_k, z_buy_state=zig(day_df)
-        if debug:
-            print('z_df: %s'    % z_df)
-            print('z_peers: %s' % z_peers)
-            print('z_d: %s'     % z_d)
-            print('z_k: %s'     % z_k)
-            print('z_buy_state: %s' % z_buy_state)
-
-        ax03_sub = ax03.twinx()
-        ax03_sub.plot(z_df, label = 'candles-zig')
-        z_len = len(z_peers)
-        for i in range(z_len): 
-            #print("i%d"%i)
-            x1 = z_peers[i]
-            y1 = z_df[z_peers[i]]
-
-            text1=str(z_d[x1]) + '-' + str(z_k[x1]) + '-' + str(dates[x1])
-
-            #https://matplotlib.net/stable/api/_as_gen/matplotlib.axes.Axes.annotate.html#matplotlib.axes.Axes.annotate
-            #https://matplotlib.net/stable/gallery/text_labels_and_annotations/annotation_demo.html#sphx-glr-gallery-text-labels-and-annotations-annotation-demo-py
-            #ax05.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b",\
-            #        arrowprops=dict(facecolor='red', shrink=0.05))
-            ax03_sub.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b")
-
-            if i == 0 or i == (z_len - 1):
-                #skip plot.vlines for first and last
-                continue
-
-            if debug:
-                print("y1:%s" % y1)
-            if z_buy_state[i] == 1:
-                ax03_sub.vlines(x1, 0, y1, colors='red', linewidth=1)
-            else:
-                ax03_sub.vlines(x1, 0, y1, colors='green', linewidth=1)
-
-        #calculate buy or sell
-        if z_len >= 3:  # it should have one valid zig data at least
-            if z_peers[-1] - z_peers[-2] < 10: #delta days  < 10 from today
-                if z_buy_state[-2] == 1:  #valid zig must 1, that means valley
-                    if debug:
-                        print('%s gold node, buy it!!' % nowcode )
-                    buy_flag = '-buy'
-
-        #check the last zig status
-        if z_len >=2:
-            z_status = '-z' + str(z_buy_state[-2])+ '_' + str(z_peers[-1] - z_peers[-2])
-        else:
-            z_status = '-z0'
-
+        axes_sub = ax03.twinx()
+        buy_flag, z_status = zig_plot(axes_sub, day_df)
 
         #check whether it is bottom or not, 2020-05-01
         bottom_flag = False
@@ -532,9 +575,6 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
         
         if bottom_flag:
             buy_flag = buy_flag + '-bottom'
-
-
-
 
         ####################################################################################################################
         #kd
