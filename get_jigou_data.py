@@ -35,6 +35,7 @@ hdata_jigou=HData_eastmoney_jigou("usr","usr")
 
 debug = 0
 debug = 1
+debug = 0
 
 browser = ''
 
@@ -70,8 +71,7 @@ def get_jigou_data(stock_code, record_date):
         #browser.close()
         #browser.quit()
 
-    if debug:
-        print(url)
+    print(" get_jigou_data() stock_code:%s, record_date:%s, url= %s" %  (stock_code, record_date, url))
 
     #if debug:
     #    print(html)
@@ -196,9 +196,9 @@ def get_jigou():
     r_len = len(r_df)
 
     position, date_list = get_curr_season()
-    if debug:
-        print('position: %s' % position )
-        print('data_list: %s' % date_list )
+    print('position: %s' % position )
+    print('data_list: %s' % date_list )
+
     new_date_list = []
 
     #which season data will be fetched
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     df.to_csv('./csv/'+ date_string + '_jigou_.csv', encoding='gbk')
     #df = pd.read_csv('./csv/jigou_2021-11-29.csv',encoding='gbk', converters={'stock_code': lambda x: str(x)})
 
-    if len(df):
+    if len(df) > 100:
         check_table()
         hdata_jigou.copy_from_stringio(df)
 

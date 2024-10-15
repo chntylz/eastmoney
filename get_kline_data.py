@@ -164,7 +164,7 @@ def get_kline_data(code=None, count=None, period=None):
         data_df = data_df.loc[:, new_column]
 
     if debug:
-        print(data_df)
+        print(data_df.head(5))
 
 
         

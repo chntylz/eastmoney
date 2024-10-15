@@ -203,7 +203,7 @@ def cgi_write_to_file( df):
             elif 'share_holding' in col_name[j]:
                 print('           <a> %.2f</a>\n'%(element_value/1000/1000))
             elif 'total_mv' in col_name[j]:
-                print('           <a> %.2f</a>\n'%(element_value))
+                print('           <a href="../../picture/%s.png" target="_blank"> %.2f</a>\n'%(tmp_stock_code, element_value))
             elif 'holder_change' in col_name[j]:
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(holder_url, element_value))
             elif 'jigou' in col_name[j]:

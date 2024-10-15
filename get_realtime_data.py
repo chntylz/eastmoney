@@ -26,7 +26,7 @@ import json
 
 
 debug=1
-debug=1
+debug=0
 
 import random
 def get_headers():
@@ -187,7 +187,7 @@ def get_realtime_data2():
             + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
             + timestamp
 
-    print(url)
+    print("get_realtime_data2() url=%s" % url)
 
     browser = get_broswer()
 
@@ -243,7 +243,7 @@ def get_realtime_data2():
         #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
-            print(data_df)
+            print(data_df.head(5))
 
         #all
         data_df = data_df.sort_values('stock_code', ascending=1)
