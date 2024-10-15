@@ -53,7 +53,8 @@ hdata_fina=HData_eastmoney_fina("usr","usr")
 
 
 debug=0
-#debug=1
+debug=1
+debug=0
 
 
 
@@ -894,11 +895,12 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     daily_df = input_df
 
     #get basic stock info
-    basic_df = zlpm_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
+    #basic_df = zlpm_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
+    basic_df = zlpm_data(stock_code=None, start_date=None, end_date=None, limit=0)
     basic_df = basic_df.set_index('stock_code')
     
     if debug:
-        print(basic_df)
+        print('basic_df= %s' %  basic_df)
 
 
     data_list = []

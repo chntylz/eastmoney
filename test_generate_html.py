@@ -217,9 +217,16 @@ def combine_zlje_data(db_table=None, first_df=None, second_df=None, curr_day=Non
 
 def get_latest_jigou_data():
     jigou_df=  jigou_table.get_data_from_hdata()
+
+    if debug:
+        print(" get_latest_jigou_data ")
+        print(jigou_df)
+
+    group_by_stock_code_df=jigou_df.groupby('stock_code')
     jigou_df = jigou_df.sort_values('record_date', ascending=False)
+    jigou_df = jigou_df.head(len(group_by_stock_code_df))
     jigou_df = jigou_df.reset_index(drop=True)
-    jigou_df = jigou_df[jigou_df['record_date'] == jigou_df['record_date'][0]]
+    #jigou_df = jigou_df[jigou_df['record_date'] == jigou_df['record_date'][0]]  #bug: some updated, some not
     jigou_df = jigou_df.sort_values('delta_ratio', ascending=False)
     jigou_df = jigou_df.reset_index(drop=True)
     return jigou_df
@@ -477,7 +484,7 @@ if __name__ == '__main__':
     curr_dir=curr_day_w+'-zlje'
     zlje_df = combine_zlje_data(db_table=zlje_table, first_df=k_df, second_df=None)
     if debug:
-        print(zlje_df)
+        print(zlje_df.head(5))
     html_zlje_df = convert_to_html_df(zlje_df, curr_dir, curr_day)
     #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
     if len(html_zlje_df):
@@ -493,7 +500,7 @@ if __name__ == '__main__':
 
     jigou_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=jigou_raw_df)
     if debug:
-        print(jigou_df)
+        print(jigou_df.head(5))
     html_jigou_df = convert_to_html_df(jigou_df, curr_dir, curr_day)
     if len(html_jigou_df):
         generate_html(df_global, html_jigou_df, stock_data_dir, curr_dir, curr_day)
@@ -508,7 +515,7 @@ if __name__ == '__main__':
     curr_dir=curr_day_w+'-dragon'
     dragon_df = combine_zlje_data(db_table=dragon_table, first_df=k_df, second_df=None)
     if debug:
-        print(dragon_df)
+        print(dragon_df.head(5))
     if len(dragon_df):
         dragon_df = dragon_df[(dragon_df.percent > 0.0)]
         html_dragon_df = convert_to_html_df(dragon_df, curr_dir, curr_day)
@@ -525,16 +532,16 @@ if __name__ == '__main__':
 
     holder_raw_df = get_holder_data(nowdate)
     if debug:
-        print('holder_raw_df', holder_raw_df)
+        print('holder_raw_df', holder_raw_df.head(5))
 
     holder_df = handle_holder_data_continuous(holder_raw_df)
     if debug:
-        print('holder_df', holder_df)
+        print('holder_df', holder_df.head(5))
     
     holder_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=holder_df)
 
     if debug:
-        print('holder_df', holder_df)
+        print('holder_df', holder_df.head(5))
     html_holder_df = convert_to_html_df(holder_df, curr_dir, curr_day)
     if len(html_holder_df):
         generate_html(df_global, html_holder_df, stock_data_dir, curr_dir, curr_day)
