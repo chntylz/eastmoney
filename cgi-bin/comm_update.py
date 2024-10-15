@@ -48,10 +48,12 @@ hdata_xq_simple = HData_xq_simple_day('usr', 'usr')
 hdata_eastmoney_day = HData_eastmoney_day('usr', 'usr')
 
 debug=0
+debug=1
+debug=0
 
 
-nowdate=datetime.datetime.now().date()
-str_date= nowdate.strftime("%Y-%m-%d")
+#nowdate=datetime.datetime.now().date()
+#str_date= nowdate.strftime("%Y-%m-%d")
 
 def is_work_time():
     ret = False
@@ -187,8 +189,19 @@ def show_realdata(file_name):
     length=len(my_list)
    
     
+    retry = 0
+    nowdate=datetime.datetime.now().date()
+    nowdate=nowdate-datetime.timedelta(retry)
+    str_date= nowdate.strftime("%Y-%m-%d")
     ####get zlje start####
     zlje_df   = get_zlje_data_from_db(url='url',     curr_date=str_date)
+    while len(zlje_df) == 0:
+        retry = retry + 1
+        nowdate=datetime.datetime.now().date() 
+        nowdate=nowdate-datetime.timedelta(retry)
+        str_date= nowdate.strftime("%Y-%m-%d")
+        zlje_df   = get_zlje_data_from_db(url='url',     curr_date=str_date)
+
     zlje_3_df = get_zlje_data_from_db(url='url_3',   curr_date=str_date)
     zlje_5_df = get_zlje_data_from_db(url='url_5',   curr_date=str_date)
     zlje_10_df = get_zlje_data_from_db(url='url_10', curr_date=str_date)
@@ -300,6 +313,11 @@ def show_realdata(file_name):
         zlje_3  = get_zlje(zlje_3_df,   new_code, curr_date=str_date)
         zlje_5  = get_zlje(zlje_5_df,   new_code, curr_date=str_date)
         zlje_10 = get_zlje(zlje_10_df,  new_code, curr_date=str_date)
+        if debug:
+            print(zlje.head(5))
+            print(zlje_3.head(5))
+            print(zlje_5.head(5))
+            print(zlje_10.head(5))
         #### zlje end ####
 
 
@@ -325,7 +343,7 @@ def show_realdata(file_name):
 
             if debug:
                 print(stock_code_new)
-                print(fina_df)
+                print(fina_df.head(10))
         fina=str(round(op_yoy,2)) +' ' + str(round(net_yoy,2))
         new_date = fina_date + '<br>'+ fina + '</br>'
         
@@ -463,6 +481,6 @@ if __name__ == '__main__':
     # df = df.sort_values('hk_m_total', ascending=0)
     df = df.sort_values('a_pct', ascending=0)
     if debug:
-        print(df)
+        print(df.head(10))
 
     cgi_generate_html(df)

@@ -250,7 +250,7 @@ def holder_plot(axes, holder_df, c_holder_df, step, degree):
             y1 = c_holder_df.holder_num[i]
             #text1 = str(c_holder_df.record_date[i]) + '-' + str(c_holder_df.holder_num[i])
             text1 = str(c_holder_df.holder_num[i])
-            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 16, color="b")
         i = i + 1
 
 
@@ -278,7 +278,7 @@ def fina_yy_plot(axes, fina_df, c_fina_df, step, degree):
             x1 = i
             y1 = c_fina_df.main_business_income_growth_rate[i]
             text1 = str(c_fina_df.main_business_income_growth_rate[i])
-            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 16, color="b")
         i = i + 1
 
 
@@ -306,7 +306,7 @@ def fina_net_plot(axes, fina_df, c_fina_df, step, degree):
             x1 = i
             y1 = c_fina_df.net_profit_growth_rate[i]
             text1 = str(c_fina_df.net_profit_growth_rate[i])
-            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 8, color="b")
+            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 16, color="b")
         i = i + 1
 
 
@@ -340,7 +340,7 @@ def zig_plot(axes, day_df):
         #https://matplotlib.net/stable/gallery/text_labels_and_annotations/annotation_demo.html#sphx-glr-gallery-text-labels-and-annotations-annotation-demo-py
         #axes.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b",\
         #        arrowprops=dict(facecolor='red', shrink=0.05))
-        axes.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2), color="b")
+        axes.annotate(text1, xy=(x1, y1 ), xytext=(x1-10 , y1-2),fontsize = 16, color="b")
 
         if i == 0 or i == (z_len - 1):
             #skip plot.vlines for first and last

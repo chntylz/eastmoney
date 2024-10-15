@@ -523,9 +523,9 @@ def comm_write_to_file(f, k, df, filename):
                 elif(j == 2):
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%  (xueqiu_url, element_value))
                 elif(j == 3):
-                    f.write('           <a> %.2f</a>\n'%(element_value))
-                elif(j == 4):
-                    f.write('           <a href="../../picture/%s.png" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+                    f.write('           <a href="../../picture/%s.png" target="_blank"> %.2f</a>\n'%(tmp_stock_code, element_value))
+                #elif(j == 4):
+                #    f.write('           <a href="../../picture/%s.png" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 elif item_name in [ 'holder_change', ] :
                     f.write('           <a href="%s" target="_blank">  %s </a>\n'% (holder_url, element_value))
                 elif item_name in ['holder_pct', 'h0'] :

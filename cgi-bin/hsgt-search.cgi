@@ -9,6 +9,9 @@ import numpy as np
 
 from HData_hsgt import *
 from HData_eastmoney_day import *
+from HData_eastmoney_holder import *
+from HData_sina_fina import *
+
 from zig import *
 from plot import *
 
@@ -30,6 +33,8 @@ hdata_day=HData_eastmoney_day("usr","usr")
 
 hdata_hsgt=HData_hsgt("usr","usr")
 
+hdata_holder=HData_eastmoney_holder("usr","usr")
+hdata_fina=HData_sina_fina("usr","usr")
 
 
 
@@ -61,7 +66,7 @@ def hsgt_get_delta_m_of_day(df, days):
 def plot_stock_picture(nowcode, nowname):
     #define canvas out of loop
     plt.style.use('bmh')
-    fig = plt.figure(figsize=(24, 30),dpi=80)
+    fig = plt.figure(figsize=(24, 30),dpi=120)
     new_nowcode = nowcode
     '''
     if nowcode[0:1] == '6':
@@ -69,16 +74,27 @@ def plot_stock_picture(nowcode, nowname):
     else:
         new_nowcode = 'SZ' + nowcode
     '''
-    detail_info = hdata_day.get_data_from_hdata(stock_code=new_nowcode, \
+    day_df = hdata_day.get_data_from_hdata(stock_code=new_nowcode, \
             end_date=nowdate.strftime("%Y-%m-%d"), \
             limit=300)
 
+    holder_df = hdata_holder.get_data_from_hdata(stock_code=new_nowcode, \
+            end_date=nowdate.strftime("%Y-%m-%d"), \
+            limit=300)
+
+    fina_df = hdata_fina.get_data_from_hdata(stock_code=new_nowcode, \
+            end_date=nowdate.strftime("%Y-%m-%d"), \
+            limit=300)
+
+
     if debug:
-        print(detail_info)
+        print(day_df.head(1))
+        print(holder_df_df.head(1))
+        print(fina_df.head(1))
 
     save_dir = 'stock_data'
     sub_name = ''
-    plot_picture(nowdate, nowcode, nowname, detail_info, save_dir, fig, sub_name)
+    plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir, fig, sub_name)
     plt.close('all')
 
 def get_xueqiu_url(stock_code_tmp):
