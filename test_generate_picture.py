@@ -11,6 +11,7 @@ from zig import *
 from plot import *
 from HData_eastmoney_day import *
 from HData_eastmoney_holder import *
+from HData_eastmoney_jigou import *
 from HData_sina_fina import *
 
 import multiprocessing
@@ -22,6 +23,7 @@ debug=0
 
 hdata_day=HData_eastmoney_day("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
+hdata_jigou=HData_eastmoney_jigou("usr","usr")
 hdata_fina=HData_sina_fina("usr","usr")
 
 def plot_stock_picture(nowdate, nowcode, nowname):
@@ -40,12 +42,14 @@ def plot_stock_picture(nowdate, nowcode, nowname):
     fina_df = hdata_fina.get_data_from_hdata(stock_code=new_nowcode, \
             end_date=nowdate.strftime("%Y-%m-%d"), \
             limit=300)
-
-   
+    
+    jigou_df = hdata_jigou.get_data_from_hdata(stock_code=new_nowcode, \
+            end_date=nowdate.strftime("%Y-%m-%d"), \
+            limit=300)
 
     save_dir = 'picture'
     sub_name = ''
-    plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir, fig, sub_name)
+    plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df, save_dir, fig, sub_name)
     plt.close('all')
 
 def worker(name):

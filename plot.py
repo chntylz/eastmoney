@@ -158,6 +158,57 @@ def combine_fina(a_df, b_df):
     return df
 
 
+def combine_jigou(a_df, b_df):
+    aa=a_df
+    bb=b_df
+
+    df = aa.append(bb, ignore_index=True, sort=False)
+    df = df.sort_values('record_date')
+    df = df.reset_index(drop=True)
+    df = df.fillna(0)
+    df_len = len(df)
+
+
+    i = 0
+    tmp_c = 0
+    tmp_h = 0
+
+    #find the first valid data
+    while ( i < df_len):
+        if(df.close[i]):  
+            tmp_c = df.close[i]
+            break
+        i = i + 1
+
+    i = 0
+    while ( i < df_len):
+        if(df.freeshares_ratio[i]):
+            tmp_h = df.freeshares_ratio[i]
+            break
+        i = i + 1
+
+    #set 0 with valid data
+    i = 0
+    while ( i < df_len):
+        if(df.close[i] == 0):  
+            #df.close[i] = tmp_c       
+            df.loc[i,'close'] = tmp_c
+
+        if(df.freeshares_ratio[i] == 0):  
+            #df.freeshares_ratio[i] = tmp_h
+            df.loc[i,'freeshares_ratio'] = tmp_h
+
+        if(df.close[i]):    
+            tmp_c = df.close[i]        
+
+        if(df.freeshares_ratio[i]):
+            tmp_h = df.freeshares_ratio[i]
+
+        i = i + 1
+
+    return df
+
+
 
 def combine_holder(a_df, b_df):
     aa=a_df
@@ -309,6 +360,34 @@ def fina_net_plot(axes, fina_df, c_fina_df, step, degree):
             axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 16, color="b")
         i = i + 1
 
+def jigou_plot(axes, jigou_df, c_jigou_df, step, degree):
+    df = c_jigou_df
+    #jigou
+    jigou = c_jigou_df['freeshares_ratio']
+    if debug:
+        print('jigou : %s' % jigou  )
+    axes.plot(jigou ,  '-r', label = 'jigou ')
+    axes.set_xticks(range(0, len(df.index), step))
+    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.legend();
+    #mark add
+    df_len = len(c_jigou_df)
+    i = 0
+    j = 0
+    for i in range(df_len):
+        #print('i:%d j:%d' % (i, j))
+        if j >= len(jigou_df):
+            break
+        #compare original data with new combined data
+        if c_jigou_df.record_date[i] == jigou_df.record_date[j]:  
+            j = j+1
+            x1 = i
+            y1 = c_jigou_df.freeshares_ratio[i]
+            text1 = str(c_jigou_df.freeshares_ratio[i])
+            axes.annotate(text1, xy=(x1, y1), xytext=(x1, y1),fontsize = 16, color="b")
+        i = i + 1
+
+
 
 def zig_plot(axes, day_df):
 
@@ -370,10 +449,10 @@ def zig_plot(axes, day_df):
     return buy_flag, z_status
 
 
-def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir, fig, sub_name):
+def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df, save_dir, fig, sub_name):
 
     step = 20
-    degree = 30
+    degree = 5
 
     buy_flag = ''
     z_status = ''
@@ -383,13 +462,17 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
 
     c_holder_df = combine_holder(day_df, holder_df)
     c_fina_df = combine_fina(day_df, fina_df)
+    c_jigou_df = combine_jigou(day_df, jigou_df)
 
     if debug:
         print('day_df: %s' % day_df.head(2))
         print('holder_df: %s' % holder_df.head(2))
         print('fina_df: %s' % fina_df.head(2))
+        print('jigou_df: %s' % jigou_df.head(2))
+
         print('c_holder_df: %s' % c_holder_df.head(2))
         print('c_fina_df: %s' % c_fina_df.head(2))
+        print('c_jigou_df: %s' % c_jigou_df.head(2))
  
 
     #skip ST
@@ -490,8 +573,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
     h_delta = 0.02
 
     #plt.title(nowcode + ': ' + nowname)  #this will add xy axis system [0.0-1.0]
-    
     #                    left  bottom right height
+    ax07 = fig.add_axes([0.05, 0.95, 0.95, 0.04])
     ax06 = fig.add_axes([0.05, 0.84, 0.95, 0.1])
     ax05 = fig.add_axes([0.05, 0.72, 0.95, 0.1])
     ax05.grid()    
@@ -500,7 +583,25 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir
     ax02 = fig.add_axes([0.05, 0.26, 0.95, 0.1])
     ax01 = fig.add_axes([0.05, 0.14, 0.95, 0.1])
     ax00 = fig.add_axes([0.05, 0.02, 0.95, 0.1])
+    
+    #                    left  bottom right height
+    ax07 = fig.add_axes([0.05, 0.88, 0.95, 0.1])
+    ax06 = fig.add_axes([0.05, 0.77, 0.95, 0.1])
+    ax05 = fig.add_axes([0.05, 0.66, 0.95, 0.1])
+    ax05.grid()    
+    ax04 = fig.add_axes([0.05, 0.50, 0.95, 0.15])
+    ax03 = fig.add_axes([0.05, 0.34, 0.95, 0.15])
+    ax02 = fig.add_axes([0.05, 0.23, 0.95, 0.1])
+    ax01 = fig.add_axes([0.05, 0.12, 0.95, 0.1])
+    ax00 = fig.add_axes([0.05, 0.01, 0.95, 0.1])
+    ####################################################################################################################
+    #jigou
+    axes = ax07
+    close_plot(axes, c_jigou_df, step, degree)
 
+    axes_sub0 = axes.twinx()
+    jigou_plot(axes_sub0, jigou_df, c_jigou_df, step, degree)
+ 
     ####################################################################################################################
     #holder
     axes = ax06
