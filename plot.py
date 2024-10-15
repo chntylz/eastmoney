@@ -263,7 +263,6 @@ def combine_holder(a_df, b_df):
 
 def close_plot(axes,c_holder_df, step, degree):
     df = c_holder_df
-    axes.set_title(df.stock_code[0]) 
     c_close = df['close']
     if debug:
         print('record_date: %s' % df['record_date'])
@@ -574,15 +573,15 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
 
     #plt.title(nowcode + ': ' + nowname)  #this will add xy axis system [0.0-1.0]
     #                    left  bottom right height
-    ax07 = fig.add_axes([0.05, 0.95, 0.95, 0.04])
-    ax06 = fig.add_axes([0.05, 0.84, 0.95, 0.1])
-    ax05 = fig.add_axes([0.05, 0.72, 0.95, 0.1])
-    ax05.grid()    
-    ax04 = fig.add_axes([0.05, 0.55, 0.95, 0.15])
-    ax03 = fig.add_axes([0.05, 0.38, 0.95, 0.15])
-    ax02 = fig.add_axes([0.05, 0.26, 0.95, 0.1])
-    ax01 = fig.add_axes([0.05, 0.14, 0.95, 0.1])
-    ax00 = fig.add_axes([0.05, 0.02, 0.95, 0.1])
+    #ax07 = fig.add_axes([0.05, 0.95, 0.95, 0.04])
+    #ax06 = fig.add_axes([0.05, 0.84, 0.95, 0.1])
+    #ax05 = fig.add_axes([0.05, 0.72, 0.95, 0.1])
+    #ax05.grid()    
+    #ax04 = fig.add_axes([0.05, 0.55, 0.95, 0.15])
+    #ax03 = fig.add_axes([0.05, 0.38, 0.95, 0.15])
+    #ax02 = fig.add_axes([0.05, 0.26, 0.95, 0.1])
+    #ax01 = fig.add_axes([0.05, 0.14, 0.95, 0.1])
+    #ax00 = fig.add_axes([0.05, 0.02, 0.95, 0.1])
     
     #                    left  bottom right height
     ax07 = fig.add_axes([0.05, 0.88, 0.95, 0.1])
@@ -597,6 +596,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
     ####################################################################################################################
     #jigou
     axes = ax07
+    axes.set_title(day_df.stock_code[0]) 
     close_plot(axes, c_jigou_df, step, degree)
 
     axes_sub0 = axes.twinx()
