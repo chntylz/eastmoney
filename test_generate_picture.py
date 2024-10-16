@@ -53,24 +53,30 @@ def plot_stock_picture(nowdate, nowcode, nowname):
     plt.close('all')
 
 def worker(name):
-    if debug:
-        print("Worker %s %s started" % (name[0], name[1]))
-        print(name)
-    nowdate = name[0]
-    if debug:
-        print("%s %s" % (nowdate, type(nowdate)))
-
-    nowdate = datetime.datetime.strptime(nowdate, '%Y-%m-%d').date()
-    if debug:
-        print("%s %s" % (nowdate, type(nowdate)))
+    nowdate    = name[0]
     stock_code = name[1]
     stock_name = name[2]
     stock_name = name[1]
 
-    #debug
-    if stock_code != '600660':
-        #return
+    #for special stock test
+    #if True:
+    if False:
+        if stock_code != '600660' and stock_code != '603991':
+        return
+    else:
         pass
+
+    if debug:
+        print("Worker %s %s started" % (name[0], name[1]))
+        print(name)
+        print("%s %s" % (nowdate, type(nowdate)))
+
+    '''
+    #for date format test
+    nowdate = datetime.datetime.strptime(nowdate, '%Y-%m-%d').date()
+    if debug:
+        print("%s %s" % (nowdate, type(nowdate)))
+    '''
 
     plot_stock_picture(nowdate, stock_code, stock_name)
     return
