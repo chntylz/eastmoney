@@ -196,6 +196,8 @@ def combine_zlje_data(db_table=None, first_df=None, second_df=None, curr_day=Non
         df2 = second_df
         ret_df = pd.merge(df1, df2, how='inner', on=['stock_code'])
 
+    print(ret_df.columns)
+
     if 'zlje_x' in ret_df.columns:
         ret_df = ret_df.sort_values('zlje_x', ascending=False)
 
@@ -438,7 +440,7 @@ if __name__ == '__main__':
     else:
         print('#error, html_cuptea_df len < 1')
 
-    #cup_tea
+    #duck_head
     print('#############################################################')
     print('start duck_head')
     curr_dir=curr_day_w+'-duckhead'
@@ -486,6 +488,9 @@ if __name__ == '__main__':
     if debug:
         print(zlje_df.head(5))
     html_zlje_df = convert_to_html_df(zlje_df, curr_dir, curr_day)
+    print(html_zlje_df.columns)
+    html_zlje_df = html_zlje_df.sort_values('zlje_3', ascending=False)
+    html_zlje_df = html_zlje_df.reset_index(drop=True)
     #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
     if len(html_zlje_df):
         generate_html(df_global, html_zlje_df, stock_data_dir, curr_dir, curr_day)
