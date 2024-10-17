@@ -85,7 +85,6 @@ done
 #start
 file_array=(
             'test_generate_html_dragon.py'
-            'test_generate_dragon_index_html.py'
            )
 
 
@@ -99,9 +98,6 @@ do
     if [ "$target" = "test_generate_html_dragon.py" ];then
         log "cd $work_path"  
         cd $work_path
-    elif [ "$target" = "test_generate_dragon_index_html.py" ];then
-        log "cd $work_path/html"  
-        cd $work_path/html
     fi
 
     time=`date "+%Y_%m_%d_%H_%M_%S"`
@@ -115,7 +111,8 @@ do
     
 done
 
-
+log "~/eastmoney/shell/set_stock_generate_html.sh"
+~/eastmoney/shell/set_stock_generate_html.sh
 
 log "*********************** end ********************************" 
 

@@ -33,7 +33,7 @@ SHELL=/bin/sh
 #cloudflare 
 1  */3    * * *   root /home/aaron/linux_server_conf/set_cloudflare_dns.sh
 
-*/30  *    * * *   root /usr/sbin/ifconfig > /var/www/html/ifconfig
+*/30  *    * * *   root /usr/sbin/ifconfig > /var/www/html/ip.txt && curl 4.ipw.cn >> /var/www/html/ip.txt
 
 #@reboot  root $HOME/linux_server_conf/raspberry_auto_wifi.sh
 
@@ -42,17 +42,26 @@ SHELL=/bin/sh
 
 
 #fina and holder
-0 1      * * 6       aaron /home/aaron/eastmoney/shell/get_holder_jijin_fina_balance_income_cashflow.sh
-
-#update zlje zlpm data every 2 minute
-#cgi 
-*/2 9-14    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+1 1      * * 6     aaron /home/aaron/eastmoney/shell/get_holder_jijin_fina_balance_income_cashflow.sh
 
 #get kline data from eastmoney 
 25 9       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
 
+#update zlje zlpm data every 2 minute
+#cgi 
+*/1 9-10     * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+1-30 11      * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+*/1  13    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+1-25 14    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+
 #get kline data from eastmoney 
-30 14       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
+25 14       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
+
+45-59 14    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+
+#get kline data from eastmoney 
+31 11       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
+
 
 #get the last updated zlje a day
 1 15      * * 1-5       aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
@@ -61,14 +70,24 @@ SHELL=/bin/sh
 2 15        * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
 
 #get dragon data at 17:30
-30 17      * * 1-5     aaron /home/aaron/eastmoney/shell/get_dragon_data.sh && /home/aaron/eastmoney/shell/set_stock_generate_html.sh
+30 17      * * 1-5     aaron /home/aaron/eastmoney/shell/get_dragon_data.sh 
+
+#generate pciture
+30 20      * * 1-5     aaron /home/aaron/eastmoney/shell/get_generate_picture.sh 
 
 
 #hsgt
 #1 04   * * 2-6   aaron /home/aaron/linux_server_conf/set_hsgt_update.sh && cd /home/aaron/eastmoney && python3 test_generate_html.py 1 && /home/aaron/linux_server_conf/set_stock_update_for_xq.sh &
 #1 05   * * 2-6   aaron /home/aaron/linux_server_conf/set_hsgt_update.sh && cd /home/aaron/eastmoney && python3 test_generate_html.py 1 && /home/aaron/linux_server_conf/set_stock_update_for_xq.sh &
+#get hsgt data 
+
+#2 5     30,31 3,6,9,12   * * * aaron /home/aaron/eastmoney/shell/get_hsgt_data.sh
 
 
+
+
+#tmp
+#30 18        * * 1-5 aaron cd /home/aaron/eastmoney && python3 get_sina_fina_data.py > sina4.log 2>&1  &
 
 
 
