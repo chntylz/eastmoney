@@ -3,6 +3,7 @@
 
 import  psycopg2
 import pandas as pd
+from io import StringIO
 
 pd.set_option('display.float_format',lambda x : '%.2f' % x)
 
@@ -409,6 +410,30 @@ class HData_hsgt(object):
         return df
         pass
         
+    def copy_from_stringio(self, df):
+        """
+        Here we are going save the dataframe in memory
+        and use copy_from() to copy it to the table
+        """
+        # save dataframe to an in memory buffer
+        buffer = StringIO()
+        #df.to_csv(buffer, index_label='id', header=False)
+        df.to_csv(buffer, index=0, header=False)
+        buffer.seek(0)
+
+        self.db_connect()
+        try:
+            self.cur.copy_from(buffer, table='hdata_hsgt_table', sep=",")
+            self.conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Error: %s" % error)
+            self.conn.rollback()
+            self.db_disconnect()
+            return 1
+        
+        #print("copy_from_stringio() done")
+        self.db_disconnect()
+
 
 #add is_zig, is_quad, is_peach column
 #alter table hdata_hsgt_table add  "is_zig" int not null default 0;

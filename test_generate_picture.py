@@ -62,7 +62,7 @@ def worker(name):
     #if True:
     if False:
         if stock_code != '600660' and stock_code != '603991':
-        return
+            return
     else:
         pass
 
@@ -71,12 +71,10 @@ def worker(name):
         print(name)
         print("%s %s" % (nowdate, type(nowdate)))
 
-    '''
     #for date format test
     nowdate = datetime.datetime.strptime(nowdate, '%Y-%m-%d').date()
     if debug:
         print("%s %s" % (nowdate, type(nowdate)))
-    '''
 
     plot_stock_picture(nowdate, stock_code, stock_name)
     return
@@ -102,7 +100,10 @@ if __name__ == '__main__':
 
         if len(df) > 0:
             break;
-        
+
+        if retry > 10:
+            break
+
         retry = retry + 1
 
         nowdate=datetime.datetime.now().date()
