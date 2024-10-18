@@ -596,7 +596,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
     ####################################################################################################################
     #jigou
     axes = ax07
-    axes.set_title(day_df.stock_code[0] + '--' + str(nowdate))) 
+    axes.set_title(day_df.stock_code[0] + '--' + str(nowdate)) 
     close_plot(axes, c_jigou_df, step, degree)
 
     axes_sub0 = axes.twinx()
