@@ -40,9 +40,11 @@ SHELL=/bin/sh
 
 
 
+#holder
+1 6      * * 1-5    aaron /home/aaron/eastmoney/shell/get_holder_data.sh
 
-#fina and holder
-1 1      * * 6     aaron /home/aaron/eastmoney/shell/get_holder_jijin_fina_balance_income_cashflow.sh
+#fina 
+1 6      * * 6     aaron /home/aaron/eastmoney/shell/get_jijin_fina_balance_income_cashflow.sh
 
 #get kline data from eastmoney 
 25 9       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
@@ -73,7 +75,7 @@ SHELL=/bin/sh
 30 17      * * 1-5     aaron /home/aaron/eastmoney/shell/get_dragon_data.sh 
 
 #generate pciture
-30 20      * * 1-5     aaron /home/aaron/eastmoney/shell/get_generate_picture.sh 
+30 22      * * 1-5     aaron /home/aaron/eastmoney/shell/get_generate_picture.sh 
 
 
 #hsgt
