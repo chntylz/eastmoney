@@ -44,7 +44,7 @@ log "*********************** begin ********************************"
 log "source ~/linux_server_conf/set_stock_workday.sh"
 source ~/eastmoney/shell/is_workday.sh
 
-input=1
+input=0
 
 #start
 file_array=(
@@ -67,7 +67,6 @@ do
     cd $work_path
 
     if [ "$target" = "main_holder.py" -o \
-         "$target" = "get_jigou_data.py" -o \
          "$target" = "main_fina.py" -o \
          "$target" = "main_balance.py" -o \
          "$target" = "main_income.py" -o \
@@ -77,6 +76,7 @@ do
         cd $work_path
 
     else
+        #"$target" = "get_jigou_data.py" -o \
         log "cd $work_path/"  
         cd $work_path/
     fi

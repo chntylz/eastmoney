@@ -187,7 +187,7 @@ def get_jigou_data(stock_code, record_date):
 
 
 
-def get_jigou():
+def get_jigou(get_all=0):
 
     df = tmp_df = raw_df = pd.DataFrame()
     #get all stock info
@@ -205,12 +205,19 @@ def get_jigou():
     table_exist = hdata_jigou.table_is_exist()
     if debug:
         print('table_exist=%d' % table_exist)
+
     if table_exist:
         new_date_list.append(date_list[position])
     else:
         new_date_list = date_list
 
     for my_date in date_list:
+        if get_all:
+            print("get all seasons")
+        else:
+            print("get current season")
+            if my_data is not data_list[position]:
+                continue
 
         record_date = my_date
         for i in range(0, r_len):
@@ -239,19 +246,22 @@ def get_jigou():
     return df
 
 
-def check_table():
-    table_exist = hdata_jigou.table_is_exist()
-    print('table_exist=%d' % table_exist)
-    if table_exist:
-        hdata_jigou.db_hdata_xq_create()
-        print('table already exist')
-    else:
-        hdata_jigou.db_hdata_xq_create()
-        print('table not exist, create')
-    pass
+def check_table(get_all=0):
+    if get_all:
+        table_exist = hdata_jigou.table_is_exist()
+        print('table_exist=%d' % table_exist)
+        if table_exist:
+            hdata_jigou.db_hdata_xq_create()
+            print('table already exist')
+        else:
+            hdata_jigou.db_hdata_xq_create()
+            print('table not exist, create')
+        pass
 
 if __name__ == '__main__':
  
+    cript_name, para1 = check_input_parameter()
+
     browser = get_broswer() 
      
     t1 = time.time()
@@ -261,12 +271,12 @@ if __name__ == '__main__':
     nowdate=datetime.datetime.now().date()
     date_string = nowdate.strftime('%Y-%m-%d')
     
-    df  = get_jigou()
+    df  = get_jigou(get_all=int(para1))
     df.to_csv('./csv/'+ date_string + '_jigou_.csv', encoding='gbk')
     #df = pd.read_csv('./csv/jigou_2021-11-29.csv',encoding='gbk', converters={'stock_code': lambda x: str(x)})
 
     if len(df) > 100:
-        check_table()
+        check_table(get_all=int(para1))
         hdata_jigou.copy_from_stringio(df)
 
     browser.close()

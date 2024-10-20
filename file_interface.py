@@ -74,6 +74,19 @@ def cur_file_dir():
     elif os.path.isfile(path):
         return os.path.dirname(path)
 
+#compare 2 string date
+def compare_time2(time1,time2):
+    t1 = time.strptime(time1, "%Y-%m-%d")
+    t2 = time.strptime(time2, "%Y-%m-%d")
+    return (t1 <= t2)
+
+#compare 2 string date
+def time_is_equal2(time1,time2):
+    t1 = time.strptime(time1, "%Y-%m-%d")
+    t2 = time.strptime(time2, "%Y-%m-%d")
+    return (t1 == t2)
+
+
 
 
 #compare 2 string date
@@ -318,6 +331,7 @@ def get_curr_season():
            tmp_int = int(year_string) - 1
            tmp_string = str(tmp_int) 
         date_list_b[i] = tmp_string + '-' + date_list_b[i]
+
 
 
     return position, date_list_b

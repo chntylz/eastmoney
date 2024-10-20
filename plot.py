@@ -634,7 +634,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
     #if False:
     if True:
         ####################################################################################################################
-        #boll, candles
+        #boll
         ax04.set_xticks(range(0, len(day_df.index), step))
         ax04.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
         candlestick2_ochl(ax04, day_df['open'], day_df['close'], day_df['high'],
@@ -645,6 +645,11 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         ax04.plot(middleband, label="middle")
         ax04.plot(lowerband, label="bottom")
         ax04.legend();
+
+        #add zig together with candles
+        axes_sub = ax04.twinx()
+        buy_flag, z_status = zig_plot(axes_sub, day_df)
+
         ####################################################################################################################
 
         #candles
