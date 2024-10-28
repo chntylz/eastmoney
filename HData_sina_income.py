@@ -47,7 +47,7 @@ income
 '拓维信息']                                             'stock_name'
 '''
 
-sina_clos = " record_date, stock_code, stock_name, biztotinco, bizinco, biztotcost, bizcost, biztax, \
+sina_cols = " record_date, stock_code, stock_name, biztotinco, bizinco, biztotcost, bizcost, biztax, \
              salesexpe, manaexpe, finexpe, deveexpe, asseimpaloss, valuechgloss, \
              inveinco, assoinveprof, exchggain, perprofit, nonoreve, nonoexpe, \
              noncassetsdisl, totprofit, incotaxexpe, netprofit, parenetp, minysharrigh, \

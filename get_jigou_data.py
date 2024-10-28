@@ -39,6 +39,15 @@ debug = 0
 
 browser = ''
 
+def check_ji_data_exist(stock_code, record_date):
+    ret = False
+    df = hdata_jigou.get_data_from_hdata(stock_code=stock_code,
+        start_date=record_date, 
+        end_date=record_date)
+    if len(df):
+        ret = True
+    return  ret
+
 def get_jigou_data(stock_code, record_date):
     retry = 3
 
@@ -196,6 +205,7 @@ def get_jigou(get_all=0):
     r_len = len(r_df)
 
     position, date_list = get_curr_season()
+    latest_date = date_list[position]
     print('position: %s' % position )
     print('data_list: %s' % date_list )
 
@@ -216,21 +226,25 @@ def get_jigou(get_all=0):
             print("get all seasons")
         else:
             print("get current season")
-            if my_data is not data_list[position]:
+            if my_date is not latest_date:
                 continue
 
         record_date = my_date
         for i in range(0, r_len):
             stock_code = r_df['stock_code'][i]
-
+            
             #record_date = '2021-09-30'
             if debug:
                 print("%s, %s"%(stock_code, record_date))
+            
+            #check it is exist or not 
+            #if check_ji_data_exist(stock_code, record_date):
+            #continue
                 
             tmp_df , raw_df = get_jigou_data(stock_code, record_date)
             if debug:
                 print(tmp_df)
-
+            
             df = pd.concat([df, tmp_df])
 
 
@@ -243,6 +257,9 @@ def get_jigou(get_all=0):
     df=df.sort_values('delta_ratio', ascending=0)
     df=df.reset_index(drop=True)
 
+    #delete already exist data by latest_date
+    if (len(df) > 100) and table_exist:
+        hdata_jigou.delete_data_from_hdata(start_date=latest_date, end_date=latest_date)
     return df
 
 
@@ -257,6 +274,8 @@ def check_table(get_all=0):
             hdata_jigou.db_hdata_xq_create()
             print('table not exist, create')
         pass
+    else:
+        print('table_exist=%d' % table_exist)
 
 if __name__ == '__main__':
  

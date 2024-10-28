@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -9,6 +10,9 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 def get_broswer():
+
+    browser = None
+    
     # 添加无头headlesss
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument(
@@ -30,8 +34,26 @@ def get_broswer():
     chrome_options.add_argument("blink-settings=imagesEnabled=false")  #image disable
      
     chrome_options.add_argument('--disable-dev-shm-usage')
-    browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
-        chrome_options=chrome_options)
+
+    try:
+        browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+            chrome_options=chrome_options)
+    except:
+        time.sleep(60)
+        try:
+            browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+                chrome_options=chrome_options)
+        except:
+            pass
+    finally:
+        if browser is None:
+            try:
+                time.sleep(60)
+                browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+                    chrome_options=chrome_options)
+            except:
+                pass
+
     browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
     with open('./stealth.min.js') as f:

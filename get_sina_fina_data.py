@@ -87,7 +87,14 @@ def get_sina_comm_data(browser, url):
 
     data = []
     gen_cols = []
-    browser.get(url)
+
+    try:
+        browser.get(url)
+    except Exception as e:
+        print(e)
+        return data, gen_cols
+        
+
     html_doc=browser.page_source
 
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -456,7 +463,7 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
-
+    
     sina_update_database(hdata_sina_balance, df, data, stock_code, stock_name, year, target_type, data_column)
 
     return df
@@ -477,9 +484,12 @@ def get_sina_fina_by_soup(stock_code, stock_name):
 
     df = pd.DataFrame()
     browser = open_browser()
+    if browser is None:
+        return df
 
     this_year = int(time.strftime("%Y", time.localtime()))
     #get continuous 5 years data
+    target_years = 5
     target_years = 1
     for yy in range(target_years):
         year = str(this_year - yy)
@@ -493,6 +503,8 @@ def get_sina_fina_by_soup(stock_code, stock_name):
     
 def get_sina_fina_by_selenium():
     browser = open_browser()
+    if browser is None:
+        return df
 
     data = []
 

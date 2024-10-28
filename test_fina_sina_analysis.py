@@ -334,18 +334,18 @@ def income_analysis_revenue(df):
         '销售商品、提供劳务收到的现金', '现金占比', 'result'])
     '''
     list.append([df.stock_name_x[0], 'bizinco', 'bizinco_yoy',\
-        'cash_received_of_sales_service', 'cash_ratio', 'result'])
+        'laborgetcash', 'cash_ratio', 'result'])
     '''
     for i in range(df_len):
         cash_ratio  = 0
         if df.bizinco[i]:
-            cash_ratio = df.cash_received_of_sales_service[i] / df.bizinco[i] * 100
-        condi = df.bizinco_new_x[i] * 100 > 10 and cash_ratio > 100
+            cash_ratio = df.laborgetcash[i] / df.bizinco[i] * 100
+        condi = df.bizinco[i] * 100 > 10 and cash_ratio > 100
         if condi is False:
             flag = False
         list.append([df.record_date[i], df.bizinco[i] / y_unit, \
-            df.bizinco_new_x[i] * 100, \
-            df.cash_received_of_sales_service[i]/y_unit, \
+            df.bizinco[i] * 100, \
+            df.laborgetcash[i]/y_unit, \
             cash_ratio, \
             condi\
             ])
@@ -565,7 +565,7 @@ def income_analysis_(df):
             flag = False
         list.append([df.record_date[i], \
             df.mananetr[i]/ y_unit, \
-            df.mananetr_new[i] * 100, \
+            df.mananetr[i] * 100, \
             df.netprofit[i] / y_unit,\
             rate_of_mananetr ,\
             condi])
