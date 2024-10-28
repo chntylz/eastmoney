@@ -16,6 +16,7 @@ from HData_sina_cashflow import *
 
 debug = 0
 debug = 1
+debug = 0
 
 hdata_fina     = HData_sina_fina("usr","usr")
 hdata_income   = HData_sina_income("usr","usr")
@@ -42,12 +43,12 @@ def income_analysis_assets(df):
     for i in range(df_len):
         if debug:
             print('record_date=%s, i=%d, total_assets=%f, total_asset_growth_rate=%f'\
-                    %(df.record_date[i], i, df.total_assets[i]/y_unit, df.total_asset_growth_rate[i] * 100))
-        if df.total_asset_growth_rate[i] < 0.2:
+                    %(df.record_date[i], i, df.total_assets[i]/y_unit, df.total_asset_growth_rate[i]))
+        if df.total_asset_growth_rate[i] < 30:
             flag = False
 
         list.append([df.record_date[i], df.total_assets[i]/y_unit, \
-                df.total_asset_growth_rate[i] * 100 , df.total_asset_growth_rate[i] >= 0.2])
+                df.total_asset_growth_rate[i], df.total_asset_growth_rate[i] >= 30])
 
     list.append([biaozhun, 0, 0, 0])
 
@@ -411,7 +412,7 @@ def income_analysis_costfee(df):
         '费用率', '毛利率', '费用率/毛利率', 'result'])
     '''
     list.append([df.stock_name_x[0], 'bizinco', 'bizcost',\
-        'gross', 'salesexpe', 'manaexpe', 'finexpe', 'deveexpe', 'total_4fee', \
+        'gross', 'salesexpe', 'manaexpe', 'finexpe_x', 'deveexpe_x', 'total_4fee', \
         'costfee_p', 'gross_ratio', 'costfee_ratio', 'result'])
     '''
     for i in range(df_len):
@@ -419,7 +420,7 @@ def income_analysis_costfee(df):
         gross_ratio = 0
         if df.bizinco[i]:
             gross_ratio = gross / df.bizinco[i] * 100
-        total_4fee = df.salesexpe[i] + df.manaexpe[i] + df.finexpe[i] + df.deveexpe[i]
+        total_4fee = df.salesexpe[i] + df.manaexpe[i] + df.finexpe_x[i] + df.deveexpe_x[i]
 
         costfee_p = 0
         if df.bizinco[i] :
@@ -438,8 +439,8 @@ def income_analysis_costfee(df):
             gross / y_unit, \
             df.salesexpe[i] / y_unit, \
             df.manaexpe[i]/ y_unit, \
-            df.finexpe[i]/ y_unit, \
-            df.deveexpe[i]/ y_unit, \
+            df.finexpe_x[i]/ y_unit, \
+            df.deveexpe_x[i]/ y_unit, \
             total_4fee / y_unit, costfee_p, \
             gross_ratio, costfee_ratio,   \
             condi])
@@ -467,27 +468,27 @@ def income_analysis_main_profit(df):
         '销售费用', '管理费用', '财务费用', '研发费用', '四费合计', \
         '利润总额', \
         '投资收益', '公允价值变动损益', '资产减值', '营业外收入', \
-        '营业外支出', '信用减值损失', '其他收益', '资产处置收益', \
+        '营业外支出', '其他收益', '资产处置收益', \
         '所有其他收益', '主营利润', \
         '主营利润率', '主营利润/利润总额', 'result'])
  
     '''
     list.append([df.stock_name_x[0], 'bizinco', 'bizcost',\
         'biztax', \
-        'salesexpe', 'manaexpe', 'finexpe', 'deveexpe', 'total_4fee', \
+        'salesexpe', 'manaexpe', 'finexpe_x', 'deveexpe_x', 'total_4fee', \
         'total_profit', \
         'inveinco', 'valuechgloss_x', 'asseimpaloss', 'nonoreve', \
-        'nonoexpe', 'credit_impairment_loss', 'other_income', 'fixedassetnetc', \
+        'nonoexpe',  'ocl', 'fixedassetnetc', \
         'ocl', 'main_profit', \
         'main_profit_of_bizinco', 'main_profit_of_total_profit', 'result'])
     '''
     for i in range(df_len):
         total_4fee = (df.salesexpe[i] + df.manaexpe[i] + \
-                df.finexpe[i] + df.deveexpe[i])
+                df.finexpe_x[i] + df.deveexpe_x[i])
         ocl = (df.inveinco[i] + df.valuechgloss_x[i] - \
                 df.asseimpaloss[i]+df.nonoreve[i] - \
-                df.nonoexpe[i] - df.credit_impairment_loss[i] + \
-                df.other_income[i] + df.fixedassetnetc[i])
+                df.nonoexpe[i] + \
+                df.ocl[i] + df.fixedassetnetc[i])
         total_profit = df.totprofit[i]
         #main_profit = (total_profit - ocl)  
         main_profit = df.main_business_profit[i]
@@ -506,14 +507,14 @@ def income_analysis_main_profit(df):
             df.biztax[i] / y_unit, \
             df.salesexpe[i] / y_unit, \
             df.manaexpe[i]/ y_unit, \
-            df.finexpe[i]/ y_unit, \
-            df.deveexpe[i]/ y_unit, \
+            df.finexpe_x[i]/ y_unit, \
+            df.deveexpe_x[i]/ y_unit, \
             total_4fee / y_unit, \
             total_profit / y_unit, \
             df.inveinco[i]/ y_unit, df.valuechgloss_x[i]/ y_unit, \
             df.asseimpaloss[i]/ y_unit, df.nonoreve[i]/ y_unit, \
-            df.nonoexpe[i]/ y_unit, df.credit_impairment_loss[i]/ y_unit, \
-            df.other_income[i]/ y_unit, df.fixedassetnetc[i]/ y_unit,  \
+            df.nonoexpe[i]/ y_unit,  \
+            df.ocl[i]/ y_unit, df.fixedassetnetc[i]/ y_unit,  \
             ocl/ y_unit, main_profit/ y_unit, \
             main_profit_of_bizinco, main_profit_of_total_profit, \
             condi])
@@ -524,7 +525,7 @@ def income_analysis_main_profit(df):
 
 
 #2-5
-def income_analysis_(df):
+def income_analysis_netprofit(df):
     y_unit=10000*10000
     df_len=len(df)
     flag = True
@@ -555,10 +556,10 @@ def income_analysis_(df):
     total_mananetr = 0
     for i in range(df_len):
         total_mananetr += df.mananetr[i] 
-        total_netprofit  += df.netprofit[i]
+        total_netprofit  += df.netprofit_x[i]
         rate_of_mananetr  = 0
-        if df.netprofit[i]:
-           rate_of_mananetr  = df.mananetr[i]  * 100/  df.netprofit[i]
+        if df.netprofit_x[i]:
+           rate_of_mananetr  = df.mananetr[i]  * 100/  df.netprofit_x[i]
 
         condi = rate_of_mananetr > 100 
         if condi is False:
@@ -566,7 +567,7 @@ def income_analysis_(df):
         list.append([df.record_date[i], \
             df.mananetr[i]/ y_unit, \
             df.mananetr[i] * 100, \
-            df.netprofit[i] / y_unit,\
+            df.netprofit_x[i] / y_unit,\
             rate_of_mananetr ,\
             condi])
     list.append([biaozhun,biaozhun2,0,0,0,0])
@@ -746,8 +747,8 @@ def fina_data_analysis(df):
         main_profit_df, flag_main_frofit = income_analysis_main_profit(group_df)
         ret_df = pd.concat([ret_df, main_profit_df]) 
 
-        _df, flag_netprofit = income_analysis_netprofit(group_df)
-        ret_df = pd.concat([ret_df, _df]) 
+        netprofit_df, flag_netprofit = income_analysis_netprofit(group_df)
+        ret_df = pd.concat([ret_df, netprofit_df]) 
 
         paid_assets_df, flag_paid_asset = income_analysis_paid_assets(group_df)
         ret_df = pd.concat([ret_df, paid_assets_df]) 
@@ -758,11 +759,15 @@ def fina_data_analysis(df):
         net_increase_df, flag_net_increase = income_analysis_net_increase(group_df)
         ret_df = pd.concat([ret_df, net_increase_df]) 
 
-        ret_df.to_csv('./csv_data/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='gbk')
+        #删除重复的列
+        #remove duplicate columns
+        ret_df = ret_df.T.drop_duplicates().T
+        ret_df.to_csv('./csv_data/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
+        #ret_df.to_csv('./csv_data/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='utf-8-sig')
         
-        if flag and flag_net_increase and flag_ncf and flag_paid_asset and flag_ and flag_main_frofit and flag_costfee and flag_gross \
+        if flag and flag_net_increase and flag_ncf and flag_paid_asset and flag_netprofit and flag_main_frofit and flag_costfee and flag_gross \
             and flag_revnue and flag_net_asset_return_rate and flag_invest and flag_fix_assets and flag_asset and flag_liab and flag_loan and flag_pay_recv :
-            print("################################### %s, %s ################################\n"% (stock_code, stock_name_x))
+            print("################################### %s ###############################\n"% (stock_code))
     
     pass
 
@@ -840,6 +845,7 @@ def get_data_from_fina_income_balance_cashflow():
     df_y_balance[df_y_balance.stock_code=='SH600519'].total_assets
     '''
 
+    df.to_csv('./csv_data/sina_fina.csv', encoding='utf-8-sig')
     return df
 
 
