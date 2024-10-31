@@ -250,12 +250,22 @@ def get_jigou(get_all=0):
 
     df=df.sort_values(by=['stock_code', 'record_date'], ascending=False)
 
+    if get_all == 0 :
+        old_df = hdata_jigou.get_data_from_hdata()
+        del old_df['delta_ratio'] 
+        df = pd.concat([df, old_df])
+
+    df=df.fillna(0)
+    df=df.sort_values('record_date', ascending=0)
+    df=df.reset_index(drop=True)
     df['tmp'] = df.groupby('stock_code')['freeshares_ratio'].shift(-1)
     df['delta_ratio'] = round(df['freeshares_ratio'] - df['tmp'], 2)
     del df['tmp'] 
     df=df.fillna(0)
-    df=df.sort_values('delta_ratio', ascending=0)
-    df=df.reset_index(drop=True)
+
+    if get_all == 0 :
+        df=df[df['record_date'] == latest_date]
+
 
     #delete already exist data by latest_date
     if (len(df) > 100) and table_exist:
@@ -349,3 +359,32 @@ data_df.columns = data_df.columns.map(lambda x:x.lower())
 data_df['report_date'] = data_df['report_date'].apply(lambda x: x[:10])
 
 '''
+'''
+from HData_eastmoney_jigou import *
+
+import pandas as pd
+
+hdata_jigou=HData_eastmoney_jigou("usr","usr")
+
+
+df = pd.read_csv('./csv/2024-10-31_jigou_.csv',encoding='gbk', converters={'stock_code': lambda  x: str(x)})
+del df['Unnamed: 0']
+old_df = hdata_jigou.get_data_from_hdata()
+del old_df['delta_ratio']
+df = pd.concat([df, old_df])
+
+df=df.fillna(0)
+df=df.sort_values('record_date', ascending=0)
+df=df.reset_index(drop=True)
+df['tmp'] = df.groupby('stock_code')['freeshares_ratio'].shift(-1)
+df['delta_ratio'] = round(df['freeshares_ratio'] - df['tmp'], 2)
+del df['tmp']
+df=df.fillna(0)
+
+df=df[df['record_date'] == '2024-09-30']
+
+hdata_jigou.copy_from_stringio(df)
+
+
+'''
+

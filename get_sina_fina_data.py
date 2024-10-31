@@ -88,7 +88,7 @@ def worker(data):
     return
 
 
-def get_sina_comm_data(browser, url):
+def get_sina_comm_data(url):
 
     if debug:
         print(url)
@@ -96,10 +96,18 @@ def get_sina_comm_data(browser, url):
     data = []
     gen_cols = []
 
+    #open browser
+    browser = open_browser()
+    if browser is None:
+        return data, gen_cols
+
+    #try to open url
     try:
         browser.get(url)
     except Exception as e:
         print(e)
+        #close
+        close_broser(browser)
         return data, gen_cols
         
 
@@ -128,6 +136,8 @@ def get_sina_comm_data(browser, url):
 
     if tbody_find == False:
         print('### correct tbodys_find is False , return')
+        #close
+        close_broser(browser)
         return data, gen_cols
         
 
@@ -239,6 +249,8 @@ def get_sina_comm_data(browser, url):
         gen_cols[i]=col.replace('\n','').replace(' ','')
 
         
+    #close
+    close_broser(browser)
     return data, gen_cols
 
 def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column):
@@ -338,7 +350,7 @@ def sina_update_database(database, df, data, stock_code, stock_name, year, targe
 
 
 
-def get_sina_fina_data(stock_code, stock_name, year, browser):
+def get_sina_fina_data(stock_code, stock_name, year):
 
     target_type = 'fina'
 
@@ -354,7 +366,7 @@ def get_sina_fina_data(stock_code, stock_name, year, browser):
     df = pd.DataFrame()
 
     #catch html data
-    data, data_column = get_sina_comm_data(browser, url)
+    data, data_column = get_sina_comm_data(url)
     if len(data) == 0 or len(data_column) == 0:
         print('### get html source is NULL, return');
         return df
@@ -411,7 +423,7 @@ def get_sina_fina_data(stock_code, stock_name, year, browser):
     return df
 
 
-def get_sina_cashflow_data(stock_code, stock_name, year, browser):
+def get_sina_cashflow_data(stock_code, stock_name, year):
 
     target_type = 'cashflow'
 
@@ -425,7 +437,7 @@ def get_sina_cashflow_data(stock_code, stock_name, year, browser):
     df = pd.DataFrame()
 
     #catch html data
-    data, data_column = get_sina_comm_data(browser, url)
+    data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
         print('### get html source is NULL, return');
         return df
@@ -451,7 +463,7 @@ def get_sina_cashflow_data(stock_code, stock_name, year, browser):
 
 
 
-def get_sina_income_data(stock_code, stock_name, year, browser):
+def get_sina_income_data(stock_code, stock_name, year ):
 
     target_type = 'income'
 
@@ -465,7 +477,7 @@ def get_sina_income_data(stock_code, stock_name, year, browser):
     df = pd.DataFrame()
 
     #catch html data
-    data, data_column = get_sina_comm_data(browser, url)
+    data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
         print('### get html source is NULL, return');
         return df
@@ -489,7 +501,7 @@ def get_sina_income_data(stock_code, stock_name, year, browser):
     return df
 
 
-def get_sina_balance_data(stock_code, stock_name, year, browser):
+def get_sina_balance_data(stock_code, stock_name, year):
 
     target_type = 'balance'
 
@@ -504,7 +516,7 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
     df = pd.DataFrame()
 
     #catch html data
-    data, data_column = get_sina_comm_data(browser, url)
+    data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
         print('### get html source is NULL, return');
         return df
@@ -530,13 +542,13 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
 
     return df
 
-def get_sina_real_data(stock_code, stock_name, year, browser):
+def get_sina_real_data(stock_code, stock_name, year):
     
     df = pd.DataFrame()
-    df_balance = get_sina_balance_data(stock_code, stock_name, year, browser)
-    df_income  = get_sina_income_data(stock_code, stock_name, year, browser)
-    df_cashflow  = get_sina_cashflow_data(stock_code, stock_name, year, browser)
-    df_fina      = get_sina_fina_data(stock_code, stock_name, year, browser)
+    df_balance = get_sina_balance_data(stock_code, stock_name, year)
+    df_income  = get_sina_income_data(stock_code, stock_name, year)
+    df_cashflow  = get_sina_cashflow_data(stock_code, stock_name, year)
+    df_fina      = get_sina_fina_data(stock_code, stock_name, year)
     return df
 
 def get_sina_fina_by_soup(stock_code, stock_name):
@@ -544,9 +556,6 @@ def get_sina_fina_by_soup(stock_code, stock_name):
     time.sleep(random.randint(1, 2))
 
     df = pd.DataFrame()
-    browser = open_browser()
-    if browser is None:
-        return df
 
     this_year = int(time.strftime("%Y", time.localtime()))
     #get continuous 5 years data
@@ -554,9 +563,8 @@ def get_sina_fina_by_soup(stock_code, stock_name):
     target_years = 1
     for yy in range(target_years):
         year = str(this_year - yy)
-        df = get_sina_real_data(stock_code, stock_name, year, browser)
+        df = get_sina_real_data(stock_code, stock_name, year)
 
-    close_broser(browser)
 
     return df
 
@@ -645,7 +653,7 @@ html_doc=browser.page_source
 
 soup = BeautifulSoup(html_doc, 'html.parser')
 
-data, data_column = get_sina_comm_data(browser, url)
+data, data_column = get_sina_comm_data(url)
 
 ####################################################
 tbodys = soup.find_all('tbody')
