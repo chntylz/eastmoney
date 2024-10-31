@@ -56,6 +56,7 @@ hdata_sina_cashflow= HData_sina_cashflow("usr","usr")
 hdata_sina_fina    = HData_sina_fina("usr","usr")
 
 debug = 0
+debug = 1
 debug = 0
 
 
@@ -65,8 +66,15 @@ def open_browser():
 
 
 def close_broser(browser):
-    browser.close()
-    browser.quit()
+    if browser is None:
+        return
+
+    try:
+        browser.close()
+        browser.quit()
+    except Exception as e:
+        print(e)
+
     
 
 def worker(data):
@@ -384,7 +392,21 @@ def get_sina_fina_data(stock_code, stock_name, year, browser):
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
-    sina_update_database(hdata_sina_fina, df, data, stock_code, stock_name, year, target_type, data_column)
+    group_by_record_date_df=df.groupby('record_date')
+    for record_date, group_df in group_by_record_date_df:
+        if group_df is None:
+            print('%s %s, group_df is None' % (stock_code, record_date) )
+            continue
+
+        if len(group_df) < 1:
+            print('%s %s, len(group_df) < 1' % (stock_code, record_date))
+            continue
+
+        if debug:
+            print(' get_sina_fina_data: %s %s' % (stock_code, record_date) )
+        group_df = group_df.reset_index(drop=True)
+
+        sina_update_database(hdata_sina_fina, group_df, data, stock_code, stock_name, record_date, target_type, data_column)
        
     return df
 
@@ -410,7 +432,20 @@ def get_sina_cashflow_data(stock_code, stock_name, year, browser):
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
 
-    sina_update_database(hdata_sina_cashflow, df, data, stock_code, stock_name, year, target_type, data_column)
+    group_by_record_date_df=df.groupby('record_date')
+    for record_date, group_df in group_by_record_date_df:
+        if group_df is None:
+            print('%s %s, group_df is None' % (stock_code, record_date) )
+            continue
+
+        if len(group_df) < 1:
+            print('%s %s, len(group_df) < 1' % (stock_code, record_date))
+            continue
+
+        group_df = group_df.reset_index(drop=True)
+
+
+    sina_update_database(hdata_sina_cashflow, df, data, stock_code, stock_name, record_date, target_type, data_column)
 
     return df
 
@@ -436,8 +471,20 @@ def get_sina_income_data(stock_code, stock_name, year, browser):
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
+    group_by_record_date_df=df.groupby('record_date')
+    for record_date, group_df in group_by_record_date_df:
+        if group_df is None:
+            print('%s %s, group_df is None' % (stock_code, record_date) )
+            continue
 
-    sina_update_database(hdata_sina_income, df, data, stock_code, stock_name, year, target_type, data_column)
+        if len(group_df) < 1:
+            print('%s %s, len(group_df) < 1' % (stock_code, record_date))
+            continue
+
+        group_df = group_df.reset_index(drop=True)
+
+
+    sina_update_database(hdata_sina_income, df, data, stock_code, stock_name, record_date, target_type, data_column)
 
     return df
 
@@ -463,11 +510,25 @@ def get_sina_balance_data(stock_code, stock_name, year, browser):
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
-    
-    sina_update_database(hdata_sina_balance, df, data, stock_code, stock_name, year, target_type, data_column)
+    group_by_record_date_df=df.groupby('record_date')
+    for record_date, group_df in group_by_record_date_df:
+        if group_df is None:
+            print('%s %s, group_df is None' % (stock_code, record_date) )
+            continue
+
+        if len(group_df) < 1:
+            print('%s %s, len(group_df) < 1' % (stock_code, record_date))
+            continue
+
+        if debug:
+            print(' get_sina_balance_data: %s %s' % (stock_code, record_date) )
+
+        group_df = group_df.reset_index(drop=True)
+
+   
+    sina_update_database(hdata_sina_balance, df, data, stock_code, stock_name, record_date, target_type, data_column)
 
     return df
-
 
 def get_sina_real_data(stock_code, stock_name, year, browser):
     

@@ -50,7 +50,7 @@ input=0
 file_array=(
             #'main_holder.py'
             'get_sina_fina_data.py'
-            #'get_jigou_data.py'
+            'get_jigou_data.py'
             #'main_fina.py'
             #'main_balance.py'
             #'main_income.py'

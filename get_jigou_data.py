@@ -264,8 +264,8 @@ def get_jigou(get_all=0):
 
 
 def check_table(get_all=0):
+    table_exist = hdata_jigou.table_is_exist()
     if get_all:
-        table_exist = hdata_jigou.table_is_exist()
         print('table_exist=%d' % table_exist)
         if table_exist:
             hdata_jigou.db_hdata_xq_create()
