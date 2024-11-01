@@ -41,7 +41,7 @@ dragon_table=HData_eastmoney_dragon("usr","usr")
 from HData_eastmoney_holder import *
 holder_table=HData_eastmoney_holder("usr","usr")
 
-from test_generate_html import *
+from generate_html import *
 
 dict_industry={}
 df_global=None

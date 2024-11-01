@@ -65,14 +65,14 @@ file_array=(
             'main_zlpm.py'
             '#get_realdata_from_xq.py'
             'get_dragon_tiger.py'
-            'test_generate_html_dragon.py'
-            'test_generate_dragon_index_html.py'
+            'generate_html_dragon.py'
+            'generate_dragon_index_html.py'
             'get_season_fund.py'
             'main_holder.py'
             'get_jigou_data.py'
-            'test_get_fund_analysis.py'
+            'get_fund_analysis.py'
             '###main_day.py'
-            '###test_cross_conditions_14_30.py'
+            '###cross_conditions_14_30.py'
            )
 
 
@@ -117,7 +117,7 @@ do
 
     # dragon data should be later than 17:00
     elif [ "$target" = "get_dragon_tiger.py" -o \
-         "$target" = "test_generate_html_dragon.py" ];then
+         "$target" = "generate_html_dragon.py" ];then
         hh=`date '+%H'`
         judge_time=17
         if [ $hh -ge $judge_time ];  # >= 17
@@ -130,7 +130,7 @@ do
         log "cd $work_path"  
         cd $work_path
     # dragon data should be later than 17:00
-    elif [ "$target" = "test_generate_dragon_index_html.py" ];then
+    elif [ "$target" = "generate_dragon_index_html.py" ];then
         hh=`date '+%H'`
         judge_time=17
         if [ $hh -ge $judge_time ]; # >= 17
@@ -177,7 +177,7 @@ do
         log "cd $work_path"  
         cd $work_path
 
-    elif [ "$target" = 'test_get_fund_analysis.py' ] ;then
+    elif [ "$target" = 'get_fund_analysis.py' ] ;then
         hh=`date '+%H'`
         judge_time=20
         if [ $hh -gt $judge_time ];
@@ -222,7 +222,7 @@ do
         cd $work_path/
         log `pwd`
  
-    elif [ "$target" = 'test_cross_conditions_14_30.py' ] ;then
+    elif [ "$target" = 'cross_conditions_14_30.py' ] ;then
         hh=`date '+%H'`
         mm=`date '+%M'`
 

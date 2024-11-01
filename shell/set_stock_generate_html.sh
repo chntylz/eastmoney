@@ -50,7 +50,7 @@ else
     log 'work day, continue'
 fi
 
-comm_generate='test_generate_comm_index_html.py'
+comm_generate='generate_comm_index_html.py'
 
 file_array=(
             '5days' 
@@ -66,9 +66,9 @@ file_array=(
             'volume'
             'zig'
             'zlje'
-            'test_generate_basic_html.py'
-            'test_generate_index_html.py'
-            'test_generate_hsgt_index_html.py'
+            'generate_basic_html.py'
+            'generate_index_html.py'
+            'generate_hsgt_index_html.py'
             )
 
 for value in ${file_array[@]}
@@ -78,7 +78,7 @@ do
 
     cd ~/eastmoney/html
 
-    if [ "$target" = "test_generate_index_html.py" ];then
+    if [ "$target" = "generate_index_html.py" ];then
         comm_generate=$target
         log "cp -f $comm_generate /var/www/html/" 
         cp -f $comm_generate /var/www/html/
@@ -97,14 +97,14 @@ do
             "$target" = "volume" -o \
             "$target" = "zig" -o \
             "$target" = "zlje" ];then
-        comm_generate='test_generate_comm_index_html.py'
+        comm_generate='generate_comm_index_html.py'
         log "cp -f $comm_generate /var/www/html/" 
         cp -f $comm_generate /var/www/html/
         log "cd /var/www/html/"  
         cd /var/www/html/
         log "rm $target-index.html"
         rm $target-index.html
-    elif [ "$target" = "test_generate_basic_html.py" ];then
+    elif [ "$target" = "generate_basic_html.py" ];then
         comm_generate=$target
         log "cp -f $comm_generate /var/www/html/" 
         cp -f $comm_generate /var/www/html/
@@ -112,7 +112,7 @@ do
         cd /var/www/html/
         log "rm basic-index.html"
         rm basic-index.html
-    elif [ "$target" = "test_generate_hsgt_index_html.py"  ] ; then 
+    elif [ "$target" = "generate_hsgt_index_html.py"  ] ; then 
         comm_generate=$target
         log "cp -f $comm_generate /var/www/html/hsgt/" 
         cp -f $comm_generate /var/www/html/hsgt/

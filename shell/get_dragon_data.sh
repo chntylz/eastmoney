@@ -84,7 +84,7 @@ done
 
 #start
 file_array=(
-            'test_generate_html_dragon.py'
+            'generate_html_dragon.py'
            )
 
 
@@ -95,7 +95,7 @@ do
 
     cd $work_path
 
-    if [ "$target" = "test_generate_html_dragon.py" ];then
+    if [ "$target" = "generate_html_dragon.py" ];then
         log "cd $work_path"  
         cd $work_path
     fi

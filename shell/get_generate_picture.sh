@@ -15,7 +15,7 @@ mkdir -p runlog
 time=`date "+%Y_%m_%d_%H_%M_%S"`
 
 timeday=`date "+%Y_%m_%d_%w"`
-logfile=~/eastmoney/runlog/"$timeday"_test_generate_picture.sh.log
+logfile=~/eastmoney/runlog/"$timeday"_generate_picture.sh.log
 
 #
 #sed '1i 添加的内容' file 　　 #这是在第一行前添加字符串
@@ -37,7 +37,7 @@ log() {
     fi
 }
 
-log "*********************** begin test_generate_picture.py ********************************"
+log "*********************** begin generate_picture.py ********************************"
 
 #check holiday
 log "source ~/eastmoney/shell/is_workday.sh"
@@ -61,7 +61,7 @@ fi
 #start
 
 file_array=(
-            'test_generate_picture.py'
+            'generate_picture.py'
            )
 
 
@@ -75,7 +75,7 @@ do
     cd $work_path
 
     #9:00~15:00
-    if [ "$target" = "test_generate_picture.py" ];then
+    if [ "$target" = "generate_picture.py" ];then
 
         log "cd $work_path"  
         cd $work_path

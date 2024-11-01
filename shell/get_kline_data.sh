@@ -82,21 +82,21 @@ judge_time=15
 if [ $hh -lt $judge_time ];  # <15:00
 then
     log "hour <15 is $hh"
-    log "python3 test_cross_conditions.py 0 >> $logfile 2>&1 \ 
-         && python3 test_generate_html_14_30.py 0 >> $logfile 2>&1 \
+    log "python3 cross_conditions.py 0 >> $logfile 2>&1 \ 
+         && python3 generate_html_14_30.py 0 >> $logfile 2>&1 \
          && ~/eastmoney/shell/set_stock_generate_html.sh "
 
-    python3 test_cross_conditions.py 0 >> $logfile 2>&1 \
-    && python3 test_generate_html_14_30.py 0 >> $logfile 2>&1 \
+    python3 cross_conditions.py 0 >> $logfile 2>&1 \
+    && python3 generate_html_14_30.py 0 >> $logfile 2>&1 \
     && ~/eastmoney/shell/set_stock_generate_html.sh
 else
     log "hour >=15 is $hh"
-    log "python3 test_cross_conditions.py 0 >> $logfile 2>&1 \
-    && python3 test_generate_html.py 0 >> $logfile 2>&1 \
+    log "python3 cross_conditions.py 0 >> $logfile 2>&1 \
+    && python3 generate_html.py 0 >> $logfile 2>&1 \
     && ~/eastmoney/shell/set_stock_generate_html.sh "
 
-    python3 test_cross_conditions.py 0 >> $logfile 2>&1 \
-    && python3 test_generate_html.py 0 >> $logfile 2>&1 \
+    python3 cross_conditions.py 0 >> $logfile 2>&1 \
+    && python3 generate_html.py 0 >> $logfile 2>&1 \
     && ~/eastmoney/shell/set_stock_generate_html.sh 
 fi
 

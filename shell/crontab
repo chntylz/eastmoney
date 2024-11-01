@@ -79,8 +79,8 @@ SHELL=/bin/sh
 
 
 #hsgt
-#1 04   * * 2-6   aaron /home/aaron/linux_server_conf/set_hsgt_update.sh && cd /home/aaron/eastmoney && python3 test_generate_html.py 1 && /home/aaron/linux_server_conf/set_stock_update_for_xq.sh &
-#1 05   * * 2-6   aaron /home/aaron/linux_server_conf/set_hsgt_update.sh && cd /home/aaron/eastmoney && python3 test_generate_html.py 1 && /home/aaron/linux_server_conf/set_stock_update_for_xq.sh &
+#1 04   * * 2-6   aaron /home/aaron/linux_server_conf/set_hsgt_update.sh && cd /home/aaron/eastmoney && python3 generate_html.py 1 && /home/aaron/linux_server_conf/set_stock_update_for_xq.sh &
+#1 05   * * 2-6   aaron /home/aaron/linux_server_conf/set_hsgt_update.sh && cd /home/aaron/eastmoney && python3 generate_html.py 1 && /home/aaron/linux_server_conf/set_stock_update_for_xq.sh &
 #get hsgt data 
 
 #2 5     30,31 3,6,9,12   * * * aaron /home/aaron/eastmoney/shell/get_hsgt_data.sh
