@@ -13,11 +13,12 @@ from HData_sina_income import *
 from HData_sina_balance  import *
 from HData_sina_cashflow import *
 
+import  datetime
+import time 
 
 debug = 0
 debug = 1
 debug = 0
-debug = 1
 
 hdata_fina     = HData_sina_fina("usr","usr")
 hdata_income   = HData_sina_income("usr","usr")
@@ -908,7 +909,7 @@ def fina_data_analysis(df):
         #remove duplicate columns
         ret_df = ret_df.T.drop_duplicates().T
 
-        ret_df.to_csv('./csv_data/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
+        #ret_df.to_csv('./csv_data/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
         #ret_df.to_csv('./csv_data/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='utf-8-sig')
 
         newfile='./csv_data/sina_' + stock_code +  '.html'
@@ -936,6 +937,8 @@ def fina_data_analysis(df):
 def get_data_from_fina_income_balance_cashflow():
 
     code = '002922'
+    code = None
+    
     df_fina     = hdata_fina.get_data_from_hdata(stock_code=code)
     df_income   = hdata_income.get_data_from_hdata(stock_code=code)
     df_balance  = hdata_balance.get_data_from_hdata(stock_code=code)
@@ -979,6 +982,8 @@ def get_data_from_fina_income_balance_cashflow():
 
     key_day = '12-31'
     key_day = '09-30'
+    key_day = df_fina.record_date[0][5:]
+
     df_y_fina       = df_fina[df_fina['record_date'].str.contains(key_day)]
     df_y_income     = df_income[df_income['record_date'].str.contains(key_day)]
     df_y_balance    = df_balance[df_balance['record_date'].str.contains(key_day)]
@@ -1014,8 +1019,6 @@ def get_data_from_fina_income_balance_cashflow():
     if debug:
         print(len(df))
         print(df.head(5))
-        print(df.columns)
-        print(df.bdspaya)
 
 
     df=df.fillna(0)
@@ -1048,6 +1051,16 @@ def get_data_from_fina_income_balance_cashflow():
 
 if __name__ == '__main__':
 
+    t1 = time.time()
+    start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
     df =  get_data_from_fina_income_balance_cashflow()
-    print(df.head(5))
     fina_data_analysis(df)
+
+    last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    print("start_time: %s, last_time: %s" % (start_time, last_time))
+
+    t2 = time.time()
+    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+
+
