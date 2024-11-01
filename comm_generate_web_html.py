@@ -209,11 +209,19 @@ def cgi_write_to_file( df):
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(holder_url, element_value))
             elif 'jigou' in col_name[j]:
                 print('           <a href="%s" target="_blank"> %s</a>\n'%(jigou_url, element_value))
-            elif ('a_pct' in col_name[j])  or ('hk_deltam' in col_name[j]) or ('zig' in col_name[j]):
+            elif ('a_pct' in col_name[j])  or ('hk_deltam' in col_name[j]) :
                 if float(element_value) > 0:
                     print('           <a> <font color="red"> %s </font></a>\n'%(element_value))
                 else:
                     print('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
+
+            elif 'peach' in col_name[j]:
+                print('           <a href="../../csv_data/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+            elif  'zig' in col_name[j]:
+                if float(element_value) > 0:
+                    print('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> <font color="red"> %s</font></a>\n'%  (tmp_stock_code, element_value))
+                else:
+                    print('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> <font color="green"> %s</font></a>\n'%  (tmp_stock_code, element_value))
 
             else:
                 print('           <a> %s</a>\n'%(element_value))
@@ -436,7 +444,7 @@ def comm_write_headline_column(f, df):
 
         f.write('        <td>\n')
         if (j == 0):
-            f.write('           <a> record__date</a>\n') #align
+            f.write('           <a> record_date</a>\n') #align
         else:
             f.write('           <a> %s</a>\n'%(list(df)[j]))
         f.write('        </td>\n')
@@ -511,7 +519,8 @@ def comm_write_to_file(f, k, df, filename):
             '''
             if k == -1: # normal case
                 #data_column=['record_date', 'stock_code', 'stock_cname', 'hk_pct', 'close', 'delta1', 'delta1_m', 'days', 'money_total']
-                if(j == 0): 
+                #if(j == 0): 
+                if item_name in [ 'record_date' ] :
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (fina_url, element_value))
                 elif (item_name == 'op_yoy'):
@@ -519,11 +528,14 @@ def comm_write_to_file(f, k, df, filename):
                         f.write('           <a href="%s" target="_blank"> <font color="red"> %s </font> </a>\n'% (fina_url, element_value))
                     else:
                         f.write('           <a href="%s" target="_blank"> <font color="green"> %s </font> </a>\n'% (fina_url, element_value))
-                elif(j == 1): 
+                #elif(j == 1): 
+                elif item_name in [ 'code' ] :
                     f.write('           <a href="%s" target="_blank"> %s[hsgt]</a>\n'%  (hsgt_url, element_value))
-                elif(j == 2):
+                #elif(j == 2):
+                elif item_name in [ 'name' ] :
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%  (xueqiu_url, element_value))
-                elif(j == 3):
+                #elif(j == 3):
+                elif item_name in [ 'total_mv' ] :
                     f.write('           <a href="../../picture/%s.png" target="_blank"> %.2f</a>\n'%(tmp_stock_code, element_value))
                 #elif(j == 4):
                 #    f.write('           <a href="../../picture/%s.png" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
@@ -548,6 +560,10 @@ def comm_write_to_file(f, k, df, filename):
                         f.write('           <a> <font color="red"> %s </font></a>\n'%(element_value))
                     else:
                         f.write('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
+                elif item_name == 'peach':
+                    f.write('           <a href="../../csv_data/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+                elif item_name == 'zig':
+                    f.write('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 else:
                     f.write('           <a> %s</a>\n'%(element_value))
             
