@@ -432,7 +432,7 @@ def income_analysis_net_asset_return_rate(df):
             flag = False
 
         list.append([df.record_date[i], round(df.parenetp[i]/y_unit, 2), \
-            round(df.net_profit_growth_rate[i] * 100, 2), \
+            round(df.net_profit_growth_rate[i] , 2), \
             round(df.paresharrigh[i]/y_unit, 2), \
             round(net_asset_return_rate, 2), \
             15 < net_asset_return_rate and net_asset_return_rate < 39 \
@@ -459,21 +459,22 @@ def income_analysis_revenue(df):
             小于 100%的公司、营业收入增长率小于10%的公司淘汰掉。'
     i = 0
     list = []
-    list.append([df.stock_name_x[0], '营业收入', '营业收入增长率',\
+    #list.append([df.stock_name_x[0], '营业收入', '营业收入增长率',\
+    list.append([df.stock_name_x[0], '营业收入', '主营业务收入增长率',\
         '销售商品、提供劳务收到的现金', '现金占比', 'result'])
     '''
-    list.append([df.stock_name_x[0], 'bizinco', 'bizinco_yoy',\
+    list.append([df.stock_name_x[0], 'bizinco', 'main_business_income_growth_rate',\
         'laborgetcash', 'cash_ratio', 'result'])
     '''
     for i in range(df_len):
         cash_ratio  = 0
         if df.bizinco[i]:
             cash_ratio = df.laborgetcash[i] / df.bizinco[i] * 100
-        condi = df.bizinco[i] * 100 > 10 and cash_ratio > 100
+        condi = df.main_business_income_growth_rate[i]  > 10 and cash_ratio > 100
         if condi is False:
             flag = False
         list.append([df.record_date[i], round(df.bizinco[i] / y_unit, 2), \
-            round(df.bizinco[i] * 100, 2), \
+            round(df.main_business_income_growth_rate[i], 2), \
             round(df.laborgetcash[i]/y_unit, 2), \
             round(cash_ratio, 2), \
             condi\
@@ -571,7 +572,8 @@ def income_analysis_costfee(df):
             round(df.manaexpe[i]/ y_unit, 2), \
             round(df.finexpe_x[i]/ y_unit, 2), \
             round(df.deveexpe_x[i]/ y_unit, 2), \
-            round(total_4fee / y_unit, 2), costfee_p, \
+            round(total_4fee / y_unit, 2), \
+            round(costfee_p, 2), \
             round(gross_ratio, 2), round(costfee_ratio, 2),   \
             condi])
     list.append([biaozhun, 0, 0,0,0,0,0,0,0,0,0,0,0])
@@ -681,26 +683,34 @@ def income_analysis_netprofit(df):
         '净利润', '净利润现金比率', 'result'])
     '''
     list.append([df.stock_name_x[0], 'mananetr', 'mananetr_yoy',\
-        '', 'netprofit_of_mananetr', 'result'])
+        'netprofit_x', 'netprofit_of_mananetr', 'result'])
     '''
     total_netprofit = 0
     total_mananetr = 0
     for i in range(df_len):
         flag = True
+        mananetr_yoy = 0
+        if i < df_len - 1:
+            negtive = 1
+            if df.mananetr[i+1] < 0:
+                negtive = -1
+            mananetr_yoy = negtive * (df.mananetr[i] - df.mananetr[i+1]) * 100 / df.mananetr[i+1] 
+
         total_mananetr += df.mananetr[i] 
         total_netprofit  += df.netprofit_x[i]
-        rate_of_mananetr  = 0
+        
+        netprofit_of_mananetr  = 0
         if df.netprofit_x[i]:
-           rate_of_mananetr  = df.mananetr[i]  * 100/  df.netprofit_x[i]
+           netprofit_of_mananetr  = df.mananetr[i]  * 100/  df.netprofit_x[i]
 
-        condi = rate_of_mananetr > 100 
+        condi = netprofit_of_mananetr > 100 
         if condi is False:
             flag = False
         list.append([df.record_date[i], \
             round(df.mananetr[i]/ y_unit, 2), \
-            round(df.mananetr[i] * 100, 2), \
+            round(mananetr_yoy, 2), \
             round(df.netprofit_x[i] / y_unit, 2),\
-            round(rate_of_mananetr , 2),\
+            round(netprofit_of_mananetr , 2),\
             condi])
     list.append([biaozhun,biaozhun2,0,0,0,0])
     df_ret = pd.DataFrame(list)
@@ -780,7 +790,7 @@ def income_analysis_ncf_of_oa_ia_fa(df):
     #    'result'])
     for i in range(df_len):
         flag = True
-        condi = df.mananetr[i] > 0 
+        condi = df.mananetr[i] > 0  and df.finnetcflow[i] < 0
         if condi is False :
             flag = False
         list.append([df.record_date[i], \
