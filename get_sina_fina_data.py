@@ -18,6 +18,9 @@
 #https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/600660/ctrl/2024/displaytype/4.phtml
 
 
+#dubang fenxi
+#https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/600660/displaytype/10.phtml
+
 # how to handle soup tbody, please refer to follow link
 #https://codenews.cc/view/146129
 #https://blog.csdn.net/qq_16912257/article/details/53332474
@@ -547,7 +550,7 @@ def get_sina_real_data(stock_code, stock_name, year):
 
 def get_sina_fina_by_soup(stock_code, stock_name):
     
-    time.sleep(random.randint(1, 2))
+    #time.sleep(random.randint(1, 2))
 
     df = pd.DataFrame()
 

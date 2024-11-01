@@ -17,16 +17,135 @@ from HData_sina_cashflow import *
 debug = 0
 debug = 1
 debug = 0
+debug = 1
 
 hdata_fina     = HData_sina_fina("usr","usr")
 hdata_income   = HData_sina_income("usr","usr")
 hdata_balance  = HData_sina_balance("usr","usr")
 hdata_cashflow = HData_sina_cashflow("usr","usr")
 
+def gen_html_head(filename, title):
+    with open(filename,'w') as f:
+        f.write('<!DOCTYPE html>\n')
+        f.write('<html>\n')
+        f.write('<head>\n')
+        f.write('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n')
+        f.write('<title> %s </title>\n'%(title))
+        f.write('\n')
+        f.write('\n')
+        f.write('<style type="text/css">a {text-decoration: none}\n')
+        f.write('\n')
+        f.write('\n')
+
+        f.write('/* gridtable */\n')
+        f.write('table {\n')
+        f.write('    font-size:18px;\n')
+        f.write('    color:#000;\n')
+        f.write('    border-width: 1px;\n')
+        f.write('    border-color: #333333;\n')
+        f.write('    border-collapse: collapse;\n')
+        f.write('}\n')
+        f.write('table tr {\n')
+        f.write('    border-width: 1px;\n')
+        f.write('    padding: 8px;\n')
+        f.write('    border-style: solid;\n')
+        f.write('    border-color: #333333;\n')
+        f.write('}\n')
+        f.write('table th {\n')
+        f.write('    border-width: 1px;\n')
+        f.write('    padding: 8px;\n')
+        f.write('    border-style: solid;\n')
+        f.write('    border-color: #333333;\n')
+        f.write('}\n')
+        f.write('table td {\n')
+        f.write('    border-width: 1px;\n')
+        f.write('    padding: 8px;\n')
+        f.write('    border-style: solid;\n')
+        f.write('    border-color: #333333;\n')
+        f.write('}\n')
+        
+        '''
+        f.write('    table tr:nth-child(odd){\n')
+        f.write('    background-color: #eeeeee;\n')
+        f.write('    }\n')
+
+        f.write('    table tr:nth-child(even){\n')
+        f.write('    background-color: #cccccc;\n')
+        f.write('    }\n')
+        '''
+
+        f.write('/* /gridtable */\n')
+
+        f.write('\n')
+        f.write('\n')
+        f.write('</style>\n')
+
+        f.write('</head>\n')
+        f.write('\n')
+        f.write('\n')
+ 
+        f.write('<body>\n')
+    pass
+
+def gen_headline_column(filename, df):
+
+    with open(filename,'a') as f:
+        f.write('<table class="gridtable">\n')
+        f.write('    <tr>\n')
+        #headline
+        col_len=len(list(df))
+        for j in range(0, col_len): 
+            if debug:
+                print(('list(df)[%d]=%s') % (j, list(df)[j]))
+
+            f.write('        <td>\n')
+            f.write('           <a> %s</a>\n'%(list(df)[j]))
+            f.write('        </td>\n')
+        f.write('    </tr>\n')
+
+
+def gen_html_body(filename, df):
+    if debug:
+        print('filename: %s' % filename)
+    gen_headline_column(filename, df)
+    with open(filename,'a') as f:
+        df_len=len(df)
+        for i in range(0, df_len): #loop line
+            f.write('    <tr>\n')
+            a_array=df[i:i+1].values  #get line of df
+            col_name = list(df)
+            col_len=len(col_name)
+            for j in range(0, col_len): #loop column
+                item_name = list(df)[j] 
+                f.write('        <td>\n')
+                element_value = a_array[0][j] #get a[i][j] element
+                if element_value == True:
+                   f.write('           <a> <font color="red"> %s </font></a>\n'%(element_value))
+                elif element_value == False:
+                    f.write('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
+                else:
+                    f.write('           <a> %s</a>\n'%(element_value))
+                f.write('        </td>\n')
+            f.write('    </tr>\n')
+        f.write('</table>\n')
+
+def gen_html_end(filename):
+    with open(filename,'a') as f:
+        f.write('        <td>\n')
+        f.write('        </td>\n')
+        f.write('</body>\n')
+        f.write('\n')
+        f.write('\n')
+        f.write('</html>\n')
+        f.write('\n')
+    pass
+
+
+
 
 #1-1
 def income_analysis_assets(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     #zong zi chan zengzhanglv  > 20%
     #total_asset_growth_rate
@@ -41,14 +160,15 @@ def income_analysis_assets(df):
     biaozhun= '先看总资产 看总资产，判断公司实力及扩张能力 >30%'
 
     for i in range(df_len):
+        flag = True
         if debug:
             print('record_date=%s, i=%d, total_assets=%f, total_asset_growth_rate=%f'\
                     %(df.record_date[i], i, df.total_assets[i]/y_unit, df.total_asset_growth_rate[i]))
-        if df.total_asset_growth_rate[i] < 30:
+        if float(df.total_asset_growth_rate[i]) < 30:
             flag = False
 
-        list.append([df.record_date[i], df.total_assets[i]/y_unit, \
-                df.total_asset_growth_rate[i], df.total_asset_growth_rate[i] >= 30])
+        list.append([df.record_date[i], round(df.total_assets[i]/y_unit,2), \
+                round(df.total_asset_growth_rate[i], 2), flag])
 
     list.append([biaozhun, 0, 0, 0])
 
@@ -58,7 +178,7 @@ def income_analysis_assets(df):
 
 #1-2
 def income_analysis_liab(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     #zong zi chan fuzhailv  < 60%
@@ -70,15 +190,16 @@ def income_analysis_liab(df):
     list.append([df.stock_name_x[0], 'total_assets', 'totliab', 'asset_liability_ratio', 'result'])
     '''
     for i in range(df_len):
+        flag = True
         if debug:
             print('record_date=%s, i=%d, total_assets=%f, totliab=%f, asset_liability_ratio=%f, '\
                     %(df.record_date[i], i, df.total_assets[i]/y_unit, \
                     df.totliab[i]/y_unit, df.asset_liability_ratio[i]))
-        if df.asset_liability_ratio[i] >= 60:
+        if float(df.asset_liability_ratio[i]) >= 60:
             flag = False
 
-        list.append([df.record_date[i], df.total_assets[i]/y_unit, df.totliab[i]/y_unit,\
-                df.asset_liability_ratio[i], df.asset_liability_ratio[i] < 60 ])
+        list.append([df.record_date[i], round(df.total_assets[i]/y_unit,2), round(df.totliab[i]/y_unit, 2),\
+                round(df.asset_liability_ratio[i],2), flag ])
     biaozhun='看资产负债率，判断公司的债务风险.    资产负债率大于 60%的公司，债务风险较大需要注意'
     list.append([biaozhun, 0, 0, 0, 0])
 
@@ -88,7 +209,7 @@ def income_analysis_liab(df):
 
 #1-3
 def income_analysis_loan(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     #youxifuzhai > huobijijin  
@@ -104,20 +225,23 @@ def income_analysis_loan(df):
                 'longborr', 'bdspaya', 'longpayatot', 'total_loan','result'])
     '''
     for i in range(df_len):
-        if debug:
-            print('record_date=%s, i=%d, curfds=%f, shorttermborr=%f, intepaya=%f, \
-                duenoncliab=%f, longborr=%f, bdspaya=%f, longpayatot=%f, \
-                total_loan=%f '\
-                %(df.record_date[i], i, df.curfds[i]/y_unit, df.shorttermborr[i]/y_unit, \
-                df.intepaya[i]/y_unit, df.duenoncliab[i]/y_unit, \
-                df.longborr[i]/y_unit, df.bdspaya[i]/y_unit, df.longpayatot[i]/y_unit, \
-                df.total_loan[i]/y_unit))
-        if df.curfds[i] <= df.total_loan[i]:
+        flag = True
+        
+        delta = df.curfds[i] - df.total_loan[i] 
+        if delta < 0:
             flag = False
-        list.append([df.record_date[i], df.curfds[i]/y_unit, df.shorttermborr[i]/y_unit, \
+        if debug:
+            print('record_date=%s, i=%d, curfds=%f, shorttermborr=%F, intepaya=%f, \
+                duenoncliab=%f, longborr=%f, bdspaya=%f, longpayatOT=%f, \
+                total_loan=%f, delta=%f, flag=%s '\
+                %(df.record_date[i], i, round(df.curfds[i]/y_unit, 2), df.shorttermborr[i]/y_unit, \
                 df.intepaya[i]/y_unit, df.duenoncliab[i]/y_unit, \
                 df.longborr[i]/y_unit, df.bdspaya[i]/y_unit, df.longpayatot[i]/y_unit, \
-                df.total_loan[i]/y_unit, df.curfds[i] > df.total_loan[i] ])
+                df.total_loan[i]/y_unit, delta, flag))
+        list.append([df.record_date[i], round(df.curfds[i]/y_unit, 2), round(df.shorttermborr[i]/y_unit, 2), \
+                round(df.intepaya[i]/y_unit, 2), round(df.duenoncliab[i]/y_unit, 2), \
+                round(df.longborr[i]/y_unit, 2), round(df.bdspaya[i]/y_unit, 2), round(df.longpayatot[i]/y_unit, 2), \
+                round(df.total_loan[i]/y_unit, 2), flag ])
 
     biaozhun='看有息负债和货币资金，排除偿债风险:\
             有息负债和货币资金主要看两者大小，对于资产负债率大于40%的公司，\
@@ -132,7 +256,7 @@ def income_analysis_loan(df):
 
 #1-4
 def income_analysis_payable_receivable(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
 
@@ -153,6 +277,7 @@ def income_analysis_payable_receivable(df):
             ])
     ''' 
     for i in range(df_len):
+        flag = True
         total_payable =  df.notespaya[i] + df.accopaya[i] + df.advapaym[i]
         total_receivable = df.notesrece[i] + df.accorece[i] + df.prep[i]
         recv_of_total_assets = 0
@@ -164,13 +289,13 @@ def income_analysis_payable_receivable(df):
         if recv_of_total_assets >= 20:
             flag = False
         list.append([df.record_date[i], \
-            df.total_assets[i]/y_unit, df.notespaya[i]/y_unit, df.accopaya[i]/y_unit,\
-            df.advapaym[i]/y_unit, total_payable/y_unit, \
-            df.notesrece[i]/y_unit,df.accorece[i]/y_unit,df.prep[i]/y_unit,\
-            total_receivable/y_unit,\
-            (total_payable - total_receivable)/y_unit,\
-            total_receivable_of_total_assets,\
-            recv_of_total_assets < 20
+            round(df.total_assets[i]/y_unit, 2), round(df.notespaya[i]/y_unit, 2), round(df.accopaya[i]/y_unit, 2),\
+            round(df.advapaym[i]/y_unit, 2), round(total_payable/y_unit, 2), \
+            round(df.notesrece[i]/y_unit, 2),round(df.accorece[i]/y_unit, 2), round(df.prep[i]/y_unit, 2),\
+            round(total_receivable/y_unit, 2),\
+            round((total_payable - total_receivable)/y_unit, 2),\
+            round(total_receivable_of_total_assets, 2),\
+            flag
             ])
         biaozhun='看“应收应付”和“预付预收”，判断公司的行业地位:\
                 “应收应付”和“预付预收”主要看两点，\
@@ -189,7 +314,7 @@ def income_analysis_payable_receivable(df):
 
 #1-5
 def income_analysis_fixed_assets(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     #gudingzichan  < 40%
@@ -205,6 +330,7 @@ def income_analysis_fixed_assets(df):
         'total_fixed/total_assets', 'result'])
     '''
     for i in range(df_len):
+        flag = True
         total_fixed = df.fixedassecleatot[i] + df.consprogtot[i] \
             + df.engimate[i]
         total_fixed_of_total_assets = 0
@@ -212,11 +338,11 @@ def income_analysis_fixed_assets(df):
             total_fixed_of_total_assets = total_fixed/df.total_assets[i] * 100
         if total_fixed_of_total_assets >= 40:
             flag = False
-        list.append([df.record_date[i], df.fixedassecleatot[i]/y_unit, \
-            df.consprogtot[i]/y_unit,\
-            df.engimate[i]/y_unit,\
-            total_fixed/y_unit, df.total_assets[i]/y_unit, \
-            total_fixed_of_total_assets, \
+        list.append([df.record_date[i], round(df.fixedassecleatot[i]/y_unit, 2), \
+            round(df.consprogtot[i]/y_unit, 2),\
+            round(df.engimate[i]/y_unit, 2),\
+            round(total_fixed/y_unit, 2), round(df.total_assets[i]/y_unit, 2), \
+            round(total_fixed_of_total_assets, 2), \
             total_fixed_of_total_assets < 40 \
             ])
 
@@ -232,7 +358,7 @@ def income_analysis_fixed_assets(df):
 
 #1-6
 def income_analysis_invest(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     #invest ratio  < 10%
@@ -254,6 +380,7 @@ def income_analysis_invest(df):
     '''
 
     for i in range(df_len):
+        flag = True
         total_invest = df.valuechgloss_x[i] + df.avaisellasse[i] \
             + df.equiinve[i] + df.inveprop[i]
         total_invest_of_total_assets = 0
@@ -263,11 +390,11 @@ def income_analysis_invest(df):
         if total_invest_of_total_assets  >= 10:
             flag = False
 
-        list.append([df.record_date[i], df.valuechgloss_x[i]/y_unit, \
-            df.avaisellasse[i]/y_unit,\
-            df.equiinve[i]/y_unit, df.inveprop[i]/y_unit, \
-            total_invest/y_unit, df.total_assets[i]/y_unit, \
-            total_invest_of_total_assets, \
+        list.append([df.record_date[i], round(df.valuechgloss_x[i]/y_unit, 2), \
+            round(df.avaisellasse[i]/y_unit, 2),\
+            round(df.equiinve[i]/y_unit, 2), round(df.inveprop[i]/y_unit, 2), \
+            round(total_invest/y_unit, 2), round(df.total_assets[i]/y_unit, 2), \
+            round(total_invest_of_total_assets, 2), \
             total_invest_of_total_assets < 10 \
             ])
     list.append([biaozhun, 0, 0,0,0,0,0,0,0])
@@ -278,7 +405,7 @@ def income_analysis_invest(df):
 
 #1-7
 def income_analysis_net_asset_return_rate(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     # 15% < net_asset_return_rate  < 39%
@@ -297,16 +424,17 @@ def income_analysis_net_asset_return_rate(df):
         'paresharrigh', 'net_asset_return_rate', 'result'])
     '''
     for i in range(df_len):
+        flag = True
         net_asset_return_rate = 0
         if  df.paresharrigh[i]:
             net_asset_return_rate = df.parenetp[i] / df.paresharrigh[i] * 100 
         if net_asset_return_rate < 15 :
             flag = False
 
-        list.append([df.record_date[i], df.parenetp[i]/y_unit, \
-            df.net_profit_growth_rate[i] * 100, \
-            df.paresharrigh[i]/y_unit, \
-            net_asset_return_rate, \
+        list.append([df.record_date[i], round(df.parenetp[i]/y_unit, 2), \
+            round(df.net_profit_growth_rate[i] * 100, 2), \
+            round(df.paresharrigh[i]/y_unit, 2), \
+            round(net_asset_return_rate, 2), \
             15 < net_asset_return_rate and net_asset_return_rate < 39 \
             ])
     list.append([biaozhun, 0,0,0,0,0])
@@ -316,7 +444,7 @@ def income_analysis_net_asset_return_rate(df):
 
 #2-1
 def income_analysis_revenue(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     # revenue_yoy > 10%
@@ -344,10 +472,10 @@ def income_analysis_revenue(df):
         condi = df.bizinco[i] * 100 > 10 and cash_ratio > 100
         if condi is False:
             flag = False
-        list.append([df.record_date[i], df.bizinco[i] / y_unit, \
-            df.bizinco[i] * 100, \
-            df.laborgetcash[i]/y_unit, \
-            cash_ratio, \
+        list.append([df.record_date[i], round(df.bizinco[i] / y_unit, 2), \
+            round(df.bizinco[i] * 100, 2), \
+            round(df.laborgetcash[i]/y_unit, 2), \
+            round(cash_ratio, 2), \
             condi\
             ])
     list.append([biaozhun,0,0,0,0,0])
@@ -357,7 +485,7 @@ def income_analysis_revenue(df):
 
 #2-2
 def income_analysis_gross(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     # gross_ratio > 40%
@@ -376,6 +504,7 @@ def income_analysis_gross(df):
         'gross', 'gross_ratio', 'result'])
     '''
     for i in range(df_len):
+        flag = True
         gross =  df.bizinco[i] - df.bizcost[i] 
         gross_ratio = 0
         if df.bizinco[i]:
@@ -383,10 +512,10 @@ def income_analysis_gross(df):
         condi = gross_ratio > 40
         if condi is False:
             flag = False
-        list.append([df.record_date[i], df.bizinco[i] / y_unit, \
-            df.bizcost[i]/y_unit, \
-            gross / y_unit, \
-            gross_ratio, \
+        list.append([df.record_date[i], round(df.bizinco[i] / y_unit, 2), \
+            round(df.bizcost[i]/y_unit, 2), \
+            round(gross / y_unit, 2), \
+            round(gross_ratio, 2), \
             condi\
             ])
     list.append([biaozhun, 0,0,0,0,0])
@@ -397,7 +526,7 @@ def income_analysis_gross(df):
 
 #2-3
 def income_analysis_costfee(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     # costfee_ratio > 40%
@@ -416,6 +545,7 @@ def income_analysis_costfee(df):
         'costfee_p', 'gross_ratio', 'costfee_ratio', 'result'])
     '''
     for i in range(df_len):
+        flag = True
         gross =  df.bizinco[i] - df.bizcost[i] 
         gross_ratio = 0
         if df.bizinco[i]:
@@ -434,15 +564,15 @@ def income_analysis_costfee(df):
 
         if condi is False:
             flag = False
-        list.append([df.record_date[i], df.bizinco[i] / y_unit, \
-            df.bizcost[i]/y_unit, \
-            gross / y_unit, \
-            df.salesexpe[i] / y_unit, \
-            df.manaexpe[i]/ y_unit, \
-            df.finexpe_x[i]/ y_unit, \
-            df.deveexpe_x[i]/ y_unit, \
-            total_4fee / y_unit, costfee_p, \
-            gross_ratio, costfee_ratio,   \
+        list.append([df.record_date[i], round(df.bizinco[i] / y_unit, 2), \
+            round(df.bizcost[i]/y_unit, 2), \
+            round(gross / y_unit, 2), \
+            round(df.salesexpe[i] / y_unit, 2), \
+            round(df.manaexpe[i]/ y_unit, 2), \
+            round(df.finexpe_x[i]/ y_unit, 2), \
+            round(df.deveexpe_x[i]/ y_unit, 2), \
+            round(total_4fee / y_unit, 2), costfee_p, \
+            round(gross_ratio, 2), round(costfee_ratio, 2),   \
             condi])
     list.append([biaozhun, 0, 0,0,0,0,0,0,0,0,0,0,0])
     df_ret = pd.DataFrame(list)
@@ -451,7 +581,7 @@ def income_analysis_costfee(df):
 
 #2-4
 def income_analysis_main_profit(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     # profit_ratio > 40%
@@ -483,6 +613,7 @@ def income_analysis_main_profit(df):
         'main_profit_of_bizinco', 'main_profit_of_total_profit', 'result'])
     '''
     for i in range(df_len):
+        flag = True
         total_4fee = (df.salesexpe[i] + df.manaexpe[i] + \
                 df.finexpe_x[i] + df.deveexpe_x[i])
         ocl = (df.inveinco[i] + df.valuechgloss_x[i] - \
@@ -502,21 +633,21 @@ def income_analysis_main_profit(df):
         if condi is False:
             flag = False
 
-        list.append([df.record_date[i], df.bizinco[i] / y_unit, \
-            df.bizcost[i]/y_unit, \
-            df.biztax[i] / y_unit, \
-            df.salesexpe[i] / y_unit, \
-            df.manaexpe[i]/ y_unit, \
-            df.finexpe_x[i]/ y_unit, \
-            df.deveexpe_x[i]/ y_unit, \
-            total_4fee / y_unit, \
-            total_profit / y_unit, \
-            df.inveinco[i]/ y_unit, df.valuechgloss_x[i]/ y_unit, \
-            df.asseimpaloss[i]/ y_unit, df.nonoreve[i]/ y_unit, \
-            df.nonoexpe[i]/ y_unit,  \
-            df.ocl[i]/ y_unit, df.fixedassetnetc[i]/ y_unit,  \
-            ocl/ y_unit, main_profit/ y_unit, \
-            main_profit_of_bizinco, main_profit_of_total_profit, \
+        list.append([df.record_date[i], round(df.bizinco[i] / y_unit, 2), \
+            round(df.bizcost[i]/y_unit, 2), \
+            round(df.biztax[i] / y_unit, 2), \
+            round(df.salesexpe[i] / y_unit, 2), \
+            round(df.manaexpe[i]/ y_unit, 2), \
+            round(df.finexpe_x[i]/ y_unit, 2), \
+            round(df.deveexpe_x[i]/ y_unit, 2), \
+            round(total_4fee / y_unit, 2), \
+            round(total_profit / y_unit, 2), \
+            round(df.inveinco[i]/ y_unit, 2), round(df.valuechgloss_x[i]/ y_unit, 2), \
+            round(df.asseimpaloss[i]/ y_unit, 2), round(df.nonoreve[i]/ y_unit, 2), \
+            round(df.nonoexpe[i]/ y_unit, 2),  \
+            round(df.ocl[i]/ y_unit, 2), round(df.fixedassetnetc[i]/ y_unit, 2),  \
+            round(ocl/ y_unit, 2), round(main_profit/ y_unit, 2), \
+            round(main_profit_of_bizinco, 2), round(main_profit_of_total_profit, 2), \
             condi])
     list.append([biaozhun, 0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0])
     df_ret = pd.DataFrame(list)
@@ -526,7 +657,7 @@ def income_analysis_main_profit(df):
 
 #2-5
 def income_analysis_netprofit(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     # ncf_ratio > 100%
@@ -555,6 +686,7 @@ def income_analysis_netprofit(df):
     total_netprofit = 0
     total_mananetr = 0
     for i in range(df_len):
+        flag = True
         total_mananetr += df.mananetr[i] 
         total_netprofit  += df.netprofit_x[i]
         rate_of_mananetr  = 0
@@ -565,10 +697,10 @@ def income_analysis_netprofit(df):
         if condi is False:
             flag = False
         list.append([df.record_date[i], \
-            df.mananetr[i]/ y_unit, \
-            df.mananetr[i] * 100, \
-            df.netprofit_x[i] / y_unit,\
-            rate_of_mananetr ,\
+            round(df.mananetr[i]/ y_unit, 2), \
+            round(df.mananetr[i] * 100, 2), \
+            round(df.netprofit_x[i] / y_unit, 2),\
+            round(rate_of_mananetr , 2),\
             condi])
     list.append([biaozhun,biaozhun2,0,0,0,0])
     df_ret = pd.DataFrame(list)
@@ -580,7 +712,7 @@ def income_analysis_netprofit(df):
 
 #3-2
 def income_analysis_paid_assets(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     # paid_assets_of_nc  [10% ~ 60%]
@@ -601,6 +733,7 @@ def income_analysis_paid_assets(df):
         'fixedassetnetc', 'paid_assets_of_ncf','disposal_assets_of_ncf', 'result'])
     '''
     for i in range(df_len):
+        flag = True
         paid_assets_of_ncf      = 0
         if df.mananetr[i] :
             paid_assets_of_ncf  = df.acquassetcash[i]  / df.mananetr[i] * 100 
@@ -613,11 +746,11 @@ def income_analysis_paid_assets(df):
         if condi is False:
             flag = False
         list.append([df.record_date[i], \
-            df.mananetr[i]/ y_unit, \
-            df.acquassetcash[i] / y_unit, \
-            df.fixedassetnetc[i] / y_unit, \
-            paid_assets_of_ncf , \
-            disposal_assets_of_ncf, \
+            round(df.mananetr[i]/ y_unit, 2), \
+            round(df.acquassetcash[i] / y_unit, 2), \
+            round(df.fixedassetnetc[i] / y_unit, 2), \
+            round(paid_assets_of_ncf, 2) , \
+            round(disposal_assets_of_ncf, 2), \
             condi])
     list.append([biaozhun,0,0,0,0,0,0])
     df_ret = pd.DataFrame(list)
@@ -629,7 +762,7 @@ def income_analysis_paid_assets(df):
 
 #3-4
 def income_analysis_ncf_of_oa_ia_fa(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True
     # mananetr > 0
@@ -646,13 +779,14 @@ def income_analysis_ncf_of_oa_ia_fa(df):
     #list.append([df.stock_name_x[0], 'mananetr', 'invnetcashflow', 'finnetcflow', \
     #    'result'])
     for i in range(df_len):
+        flag = True
         condi = df.mananetr[i] > 0 
         if condi is False :
             flag = False
         list.append([df.record_date[i], \
-            df.mananetr[i]/ y_unit, \
-            df.invnetcashflow[i]/ y_unit, \
-            df.finnetcflow[i]/ y_unit, \
+            round(df.mananetr[i]/ y_unit, 2), \
+            round(df.invnetcashflow[i]/ y_unit, 2), \
+            round(df.finnetcflow[i]/ y_unit, 2), \
             condi])
     list.append([biaozhun, 0,0,0,0])
     df_ret = pd.DataFrame(list)
@@ -662,7 +796,7 @@ def income_analysis_ncf_of_oa_ia_fa(df):
 
 #3-5
 def income_analysis_net_increase(df):
-    y_unit=10000*10000
+    y_unit=10000
     df_len=len(df)
     flag = True 
     # cashnetr > 0
@@ -677,12 +811,13 @@ def income_analysis_net_increase(df):
     #list.append([df.stock_name_x[0], 'cashnetr', 'finalcashbala', \
     #    'result'])
     for i in range(df_len):
+        flag = True
         condi = df.cashnetr[i] > 0 
         if condi is False:
             flag = False
         list.append([df.record_date[i], \
-            df.cashnetr[i]/ y_unit, \
-            df.finalcashbala[i]/ y_unit, \
+            round(df.cashnetr[i]/ y_unit, 2), \
+            round(df.finalcashbala[i]/ y_unit, 2), \
             condi])
     list.append([biaozhun, 0,0,0])
     df_ret = pd.DataFrame(list)
@@ -703,17 +838,17 @@ def fina_data_analysis(df):
             print('%s, len(group_df) < 1' % stock_code )
             continue
 
+        '''
+        if stock_code != '002922':
+            continue
+        '''
+
         ret_df = pd.DataFrame()
 
         group_df = group_df.reset_index(drop=True)
         if debug:
             print(stock_code)
             print(group_df.head(1))
-
-        '''
-        if stock_code != '002475':
-            continue
-        '''
 
         ret_df, flag = asset_df, flag_asset = income_analysis_assets(group_df)
         
@@ -762,22 +897,63 @@ def fina_data_analysis(df):
         #删除重复的列
         #remove duplicate columns
         ret_df = ret_df.T.drop_duplicates().T
+
         ret_df.to_csv('./csv_data/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
         #ret_df.to_csv('./csv_data/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='utf-8-sig')
+
+        newfile='./csv_data/sina_' + stock_code +  '.html'
+        stock_data_dir = 'csv_data'
+        curr_title = 'sina-' + stock_code 
+        gen_html_head(newfile, curr_title )
+        gen_html_body(newfile, ret_df)
+        gen_html_end(newfile)
         
         if flag and flag_net_increase and flag_ncf and flag_paid_asset and flag_netprofit and flag_main_frofit and flag_costfee and flag_gross \
             and flag_revnue and flag_net_asset_return_rate and flag_invest and flag_fix_assets and flag_asset and flag_liab and flag_loan and flag_pay_recv :
             print("################################### %s ###############################\n"% (stock_code))
-    
+
+        #end for loop
+
+    #copy to /var/www/html/
+    exec_command = "cp -rf ./csv_data /var/www/html/"
+    if debug:
+        print("%s"%(exec_command))
+    os.system(exec_command)
+
     pass
 
 
 def get_data_from_fina_income_balance_cashflow():
 
-    df_fina     = hdata_fina.get_data_from_hdata()
-    df_income   = hdata_income.get_data_from_hdata()
-    df_balance  = hdata_balance.get_data_from_hdata()
-    df_cashflow = hdata_cashflow.get_data_from_hdata()
+    code = '002922'
+    df_fina     = hdata_fina.get_data_from_hdata(stock_code=code)
+    df_income   = hdata_income.get_data_from_hdata(stock_code=code)
+    df_balance  = hdata_balance.get_data_from_hdata(stock_code=code)
+    df_cashflow = hdata_cashflow.get_data_from_hdata(stock_code=code)
+    
+    df_fina['total_assets'] = df_fina['total_assets'].apply(lambda x: x/10000)
+    df_fina['main_business_profit'] = df_fina['main_business_profit'].apply(lambda x: x/10000)
+    df_fina['net_profit_after_deducting_non_recurring_gains_and_losses'] = df_fina['net_profit_after_deducting_non_recurring_gains_and_losses'].apply(lambda x: x/10000)
+    df_fina['cash_flow_ratio'] = df_fina['cash_flow_ratio'].apply(lambda x: x/10000)
+    df_fina['short_term_stock_investment'] = df_fina['short_term_stock_investment'].apply(lambda x: x/10000)
+    df_fina['short_term_bond_investment_yuan'] = df_fina['short_term_bond_investment_yuan'].apply(lambda x: x/10000)
+    df_fina['short_term_other_operating_investment_yuan'] = df_fina['short_term_other_operating_investment_yuan'].apply(lambda x: x/10000)
+    df_fina['long_term_stock_investment_yuan'] = df_fina['long_term_stock_investment_yuan'].apply(lambda x: x/10000)
+    df_fina['long_term_bond_investment_yuan'] = df_fina['long_term_bond_investment_yuan'].apply(lambda x: x/10000)
+    df_fina['long_term_other_operating_investment_yuan'] = df_fina['long_term_other_operating_investment_yuan'].apply(lambda x: x/10000)
+    df_fina['accounts_receivable_within_1_year_yuan'] = df_fina['accounts_receivable_within_1_year_yuan'].apply(lambda x: x/10000)
+    df_fina['accounts_receivable_within_1_2_years_yuan'] = df_fina['accounts_receivable_within_1_2_years_yuan'].apply(lambda x: x/10000)
+    df_fina['accounts_receivable_within_2_3_years_yuan'] = df_fina['accounts_receivable_within_2_3_years_yuan'].apply(lambda x: x/10000)
+    df_fina['accounts_receivable_within_3_years_yuan'] = df_fina['accounts_receivable_within_3_years_yuan'].apply(lambda x: x/10000)
+    df_fina['prepayments_within_1_year_yuan'] = df_fina['prepayments_within_1_year_yuan'].apply(lambda x: x/10000)
+    df_fina['prepayments_within_1_2_years_yuan'] = df_fina['prepayments_within_1_2_years_yuan'].apply(lambda x: x/10000)
+    df_fina['prepayments_within_2_3_years_yuan'] = df_fina['prepayments_within_2_3_years_yuan'].apply(lambda x: x/10000)
+    df_fina['prepayments_within_3_years_yuan'] = df_fina['prepayments_within_3_years_yuan'].apply(lambda x: x/10000)
+    df_fina['other_receivables_within_1_year_yuan'] = df_fina['other_receivables_within_1_year_yuan'].apply(lambda x: x/10000)
+    df_fina['other_receivables_within_1_2_years_yuan'] = df_fina['other_receivables_within_1_2_years_yuan'].apply(lambda x: x/10000)
+    df_fina['other_receivables_within_2_3_years_yuan'] = df_fina['other_receivables_within_2_3_years_yuan'].apply(lambda x: x/10000)
+    df_fina['other_receivables_within_3_years_yuan'] = df_fina['other_receivables_within_3_years_yuan'].apply(lambda x: x/10000)
+
 
     df_fina = df_fina.sort_values('record_date', ascending=0)
     df_fina = df_fina.reset_index(drop=True)
@@ -792,6 +968,7 @@ def get_data_from_fina_income_balance_cashflow():
     df_cashflow = df_cashflow.reset_index(drop=True)
 
     key_day = '12-31'
+    key_day = '09-30'
     df_y_fina       = df_fina[df_fina['record_date'].str.contains(key_day)]
     df_y_income     = df_income[df_income['record_date'].str.contains(key_day)]
     df_y_balance    = df_balance[df_balance['record_date'].str.contains(key_day)]
@@ -804,26 +981,35 @@ def get_data_from_fina_income_balance_cashflow():
 
     df_tmp = pd.merge(df_y_fina, df_y_income, how='outer', \
             on=['record_date', 'stock_code'])
+    df_tmp=df_tmp.fillna(0)
     #删除重复的列
     #remove duplicate columns
-    df_tmp = df_tmp.T.drop_duplicates().T
+    #df_tmp = df_tmp.T.drop_duplicates().T
 
     df_tmp = pd.merge(df_tmp, df_y_balance, how='outer', \
             on=['record_date', 'stock_code'])
+    df_tmp=df_tmp.fillna(0)
     #删除重复的列
     #remove duplicate columns
-    df_tmp = df_tmp.T.drop_duplicates().T
+    #df_tmp = df_tmp.T.drop_duplicates().T
+    del df_tmp['stock_name_x']
 
     df = df_y_income_balance = pd.merge(df_tmp, df_y_cashflow, how='outer', \
             on=['record_date', 'stock_code'])
+    df=df.fillna(0)
     #删除重复的列
     #remove duplicate columns
-    df = df.T.drop_duplicates().T
+    #df = df.T.drop_duplicates().T
+
+    if debug:
+        print(len(df))
+        print(df.head(5))
+        print(df.columns)
+        print(df.bdspaya)
 
 
     df=df.fillna(0)
     df=round(df,4)
-    df['total_loan'] = 0
     df['total_loan']  = df.shorttermborr+ df.intepaya \
         + df.duenoncliab + df.longborr \
         + df.bdspaya + df.longpayatot
@@ -855,6 +1041,3 @@ if __name__ == '__main__':
     df =  get_data_from_fina_income_balance_cashflow()
     print(df.head(5))
     fina_data_analysis(df)
-
-
-
