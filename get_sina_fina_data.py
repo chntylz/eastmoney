@@ -455,9 +455,7 @@ def get_sina_cashflow_data(stock_code, stock_name, year):
             continue
 
         group_df = group_df.reset_index(drop=True)
-
-
-    sina_update_database(hdata_sina_cashflow, df, data, stock_code, stock_name, record_date, target_type, data_column)
+        sina_update_database(hdata_sina_cashflow, group_df, data, stock_code, stock_name, record_date, target_type, data_column)
 
     return df
 
@@ -494,9 +492,7 @@ def get_sina_income_data(stock_code, stock_name, year ):
             continue
 
         group_df = group_df.reset_index(drop=True)
-
-
-    sina_update_database(hdata_sina_income, df, data, stock_code, stock_name, record_date, target_type, data_column)
+        sina_update_database(hdata_sina_income, group_df, data, stock_code, stock_name, record_date, target_type, data_column)
 
     return df
 
@@ -536,9 +532,7 @@ def get_sina_balance_data(stock_code, stock_name, year):
             print(' get_sina_balance_data: %s %s' % (stock_code, record_date) )
 
         group_df = group_df.reset_index(drop=True)
-
-   
-    sina_update_database(hdata_sina_balance, df, data, stock_code, stock_name, record_date, target_type, data_column)
+        sina_update_database(hdata_sina_balance, group_df, data, stock_code, stock_name, record_date, target_type, data_column)
 
     return df
 

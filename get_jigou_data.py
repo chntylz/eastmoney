@@ -37,7 +37,6 @@ debug = 0
 debug = 1
 debug = 0
 
-browser = ''
 
 def check_ji_data_exist(stock_code, record_date):
     ret = False
@@ -67,14 +66,16 @@ def get_jigou_data(stock_code, record_date):
             + 'callback=jQuery112307224581864083242&'
 
     html = ''
+
+    browser = get_broswer() 
     try:
         browser.get(url)
         browser.implicitly_wait(5)
         html = browser.page_source
     except:
         pass
-        #browser.close()
-        #browser.quit()
+        browser.close()
+        browser.quit()
     finally:
         pass
         #browser.close()
@@ -110,6 +111,8 @@ def get_jigou_data(stock_code, record_date):
             if debug:
                 print(e)
                 print(s)
+            browser.close()
+            browser.quit()
             return df
         if debug:
             print(e)
@@ -144,6 +147,8 @@ def get_jigou_data(stock_code, record_date):
             if debug:
                 print(e)
                 print(s)
+            browser.close()
+            browser.quit()
             return df,df
         if debug:
             print(e)
@@ -191,6 +196,8 @@ def get_jigou_data(stock_code, record_date):
     df = round(df, 2)
 
 
+    browser.close()
+    browser.quit()
     return df, data_df
 
 
@@ -291,7 +298,6 @@ if __name__ == '__main__':
  
     cript_name, para1 = check_input_parameter()
 
-    browser = get_broswer() 
      
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -308,8 +314,6 @@ if __name__ == '__main__':
         check_table(get_all=int(para1))
         hdata_jigou.copy_from_stringio(df)
 
-    browser.close()
-    browser.quit()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))
