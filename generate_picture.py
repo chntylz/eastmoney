@@ -27,6 +27,8 @@ hdata_jigou=HData_eastmoney_jigou("usr","usr")
 hdata_fina=HData_sina_fina("usr","usr")
 
 def plot_stock_picture(nowdate, nowcode, nowname):
+    
+    print('%s: %s, %s, %s' % ( plot_stock_picture, nowdate, nowcode, nowname))
 
     plt.style.use('bmh')
     fig = plt.figure(figsize=(24, 30),dpi=120)

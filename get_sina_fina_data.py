@@ -371,7 +371,7 @@ def get_sina_fina_data(stock_code, stock_name, year):
     #catch html data
     data, data_column = get_sina_comm_data(url)
     if len(data) == 0 or len(data_column) == 0:
-        print('### get html source is NULL, return');
+        print('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
         return df
 
     data_column = [ 'record_date', 'diluted_eps', 'weighted_eps', 'eps_adjusted', 'eps_after_deducting_non_recurring_gains_and_losses', \
@@ -442,7 +442,7 @@ def get_sina_cashflow_data(stock_code, stock_name, year):
     #catch html data
     data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
-        print('### get html source is NULL, return');
+        print('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
@@ -480,7 +480,7 @@ def get_sina_income_data(stock_code, stock_name, year ):
     #catch html data
     data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
-        print('### get html source is NULL, return');
+        print('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
@@ -517,7 +517,7 @@ def get_sina_balance_data(stock_code, stock_name, year):
     #catch html data
     data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
-        print('### get html source is NULL, return');
+        print('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
