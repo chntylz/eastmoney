@@ -149,27 +149,32 @@ def income_analysis_assets(df):
     y_unit=10000
     df_len=len(df)
     #zong zi chan zengzhanglv  > 20%
-    #total_asset_growth_rate
+    #totasset_yoy
     flag = True
     i = 0
     list = []
-    list.append([df.stock_name_x[0], '总资产', '总资产增长率', 'result'])
+    list.append([df.stock_name_x[0], '总资产/资产总计', '总资产增长率', 'result'])
     '''
-    list.append([df.stock_name_x[0], 'total_assets', 'total_assets_pct', 'result'])
+    list.append([df.stock_name_x[0], 'totasset', 'totasset_yoy', 'result'])
     '''
     
     biaozhun= '先看总资产 看总资产，判断公司实力及扩张能力 >30%'
 
     for i in range(df_len):
+        totasset_yoy = 0
         flag = True
+
+        if i < df_len - 1:
+            totasset_yoy = (df.totasset[i] - df.totasset[i+1]) * 100 / df.totasset[i+1]
+
         if debug:
-            print('record_date=%s, i=%d, total_assets=%f, total_asset_growth_rate=%f'\
-                    %(df.record_date[i], i, df.total_assets[i]/y_unit, df.total_asset_growth_rate[i]))
-        if float(df.total_asset_growth_rate[i]) < 30:
+            print('record_date=%s, i=%d, totasset=%f, totasset_yoy=%f'\
+                    %(df.record_date[i], i, df.totasset[i]/y_unit, totasset_yoy))
+        if float(totasset_yoy) < 30:
             flag = False
 
-        list.append([df.record_date[i], round(df.total_assets[i]/y_unit,2), \
-                round(df.total_asset_growth_rate[i], 2), flag])
+        list.append([df.record_date[i], round(df.totasset[i]/y_unit,2), \
+                round(totasset_yoy, 2), flag])
 
     list.append([biaozhun, 0, 0, 0])
 
@@ -186,21 +191,22 @@ def income_analysis_liab(df):
     #asset_liability_ratio
     i = 0
     list = []
-    list.append([df.stock_name_x[0], '总资产', '总负债', '资产负债率', 'result'])
+    list.append([df.stock_name_x[0], '总资产/资产总计', '总负债/负债合计', '资产负债率', 'result'])
     '''
-    list.append([df.stock_name_x[0], 'total_assets', 'totliab', 'asset_liability_ratio', 'result'])
+    list.append([df.stock_name_x[0], 'totasset', 'totliab', 'asset_liability_ratio', 'result'])
     '''
     for i in range(df_len):
         flag = True
+        asset_liability_ratio = df.totliab[i] * 100 / df.totasset[i]
         if debug:
-            print('record_date=%s, i=%d, total_assets=%f, totliab=%f, asset_liability_ratio=%f, '\
-                    %(df.record_date[i], i, df.total_assets[i]/y_unit, \
-                    df.totliab[i]/y_unit, df.asset_liability_ratio[i]))
-        if float(df.asset_liability_ratio[i]) >= 60:
+            print('record_date=%s, i=%d, totasset=%f, totliab=%f, asset_liability_ratio=%f, '\
+                    %(df.record_date[i], i, df.totasset[i]/y_unit, \
+                    df.totliab[i]/y_unit, asset_liability_ratio))
+        if float(asset_liability_ratio) >= 60:
             flag = False
 
-        list.append([df.record_date[i], round(df.total_assets[i]/y_unit,2), round(df.totliab[i]/y_unit, 2),\
-                round(df.asset_liability_ratio[i],2), flag ])
+        list.append([df.record_date[i], round(df.totasset[i]/y_unit,2), round(df.totliab[i]/y_unit, 2),\
+                round(asset_liability_ratio,2), flag ])
     biaozhun='看资产负债率，判断公司的债务风险.    资产负债率大于 60%的公司，债务风险较大需要注意'
     list.append([biaozhun, 0, 0, 0, 0])
 
@@ -271,31 +277,31 @@ def income_analysis_payable_receivable(df):
             '应付预收 - 应收预付', '应收账款/总资产', 'result'\
             ])
     ''' 
-    list.append([df.stock_name_x[0], 'total_assets', 'notespaya', 'accopaya', \
+    list.append([df.stock_name_x[0], 'totasset', 'notespaya', 'accopaya', \
             'advapaym', 'total_payable',\
             'notesrece', 'accorece', 'prep', 'total_receivable', \
-            'payable-receivable', 'reveivable/total_assets', 'result'\
+            'payable-receivable', 'reveivable/totasset', 'result'\
             ])
     ''' 
     for i in range(df_len):
         flag = True
         total_payable =  df.notespaya[i] + df.accopaya[i] + df.advapaym[i]
         total_receivable = df.notesrece[i] + df.accorece[i] + df.prep[i]
-        recv_of_total_assets = 0
-        if df.total_assets[i] :
-            recv_of_total_assets = total_receivable / df.total_assets[i] * 100 
-        total_receivable_of_total_assets = 0
-        if df.total_assets[i]:
-            total_receivable_of_total_assets = total_receivable / df.total_assets[i] * 100 
-        if recv_of_total_assets >= 20:
+        recv_of_totasset = 0
+        if df.totasset[i] :
+            recv_of_totasset = total_receivable / df.totasset[i] * 100 
+        total_receivable_of_totasset = 0
+        if df.totasset[i]:
+            total_receivable_of_totasset = total_receivable / df.totasset[i] * 100 
+        if recv_of_totasset >= 20:
             flag = False
         list.append([df.record_date[i], \
-            round(df.total_assets[i]/y_unit, 2), round(df.notespaya[i]/y_unit, 2), round(df.accopaya[i]/y_unit, 2),\
+            round(df.totasset[i]/y_unit, 2), round(df.notespaya[i]/y_unit, 2), round(df.accopaya[i]/y_unit, 2),\
             round(df.advapaym[i]/y_unit, 2), round(total_payable/y_unit, 2), \
             round(df.notesrece[i]/y_unit, 2),round(df.accorece[i]/y_unit, 2), round(df.prep[i]/y_unit, 2),\
             round(total_receivable/y_unit, 2),\
             round((total_payable - total_receivable)/y_unit, 2),\
-            round(total_receivable_of_total_assets, 2),\
+            round(total_receivable_of_totasset, 2),\
             flag
             ])
         biaozhun='看“应收应付”和“预付预收”，判断公司的行业地位:\
@@ -327,24 +333,24 @@ def income_analysis_fixed_assets(df):
         '固定资产/总资产', 'result'])
     '''
     list.append([df.stock_name_x[0],'fixedassecleatot', 'consprogtot',\
-        'engimate', 'total_fixed', 'total_assets', \
-        'total_fixed/total_assets', 'result'])
+        'engimate', 'total_fixed', 'totasset', \
+        'total_fixed/totasset', 'result'])
     '''
     for i in range(df_len):
         flag = True
         total_fixed = df.fixedassecleatot[i] + df.consprogtot[i] \
             + df.engimate[i]
-        total_fixed_of_total_assets = 0
-        if df.total_assets[i]:
-            total_fixed_of_total_assets = total_fixed/df.total_assets[i] * 100
-        if total_fixed_of_total_assets >= 40:
+        total_fixed_of_totasset = 0
+        if df.totasset[i]:
+            total_fixed_of_totasset = total_fixed/df.totasset[i] * 100
+        if total_fixed_of_totasset >= 40:
             flag = False
         list.append([df.record_date[i], round(df.fixedassecleatot[i]/y_unit, 2), \
             round(df.consprogtot[i]/y_unit, 2),\
             round(df.engimate[i]/y_unit, 2),\
-            round(total_fixed/y_unit, 2), round(df.total_assets[i]/y_unit, 2), \
-            round(total_fixed_of_total_assets, 2), \
-            total_fixed_of_total_assets < 40 \
+            round(total_fixed/y_unit, 2), round(df.totasset[i]/y_unit, 2), \
+            round(total_fixed_of_totasset, 2), \
+            total_fixed_of_totasset < 40 \
             ])
 
     biaozhun='看固定资产，判断公司的轻重:\
@@ -376,27 +382,27 @@ def income_analysis_invest(df):
         '与主业无关的投资类资产占比', 'result'])
     '''
     list.append([df.stock_name_x[0],'valuechgloss_x', 'avaisellasse',\
-        'equiinve', 'inveprop', 'total_invest', 'total_assets', \
-        'total_fixed/total_assets', 'result'])
+        'equiinve', 'inveprop', 'total_invest', 'totasset', \
+        'total_fixed/totasset', 'result'])
     '''
 
     for i in range(df_len):
         flag = True
         total_invest = df.valuechgloss_x[i] + df.avaisellasse[i] \
             + df.equiinve[i] + df.inveprop[i]
-        total_invest_of_total_assets = 0
-        if df.total_assets[i]:
-            total_invest_of_total_assets = total_invest/df.total_assets[i] * 100
+        total_invest_of_totasset = 0
+        if df.totasset[i]:
+            total_invest_of_totasset = total_invest/df.totasset[i] * 100
 
-        if total_invest_of_total_assets  >= 10:
+        if total_invest_of_totasset  >= 10:
             flag = False
 
         list.append([df.record_date[i], round(df.valuechgloss_x[i]/y_unit, 2), \
             round(df.avaisellasse[i]/y_unit, 2),\
             round(df.equiinve[i]/y_unit, 2), round(df.inveprop[i]/y_unit, 2), \
-            round(total_invest/y_unit, 2), round(df.total_assets[i]/y_unit, 2), \
-            round(total_invest_of_total_assets, 2), \
-            total_invest_of_total_assets < 10 \
+            round(total_invest/y_unit, 2), round(df.totasset[i]/y_unit, 2), \
+            round(total_invest_of_totasset, 2), \
+            total_invest_of_totasset < 10 \
             ])
     list.append([biaozhun, 0, 0,0,0,0,0,0,0])
 
@@ -416,10 +422,17 @@ def income_analysis_net_asset_return_rate(df):
     它反映所有者投入资本的获利能力，同时反映企业筹资、投资、运营的效率。\
     一般来说净资产收益率在 15%-39%比较合适。'
 
+
+    '''
+    净资产收益率：指企业经营期内净利润与平均净资产的比率。计算公式如下：
+    净资产收益率=（净利润÷平均净资产）×100%
+    其中：平均净资产=（期初所有者权益+期末所有者权益）÷2
+    '''
+
     i = 0
     list = []
-    list.append([df.stock_name_x[0], '归母净利润', '归母净利润增长率',\
-        '归属母公司股东权益合计', '净资产收益率', 'result'])
+    list.append([df.stock_name_x[0], '归母净利润/归属于母公司所有者的净利润', '归母净利润增长率',\
+        '归属母公司股东权益合计/归属于母公司股东权益合计', '净资产收益率', 'result'])
     '''
     list.append([df.stock_name_x[0], 'parenetp', 'net_profit_growth_rate',\
         'paresharrigh', 'net_asset_return_rate', 'result'])
@@ -427,13 +440,16 @@ def income_analysis_net_asset_return_rate(df):
     for i in range(df_len):
         flag = True
         net_asset_return_rate = 0
-        if  df.paresharrigh[i]:
-            net_asset_return_rate = df.parenetp[i] / df.paresharrigh[i] * 100 
+
+        net_profit_growth_rate = 0
+        if i < df_len - 1:
+            net_profit_growth_rate  = (df.parenetp[i] - df.parenetp[i+1] ) * 100 / df.parenetp[i+1]  
+            net_asset_return_rate = df.parenetp[i] * 100 / ((df.paresharrigh[i] + df.paresharrigh[i+1]) / 2)
         if net_asset_return_rate < 15 :
             flag = False
 
         list.append([df.record_date[i], round(df.parenetp[i]/y_unit, 2), \
-            round(df.net_profit_growth_rate[i] , 2), \
+            round(net_profit_growth_rate , 2), \
             round(df.paresharrigh[i]/y_unit, 2), \
             round(net_asset_return_rate, 2), \
             15 < net_asset_return_rate and net_asset_return_rate < 39 \
@@ -461,21 +477,25 @@ def income_analysis_revenue(df):
     i = 0
     list = []
     #list.append([df.stock_name_x[0], '营业收入', '营业收入增长率',\
-    list.append([df.stock_name_x[0], '营业收入', '主营业务收入增长率',\
+    list.append([df.stock_name_x[0], '营业收入', '营业务收入增长率',\
         '销售商品、提供劳务收到的现金', '现金占比', 'result'])
     '''
-    list.append([df.stock_name_x[0], 'bizinco', 'main_business_income_growth_rate',\
+    list.append([df.stock_name_x[0], 'bizinco', 'bizinco_yoy',\
         'laborgetcash', 'cash_ratio', 'result'])
     '''
     for i in range(df_len):
         cash_ratio  = 0
         if df.bizinco[i]:
             cash_ratio = df.laborgetcash[i] / df.bizinco[i] * 100
-        condi = df.main_business_income_growth_rate[i]  > 10 and cash_ratio > 100
+
+        if i < df_len - 1:
+            bizinco_yoy = (df.bizinco[i] - df.bizinco[i+1]) * 100 / df.bizinco[i+1]
+
+        condi = bizinco_yoy  > 10 and cash_ratio > 100
         if condi is False:
             flag = False
         list.append([df.record_date[i], round(df.bizinco[i] / y_unit, 2), \
-            round(df.main_business_income_growth_rate[i], 2), \
+            round(bizinco_yoy, 2), \
             round(df.laborgetcash[i]/y_unit, 2), \
             round(cash_ratio, 2), \
             condi\
@@ -588,6 +608,24 @@ def income_analysis_main_profit(df):
     df_len=len(df)
     flag = True
     # profit_ratio > 40%
+
+    '''
+    利润总额 = 营业利润 + 营业外收入 - 营业外支出
+    营业利润率=营业利润*100/营业收入
+    '''
+    
+
+
+    '''
+    净利润的三个计算公式：
+
+    1、净利润=利润总额-所得税费用；
+
+    2、净利润=营业利润+营业外收入-营业外支出-所得税费用；
+
+    3、净利润=营业收入-营业成本-税金及附加-销售费用-管理费用-研发费用-财务费用+其他收益+投资收益(-投资损失)+净敞口套期收益(-净敞口套期损失)+公允价值变动收益(-公允价值变动损失)-信用减值损失-资产减值损失+资产处置收益(-资产处置损失)+营业外收入-营业外支出-所得税费用。
+    '''
+
     biaozhun='看主营利润，判断公司的盈利能力及利润质量:\
             主营利润是一家公司最主要的利润来源，主营利润小于 0 的公司，直接淘汰。\
             毛利率大于 40%的公司，主营利润率至少应该大于 15%。\
@@ -624,13 +662,15 @@ def income_analysis_main_profit(df):
                 df.nonoexpe[i] + \
                 df.ocl[i] + df.fixedassetnetc[i])
         total_profit = df.totprofit[i]
-        #main_profit = (total_profit - ocl)  
-        main_profit = df.main_business_profit[i]
-        main_profit_of_bizinco = df.main_business_profit_rate[i]
-
+        main_profit = df.perprofit[i]
+        main_profit_of_bizinco = 0 
         main_profit_of_total_profit = 0
+
+        if df.bizinco[i]:
+            main_profit_of_bizinco  = df.perprofit[i] * 100 / df.bizinco[i]  #营业利润率=营业利润*100/营业收入
+
         if total_profit:
-            main_profit_of_total_profit = main_profit / total_profit * 100
+            main_profit_of_total_profit = main_profit / total_profit * 100 #主营利润/利润总额 
 
         condi = main_profit_of_total_profit > 80
         if condi is False:
@@ -936,40 +976,21 @@ def fina_data_analysis(df):
 
 def get_data_from_fina_income_balance_cashflow():
 
-    code = '002922'
     code = None
+    code = '002922'
     
-    df_fina     = hdata_fina.get_data_from_hdata(stock_code=code)
+    #df_fina     = hdata_fina.get_data_from_hdata(stock_code=code)
     df_income   = hdata_income.get_data_from_hdata(stock_code=code)
     df_balance  = hdata_balance.get_data_from_hdata(stock_code=code)
     df_cashflow = hdata_cashflow.get_data_from_hdata(stock_code=code)
     
-    df_fina['total_assets'] = df_fina['total_assets'].apply(lambda x: x/10000)
+    '''
+    df_fina['totasset'] = df_fina['totasset'].apply(lambda x: x/10000)
     df_fina['main_business_profit'] = df_fina['main_business_profit'].apply(lambda x: x/10000)
-    df_fina['net_profit_after_deducting_non_recurring_gains_and_losses'] = df_fina['net_profit_after_deducting_non_recurring_gains_and_losses'].apply(lambda x: x/10000)
-    df_fina['cash_flow_ratio'] = df_fina['cash_flow_ratio'].apply(lambda x: x/10000)
-    df_fina['short_term_stock_investment'] = df_fina['short_term_stock_investment'].apply(lambda x: x/10000)
-    df_fina['short_term_bond_investment_yuan'] = df_fina['short_term_bond_investment_yuan'].apply(lambda x: x/10000)
-    df_fina['short_term_other_operating_investment_yuan'] = df_fina['short_term_other_operating_investment_yuan'].apply(lambda x: x/10000)
-    df_fina['long_term_stock_investment_yuan'] = df_fina['long_term_stock_investment_yuan'].apply(lambda x: x/10000)
-    df_fina['long_term_bond_investment_yuan'] = df_fina['long_term_bond_investment_yuan'].apply(lambda x: x/10000)
-    df_fina['long_term_other_operating_investment_yuan'] = df_fina['long_term_other_operating_investment_yuan'].apply(lambda x: x/10000)
-    df_fina['accounts_receivable_within_1_year_yuan'] = df_fina['accounts_receivable_within_1_year_yuan'].apply(lambda x: x/10000)
-    df_fina['accounts_receivable_within_1_2_years_yuan'] = df_fina['accounts_receivable_within_1_2_years_yuan'].apply(lambda x: x/10000)
-    df_fina['accounts_receivable_within_2_3_years_yuan'] = df_fina['accounts_receivable_within_2_3_years_yuan'].apply(lambda x: x/10000)
-    df_fina['accounts_receivable_within_3_years_yuan'] = df_fina['accounts_receivable_within_3_years_yuan'].apply(lambda x: x/10000)
-    df_fina['prepayments_within_1_year_yuan'] = df_fina['prepayments_within_1_year_yuan'].apply(lambda x: x/10000)
-    df_fina['prepayments_within_1_2_years_yuan'] = df_fina['prepayments_within_1_2_years_yuan'].apply(lambda x: x/10000)
-    df_fina['prepayments_within_2_3_years_yuan'] = df_fina['prepayments_within_2_3_years_yuan'].apply(lambda x: x/10000)
-    df_fina['prepayments_within_3_years_yuan'] = df_fina['prepayments_within_3_years_yuan'].apply(lambda x: x/10000)
-    df_fina['other_receivables_within_1_year_yuan'] = df_fina['other_receivables_within_1_year_yuan'].apply(lambda x: x/10000)
-    df_fina['other_receivables_within_1_2_years_yuan'] = df_fina['other_receivables_within_1_2_years_yuan'].apply(lambda x: x/10000)
-    df_fina['other_receivables_within_2_3_years_yuan'] = df_fina['other_receivables_within_2_3_years_yuan'].apply(lambda x: x/10000)
-    df_fina['other_receivables_within_3_years_yuan'] = df_fina['other_receivables_within_3_years_yuan'].apply(lambda x: x/10000)
-
 
     df_fina = df_fina.sort_values('record_date', ascending=0)
     df_fina = df_fina.reset_index(drop=True)
+    '''
 
     df_income = df_income.sort_values('record_date', ascending=0)
     df_income = df_income.reset_index(drop=True)
@@ -982,32 +1003,23 @@ def get_data_from_fina_income_balance_cashflow():
 
     key_day = '12-31'
     key_day = '09-30'
-    key_day = df_fina.record_date[0][5:]
+    key_day = df_income.record_date[0][5:]
 
-    df_y_fina       = df_fina[df_fina['record_date'].str.contains(key_day)]
     df_y_income     = df_income[df_income['record_date'].str.contains(key_day)]
     df_y_balance    = df_balance[df_balance['record_date'].str.contains(key_day)]
     df_y_cashflow   = df_cashflow[df_cashflow['record_date'].str.contains(key_day)]
 
-    df_y_fina.iloc[:, :5].head(1)    
     df_y_income.iloc[:, :5].head(1)   
     df_y_balance.iloc[:, :5].head(1)  
     df_y_cashflow.iloc[:, :5].head(1) 
 
-    df_tmp = pd.merge(df_y_fina, df_y_income, how='outer', \
-            on=['record_date', 'stock_code'])
+    df_tmp = pd.merge(df_y_income, df_y_balance, how='outer', \
+        on=['record_date', 'stock_code'])
     df_tmp=df_tmp.fillna(0)
     #删除重复的列
     #remove duplicate columns
     #df_tmp = df_tmp.T.drop_duplicates().T
-
-    df_tmp = pd.merge(df_tmp, df_y_balance, how='outer', \
-            on=['record_date', 'stock_code'])
-    df_tmp=df_tmp.fillna(0)
-    #删除重复的列
-    #remove duplicate columns
-    #df_tmp = df_tmp.T.drop_duplicates().T
-    del df_tmp['stock_name_x']
+    #del df_tmp['stock_name_x']
 
     df = df_y_income_balance = pd.merge(df_tmp, df_y_cashflow, how='outer', \
             on=['record_date', 'stock_code'])
@@ -1029,19 +1041,17 @@ def get_data_from_fina_income_balance_cashflow():
 
 
     '''
-    len(df_y_fina)
     len(df_y_income)  
     len(df_y_balance)
     len(df_y_cashflow)
     len(df_y_income_balance)
 
-    df_y_fina[df_y_fina['stock_code'] == 'SZ002475']
     df_y_income[df_y_income['stock_code'] == 'SZ002475']
     df_y_balance[df_y_balance['stock_code'] == 'SZ002475']
     df_y_cashflow[df_y_cashflow['stock_code'] == 'SZ002475']
     df_y_income_balance[df_y_income_balance['stock_code'] == 'SZ002475']
 
-    df_y_balance[df_y_balance.stock_code=='SH600519'].total_assets
+    df_y_balance[df_y_balance.stock_code=='SH600519'].totasset
     '''
 
     df.to_csv('./csv_data/sina_fina.csv', encoding='utf-8-sig')

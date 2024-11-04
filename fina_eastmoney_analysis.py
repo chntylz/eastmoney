@@ -102,23 +102,23 @@ def income_analysis_loan(df):
     '''
     list.append([df.stock_name[0], 'monetaryfunds', 'short_loan', \
                 'interest_payable', 'noncurrent_liab_due_in1y', \
-                'lt_loan', 'bond_payable', 'lt_payable', 'total_loan','result'])
+                'lt_loan', 'bond_payable', 'lt_payable', 'total_liabilities','result'])
     '''
     for i in range(df_len):
         if debug:
             print('record_date=%s, i=%d, monetaryfunds=%f, short_loan=%f, interest_payable=%f, \
                 noncurrent_liab_due_in1y=%f, lt_loan=%f, bond_payable=%f, lt_payable=%f, \
-                total_loan=%f '\
+                total_liabilities=%f '\
                 %(df.record_date[i], i, df.monetaryfunds[i]/y_unit, df.short_loan[i]/y_unit, \
                 df.interest_payable[i]/y_unit, df.noncurrent_liab_due_in1y[i]/y_unit, \
                 df.lt_loan[i]/y_unit, df.bond_payable[i]/y_unit, df.lt_payable[i]/y_unit, \
-                df.total_loan[i]/y_unit))
-        if df.monetaryfunds[i] <= df.total_loan[i]:
+                df.total_liabilities[i]/y_unit))
+        if df.monetaryfunds[i] <= df.total_liabilities[i]:
             flag = False
         list.append([df.record_date[i], df.monetaryfunds[i]/y_unit, df.short_loan[i]/y_unit, \
                 df.interest_payable[i]/y_unit, df.noncurrent_liab_due_in1y[i]/y_unit, \
                 df.lt_loan[i]/y_unit, df.bond_payable[i]/y_unit, df.lt_payable[i]/y_unit, \
-                df.total_loan[i]/y_unit, df.monetaryfunds[i] > df.total_loan[i] ])
+                df.total_liabilities[i]/y_unit, df.monetaryfunds[i] > df.total_liabilities[i] ])
 
     biaozhun='看有息负债和货币资金，排除偿债风险:\
             有息负债和货币资金主要看两者大小，对于资产负债率大于40%的公司，\
@@ -706,18 +706,14 @@ def fina_data_analysis(df):
             continue
 
         ret_df = pd.DataFrame()
-        '''
-        if stock_code != 'SZ002475':
+        
+        if stock_code != '600660':
             continue
-        '''
+        
         group_df = group_df.reset_index(drop=True)
         if debug:
             print(stock_code)
             print(group_df.head(1))
-        #get stock_cname
-        stock_code_new = stock_code 
-        stock_name=stock_name[pos_s+1: pos_e]
-        group_df.insert(1, 'stock_name' , stock_name, allow_duplicates=False)
 
         ret_df, flag = asset_df, flag_asset = income_analysis_assets(group_df)
         
@@ -763,7 +759,7 @@ def fina_data_analysis(df):
         net_increase_df, flag_net_increase = income_analysis_net_increase(group_df)
         ret_df = pd.concat([ret_df, net_increase_df]) 
 
-        ret_df.to_csv('./csv_data/' + stock_code + '_' + stock_name + '.csv', encoding='gbk')
+        ret_df.to_csv('./csv_data/' + stock_code + '.csv', encoding='gbk')
         
         if flag and flag_net_increase and flag_ncf and flag_paid_asset and flag_net_profit and flag_main_frofit and flag_costfee and flag_gross \
             and flag_revnue and flag_roe and flag_invest and flag_fix_assets and flag_asset and flag_liab and flag_loan and flag_pay_recv :
@@ -802,38 +798,14 @@ def get_data_from_fina_income_balance_cashflow():
     df_y_cashflow.iloc[:, :5].head(1) 
 
     df_tmp = pd.merge(df_y_fina, df_y_income, how='outer', \
-            on=['record_date', 'stock_code'])
+            on=['record_date', 'stock_code', 'stock_name'])
     df_tmp = pd.merge(df_tmp, df_y_balance, how='outer', \
-            on=['record_date', 'stock_code'])
+            on=['record_date', 'stock_code', 'stock_name'])
     df = df_y_income_balance = pd.merge(df_tmp, df_y_cashflow, how='outer', \
-            on=['record_date', 'stock_code'])
+            on=['record_date', 'stock_code', 'stock_name'])
 
     df=df.fillna(0)
     df=round(df,4)
-
-    '''
-    df['total_loan'] = 0
-    df['total_loan']  = df.short_loan+ df.interest_payable \
-        + df.noncurrent_liab_due_in1y + df.lt_loan \
-        + df.bond_payable + df.lt_payable
-
-
-    len(df_y_fina)
-    len(df_y_income)  
-    len(df_y_balance)
-    len(df_y_cashflow)
-    len(df_y_income_balance)
-
-    target_code='600660'
-
-    df_y_fina[df_y_fina['stock_code'] == target_code]
-    df_y_income[df_y_income['stock_code'] == target_code]
-    df_y_balance[df_y_balance['stock_code'] == target_code]
-    df_y_cashflow[df_y_cashflow['stock_code'] == target_code]
-    df_y_income_balance[df_y_income_balance['stock_code'] == target_code]
-
-    df_y_balance[df_y_balance.stock_code=='SH600519'].total_assets
-    '''
 
     return df
 

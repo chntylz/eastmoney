@@ -34,34 +34,34 @@ debug = 0
     'total_equity', 股东权益合计=资产总额-负债总额
     'total_equity_ratio',股东权益同比增长率
     'total_assets_ratio', 总资产同比增长率
-    'total_liab_ratio', 总负债同比增长率f
+    'total_liab_ratio', 总负债同比增长率
     'current_ratio',  流动比率
     'debt_asset_ratio',   资产负债率=（负债总额÷资产总额）×100%  资产负债率是企业负债总额占企业资产总额的百分比。这个指标反映了在企业的全部资产中由债权人提给的资产所占比重的大小, 反映了债权人向企业提给信贷资金的危机程度, 也反映了企业举债经营的能力
 
-    cash_deposit_pbc,
-    cdp_ratio,
-    loan_advance,
-    loan_advance_ratio,
-    available_sale_finasset,
-    asf_ratio,
-    loan_pbc,
-    loan_pbc_ratio,
-    accept_deposit,
-    accept_deposit_ratio,
-    sell_repo_finasset,
-    srf_ratio,
-    settle_excess_reserve,
-    ser_ratio,
-    borrow_fund,
+    cash_deposit_pbc, 存放中央银行款项
+    cdp_ratio,  存放中央银行款项同比
+    loan_advance,  发放贷款及垫款
+    loan_advance_ratio, 发放贷款及垫款同比
+    available_sale_finasset,  可供出售金融资产
+    asf_ratio,          可供出售金融资产同比
+    loan_pbc,  向中央银行借款
+    loan_pbc_ratio, 向中央银行借款同比
+    accept_deposit,  吸收存款
+    accept_deposit_ratio,  吸收存款同比
+    sell_repo_finasset,  卖出回购金融资产款
+    srf_ratio,   卖出回购金融资产款同比 
+    settle_excess_reserve, 结算备付金
+    ser_ratio,    结算备付金同比
+    borrow_fund,  借款费用???
     borrow_fund_ratio,
-    agent_trade_security,
-    ats_ratio,
-    premium_rece,
-    premium_rece_ratio,
-    short_loan,
-    short_loan_ratio,
-    advance_premium,
-    advance_premium_ratio,
+    agent_trade_security,  代理买卖证券款
+    ats_ratio,   代理买卖证券款同比
+    premium_rece,    应收保费
+    premium_rece_ratio,  应收保费同比
+    short_loan,     短期借款
+    short_loan_ratio,  短期借款同比
+    advance_premium,   预收保费
+    advance_premium_ratio,  预收保费同比
                
 '''
 
