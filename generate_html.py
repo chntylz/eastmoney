@@ -226,10 +226,10 @@ def get_latest_jigou_data():
 
     group_by_stock_code_df=jigou_df.groupby('stock_code')
     jigou_df = jigou_df.sort_values('record_date', ascending=False)
-    jigou_df = jigou_df.head(len(group_by_stock_code_df))
     jigou_df = jigou_df.reset_index(drop=True)
+    jigou_df = jigou_df[jigou_df.record_date == jigou_df.record_date[0]]
     #jigou_df = jigou_df[jigou_df['record_date'] == jigou_df['record_date'][0]]  #bug: some updated, some not
-    jigou_df = jigou_df.sort_values('delta_ratio', ascending=False)
+    jigou_df = jigou_df.sort_values('record_date', ascending=False)
     jigou_df = jigou_df.reset_index(drop=True)
     return jigou_df
 
