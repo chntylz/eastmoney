@@ -519,8 +519,8 @@ def comm_write_to_file(f, k, df, filename):
             '''
             if k == -1: # normal case
                 #data_column=['record_date', 'stock_code', 'stock_cname', 'hk_pct', 'close', 'delta1', 'delta1_m', 'days', 'money_total']
-                #if(j == 0): 
-                if item_name in [ 'record_date' ] :
+                if(j == 0): 
+                #if item_name in [ 'record_date' ] :
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%\
                             (fina_url, element_value))
                 elif (item_name == 'op_yoy'):
