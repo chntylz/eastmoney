@@ -1061,7 +1061,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
 
 #        #### holder jigou ####
         jigou_df = hdata_jigou.get_data_from_hdata(stock_code = stock_code)
-        jigou_df = jigou_df.sort_values('record_date', ascending=False)
+        jigou_df = jigou_df.sort_values('delta_ratio', ascending=False)
         jigou_df = jigou_df.reset_index(drop=True)
         float_ratio = delta_ratio = 0
         if len(jigou_df) > 0:
