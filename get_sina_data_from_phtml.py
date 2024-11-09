@@ -13,16 +13,60 @@ from get_daily_zlje import *
 
 import multiprocessing
 
-
+from bs4 import BeautifulSoup
 import random
+
+from HData_sina_balance import *
+from HData_sina_income import *
+from HData_sina_cashflow import *
+from HData_sina_fina import *
+
+hdata_sina_balance = HData_sina_balance("usr","usr")
+hdata_sina_income  = HData_sina_income("usr","usr")
+hdata_sina_cashflow= HData_sina_cashflow("usr","usr")
+hdata_sina_fina    = HData_sina_fina("usr","usr")
+
+
 
 debug = 0 
 debug = 1 
 debug = 0 
 
-def get_sina_data_from_phtml(stock_code, type_table):
+
+def insert_to_database(df, type_table):
+
+    cols = []
+    database = ''
+
+    income_cols = [ 'record_date', 'stock_code', 'stock_name', 'biztotinco', 'bizinco', 'biztotcost', 'bizcost', 'biztax', \
+                 'salesexpe', 'manaexpe', 'finexpe', 'deveexpe', 'asseimpaloss', 'valuechgloss', \
+                 'inveinco', 'assoinveprof', 'exchggain', 'perprofit', 'nonoreve', 'nonoexpe', \
+                 'noncassetsdisl', 'totprofit', 'incotaxexpe', 'netprofit', 'parenetp', 'minysharrigh', \
+                 'eps', 'basiceps', 'dilutedeps', 'othercompinco', 'compincoamt', 'parecompincoamt', 'minysharincoamt' ]
+
+    if type_table == 'balance':
+        pass
+        database = hdata_sina_balance
+    elif type_table == 'income':  
+        cols = income_cols
+        database = hdata_sina_income
+    elif type_table == 'cashflow':  
+        database = hdata_sina_cashflow
+    else:
+        print('### type_table is null, return')
+
+   
+    df.columns = cols
+
+    database.copy_from_stringio(df)
+
+    return df
+
+
+
+def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
     
-    time.sleep(random.randint(5,15))
+    time.sleep(random.randint(5,15)) #add time to avoid sina crawl rules
 
     if type_table == 'balance':
         url = 'https://money.finance.sina.com.cn/corp/go.php/vDOWN_BalanceSheet/displaytype/4/stockid/' + stock_code  + '/ctrl/all.phtml'
@@ -44,13 +88,21 @@ def get_sina_data_from_phtml(stock_code, type_table):
     df = pd.DataFrame()
     #read data from csv
     try:
-        df=pd.read_csv(csv_file , sep='\s', encoding='gbk', engine='python')
+        df=pd.read_csv(csv_file , sep='\s', encoding='gbk', engine='python', index_col=0)
         #df=pd.read_csv(csv_file , sep='\s', encoding='utf-8', engine='python')
     except Exception as e:
         print('error %s %s: %s' % (stock_code, type_table, e))
         return
 
     df=df.T
+    del df['单位']
+
+    df.insert(0, 'stock_name' , stock_name, allow_duplicates=False)
+    df.insert(0, 'stock_code' , stock_code, allow_duplicates=False)
+
+    df=df.fillna(0)
+    df_len = len(df)
+    df=df.reset_index()
 
     #delete file
     cmd = 'rm -f ' + csv_file
@@ -61,6 +113,13 @@ def get_sina_data_from_phtml(stock_code, type_table):
     csv_file = './sina/' +  stock_code + '_' + type_table + '_new.csv'
     df.to_csv(csv_file, encoding='utf-8-sig', float_format='%.2f')
 
+    if '银行' in stock_name:
+        pass
+    else:
+        insert_to_database(df, type_table)
+
+    return df
+
 def worker(data):
     if debug:
         print(data)
@@ -68,9 +127,9 @@ def worker(data):
     stock_name = data[3]
 
 
-    get_sina_data_from_phtml(stock_code, 'balance')
-    get_sina_data_from_phtml(stock_code, 'income')
-    get_sina_data_from_phtml(stock_code, 'cashflow')
+    #get_sina_data_from_phtml(stock_code, stock_name, 'balance')
+    get_sina_data_from_phtml(stock_code, stock_name, 'income')
+    #get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
 
     return
 
@@ -81,12 +140,13 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
 
+    hdata_sina_income.db_hdata_sina_create()
 
     stock_df=get_daily_zlje2()
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)
     print(stock_df.head(5))
-    #stock_df=stock_df.head(4)
+    stock_df=stock_df.head(4)
 
 
     data_list = np.array(stock_df)

@@ -13,7 +13,9 @@ from io import StringIO
 debug = 0
 '''
 income
-['报表日期'                                             ['record_date',         
+'报表日期'                                             ['record_date',         
+'002261'                                                'stock_code',
+'拓维信息'                                             'stock_name'
 '一、营业总收入'                                        'biztotinco',
 '营业收入'     = 主营业收入                             'bizinco',
 '二、营业总成本'                                        'biztotcost',
@@ -36,22 +38,21 @@ income
 '减：所得税费用'                                        'incotaxexpe',
 '五、净利润'                                            'netprofit',
  '归属于母公司所有者的净利润'                           'parenetp',
-'少数股东损益'                                          'minysharrigh',
+ '少数股东损益'                                         'minysharrigh',
+'六、每股收益'                                          'eps',
 '基本每股收益(元/股)'                                   'basiceps',
 '稀释每股收益(元/股)'                                   'dilutedeps',
 '七、其他综合收 益'                                     'othercompinco',
  '八、综合收益总额'                                     'compincoamt',
 '归属于母公司所有者的综合收益总额'                      'parecompincoamt',
 '归属于少数股东的综合收益总额'                          'minysharincoamt',
-'002261'                                                'stock_code',
-'拓维信息']                                             'stock_name'
 '''
 
 sina_cols = " record_date, stock_code, stock_name, biztotinco, bizinco, biztotcost, bizcost, biztax, \
              salesexpe, manaexpe, finexpe, deveexpe, asseimpaloss, valuechgloss, \
              inveinco, assoinveprof, exchggain, perprofit, nonoreve, nonoexpe, \
              noncassetsdisl, totprofit, incotaxexpe, netprofit, parenetp, minysharrigh, \
-             basiceps, dilutedeps, othercompinco, compincoamt, parecompincoamt, minysharincoamt "
+             eps, basiceps, dilutedeps, othercompinco, compincoamt, parecompincoamt, minysharincoamt "
 
 class HData_sina_income(object):
     def __init__(self,user,password):
@@ -129,6 +130,7 @@ class HData_sina_income(object):
                 netprofit    float,
                 parenetp    float,
                 minysharrigh    float,
+                eps    float,
                 basiceps    float,
                 dilutedeps    float,
                 othercompinco    float,
