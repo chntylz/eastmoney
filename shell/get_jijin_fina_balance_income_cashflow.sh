@@ -49,7 +49,8 @@ input=0
 #start
 file_array=(
             'main_holder.py'
-            'get_sina_fina_data.py'
+            'get_sina_data_from_phtml.py'
+            #'get_sina_fina_data.py'
             'get_jigou_data.py'
             'main_fina.py'
             'main_balance.py'

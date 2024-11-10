@@ -167,8 +167,8 @@ def worker(data):
     stock_name = data[3]
 
 
-    #get_sina_data_from_phtml(stock_code, stock_name, 'balance')
-    #get_sina_data_from_phtml(stock_code, stock_name, 'income')
+    get_sina_data_from_phtml(stock_code, stock_name, 'balance')
+    get_sina_data_from_phtml(stock_code, stock_name, 'income')
     get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
 
     return
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)
     print(stock_df.head(5))
-    stock_df=stock_df.head(4)
+    #stock_df=stock_df.head(4)
 
 
     data_list = np.array(stock_df)
