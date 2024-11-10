@@ -11,9 +11,12 @@ from io import StringIO
 
 
 debug = 0
-
 '''
- ['报表日期'                                  'record_date',
+['报表日期'                                  'record_date',
+                                             'stock_code'
+                                             'stock_name'
+
+ '流动资产'                                  'current_assets'
  '货币资金'                                  'curfds',
  '交易性金融资产'                            'tradfinasset',
  '衍生金融资产'                              'derifinaasset',
@@ -29,11 +32,13 @@ debug = 0
  '买入返售金融资产'                          'purcresaasset',
  '存货'                                      'inve',
  '划分为持有待售的资产'                      'accheldfors',
- '一年内到期的非流动资产'                    'expinoncurrasset',
+ '一年内到期的非流动资产'                    'expinoncurrasset'
  '待摊费用'                                  'prepexpe',
  '待处理流动资产损益'                        'unseg',
  '其他流动资产'                              'othercurrasse',
  '流动资产合计'                              'totcurrasset',
+
+ '非流动资产'                                'noncurrent_assets'
  '发放贷款及垫款'                            'lendandloan',
  '可供出售金融资产'                          'avaisellasse',
  '持有至到期投资'                            'holdinvedue',
@@ -43,13 +48,13 @@ debug = 0
  '在建工程(合计)'                            'consprogtot',
  '在建工程'                                  'consprog',
  '工程物资'                                  'engimate',
- '固定资产及清理(合计)'                      'fixedassecleatot',
+ '固定资产及清理(合计)'                      'fixedassecleatot'
  '固定资产净额'                              'fixedassenet',
  '固定资产清理'                              'fixedasseclea',
  '生产性生物资产'                            'prodasse',
  '公益性生物资产'                            'comasse',
  '油气资产'                                  'hydrasset',
- '使用 权资产'                               'ruseassets',
+ '使用权资产'                               'ruseassets',
  '无形资产'                                  'intaasset',
  '开发支出'                                  'deveexpe',
  '商誉'                                      'goodwill',
@@ -58,6 +63,8 @@ debug = 0
  '其他非流动资产'                            'othernoncasse',
  '非流动资产合计'                            'totalnoncassets',
  '资产总计'                                  'totasset',
+
+ '流动负债'                                  'current_debt'
  '短期借款'                                  'shorttermborr',
  '交易性金融负债'                            'tradfinliab',
  '应付票据及应付账款'                        'notesaccopaya',
@@ -77,19 +84,23 @@ debug = 0
  '一年内到期的非流动负债'                    'duenoncliab',
  '其他流动负债'                              'othercurreliabi',
  '流动负债合计'                              'totalcurrliab',
+
+ '非流动负债'                                'noncurrent_debt'
  '长期借款'                                  'longborr',
  '应付债券'                                  'bdspaya',
  '租赁负债'                                  'leaseliab',
- '长期应付职工薪 酬'                         'lcopeworkersal',
+ '长期应付职工薪酬'                         'lcopeworkersal',
  '长期应付款(合计)'                          'longpayatot',
  '长期应付款'                                'longpaya',
  '专项应付款'                                'specpaya',
  '预计非流动负债'                            'expenoncliab',
  '递延所得税负债'                            'defeincotaxliab',
  '长期递延收益'                              'longdefeinco',
- '其他非流 动负债'                           'othernoncliabi',
+ '其他非流动负债'                           'othernoncliabi',
  '非流动负债合计'                            'totalnoncliab',
  '负债合计'                                  'totliab',
+
+ '所有者权益'                                'equity'
  '实收资本(或股本)'                          'paidincapi',
  '资本公积'                                  'capisurp',
  '减：库存股'                                'treastk',
@@ -102,23 +113,21 @@ debug = 0
  '少数股东权益'                              'minysharrigh',
  '所有者权益(或股东权益)合计'                'righaggr',
  '负债和所有者权益(或股东权益)总计'          'totliabsharequi'
- '000158'                                    'stock_code',
- '常山北明']                                 'stock_name'
 '''
-sina_cols = " record_date, stock_code, stock_name, curfds, tradfinasset, derifinaasset, notesaccorece, \
+sina_cols = " record_date, stock_code, stock_name, current_assets, curfds, tradfinasset, derifinaasset, notesaccorece, \
 	notesrece, accorece, recfinanc, prep, otherrecetot, interece, dividrece, \
 	otherrece, purcresaasset, inve, accheldfors, expinoncurrasset, prepexpe, \
-	unseg, othercurrasse, totcurrasset, lendandloan, avaisellasse, holdinvedue, \
+	unseg, othercurrasse, totcurrasset, noncurrent_assets, lendandloan, avaisellasse, holdinvedue, \
 	longrece, equiinve, inveprop, consprogtot, consprog, engimate, fixedassecleatot, \
 	fixedassenet, fixedasseclea, prodasse, comasse, hydrasset, ruseassets, intaasset, \
 	deveexpe, goodwill, logprepexpe, defetaxasset, othernoncasse, totalnoncassets, \
-	totasset, shorttermborr, tradfinliab, notesaccopaya, notespaya, accopaya, \
+	totasset, current_debt, shorttermborr, tradfinliab, notesaccopaya, notespaya, accopaya, \
 	advapaym, copepoun, copeworkersal, taxespaya, otherpaytot, intepaya, divipaya, \
 	otherpay, accrexpe, defereve, shorttermbdspaya, duenoncliab, othercurreliabi, \
-	totalcurrliab, longborr, bdspaya, leaseliab, lcopeworkersal, longpayatot, \
+	totalcurrliab, noncurrent_debt, longborr, bdspaya, leaseliab, lcopeworkersal, longpayatot, \
 	longpaya, specpaya, expenoncliab, defeincotaxliab, longdefeinco, othernoncliabi, \
-	totalnoncliab, totliab, paidincapi, capisurp, treastk, ocl, specrese, rese, \
-	generiskrese, undiprof, paresharrigh, minysharrigh, righaggr, totliabsharequi "
+	totalnoncliab, totliab, equity, paidincapi, capisurp, treastk, ocl, specrese, rese, \
+    generiskrese, undiprof, paresharrigh, minysharrigh, righaggr, totliabsharequi "
 
 class HData_sina_balance(object):
     def __init__(self,user,password):
@@ -159,7 +168,6 @@ class HData_sina_balance(object):
 
 
 
-
     def db_hdata_sina_create(self):
 
         self.db_connect()
@@ -173,6 +181,7 @@ class HData_sina_balance(object):
                 record_date   date,
                 stock_code varchar,
                 stock_name varchar,
+                current_assets  float,
                 curfds   float,
                 tradfinasset   float,
                 derifinaasset   float,
@@ -193,6 +202,7 @@ class HData_sina_balance(object):
                 unseg   float,
                 othercurrasse   float,
                 totcurrasset   float,
+                noncurrent_assets   float,
                 lendandloan   float,
                 avaisellasse   float,
                 holdinvedue   float,
@@ -217,6 +227,7 @@ class HData_sina_balance(object):
                 othernoncasse   float,
                 totalnoncassets   float,
                 totasset   float,
+                current_debt   float,
                 shorttermborr   float,
                 tradfinliab   float,
                 notesaccopaya   float,
@@ -236,6 +247,7 @@ class HData_sina_balance(object):
                 duenoncliab   float,
                 othercurreliabi   float,
                 totalcurrliab   float,
+                noncurrent_debt   float,
                 longborr   float,
                 bdspaya   float,
                 leaseliab   float,
@@ -249,6 +261,7 @@ class HData_sina_balance(object):
                 othernoncliabi   float,
                 totalnoncliab   float,
                 totliab   float,
+                equity    float,
                 paidincapi   float,
                 capisurp   float,
                 treastk   float,

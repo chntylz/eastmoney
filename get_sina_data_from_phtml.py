@@ -43,9 +43,28 @@ def insert_to_database(df, type_table):
                  'inveinco', 'assoinveprof', 'exchggain', 'perprofit', 'nonoreve', 'nonoexpe', \
                  'noncassetsdisl', 'totprofit', 'incotaxexpe', 'netprofit', 'parenetp', 'minysharrigh', \
                  'eps', 'basiceps', 'dilutedeps', 'othercompinco', 'compincoamt', 'parecompincoamt', 'minysharincoamt' ]
+    
+
+    balance_cols = [ 'record_date', 'stock_code', 'stock_name', 'current_assets', 'curfds', \
+    'tradfinasset', 'derifinaasset', 'notesaccorece', \
+	'notesrece', 'accorece', 'recfinanc', 'prep', 'otherrecetot', 'interece', 'dividrece', \
+	'otherrece', 'purcresaasset', 'inve', 'accheldfors', 'expinoncurrasset', 'prepexpe', \
+	'unseg', 'othercurrasse', 'totcurrasset', 'noncurrent_assets', 'lendandloan', 'avaisellasse', 'holdinvedue', \
+	'longrece', 'equiinve', 'inveprop', 'consprogtot', 'consprog', 'engimate', 'fixedassecleatot', \
+	'fixedassenet', 'fixedasseclea', 'prodasse', 'comasse', 'hydrasset', 'ruseassets', 'intaasset', \
+	'deveexpe', 'goodwill', 'logprepexpe', 'defetaxasset', 'othernoncasse', 'totalnoncassets', \
+	'totasset', 'current_debt', 'shorttermborr', 'tradfinliab', 'notesaccopaya', 'notespaya', 'accopaya', \
+	'advapaym', 'copepoun', 'copeworkersal', 'taxespaya', 'otherpaytot', 'intepaya', 'divipaya', \
+	'otherpay', 'accrexpe', 'defereve', 'shorttermbdspaya', 'duenoncliab', 'othercurreliabi', \
+	'totalcurrliab', 'noncurrent_debt', 'longborr', 'bdspaya', 'leaseliab', 'lcopeworkersal', 'longpayatot', \
+	'longpaya', 'specpaya', 'expenoncliab', 'defeincotaxliab', 'longdefeinco', 'othernoncliabi', \
+	'totalnoncliab', 'totliab', 'equity', 'paidincapi', 'capisurp', 'treastk', 'ocl', 'specrese', 'rese', \
+    'generiskrese', 'undiprof', 'paresharrigh', 'minysharrigh', 'righaggr', 'totliabsharequi' ]
+
+
 
     if type_table == 'balance':
-        pass
+        cols = balance_cols
         database = hdata_sina_balance
     elif type_table == 'income':  
         cols = income_cols
@@ -57,6 +76,9 @@ def insert_to_database(df, type_table):
 
    
     df.columns = cols
+
+    #str to date format  for database format
+    df['record_date']=df['record_date'].apply(lambda x: datetime.datetime.strptime(x, '%Y%m%d').date().strftime("%Y-%m-%d"))
 
     database.copy_from_stringio(df)
 
@@ -95,13 +117,14 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
         return
 
     df=df.T
-    del df['单位']
+    if '单位' in df.columns:
+        del df['单位']
 
     df.insert(0, 'stock_name' , stock_name, allow_duplicates=False)
     df.insert(0, 'stock_code' , stock_code, allow_duplicates=False)
 
+
     df=df.fillna(0)
-    df_len = len(df)
     df=df.reset_index()
 
     #delete file
@@ -117,6 +140,7 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
         pass
     else:
         insert_to_database(df, type_table)
+        pass
 
     return df
 
@@ -127,8 +151,8 @@ def worker(data):
     stock_name = data[3]
 
 
-    #get_sina_data_from_phtml(stock_code, stock_name, 'balance')
-    get_sina_data_from_phtml(stock_code, stock_name, 'income')
+    get_sina_data_from_phtml(stock_code, stock_name, 'balance')
+    #get_sina_data_from_phtml(stock_code, stock_name, 'income')
     #get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
 
     return
@@ -141,6 +165,8 @@ if __name__ == '__main__':
 
 
     hdata_sina_income.db_hdata_sina_create()
+    hdata_sina_balance.db_hdata_sina_create()
+    hdata_sina_cashflow.db_hdata_sina_create()
 
     stock_df=get_daily_zlje2()
     stock_df = stock_df.sort_values('f12', ascending=1)
