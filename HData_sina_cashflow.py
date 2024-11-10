@@ -14,6 +14,10 @@ debug = 0
 '''
 cashflow
 '报表日期'                                                             'record_date',                      
+'002261'                                                               'stock_code',
+'拓维信息'                                                              'stock_name'
+
+'一、经营活动产生的现金流量'                                           'cashfromop'
 '销售商品、提供劳务收到的现金'                                         'laborgetcash',
 '收到的税费返还'                                                       'taxrefd',
 '收到的其他与经营活动有关的现金'                                       'receotherbizcash',
@@ -24,6 +28,8 @@ cashflow
 '支付的其他与经营活动有关的现金'                                       'payacticash',
 '经营活动现金流出小计'                                                 'bizcashoutf',
 '经营活动产生的现金流量净额'                                           'mananetr',
+
+'二、投资活动产生的现金流量'                                           'cashfrominvent'
 '收回投资所收到的现金'                                                 'withinvgetcash',
 '取得投资收益所收到的现金'                                             'inveretugetcash',
 '处置固定资产、无形资产和其他长期资产所收回的现金净额'                 'fixedassetnetc',
@@ -36,6 +42,8 @@ cashflow
 '支付的其他与投资活动有关的现金'                                       'payinvecash',
 '投资活动现金流出小计'                                                 'invcashoutf',
 '投资活动产生的现金流量净额'                                           'invnetcashflow',
+
+'三、筹资活动产生的现金流量'                                           'cashfromfinancingactivities'
 '吸收投资收到的现金'                                                   'invrececash',
 '其中：子公司吸收少数股东投资收到的现金'                               'subsrececash',
 '取得借款收到的现金'                                                   'recefromloan',
@@ -52,6 +60,7 @@ cashflow
 '五、现金及现金等价物净增加额'                                         'cashnetr',
 '加:期初现金及现金等价物余额'                                          'inicashbala',
 '六、期末现金及现金等价物余额'                                         'finalcashbala',
+'附注'                                                                 'cashnote'
 '净利润'                                                               'netprofit',
 '少数股东权益'                                                         'minysharrigh',
 '未确认的投资损失'                                                     'unreinveloss',
@@ -85,18 +94,16 @@ cashflow
 '现金等价物的期末余额'                                                 'equfinalbala',
 '现金等价物的期初余额'                                                 'equopenbala',
 '现金及现金等价物的净增加额'                                           'cashneti', 
-'002261'                                                               'stock_code',
-'拓维信息'                                                             'stock_name'
 '''
 
-sina_cols = " record_date, stock_code, stock_name, laborgetcash, taxrefd, receotherbizcash, bizcashinfl, \
+sina_cols = " record_date, stock_code, stock_name, cashfromop, laborgetcash, taxrefd, receotherbizcash, bizcashinfl, \
              labopayc, payworkcash, paytax, payacticash, bizcashoutf, mananetr, \
-             withinvgetcash, inveretugetcash, fixedassetnetc, subsnetc, receinvcash, \
+             cashfrominvent, withinvgetcash, inveretugetcash, fixedassetnetc, subsnetc, receinvcash, \
              invcashinfl, acquassetcash, invpayc, subspaynetcash, payinvecash, \
-             invcashoutf, invnetcashflow, invrececash, subsrececash, recefromloan, \
+             invcashoutf, invnetcashflow, cashfromfinancingactivities, invrececash, subsrececash, recefromloan, \
              issbdrececash, recefincash, fincashinfl, debtpaycash, diviprofpaycash, \
              subspaydivid, finrelacash, fincashoutf, finnetcflow, chgexchgchgs, \
-             cashnetr, inicashbala, finalcashbala, netprofit, minysharrigh, \
+             cashnetr, inicashbala, finalcashbala, cashnote, netprofit, minysharrigh, \
              unreinveloss, asseimpa, assedepr, intaasseamor, longdefeexpenamor, \
              prepexpedecr, accrexpeincr, dispfixedassetloss, fixedassescraloss, \
              valuechgloss, defeincoincr, estidebts, finexpe, inveloss, defetaxassetdecr, \
@@ -159,6 +166,7 @@ class HData_sina_cashflow(object):
                 record_date    date,
                 stock_code    varchar,
                 stock_name    varchar,
+                cashfromop    float,
                 laborgetcash    float,
                 taxrefd    float,
                 receotherbizcash    float,
@@ -169,6 +177,7 @@ class HData_sina_cashflow(object):
                 payacticash    float,
                 bizcashoutf    float,
                 mananetr    float,
+                cashfrominvent    float,
                 withinvgetcash    float,
                 inveretugetcash    float,
                 fixedassetnetc    float,
@@ -181,6 +190,7 @@ class HData_sina_cashflow(object):
                 payinvecash    float,
                 invcashoutf    float,
                 invnetcashflow    float,
+                cashfromfinancingactivities    float,
                 invrececash    float,
                 subsrececash    float,
                 recefromloan    float,
@@ -197,6 +207,7 @@ class HData_sina_cashflow(object):
                 cashnetr    float,
                 inicashbala    float,
                 finalcashbala    float,
+                cashnote    float,
                 netprofit    float,
                 minysharrigh    float,
                 unreinveloss    float,

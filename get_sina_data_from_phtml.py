@@ -62,6 +62,21 @@ def insert_to_database(df, type_table):
     'generiskrese', 'undiprof', 'paresharrigh', 'minysharrigh', 'righaggr', 'totliabsharequi' ]
 
 
+    cash_cols =  ['record_date', 'stock_code', 'stock_name', 'cashfromop', 'laborgetcash', 'taxrefd', 'receotherbizcash', 'bizcashinfl', 
+             'labopayc', 'payworkcash', 'paytax', 'payacticash', 'bizcashoutf', 'mananetr', 
+             'cashfrominvent', 'withinvgetcash', 'inveretugetcash', 'fixedassetnetc', 'subsnetc', 'receinvcash', 
+             'invcashinfl', 'acquassetcash', 'invpayc', 'subspaynetcash', 'payinvecash', 
+             'invcashoutf', 'invnetcashflow', 'cashfromfinancingactivities', 'invrececash', 'subsrececash', 'recefromloan', 
+             'issbdrececash', 'recefincash', 'fincashinfl', 'debtpaycash', 'diviprofpaycash', 
+             'subspaydivid', 'finrelacash', 'fincashoutf', 'finnetcflow', 'chgexchgchgs', 
+             'cashnetr', 'inicashbala', 'finalcashbala', 'cashnote', 'netprofit', 'minysharrigh', 
+             'unreinveloss', 'asseimpa', 'assedepr', 'intaasseamor', 'longdefeexpenamor', 
+             'prepexpedecr', 'accrexpeincr', 'dispfixedassetloss', 'fixedassescraloss', 
+             'valuechgloss', 'defeincoincr', 'estidebts', 'finexpe', 'inveloss', 'defetaxassetdecr', 
+             'defetaxliabincr', 'inveredu', 'receredu', 'payaincr', 'unseparachg', 'unfiparachg', 
+             'other', 'biznetcflow', 'debtintocapi', 'expiconvbd', 'finfixedasset', 'cashfinalbala', 
+             'cashopenbala', 'equfinalbala', 'equopenbala', 'cashneti' ]
+
 
     if type_table == 'balance':
         cols = balance_cols
@@ -70,6 +85,7 @@ def insert_to_database(df, type_table):
         cols = income_cols
         database = hdata_sina_income
     elif type_table == 'cashflow':  
+        cols = cash_cols
         database = hdata_sina_cashflow
     else:
         print('### type_table is null, return')
@@ -151,9 +167,9 @@ def worker(data):
     stock_name = data[3]
 
 
-    get_sina_data_from_phtml(stock_code, stock_name, 'balance')
+    #get_sina_data_from_phtml(stock_code, stock_name, 'balance')
     #get_sina_data_from_phtml(stock_code, stock_name, 'income')
-    #get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
+    get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
 
     return
 
