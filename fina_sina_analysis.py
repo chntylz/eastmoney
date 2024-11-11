@@ -146,7 +146,7 @@ def gen_html_end(filename):
 
 #1-1
 def income_analysis_assets(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     #zong zi chan zengzhanglv  > 20%
     #totasset_yoy
@@ -184,7 +184,7 @@ def income_analysis_assets(df):
 
 #1-2
 def income_analysis_liab(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     #zong zi chan fuzhailv  < 60%
@@ -216,7 +216,7 @@ def income_analysis_liab(df):
 
 #1-3
 def income_analysis_loan(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     #youxifuzhai > huobijijin  
@@ -263,7 +263,7 @@ def income_analysis_loan(df):
 
 #1-4
 def income_analysis_payable_receivable(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
 
@@ -321,7 +321,7 @@ def income_analysis_payable_receivable(df):
 
 #1-5
 def income_analysis_fixed_assets(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     #gudingzichan  < 40%
@@ -365,7 +365,7 @@ def income_analysis_fixed_assets(df):
 
 #1-6
 def income_analysis_invest(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     #invest ratio  < 10%
@@ -412,7 +412,7 @@ def income_analysis_invest(df):
 
 #1-7
 def income_analysis_net_asset_return_rate(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     # 15% < net_asset_return_rate  < 39%
@@ -461,7 +461,7 @@ def income_analysis_net_asset_return_rate(df):
 
 #2-1
 def income_analysis_revenue(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     # revenue_yoy > 10%
@@ -507,7 +507,7 @@ def income_analysis_revenue(df):
 
 #2-2
 def income_analysis_gross(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     # gross_ratio > 40%
@@ -548,7 +548,7 @@ def income_analysis_gross(df):
 
 #2-3
 def income_analysis_costfee(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     # costfee_ratio > 40%
@@ -604,7 +604,7 @@ def income_analysis_costfee(df):
 
 #2-4
 def income_analysis_main_profit(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     # profit_ratio > 40%
@@ -700,7 +700,7 @@ def income_analysis_main_profit(df):
 
 #2-5
 def income_analysis_netprofit(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     # ncf_ratio > 100%
@@ -763,7 +763,7 @@ def income_analysis_netprofit(df):
 
 #3-2
 def income_analysis_paid_assets(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     # paid_assets_of_nc  [10% ~ 60%]
@@ -813,7 +813,7 @@ def income_analysis_paid_assets(df):
 
 #3-4
 def income_analysis_ncf_of_oa_ia_fa(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True
     # mananetr > 0
@@ -847,7 +847,7 @@ def income_analysis_ncf_of_oa_ia_fa(df):
 
 #3-5
 def income_analysis_net_increase(df):
-    y_unit=10000
+    y_unit=10000*10000
     df_len=len(df)
     flag = True 
     # cashnetr > 0
@@ -977,7 +977,7 @@ def fina_data_analysis(df):
 def get_data_from_fina_income_balance_cashflow():
 
     code = None
-    code = '002922'
+    code = '600660'
     
     #df_fina     = hdata_fina.get_data_from_hdata(stock_code=code)
     df_income   = hdata_income.get_data_from_hdata(stock_code=code)
@@ -1000,6 +1000,7 @@ def get_data_from_fina_income_balance_cashflow():
 
     df_cashflow = df_cashflow.sort_values('record_date', ascending=0)
     df_cashflow = df_cashflow.reset_index(drop=True)
+
 
     key_day = '12-31'
     key_day = '09-30'

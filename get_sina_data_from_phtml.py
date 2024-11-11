@@ -44,7 +44,6 @@ def insert_to_database(df, type_table):
                  'noncassetsdisl', 'totprofit', 'incotaxexpe', 'netprofit', 'parenetp', 'minysharrigh', \
                  'eps', 'basiceps', 'dilutedeps', 'othercompinco', 'compincoamt', 'parecompincoamt', 'minysharincoamt' ]
     
-
     balance_cols = [ 'record_date', 'stock_code', 'stock_name', 'current_assets', 'curfds', \
     'tradfinasset', 'derifinaasset', 'notesaccorece', \
 	'notesrece', 'accorece', 'recfinanc', 'prep', 'otherrecetot', 'interece', 'dividrece', \
@@ -61,7 +60,6 @@ def insert_to_database(df, type_table):
 	'totalnoncliab', 'totliab', 'equity', 'paidincapi', 'capisurp', 'treastk', 'ocl', 'specrese', 'rese', \
     'generiskrese', 'undiprof', 'paresharrigh', 'minysharrigh', 'righaggr', 'totliabsharequi' ]
 
-
     cash_cols =  ['record_date', 'stock_code', 'stock_name', 'cashfromop', 'laborgetcash', 'taxrefd', 'receotherbizcash', 'bizcashinfl', 
              'labopayc', 'payworkcash', 'paytax', 'payacticash', 'bizcashoutf', 'mananetr', 
              'cashfrominvent', 'withinvgetcash', 'inveretugetcash', 'fixedassetnetc', 'subsnetc', 'receinvcash', 
@@ -77,7 +75,6 @@ def insert_to_database(df, type_table):
              'other', 'biznetcflow', 'debtintocapi', 'expiconvbd', 'finfixedasset', 'cashfinalbala', 
              'cashopenbala', 'equfinalbala', 'equopenbala', 'cashneti' ]
 
-
     if type_table == 'balance':
         cols = balance_cols
         database = hdata_sina_balance
@@ -90,21 +87,19 @@ def insert_to_database(df, type_table):
     else:
         print('### type_table is null, return')
 
-   
-    df.columns = cols
-
-    #str to date format  for database format
-    df['record_date']=df['record_date'].apply(lambda x: datetime.datetime.strptime(x, '%Y%m%d').date().strftime("%Y-%m-%d"))
-
-    database.copy_from_stringio(df)
+    try:
+        df.columns = cols
+        #str to date format  for database format
+        df['record_date']=df['record_date'].apply(lambda x: datetime.datetime.strptime(x, '%Y%m%d').date().strftime("%Y-%m-%d"))
+        database.copy_from_stringio(df)
+    except Exception as e:
+        print("### error (%s):%s %s" % (e, type_table, df.head(1)))
 
     return df
 
-
-
 def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
     
-    time.sleep(random.randint(5,15)) #add time to avoid sina crawl rules
+    time.sleep(random.randint(5,10)) #add time to avoid sina crawl rules
 
     if type_table == 'balance':
         url = 'https://money.finance.sina.com.cn/corp/go.php/vDOWN_BalanceSheet/displaytype/4/stockid/' + stock_code  + '/ctrl/all.phtml'
@@ -114,7 +109,6 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
         url = 'https://money.finance.sina.com.cn/corp/go.php/vDOWN_CashFlow/displaytype/4/stockid/' + stock_code  + '/ctrl/all.phtml'
     else:
         print('### type_table is null, return')
-
 
     #download file
     csv_file = './sina/' + stock_code + '_' + type_table + '.csv'
@@ -139,18 +133,18 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
     df.insert(0, 'stock_name' , stock_name, allow_duplicates=False)
     df.insert(0, 'stock_code' , stock_code, allow_duplicates=False)
 
-
     df=df.fillna(0)
     df=df.reset_index()
 
-    #delete file
-    cmd = 'rm -f ' + csv_file
     if debug:
-        print(cmd)
-    os.system(cmd)
+        #delete file
+        cmd = 'rm -f ' + csv_file
+        if debug:
+            print(cmd)
+        os.system(cmd)
 
-    csv_file = './sina/' +  stock_code + '_' + type_table + '_new.csv'
-    df.to_csv(csv_file, encoding='utf-8-sig', float_format='%.2f')
+        csv_file = './sina/' +  stock_code + '_' + type_table + '_new.csv'
+        df.to_csv(csv_file, encoding='utf-8-sig', float_format='%.2f')
 
     if '银行' in stock_name:
         pass
@@ -166,7 +160,6 @@ def worker(data):
     stock_code = data[2]
     stock_name = data[3]
 
-
     get_sina_data_from_phtml(stock_code, stock_name, 'balance')
     get_sina_data_from_phtml(stock_code, stock_name, 'income')
     get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
@@ -179,20 +172,18 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-
-    hdata_sina_income.db_hdata_sina_create()
-    hdata_sina_balance.db_hdata_sina_create()
-    hdata_sina_cashflow.db_hdata_sina_create()
-
     stock_df=get_daily_zlje2()
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)
     print(stock_df.head(5))
     #stock_df=stock_df.head(4)
 
-
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
+
+    hdata_sina_income.db_hdata_sina_create()
+    hdata_sina_balance.db_hdata_sina_create()
+    hdata_sina_cashflow.db_hdata_sina_create()
 
     processes = 4
     number = len(stock_df)

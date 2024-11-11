@@ -50,6 +50,7 @@ input=0
 file_array=(
             'main_holder.py'
             'get_sina_data_from_phtml.py'
+            'fina_sina_analysis.py'
             #'get_sina_fina_data.py'
             'get_jigou_data.py'
             'main_fina.py'
