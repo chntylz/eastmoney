@@ -160,6 +160,16 @@ def worker(data):
     stock_code = data[2]
     stock_name = data[3]
 
+    csv_balance = './sina/' + stock_code + '_balance.csv'
+    csv_income  = './sina/' + stock_code + '_income.csv'
+    csv_cashflow = './sina/' + stock_code + '_cashflow.csv'
+
+    if os.path.exists(csv_balance) and \
+        os.path.exists(csv_income) and \
+        os.path.exists(csv_cashflow):
+        print('%s %s already exists' % (stock_code, stock_name))
+        return
+
     get_sina_data_from_phtml(stock_code, stock_name, 'balance')
     get_sina_data_from_phtml(stock_code, stock_name, 'income')
     get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
@@ -173,17 +183,22 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df=get_daily_zlje2()
+    stock_df.to_csv('./sina/zlje.csv', encoding='utf-8-sig', float_format='%.2f')
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)
     print(stock_df.head(5))
     #stock_df=stock_df.head(4)
+    #exit()
+
 
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
 
+    '''
     hdata_sina_income.db_hdata_sina_create()
     hdata_sina_balance.db_hdata_sina_create()
     hdata_sina_cashflow.db_hdata_sina_create()
+    '''
 
     processes = 4
     number = len(stock_df)
