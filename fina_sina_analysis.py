@@ -913,74 +913,60 @@ def fina_data_analysis(df):
         
         '''先看总资产 看总资产，判断公司实力及扩张能力 >30%'''
         ret_df, flag = asset_df, flag_asset = income_analysis_assets(group_df)
-        ret_df = ret_df.head(number)
         
         '''看资产负债率，判断公司的债务风险.    资产负债率大于 60%的公司，债务风险较大需要注意'''
         liab_df, flag_liab  = income_analysis_liab(group_df)
-        liab_df = liab_df.head(number)
         ret_df = pd.concat([ret_df, liab_df]) 
 
         '''货币资金 - 有息负债总额  必须大于0'''
         loan_df, flag_loan  = income_analysis_loan(group_df)
-        loan_df = loan_df.head(number)
         ret_df = pd.concat([ret_df, loan_df]) 
 
         '''另外应收账款与总资产的比率大于 20%的公司，说明公司应收账款的规模较大，经营风险自然也较大。'''
         pay_recv_df, flag_pay_recv = income_analysis_payable_receivable(group_df)
-        pay_recv_df = pay_recv_df.head(number)
         ret_df = pd.concat([ret_df, pay_recv_df]) 
 
         '''固定资产与总资产的比率大于40%的公司为重资产型公司'''
         fix_assets_df, flag_fix_assets = income_analysis_fixed_assets(group_df)
-        fix_assets_df=fix_assets_df.head(number)
         ret_df = pd.concat([ret_df, fix_assets_df]) 
 
         '''在实践中，与主业无关的投资类资产占总资产比率大于 10%的公司不够专注。淘汰。'''
         invest_df, flag_invest = income_analysis_invest(group_df)
-        invest_df = invest_df.head(number)
         ret_df = pd.concat([ret_df, invest_df]) 
 
         '''ROE > 15 '''
         net_asset_return_rate_df, flag_net_asset_return_rate = income_analysis_net_asset_return_rate(group_df)
-        net_asset_return_rate_df = net_asset_return_rate_df.head(number)
         ret_df = pd.concat([ret_df, net_asset_return_rate_df]) 
 
         revenue_df, flag_revnue = income_analysis_revenue(group_df)
-        revenue_df = revenue_df.head(number)
         ret_df = pd.concat([ret_df, revenue_df]) 
 
         ''' 毛利率小于 40%的公司一般面临的竞争压力都较大，风险也较大 '''
         gross_df, flag_gross = income_analysis_gross(group_df)
-        group_df = group_df.head(number)
         ret_df = pd.concat([ret_df, gross_df]) 
 
         costfee_df, flag_costfee = income_analysis_costfee(group_df)
-        costfee_df = costfee_df.head(number)
         ret_df = pd.concat([ret_df, costfee_df]) 
 
         main_profit_df, flag_main_frofit = income_analysis_main_profit(group_df)
-        main_profit_df = main_profit_df.head(number)
         ret_df = pd.concat([ret_df, main_profit_df]) 
 
         netprofit_df, flag_netprofit = income_analysis_netprofit(group_df)
-        netprofit_df = netprofit_df.head(number)
         ret_df = pd.concat([ret_df, netprofit_df]) 
 
         paid_assets_df, flag_paid_asset = income_analysis_paid_assets(group_df)
-        paid_assets_df = paid_assets_df.head(number)
         ret_df = pd.concat([ret_df, paid_assets_df]) 
 
         ncf_df, flag_ncf = income_analysis_ncf_of_oa_ia_fa(group_df)
-        ncf_df = ncf_df.head(number)
         ret_df = pd.concat([ret_df, ncf_df]) 
 
         net_increase_df, flag_net_increase = income_analysis_net_increase(group_df)
-        net_increase_df = net_increase_df.head(number)
         ret_df = pd.concat([ret_df, net_increase_df]) 
 
         #删除重复的列
         #remove duplicate columns
         ret_df = ret_df.T.drop_duplicates().T
+        del ret_df[6]
 
         #ret_df.to_csv('./sina_html/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
         #ret_df.to_csv('./sina_html/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='utf-8-sig')
