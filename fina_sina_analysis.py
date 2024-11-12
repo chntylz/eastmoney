@@ -982,11 +982,11 @@ def fina_data_analysis(df):
         #remove duplicate columns
         ret_df = ret_df.T.drop_duplicates().T
 
-        #ret_df.to_csv('./csv_data/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
-        #ret_df.to_csv('./csv_data/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='utf-8-sig')
+        #ret_df.to_csv('./sina_html/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
+        #ret_df.to_csv('./sina_html/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='utf-8-sig')
 
-        newfile='./csv_data/sina_' + stock_code +  '.html'
-        stock_data_dir = 'csv_data'
+        newfile='./sina_html/sina_' + stock_code +  '.html'
+        stock_data_dir = 'sina_html'
         curr_title = 'sina-' + stock_code 
         gen_html_head(newfile, curr_title )
         gen_html_body(newfile, ret_df)
@@ -1002,7 +1002,7 @@ def fina_data_analysis(df):
         #end for loop
 
     #copy to /var/www/html/
-    exec_command = "cp -rf ./csv_data /var/www/html/"
+    exec_command = "cp -rf ./sina_html /var/www/html/"
     if debug:
         print("%s"%(exec_command))
     os.system(exec_command)
@@ -1091,7 +1091,7 @@ def get_data_from_fina_income_balance_cashflow():
     df_y_balance[df_y_balance.stock_code=='SH600519'].totasset
     '''
 
-    df.to_csv('./csv_data/sina_fina.csv', encoding='utf-8-sig')
+    df.to_csv('./sina_html/sina_fina.csv', encoding='utf-8-sig')
     return df
 
 

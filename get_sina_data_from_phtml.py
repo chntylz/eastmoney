@@ -91,6 +91,7 @@ def insert_to_database(df, type_table):
         df.columns = cols
         #str to date format  for database format
         df['record_date']=df['record_date'].apply(lambda x: datetime.datetime.strptime(x, '%Y%m%d').date().strftime("%Y-%m-%d"))
+        df = df.head(1)  #only update the latest item
         database.copy_from_stringio(df)
     except Exception as e:
         print("### error (%s):%s %s" % (e, type_table, df.head(1)))
@@ -194,6 +195,7 @@ if __name__ == '__main__':
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
 
+    #only update the latest item
     '''
     hdata_sina_income.db_hdata_sina_create()
     hdata_sina_balance.db_hdata_sina_create()

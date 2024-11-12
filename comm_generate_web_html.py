@@ -216,7 +216,7 @@ def cgi_write_to_file( df):
                     print('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
 
             elif 'peach' in col_name[j]:
-                print('           <a href="../../csv_data/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+                print('           <a href="../../sina_html/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
             elif  'zig' in col_name[j]:
                 if float(element_value) > 0:
                     print('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> <font color="red"> %s</font></a>\n'%  (tmp_stock_code, element_value))
@@ -561,7 +561,7 @@ def comm_write_to_file(f, k, df, filename):
                     else:
                         f.write('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
                 elif item_name == 'peach':
-                    f.write('           <a href="../../csv_data/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+                    f.write('           <a href="../../sina_html/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 elif item_name == 'zig':
                     f.write('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 else:
