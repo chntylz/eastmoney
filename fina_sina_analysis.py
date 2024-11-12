@@ -966,7 +966,11 @@ def fina_data_analysis(df):
         #删除重复的列
         #remove duplicate columns
         ret_df = ret_df.T.drop_duplicates().T
-        del ret_df[6]
+        if len(ret_df.columns) > 6:
+            try:
+                del ret_df[6]
+            except Exception as e:
+                print("### error (%s):%s " % (e, ret_df.head(1)))
 
         #ret_df.to_csv('./sina_html/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
         #ret_df.to_csv('./sina_html/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='utf-8-sig')
