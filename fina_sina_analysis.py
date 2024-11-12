@@ -165,7 +165,8 @@ def income_analysis_assets(df):
         flag = True
 
         if i < df_len - 1:
-            totasset_yoy = (df.totasset[i] - df.totasset[i+1]) * 100 / df.totasset[i+1]
+            if df.totasset[i+1]:
+                totasset_yoy = (df.totasset[i] - df.totasset[i+1]) * 100 / df.totasset[i+1]
 
         if debug:
             print('record_date=%s, i=%d, totasset=%f, totasset_yoy=%f'\
@@ -197,7 +198,10 @@ def income_analysis_liab(df):
     '''
     for i in range(df_len):
         flag = True
-        asset_liability_ratio = df.totliab[i] * 100 / df.totasset[i]
+
+        asset_liability_ratio = 0
+        if df.totasset[i]:
+            asset_liability_ratio = df.totliab[i] * 100 / df.totasset[i]
         if debug:
             print('record_date=%s, i=%d, totasset=%f, totliab=%f, asset_liability_ratio=%f, '\
                     %(df.record_date[i], i, df.totasset[i]/y_unit, \
@@ -442,9 +446,10 @@ def income_analysis_net_asset_return_rate(df):
         net_asset_return_rate = 0
 
         net_profit_growth_rate = 0
-        if i < df_len - 1:
+        if (i < df_len - 1 ) and df.parenetp[i+1]:
             net_profit_growth_rate  = (df.parenetp[i] - df.parenetp[i+1] ) * 100 / df.parenetp[i+1]  
-            net_asset_return_rate = df.parenetp[i] * 100 / ((df.paresharrigh[i] + df.paresharrigh[i+1]) / 2)
+            if (df.paresharrigh[i] + df.paresharrigh[i+1]):
+                net_asset_return_rate = df.parenetp[i] * 100 / ((df.paresharrigh[i] + df.paresharrigh[i+1]) / 2)
         if net_asset_return_rate < 15 :
             flag = False
 
@@ -485,13 +490,14 @@ def income_analysis_revenue(df):
     '''
     for i in range(df_len):
         cash_ratio  = 0
+        bizinco_yoy = 0
         if df.bizinco[i]:
             cash_ratio = df.laborgetcash[i] / df.bizinco[i] * 100
 
-        if i < df_len - 1:
+        if (i < df_len - 1 ) and df.bizinco[i+1]:
             bizinco_yoy = (df.bizinco[i] - df.bizinco[i+1]) * 100 / df.bizinco[i+1]
 
-        condi = bizinco_yoy  > 10 and cash_ratio > 100
+        condi = (bizinco_yoy  > 10) and (cash_ratio > 100)
         if condi is False:
             flag = False
         list.append([df.record_date[i], round(df.bizinco[i] / y_unit, 2), \
@@ -735,7 +741,8 @@ def income_analysis_netprofit(df):
             negtive = 1
             if df.mananetr[i+1] < 0:
                 negtive = -1
-            mananetr_yoy = negtive * (df.mananetr[i] - df.mananetr[i+1]) * 100 / df.mananetr[i+1] 
+            if df.mananetr[i+1]:
+                mananetr_yoy = negtive * (df.mananetr[i] - df.mananetr[i+1]) * 100 / df.mananetr[i+1] 
 
         total_mananetr += df.mananetr[i] 
         total_netprofit  += df.netprofit_x[i]
@@ -895,54 +902,80 @@ def fina_data_analysis(df):
         '''
 
         ret_df = pd.DataFrame()
+        number = 5
 
         group_df = group_df.reset_index(drop=True)
+        group_df = group_df.head(number + 1)
         if debug:
             print(stock_code)
             print(group_df.head(1))
 
-        ret_df, flag = asset_df, flag_asset = income_analysis_assets(group_df)
         
+        '''先看总资产 看总资产，判断公司实力及扩张能力 >30%'''
+        ret_df, flag = asset_df, flag_asset = income_analysis_assets(group_df)
+        ret_df = ret_df.head(number)
+        
+        '''看资产负债率，判断公司的债务风险.    资产负债率大于 60%的公司，债务风险较大需要注意'''
         liab_df, flag_liab  = income_analysis_liab(group_df)
+        liab_df = liab_df.head(number)
         ret_df = pd.concat([ret_df, liab_df]) 
 
+        '''货币资金 - 有息负债总额  必须大于0'''
         loan_df, flag_loan  = income_analysis_loan(group_df)
+        loan_df = loan_df.head(number)
         ret_df = pd.concat([ret_df, loan_df]) 
 
+        '''另外应收账款与总资产的比率大于 20%的公司，说明公司应收账款的规模较大，经营风险自然也较大。'''
         pay_recv_df, flag_pay_recv = income_analysis_payable_receivable(group_df)
+        pay_recv_df = pay_recv_df.head(number)
         ret_df = pd.concat([ret_df, pay_recv_df]) 
 
+        '''固定资产与总资产的比率大于40%的公司为重资产型公司'''
         fix_assets_df, flag_fix_assets = income_analysis_fixed_assets(group_df)
+        fix_assets_df=fix_assets_df.head(number)
         ret_df = pd.concat([ret_df, fix_assets_df]) 
 
+        '''在实践中，与主业无关的投资类资产占总资产比率大于 10%的公司不够专注。淘汰。'''
         invest_df, flag_invest = income_analysis_invest(group_df)
+        invest_df = invest_df.head(number)
         ret_df = pd.concat([ret_df, invest_df]) 
 
+        '''ROE > 15 '''
         net_asset_return_rate_df, flag_net_asset_return_rate = income_analysis_net_asset_return_rate(group_df)
+        net_asset_return_rate_df = net_asset_return_rate_df.head(number)
         ret_df = pd.concat([ret_df, net_asset_return_rate_df]) 
 
         revenue_df, flag_revnue = income_analysis_revenue(group_df)
+        revenue_df = revenue_df.head(number)
         ret_df = pd.concat([ret_df, revenue_df]) 
 
+        ''' 毛利率小于 40%的公司一般面临的竞争压力都较大，风险也较大 '''
         gross_df, flag_gross = income_analysis_gross(group_df)
+        group_df = group_df.head(number)
         ret_df = pd.concat([ret_df, gross_df]) 
 
         costfee_df, flag_costfee = income_analysis_costfee(group_df)
+        costfee_df = costfee_df.head(number)
         ret_df = pd.concat([ret_df, costfee_df]) 
 
         main_profit_df, flag_main_frofit = income_analysis_main_profit(group_df)
+        main_profit_df = main_profit_df.head(number)
         ret_df = pd.concat([ret_df, main_profit_df]) 
 
         netprofit_df, flag_netprofit = income_analysis_netprofit(group_df)
+        netprofit_df = netprofit_df.head(number)
         ret_df = pd.concat([ret_df, netprofit_df]) 
 
         paid_assets_df, flag_paid_asset = income_analysis_paid_assets(group_df)
+        paid_assets_df = paid_assets_df.head(number)
         ret_df = pd.concat([ret_df, paid_assets_df]) 
 
         ncf_df, flag_ncf = income_analysis_ncf_of_oa_ia_fa(group_df)
+        ncf_df = ncf_df.head(number)
         ret_df = pd.concat([ret_df, ncf_df]) 
 
         net_increase_df, flag_net_increase = income_analysis_net_increase(group_df)
+        net_increase_df = net_increase_df.head(number)
         ret_df = pd.concat([ret_df, net_increase_df]) 
 
         #删除重复的列
@@ -963,6 +996,9 @@ def fina_data_analysis(df):
             and flag_revnue and flag_net_asset_return_rate and flag_invest and flag_fix_assets and flag_asset and flag_liab and flag_loan and flag_pay_recv :
             print("################################### %s ###############################\n"% (stock_code))
 
+        if flag_gross and flag_netprofit and flag_net_asset_return_rate:
+            print(" 连续5年的毛利率大于40% and 连续5年的净利润现金含量大于100% and 连续5年的ROE大于15%: %s \n"% (stock_code))
+
         #end for loop
 
     #copy to /var/www/html/
@@ -976,8 +1012,8 @@ def fina_data_analysis(df):
 
 def get_data_from_fina_income_balance_cashflow():
 
-    code = None
     code = '600660'
+    code = None
     
     #df_fina     = hdata_fina.get_data_from_hdata(stock_code=code)
     df_income   = hdata_income.get_data_from_hdata(stock_code=code)
