@@ -457,7 +457,7 @@ def income_analysis_net_asset_return_rate(df):
             round(net_profit_growth_rate , 2), \
             round(df.paresharrigh[i]/y_unit, 2), \
             round(net_asset_return_rate, 2), \
-            15 < net_asset_return_rate and net_asset_return_rate < 39 \
+            15 < net_asset_return_rate \
             ])
     list.append([biaozhun, 0,0,0,0,0])
     df_ret = pd.DataFrame(list)
@@ -538,6 +538,7 @@ def income_analysis_gross(df):
         if df.bizinco[i]:
             gross_ratio = gross / df.bizinco[i] * 100
         condi = gross_ratio > 40
+        condi = gross_ratio > 30
         if condi is False:
             flag = False
         list.append([df.record_date[i], round(df.bizinco[i] / y_unit, 2), \

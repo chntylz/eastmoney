@@ -114,6 +114,21 @@ debug = 0
  '所有者权益(或股东权益)合计'                'righaggr',
  '负债和所有者权益(或股东权益)总计'          'totliabsharequi'
 '''
+
+'''
+每股净资产 = 股东权益总额 /股本总股数
+每股净资产 = 归属于母公司股东权益合计/实收资本(或股本)
+
+市净率 = 股价 / 每股净资产
+
+每股收益 = 归属于母公司所有者的净利润/实收资本(或股本)
+市盈率 = 股价 / 每股收益
+
+归属母公司所有者权益合计，是指企业资产扣除负债后由所有者享有的剩余权益，这部分权益归属于母公司。它包括实收资本（或股本）、资本公积、盈余公积和未分配利润。在股份公司中，这部分权益也被称为股东权益。
+
+'''
+
+
 sina_cols = " record_date, stock_code, stock_name, current_assets, curfds, tradfinasset, derifinaasset, notesaccorece, \
 	notesrece, accorece, recfinanc, prep, otherrecetot, interece, dividrece, \
 	otherrece, purcresaasset, inve, accheldfors, expinoncurrasset, prepexpe, \
