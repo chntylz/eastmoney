@@ -352,16 +352,16 @@ def money_unit_transfer(x):
 
         if '亿' in x:
             ret = float(x[:len(x)-1]) * 10000 * 10000
-            print('亿')
-            print(ret)
+            #print('亿')
+            #print(ret)
         elif '万' in x:
             ret = float(x[:len(x)-1]) * 10000 
-            print('万')
-            print(ret)
+            #print('万')
+            #print(ret)
         else:
             ret = float(x)
-            print('normal')
-            print(ret)
+            #print('normal')
+            #print(ret)
 
         if minus_flag:
             ret = ret * (-1)
@@ -371,3 +371,19 @@ def money_unit_transfer(x):
         pass
 
     return round(ret, 2)
+
+def stock_code_format(x):
+    x = str(x)
+
+    if len(x) == 1:
+        x = '00000' + x
+    elif len(x) == 2:
+        x = '0000' + x
+    elif len(x) == 3:
+        x = '000' + x
+    elif len(x) == 4:
+        x = '00' + x
+    elif len(x) == 5:
+        x = '0' + x
+
+    return x
