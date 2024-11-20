@@ -1059,7 +1059,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         '''
         #stock_code = stock_code + '<br>'+ h_chg + '</br>'
 
-#        #### holder jigou ####
+        #### jigou ####
         jigou_df = hdata_jigou.get_data_from_hdata(stock_code = stock_code)
         #jigou_df = jigou_df.sort_values('delta_ratio', ascending=False)
         jigou_df = jigou_df.sort_values('record_date', ascending=False)

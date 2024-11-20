@@ -336,4 +336,38 @@ def get_curr_season():
 
     return position, date_list_b
 
+'''
+'''
+def money_unit_transfer(x):
+    ret = 0
+    minus_flag = False
 
+    if x == 0:
+        return ret
+
+    try:
+        if '-' in x:
+            x = x[1:]
+            minus_flag = True
+
+        if '亿' in x:
+            ret = float(x[:len(x)-1]) * 10000 * 10000
+            print('亿')
+            print(ret)
+        elif '万' in x:
+            ret = float(x[:len(x)-1]) * 10000 
+            print('万')
+            print(ret)
+        else:
+            ret = float(x)
+            print('normal')
+            print(ret)
+
+        if minus_flag:
+            ret = ret * (-1)
+    except Exception as e:
+        print('error: %s,  %s' % (e, x ))
+    finally:
+        pass
+
+    return round(ret, 2)

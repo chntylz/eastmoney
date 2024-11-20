@@ -102,7 +102,9 @@ def continue_handle_html_body_special(df_global, newfile, date):
 
         f.write('<p>-----------------------------------我是分割线-----------------------------------</p>\n')
     
-        f.write('<p  style="color:green;">绿色: 当天跳空高开2个点以上 </p>')
+        f.write('<p  style="color:green;">绿色: 当天跳空高开2个点以上 </p>\n')
+        cailian_focus_url='https://www.cls.cn/subject/1135'
+        f.write('<a href="%s" target="_blank" style="color:red;">  焦点复盘  </a>\n'%  (cailian_focus_url))
         f.write('<p>-----------------------------------我是分割线-----------------------------------</p>\n')
         f.write('\n')
 
