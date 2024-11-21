@@ -11,7 +11,8 @@ from io import StringIO
 
 
 debug = 0
-#debug = 1
+debug = 1
+debug = 0
 
 '''
     股票代码,                   stock_code
@@ -318,15 +319,14 @@ class HData_company_info(object):
     def get_data_from_hdata(self, stock_code=None, 
                         limit=0):#将数据库中的数据读取并转为dataframe格式返回
         self.db_connect()
-        
-        sql_temp += "select"
+        sql_temp = "select "
         sql_temp += company_cols
         sql_temp += "from company_info_table"
 
         if stock_code is None:
             pass
         else:
-            sql_temp += " stock_code="+"\'"+stock_code+"\'"                       
+            sql_temp += " where stock_code="+"\'"+stock_code+"\'"                       
 
         if limit == 0:
             pass

@@ -38,6 +38,7 @@ from HData_eastmoney_zlje_3 import *
 from HData_eastmoney_zlje_5 import *
 from HData_eastmoney_zlje_10 import *
 
+from HData_company_info import *
 
 import multiprocessing
 
@@ -46,6 +47,8 @@ hdata_day=HData_eastmoney_day("usr","usr")
 hdata_holder=HData_eastmoney_holder("usr","usr")
 hdata_jigou=HData_eastmoney_jigou("usr","usr")
 hdata_fina=HData_eastmoney_fina("usr","usr")
+
+hdata_company = HData_company_info("usr","usr")
 
 #xueqiu
 #hdata_fina=HData_xq_fina("usr","usr")
@@ -908,6 +911,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     zlje_5_df = get_zlje_data_from_db(url='url_5',   curr_date=curr_day)
     zlje_10_df = get_zlje_data_from_db(url='url_10', curr_date=curr_day)
 
+
     daily_df = input_df
 
     #get basic stock info
@@ -930,6 +934,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         with open(txt_file,'a') as f:
             f.write('%s \n' % stock_code)
 
+        company_df = hdata_company.get_data_from_hdata(stock_code=stock_code)
         hsgt_df = hsgtdata.get_data_from_hdata(stock_code=stock_code, end_date=curr_day, limit=60)
         hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, money_total, \
             is_zig, is_quad, is_peach = comm_handle_hsgt_data(hsgt_df)
@@ -958,11 +963,12 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         industry_name = ''
         try:
             industry_name = basic_df.loc[stock_code]['industry']
+            insert_industry(dict_industry, industry_name)
+            industry_name =industry_name + ': ' + company_df.product_type[0]
         except:
             industry_name = 'Null'
             print('except industry_name %s %s' % (stock_code, stock_name))
-        insert_industry(dict_industry, industry_name)
-
+        
         zlje = get_zlje(zlje_df, stock_code, curr_date=curr_day)
         zlje_3 = get_zlje(zlje_3_df, stock_code, curr_date=curr_day)
         zlje_5 = get_zlje(zlje_5_df, stock_code, curr_date=curr_day)
