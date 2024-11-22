@@ -705,3 +705,23 @@ print(df)
 
 '''
 
+
+
+'''
+read_html
+
+import pandas as pd
+import csv
+
+
+url='https://money.finance.sina.com.cn/corp/go.php/vFD_FinanceSummary/stockid/300181/displaytype/4.phtml?source=gjzb'
+url='https://money.finance.sina.com.cn/corp/go.php/vFD_FinanceSummary/stockid/300181/displaytype/4.phtml?source=fzb'
+url='https://money.finance.sina.com.cn/corp/go.php/vFD_FinanceSummary/stockid/300181/displaytype/4.phtml?source=lrb'
+url='https://money.finance.sina.com.cn/corp/go.php/vFD_FinanceSummary/stockid/300181/displaytype/4.phtml?source=llb'
+
+url='https://money.finance.sina.com.cn/corp/go.php/vFD_CashFlow/stockid/300181/ctrl/2023/displaytype/4.phtml'
+tb = pd.read_html(url)
+df=tb[13]
+df=df.T
+len(df)
+'''

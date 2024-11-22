@@ -1333,5 +1333,9 @@ def comm_generate_web_dataframe_multi(input_df, curr_dir, curr_day, dict_industr
  
     return ret_df
 
-
+'''
+#hot to get the first row and column
+df.iloc[0]    //the first line , row
+df.iloc[:,0]  // the first column
+'''
 
