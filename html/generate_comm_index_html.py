@@ -132,7 +132,7 @@ def getAllFiles(directory):
     for dirpath, dirnames,filenames in os.walk(directory):
         if filenames!=[]:
             for file in filenames:
-                if (file_name + '-index') in file:
+                if (file_name + '-index') in file or 'sina-' in file:
                     continue;
                 if file_name in file:
                     files.append(dirpath+'/'+file)

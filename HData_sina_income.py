@@ -13,6 +13,7 @@ from io import StringIO
 debug = 0
 '''
 income
+
 '报表日期'                                             ['record_date',         
 '002261'                                                'stock_code',
 '拓维信息'                                             'stock_name'

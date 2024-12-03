@@ -723,5 +723,11 @@ url='https://money.finance.sina.com.cn/corp/go.php/vFD_CashFlow/stockid/300181/c
 tb = pd.read_html(url)
 df=tb[13]
 df=df.T
+
+df=df.fillna(0)
+df = df[df[0] != 0]   #date is not 0
+df=df[1:]
+df = df.replace('--',0)
+df.to_csv(r'sina_html.csv', mode='w', encoding='utf_8_sig', header=1, index=0)
 len(df)
 '''

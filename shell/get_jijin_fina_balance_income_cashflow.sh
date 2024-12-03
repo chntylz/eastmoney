@@ -49,7 +49,8 @@ input=0
 #start
 file_array=(
             'main_holder.py'
-            'get_sina_data_from_phtml.py'
+            'get_sina_data_by_read_html.py'
+            #'get_sina_data_from_phtml.py'
             'fina_sina_analysis.py'
             #'get_sina_fina_data.py'
             'get_jigou_data.py'
@@ -59,7 +60,8 @@ file_array=(
             'main_cashflow.py'
            )
 
-
+#remove sina csv
+rm -rf $work_path/sina/*.csv
 
 for value in ${file_array[@]}
 do

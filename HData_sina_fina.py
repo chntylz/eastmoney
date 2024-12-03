@@ -12,17 +12,21 @@ from io import StringIO
 
 debug = 0
 '''
-                                        eps_=_earnings_per_share
+eps_=_earnings_per_share
 
 
 
 
 
-'报告日期'                           'record_date'
+'报告日期'                            'record_date'
+'002261'                              'stock_code' 
+'拓维信息'                            'stock_name'
+
+'每股指标'                            'per_indictor'
 '摊薄每股收益(元)'                    'diluted_eps'
 '加权每股收益(元)'                    'weighted_eps'
 '每股收益_调整后(元)'                 'eps_adjusted'
-'扣除非经常性损益后的每股收益(元)'       'eps_after_deducting_non_recurring_gains_and_losses'
+'扣除非经常性损益后的每股收益(元)'    'eps_after_deducting_non_recurring_gains_and_losses'
 
 '每股净资产_调整前(元)'                'net_assets_per_share_before_adjustment'
 '每股净资产_调整后(元)'                'net_assets_per_share_adjusted'
@@ -31,6 +35,8 @@ debug = 0
 '每股未分配利润(元)'                  'retained_eps'
 
 '调整后的每股净资产(元)'               'adjusted_net_assets_per_share'
+
+'盈利能力'                            'earn_capacity'
 '总资产利润率(%)'                     'total_asset_profit_rate'
 '主营业务利润率(%)'                   'main_business_profit_rate'
 '总资产净利润率(%)'                   'total_asset_net_profit_rate'
@@ -54,11 +60,15 @@ debug = 0
 '净资产收益率(%)'                     'net_asset_return_rate'
 '加权净资产收益率(%)'                 'weighted_net_asset_return_rate'
 '扣除非经常性损益后的净利润(元)'        'net_profit_after_deducting_non_recurring_gains_and_losses'
+
+'成长能力'                             'growth_capacity'     
 '主营业务收入增长率(%)'                'main_business_income_growth_rate'
 '净利润增长率(%)'                     'net_profit_growth_rate'
 
 '净资产增长率(%)'                     'net_asset_growth_rate'
 '总资产增长率(%)'                     'total_asset_growth_rate'
+
+'营运能力'                            'op_capacity'
 '应收账款周转率(次)'                  'accounts_receivable_turnover_rate_times'
 '应收账款周转天数(天)'                 'accounts_receivable_turnover_days_days'
 '存货周转天数(天)'                    'inventory_turnover_days_days'
@@ -71,6 +81,8 @@ debug = 0
 '流动资产周转天数(天)'                 'current_asset_turnover_days_days'
 
 '股东权益周转率(次)'                  'shareholders_equity_turnover_rate_times'
+
+'偿债及资本结构'                     'capital_structure'
 '流动比率'                           'current_ratio'
 '速动比率'                           'quick_ratio'
 '现金比率(%)'                        'cash_ratio'
@@ -92,12 +104,17 @@ debug = 0
 
 '资产负债率(%)'                      'asset_liability_ratio'
 '总资产(元)'                         'total_assets'
+
+'现金流量'                            'cash_flow'
 '经营现金净流量对销售收入比率(%)'       'net_operating_cash_flow_to_sales_revenue_ratio'
 '资产的经营现金流量回报率(%)'           'operating_cash_flow_return_on_assets'
 
 '经营现金净流量与净利润的比率(%)'       'net_operating_cash_flow_to_net_profit_ratio'
 '经营现金净流量对负债比率(%)'           'net_operating_cash_flow_to_debt_ratio'
 '现金流量比率(%)'                     'cash_flow_ratio'
+
+'其他指标'                            'other_indicator'
+
 '短期股票投资(元)'                    'short_term_stock_investment'
 '短期债券投资(元)'                    'short_term_bond_investment_yuan'
 
@@ -120,33 +137,31 @@ debug = 0
 '1-2年以内其它应收款(元)'              'other_receivables_within_1_2_years_yuan'
 '2-3年以内其它应收款(元)'              'other_receivables_within_2_3_years_yuan'
 '3年以内其它应收款(元)'                'other_receivables_within_3_years_yuan'
-'002261'                                'stock_code' 
-'拓维信息']                             'stock_name'
 
 '''
 
-sina_cols = " record_date,stock_code, stock_name,diluted_eps,weighted_eps,eps_adjusted,eps_after_deducting_non_recurring_gains_and_losses,\
+sina_cols = " record_date, stock_code, stock_name, per_indictor, diluted_eps,weighted_eps,eps_adjusted,eps_after_deducting_non_recurring_gains_and_losses,\
              net_assets_per_share_before_adjustment,net_assets_per_share_adjusted,operating_cash_flow_per_share,\
-             capital_reserve_per_share,retained_eps,adjusted_net_assets_per_share,total_asset_profit_rate,\
+             capital_reserve_per_share,retained_eps,adjusted_net_assets_per_share,earn_capacity, total_asset_profit_rate,\
              main_business_profit_rate,total_asset_net_profit_rate,cost_and_expense_profit_rate,\
              operating_profit_rate,main_business_cost_rate,net_profit_margin,return_on_equity,\
              return_on_net_assets,return_on_assets,gross_profit_margin,proportion_of_three_expenses,\
              non_main_business_proportion,main_business_profit_proportion,dividend_payout_rate,\
              investment_return_rate,main_business_profit,net_asset_return_rate,\
              weighted_net_asset_return_rate,net_profit_after_deducting_non_recurring_gains_and_losses,\
-             main_business_income_growth_rate,net_profit_growth_rate,net_asset_growth_rate,\
-             total_asset_growth_rate,accounts_receivable_turnover_rate_times,accounts_receivable_turnover_days_days,\
+             growth_capacity, main_business_income_growth_rate,net_profit_growth_rate,net_asset_growth_rate,\
+             total_asset_growth_rate,op_capacity, accounts_receivable_turnover_rate_times,accounts_receivable_turnover_days_days,\
              inventory_turnover_days_days,inventory_turnover_rate_times,fixed_asset_turnover_rate_times,\
              total_asset_turnover_rate_times,total_asset_turnover_days_days,current_asset_turnover_rate_times,\
-             current_asset_turnover_days_days,shareholders_equity_turnover_rate_times,current_ratio,\
+             current_asset_turnover_days_days,shareholders_equity_turnover_rate_times,capital_structure,current_ratio,\
              quick_ratio,cash_ratio,interest_coverage_ratio,long_term_debt_to_working_capital_ratio,\
              shareholders_equity_ratio,long_term_debt_ratio,shareholders_equity_to_fixed_assets_ratio,\
              liabilities_to_owners_equity_ratio,long_term_assets_to_long_term_funds_ratio,\
              capitalization_ratio,fixed_asset_net_value_ratio,capitalization_fix_ratio,equity_ratio,\
              liquidation_value_ratio,fixed_assets_ratio,asset_liability_ratio,total_assets,\
-             net_operating_cash_flow_to_sales_revenue_ratio,operating_cash_flow_return_on_assets,\
+             cash_flow, net_operating_cash_flow_to_sales_revenue_ratio,operating_cash_flow_return_on_assets,\
              net_operating_cash_flow_to_net_profit_ratio,net_operating_cash_flow_to_debt_ratio,\
-             cash_flow_ratio,short_term_stock_investment,short_term_bond_investment_yuan,\
+             cash_flow_ratio,other_indicator, short_term_stock_investment,short_term_bond_investment_yuan,\
              short_term_other_operating_investment_yuan,long_term_stock_investment_yuan,\
              long_term_bond_investment_yuan,long_term_other_operating_investment_yuan,\
              accounts_receivable_within_1_year_yuan,accounts_receivable_within_1_2_years_yuan,\
@@ -210,6 +225,7 @@ class HData_sina_fina(object):
                 record_date      date,
                 stock_code    varchar,
                 stock_name    varchar,
+                per_indictor        varchar,
                 diluted_eps         float,
                 weighted_eps         float,
                 eps_adjusted         float,
@@ -220,6 +236,7 @@ class HData_sina_fina(object):
                 capital_reserve_per_share         float,
                 retained_eps         float,
                 adjusted_net_assets_per_share         float,
+                earn_capacity    varchar,
                 total_asset_profit_rate         float,
                 main_business_profit_rate         float,
                 total_asset_net_profit_rate         float,
@@ -240,10 +257,12 @@ class HData_sina_fina(object):
                 net_asset_return_rate         float,
                 weighted_net_asset_return_rate         float,
                 net_profit_after_deducting_non_recurring_gains_and_losses         float,
+                growth_capacity varchar,
                 main_business_income_growth_rate         float,
                 net_profit_growth_rate         float,
                 net_asset_growth_rate         float,
                 total_asset_growth_rate         float,
+                op_capacity  varchar,
                 accounts_receivable_turnover_rate_times         float,
                 accounts_receivable_turnover_days_days         float,
                 inventory_turnover_days_days         float,
@@ -254,6 +273,7 @@ class HData_sina_fina(object):
                 current_asset_turnover_rate_times         float,
                 current_asset_turnover_days_days         float,
                 shareholders_equity_turnover_rate_times         float,
+                capital_structure varchar,
                 current_ratio         float,
                 quick_ratio         float,
                 cash_ratio         float,
@@ -272,11 +292,13 @@ class HData_sina_fina(object):
                 fixed_assets_ratio         float,
                 asset_liability_ratio         float,
                 total_assets         float,
+                cash_flow  varchar,
                 net_operating_cash_flow_to_sales_revenue_ratio         float,
                 operating_cash_flow_return_on_assets         float,
                 net_operating_cash_flow_to_net_profit_ratio         float,
                 net_operating_cash_flow_to_debt_ratio         float,
                 cash_flow_ratio         float,
+                other_indicator varchar,
                 short_term_stock_investment         float,
                 short_term_bond_investment_yuan         float,
                 short_term_other_operating_investment_yuan         float,
@@ -348,11 +370,6 @@ class HData_sina_fina(object):
         pass
 
     def insert_all_stock_data(self, data):
-        #data format: record_date , stock_code , open , close , high , low  , volume ,  amount  , \
-        #        p_change 
-        #data format: ['timestamp', 'symbol', 'open', 'close', 'high', 'low', 'volume', 'amount', \
-        #       'percent', 'chg', 'turnoverrate', 'pe', 'pb', 'ps', 'pcf', 'market_capital', \
-        #       'hk_volume', 'hk_pct', 'hk_net', 'is_quad', 'is_zig', 'is_quad']
         self.db_connect()
         t1=time.time()
 
