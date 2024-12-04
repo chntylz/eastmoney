@@ -33,6 +33,11 @@ debug = 1
 debug = 0 
 
 
+update_all = 0    #create new database
+
+csv_exist = 0
+
+
 def insert_to_database(df, type_table):
 
     cols = []
@@ -91,7 +96,10 @@ def insert_to_database(df, type_table):
         df.columns = cols
         #str to date format  for database format
         df['record_date']=df['record_date'].apply(lambda x: datetime.datetime.strptime(x, '%Y%m%d').date().strftime("%Y-%m-%d"))
-        df = df.head(1)  #only update the latest item
+        if update_all:
+            pass
+        else:
+            df = df.head(1)  #only update the latest item
         database.copy_from_stringio(df)
     except Exception as e:
         print("### error (%s):%s %s" % (e, type_table, df.head(1)))
@@ -100,7 +108,10 @@ def insert_to_database(df, type_table):
 
 def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
     
-    time.sleep(random.randint(5,10)) #add time to avoid sina crawl rules
+    if csv_exist:
+        pass
+    else:
+        time.sleep(random.randint(5,10)) #add time to avoid sina crawl rules
 
     if type_table == 'balance':
         url = 'https://money.finance.sina.com.cn/corp/go.php/vDOWN_BalanceSheet/displaytype/4/stockid/' + stock_code  + '/ctrl/all.phtml'
@@ -111,12 +122,17 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
     else:
         print('### type_table is null, return')
 
-    #download file
     csv_file = './sina/' + stock_code + '_' + type_table + '.csv'
-    cmd = 'curl -s  ' + url + ' >' + ' ' + csv_file
-    if debug:
-        print(cmd)
-    os.system(cmd)
+
+
+    if csv_exist:
+        pass
+    else:
+        #download file
+        cmd = 'curl -s  ' + url + ' >' + ' ' + csv_file
+        if debug:
+            print(cmd)
+        os.system(cmd)
 
     df = pd.DataFrame()
     #read data from csv
@@ -169,11 +185,18 @@ def worker(data):
         os.path.exists(csv_income) and \
         os.path.exists(csv_cashflow):
         print('%s %s already exists' % (stock_code, stock_name))
-        return
+
+        if csv_exist:
+            get_sina_data_from_phtml(stock_code, stock_name, 'balance')
+            get_sina_data_from_phtml(stock_code, stock_name, 'income')
+            get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
+        else:
+            return
 
     get_sina_data_from_phtml(stock_code, stock_name, 'balance')
     get_sina_data_from_phtml(stock_code, stock_name, 'income')
     get_sina_data_from_phtml(stock_code, stock_name, 'cashflow')
+
 
     return
 
@@ -195,11 +218,12 @@ if __name__ == '__main__':
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
 
-    #only update the latest item
     '''
-    hdata_sina_income.db_hdata_sina_create()
-    hdata_sina_balance.db_hdata_sina_create()
-    hdata_sina_cashflow.db_hdata_sina_create()
+    #only update the latest item
+    if  update_all:
+        hdata_sina_income.db_hdata_sina_create()
+        hdata_sina_balance.db_hdata_sina_create()
+        hdata_sina_cashflow.db_hdata_sina_create()
     '''
 
     processes = 4

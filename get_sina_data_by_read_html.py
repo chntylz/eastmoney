@@ -50,6 +50,7 @@ debug = 0
 debug = 1 
 debug = 0 
 
+update_all = 0
 
 def insert_to_database(df, type_table):
 
@@ -152,7 +153,8 @@ def insert_to_database(df, type_table):
         df.columns = cols
         #str to date format  for database format
         df['record_date']=df['record_date'].apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date().strftime("%Y%m%d"))
-        #df = df.head(1)  #only update the latest item
+        if update_all == 0:
+            df = df.head(1)  #only update the latest item
         database.copy_from_stringio(df)
     except Exception as e:
         print("### error (%s):%s %s" % (e, type_table, df.head(1)))
@@ -220,7 +222,9 @@ def get_sina_fina_data(stock_code, stock_name):
     #get continuous 5 years data
     target_years = 5
     target_years = 1
-    target_years = 5
+    if update_all == 0:
+        target_years = 5
+
     for yy in range(target_years):
         year = str(this_year - yy)
         df_balance_tmp  = get_sina_data_from_read_html(stock_code, stock_name, 'balance', year)
@@ -271,10 +275,11 @@ if __name__ == '__main__':
     data_list = data_list.tolist()
 
     #only update the latest item
-    hdata_sina_income.db_hdata_sina_create()
-    hdata_sina_balance.db_hdata_sina_create()
-    hdata_sina_cashflow.db_hdata_sina_create()
-    hdata_sina_fina.db_hdata_sina_create()
+    if update_all:
+        hdata_sina_income.db_hdata_sina_create()
+        hdata_sina_balance.db_hdata_sina_create()
+        hdata_sina_cashflow.db_hdata_sina_create()
+        hdata_sina_fina.db_hdata_sina_create()
 
     processes = 4
     number = len(stock_df)
