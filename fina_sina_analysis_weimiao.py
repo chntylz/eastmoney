@@ -134,8 +134,8 @@ def  fina_analysis_by_weimiao(stock_code, stock_name):
         print(df_fina)
         print(df_y_fina)
 
-    #if  income_analysis_liab(df_y_fina)  and \
-    if  income_analysis_roe(df_y_fina)  and \
+    if  income_analysis_liab(df_y_fina)  and \
+        income_analysis_roe(df_y_fina)  and \
         income_analysis_cash_of_netincome(df_y_fina)  and \
         income_analysis_gross_rate(df_y_fina):
         print(code,  stock_name)

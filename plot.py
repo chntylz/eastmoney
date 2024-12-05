@@ -40,6 +40,7 @@ import warnings
 warnings.simplefilter(action = "ignore", category = RuntimeWarning)
 
 
+
 #funcat
 from funcat import *
 from funcat.data.aaron_backend import AaronDataBackend
@@ -52,6 +53,9 @@ debug = 0
 debug = 1
 debug = 0
 
+
+
+pe_pb=0
 
 def check_is_bottom(nowdate, nowcode, nowname, within):
     is_bottom = False
@@ -106,6 +110,8 @@ def combine_fina(a_df, b_df):
     tmp_c = 0
     tmp_profit_rate = 0
     tmp_netprofit_rate = 0
+    tmp_eps_adjusted  = 0
+    tmp_adjusted_net_assets_per_share = 0
 
     #find the first valid data
     while ( i < df_len):
@@ -129,29 +135,62 @@ def combine_fina(a_df, b_df):
             break
         i = i + 1
 
+    #'每股收益_调整后(元)'                 'eps_adjusted'
+    i = 0
+    while ( i < df_len):
+        if(df.eps_adjusted[i]):
+            tmp_eps_adjusted = df.eps_adjusted[i]
+            break
+        i = i + 1
+
+    #'调整后的每股净资产(元)'               'adjusted_net_assets_per_share'
+    i = 0
+    while ( i < df_len):
+        if(df.adjusted_net_assets_per_share[i]):
+            tmp_adjusted_net_assets_per_share = df.adjusted_net_assets_per_share[i]
+            break
+        i = i + 1
+
+
+
+
+
+
     #set 0 with valid data
     i = 0
     while ( i < df_len):
         if(df.close[i] == 0):  
             #df.close[i] = tmp_c       
             df.loc[i,'close'] = tmp_c
+        if(df.close[i]):    
+            tmp_c = df.close[i]        
+
 
         if(df.main_business_income_growth_rate[i] == 0):  
             #df.main_business_income_growth_rate[i] = tmp_profit_rate
             df.loc[i,'main_business_income_growth_rate'] = tmp_profit_rate
+        if(df.main_business_income_growth_rate[i]):
+            tmp_profit_rate = df.main_business_income_growth_rate[i]
 
         if(df.net_profit_growth_rate[i] == 0):  
             #df.net_profit_growth_rate[i] = tmp_netprofit_rate
             df.loc[i,'net_profit_growth_rate'] = tmp_netprofit_rate
-
-        if(df.close[i]):    
-            tmp_c = df.close[i]        
-
-        if(df.main_business_income_growth_rate[i]):
-            tmp_profit_rate = df.main_business_income_growth_rate[i]
-
         if(df.net_profit_growth_rate[i]):
             tmp_netprofit_rate = df.net_profit_growth_rate[i]
+
+        if pe_pb:
+            if(df.eps_adjusted[i] == 0):  
+                #df.eps_adjusted[i] = tmp_eps_adjusted
+                df.loc[i,'eps_adjusted'] = tmp_eps_adjusted
+            if(df.eps_adjusted[i]):
+                tmp_eps_adjusted = df.eps_adjusted[i]
+
+            if(df.adjusted_net_assets_per_share[i] == 0):  
+                #df.adjusted_net_assets_per_share[i] = tmp_adjusted_net_assets_per_share
+                df.loc[i,'adjusted_net_assets_per_share'] = tmp_adjusted_net_assets_per_share
+            if(df.adjusted_net_assets_per_share[i]):
+                tmp_adjusted_net_assets_per_share = df.adjusted_net_assets_per_share[i]
+
 
         i = i + 1
 
@@ -684,8 +723,43 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
 
         ####################################################################################################################
         #kd
-        ax02.plot(day_df['k'], label='K-Value')
-        ax02.plot(day_df['d'], label='D-Value')
+
+        if pe_pb:
+            i = 0
+            pe_len = len(c_fina_df)
+
+            for i in range(pe_len):
+                if c_fina_df.pe[i] == 0 and c_fina_df.eps_adjusted[i] != 0 :
+                    c_fina_df.loc[i, 'pe'] = round(c_fina_df.close[i] / c_fina_df.eps_adjusted[i], 2)
+
+                if c_fina_df.pb[i] == 0 and c_fina_df.adjusted_net_assets_per_share[i] != 0:
+                    c_fina_df.loc[i, 'pb'] = round(c_fina_df.close[i] / c_fina_df.adjusted_net_assets_per_share[i], 2)
+            
+            print(c_fina_df[['record_date', 'stock_code', 'close', 'eps_adjusted', 'pe', 'adjusted_net_assets_per_share', 'pb']])
+
+        pe_df = day_df[day_df['pe'] != 0]
+        if pe_pb:
+            pe_df = c_fina_df[c_fina_df['pe'] != 0]
+
+       
+        pe_max = pe_df['pe'].max()
+        pe_min = pe_df['pe'].min()
+        pe_mean= pe_df['pe'].mean()
+
+        delta = pe_max - pe_min
+        pe_10p = pe_min + delta*0.1
+        pe_20p = pe_min + delta*0.2
+        pe_30p = pe_min + delta*0.3
+
+        ax02.axhline(y=pe_max, color='r', linewidth=1)
+        ax02.axhline(y=pe_mean, color='g', linewidth=1)
+        ax02.axhline(y=pe_min, color='b', linewidth=1)
+        ax02.axhline(y=pe_10p, color='orange', linewidth=1)
+        ax02.axhline(y=pe_20p, color='pink', linewidth=1)
+        ax02.axhline(y=pe_30p, color='purple', linewidth=1)
+
+        ax02.plot(day_df['pe'], label='pe')
+        ax02.plot(day_df['pb'], label='pb')
         ax02.set_xticks(range(0, len(day_df.index), step))
         ax02.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
         ax02.legend();
