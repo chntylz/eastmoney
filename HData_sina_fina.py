@@ -57,7 +57,7 @@ eps_=_earnings_per_share
 '投资收益率(%)'                      'investment_return_rate'
 '主营业务利润(元)'                    'main_business_profit'
 
-'净资产收益率(%)'                     'net_asset_return_rate'
+'净资产收益率(%)'                     'net_asset_return_rate'     //ROE  净资产收益率  roe
 '加权净资产收益率(%)'                 'weighted_net_asset_return_rate'
 '扣除非经常性损益后的净利润(元)'        'net_profit_after_deducting_non_recurring_gains_and_losses'
 
@@ -109,7 +109,7 @@ eps_=_earnings_per_share
 '经营现金净流量对销售收入比率(%)'       'net_operating_cash_flow_to_sales_revenue_ratio'
 '资产的经营现金流量回报率(%)'           'operating_cash_flow_return_on_assets'
 
-'经营现金净流量与净利润的比率(%)'       'net_operating_cash_flow_to_net_profit_ratio'
+'经营现金净流量与净利润的比率(%)'       'net_operating_cash_flow_to_net_profit_ratio'    //净利润现金含量
 '经营现金净流量对负债比率(%)'           'net_operating_cash_flow_to_debt_ratio'
 '现金流量比率(%)'                     'cash_flow_ratio'
 

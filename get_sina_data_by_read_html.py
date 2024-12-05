@@ -222,26 +222,30 @@ def get_sina_fina_data(stock_code, stock_name):
     #get continuous 5 years data
     target_years = 5
     target_years = 1
-    if update_all == 0:
+    if update_all :
         target_years = 5
 
     for yy in range(target_years):
         year = str(this_year - yy)
+        '''
         df_balance_tmp  = get_sina_data_from_read_html(stock_code, stock_name, 'balance', year)
         df_balance = pd.concat([df_balance, df_balance_tmp])
-
+        
         df_income_tmp   = get_sina_data_from_read_html(stock_code, stock_name, 'income', year)
         df_income = pd.concat([df_income, df_income_tmp])
 
         df_cashflow_tmp = get_sina_data_from_read_html(stock_code, stock_name, 'cashflow', year)
         df_cashflow = pd.concat([df_cashflow, df_cashflow_tmp])
+        '''
 
         df_fina_tmp     = get_sina_data_from_read_html(stock_code, stock_name, 'fina', year)
         df_fina = pd.concat([df_fina, df_fina_tmp])
 
+    '''
     insert_to_database(df_balance, 'balance')
     insert_to_database(df_income, 'income')
     insert_to_database(df_cashflow, 'cashflow')
+    '''
     insert_to_database(df_fina, 'fina')
     pass
 
@@ -276,10 +280,12 @@ if __name__ == '__main__':
 
     #only update the latest item
     if update_all:
+        hdata_sina_fina.db_hdata_sina_create()
+        '''
         hdata_sina_income.db_hdata_sina_create()
         hdata_sina_balance.db_hdata_sina_create()
         hdata_sina_cashflow.db_hdata_sina_create()
-        hdata_sina_fina.db_hdata_sina_create()
+        '''
 
     processes = 4
     number = len(stock_df)
