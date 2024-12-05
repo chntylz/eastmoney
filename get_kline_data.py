@@ -26,6 +26,7 @@ import json
 debug=0
 debug=0
 
+
 import random
 def get_headers():
     '''
@@ -173,6 +174,8 @@ def get_kline_data(code=None, count=None, period=None):
 
 
 
+#https://quote.eastmoney.com/sz002224.html?jump_to_web=true#fullScreenChart
+#search kline
 def get_kline_data2(code=None, count=None, period=None):
     
     #1:sh  0:sz

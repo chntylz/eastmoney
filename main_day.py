@@ -95,7 +95,7 @@ def check_table():
             #hdata_day.db_hdata_eastmoney_create()
             print('table already exist, recreate')
     else:
-        hdata_day.db_hdata_eastmoney_create()
+        #hdata_day.db_hdata_eastmoney_create()
         print('table not exist, create')
 
 
