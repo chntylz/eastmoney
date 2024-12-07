@@ -114,6 +114,7 @@ def get_data2(browser):
     print(url)
     html = browser.page_source
     s=html
+    print(html)
     f1 = s.find('{')
     s = s[:f1] + '(' + s[f1 : ]  #add '(' before first '{' 
     f2 = s.rfind('}')              #add ')' after last  '}' 

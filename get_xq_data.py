@@ -52,7 +52,7 @@ def xq_login2(driver):
     #https://vimsky.com/examples/detail/python-ex-selenium.webdriver.support.ui-WebDriverWait-send_keys-method.html
     #https://www.cnblogs.com/denise1108/p/10551019.html
     print('xq_login')
-    driver.get('https://xueqiu.com/user/login')
+    driver.get('https://xueqiu.com/')
     elem = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.NAME, 'username')))
     elem.send_keys('chntylz@gmail.com')
     elem = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.NAME, 'password')))

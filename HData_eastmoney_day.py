@@ -590,3 +590,36 @@ class HData_eastmoney_day(object):
 #select * from eastmoney_d_table where stock_code ='600647' and (record_date='2018-06-13' or record_date='2018-06-12' ); 
         
 #update eastmoney_d_table set record_date='2021-09-17' where record_date='2021-09-18';
+
+'''
+https://blog.csdn.net/LG_15011399296/article/details/134580129
+
+update table1
+set pname=table2.pname,
+type=table2.type
+from table2
+where table1.pcode=table2.pcode
+
+
+
+
+update eastmoney_d_table
+set pe=xq_simple_d_table.pe_ttm
+from xq_simple_d_table
+where xq_simple_d_table.record_date=eastmoney_d_table.record_date
+ and position(eastmoney_d_table.stock_code in xq_simple_d_table.stock_code) > 0;
+
+
+SELECT eastmoney_d_table.stock_code, eastmoney_d_table.record_date, xq_simple_d_table.pe_ttm, xq_simple_d_table.stock_code
+FROM eastmoney_d_table
+FULL JOIN xq_simple_d_table ON eastmoney_d_table.record_date = xq_simple_d_table.record_date limit 10;
+
+
+
+
+SELECT eastmoney_d_table.stock_code, eastmoney_d_table.record_date, xq_simple_d_table.pe_ttm, xq_simple_d_table.stock_code
+FROM eastmoney_d_table
+FULL JOIN xq_simple_d_table ON eastmoney_d_table.record_date = xq_simple_d_table.record_date
+where position(eastmoney_d_table.stock_code in xq_simple_d_table.stock_code) > 0 limit 10;
+
+'''

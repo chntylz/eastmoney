@@ -90,6 +90,8 @@ if __name__ == '__main__':
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(retry)
     print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d"))) 
+    
+    start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     df = hdata_day.get_data_from_hdata(\
             start_date=nowdate.strftime("%Y-%m-%d"), \
@@ -117,7 +119,7 @@ if __name__ == '__main__':
             )
 
     
-    #df = df.head(4)  # small size for test
+    df = df.head(4)  # small size for test
     data_list = np.array(df)
     data_list = data_list.tolist()
 
@@ -125,6 +127,8 @@ if __name__ == '__main__':
     with multiprocessing.Pool(int(processes)) as pool:
         pool.map(worker, data_list)
 
+    last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    print("start_time: %s, last_time: %s" % (start_time, last_time))
 
     
     t2 = time.time()
