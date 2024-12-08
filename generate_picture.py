@@ -119,7 +119,7 @@ if __name__ == '__main__':
             )
 
     
-    df = df.head(4)  # small size for test
+    #df = df.head(4)  # small size for test
     data_list = np.array(df)
     data_list = data_list.tolist()
 
