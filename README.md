@@ -31,3 +31,11 @@ nowdate is 2024-12-07
 <function plot_stock_picture at 0xffffa4d74040>: 2024-12-06, 000002, 000002
 <function plot_stock_picture at 0xffffa4d74040>: 2024-12-06, 000004, 000004
 <function plot_stock_picture at 0xffffa4d74040>: 2024-12-06, 000006, 000006
+
+
+
+todo:
+add pe_ttm
+1. zig
+2. pe  处于低位 30%一下
+

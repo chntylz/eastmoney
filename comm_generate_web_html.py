@@ -220,6 +220,8 @@ def cgi_write_to_file( df):
 
             elif 'industry' in col_name[j]:
                 print('           <a href="../../sina_html/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+            elif 'pe' in col_name[j]:
+                print('           <a href="https://iwencai.com/unifiedwap/result?w=%spe" target="_blank"> %s</a>\n'%  (stock_code, element_value))
             elif  'zig' in col_name[j]:
                 if float(element_value) > 0:
                     print('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> <font color="red"> %s</font></a>\n'%  (tmp_stock_code, element_value))
@@ -567,6 +569,8 @@ def comm_write_to_file(f, k, df, filename):
                     f.write('           <a href="../../sina_html/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 elif item_name == 'zig':
                     f.write('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+                elif item_name == 'pe':
+                    f.write('           <a href="https://iwencai.com/unifiedwap/result?w=%spe" target="_blank"> %s</a>\n'%  (stock_code, element_value))
                 else:
                     f.write('           <a> %s</a>\n'%(element_value))
             

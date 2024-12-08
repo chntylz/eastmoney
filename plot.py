@@ -302,13 +302,14 @@ def combine_holder(a_df, b_df):
 
 def close_plot(axes,c_holder_df, step, degree):
     df = c_holder_df
+    df['x_axis'] = df['record_date'].apply(lambda x: x[2:])
     c_close = df['close']
     if debug:
         print('record_date: %s' % df['record_date'])
         print('c_close: %s' % c_close)
     axes.plot(c_close, label = 'close')
     axes.set_xticks(range(0, len(df.index), step))
-    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
     axes.legend();
 
 
@@ -316,13 +317,14 @@ def close_plot(axes,c_holder_df, step, degree):
 
 def holder_plot(axes, holder_df, c_holder_df, step, degree):
     df = c_holder_df
+    df['x_axis'] = df['record_date'].apply(lambda x: x[2:])
     #holder
     holder = c_holder_df['holder_num']
     if debug:
         print('holder_num: %s' % holder)
     axes.plot(holder,  '-r', label = 'holder')
     axes.set_xticks(range(0, len(df.index), step))
-    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
     axes.legend();
     #mark holder num
     h_len = len(c_holder_df)
@@ -345,13 +347,14 @@ def holder_plot(axes, holder_df, c_holder_df, step, degree):
 
 def fina_yy_plot(axes, fina_df, c_fina_df, step, degree):
     df = c_fina_df
+    df['x_axis'] = df['record_date'].apply(lambda x: x[2:])
     #yy_rate
     yy_rate = c_fina_df['main_business_income_growth_rate']
     if debug:
         print('yy_rate : %s' % yy_rate  )
     axes.plot(yy_rate ,  '-r', label = 'yy_rate ')
     axes.set_xticks(range(0, len(df.index), step))
-    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
     axes.legend();
     #mark add
     df_len = len(c_fina_df)
@@ -373,13 +376,14 @@ def fina_yy_plot(axes, fina_df, c_fina_df, step, degree):
 
 def fina_net_plot(axes, fina_df, c_fina_df, step, degree):
     df = c_fina_df
+    df['x_axis'] = df['record_date'].apply(lambda x: x[2:])
     #net_rate
     net_rate = c_fina_df['net_profit_growth_rate']
     if debug:
         print('net_rate : %s' % net_rate  )
     axes.plot(net_rate ,  '-b', label = 'net_rate ')
     axes.set_xticks(range(0, len(df.index), step))
-    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
     axes.legend();
     #mark add
     df_len = len(c_fina_df)
@@ -400,13 +404,14 @@ def fina_net_plot(axes, fina_df, c_fina_df, step, degree):
 
 def jigou_plot(axes, jigou_df, c_jigou_df, step, degree):
     df = c_jigou_df
+    df['x_axis'] = df['record_date'].apply(lambda x: x[2:])
     #jigou
     jigou = c_jigou_df['freeshares_ratio']
     if debug:
         print('jigou : %s' % jigou  )
     axes.plot(jigou ,  '-r', label = 'jigou ')
     axes.set_xticks(range(0, len(df.index), step))
-    axes.set_xticklabels(df['record_date'][::step],  rotation=degree)
+    axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
     axes.legend();
     #mark add
     df_len = len(c_jigou_df)
@@ -434,6 +439,7 @@ def zig_plot(axes, day_df):
 
     date_series=day_df['record_date']
     dates = date_series.tolist()
+    day_df['x_axis'] = day_df['record_date'].apply(lambda x: x[2:])
 
     #add label and vlines for zig
     z_df, z_peers, z_d, z_k, z_buy_state=zig(day_df)
@@ -489,7 +495,7 @@ def zig_plot(axes, day_df):
 
 def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df, save_dir, fig, sub_name):
 
-    step = 20
+    step = 10
     degree = 5
 
     buy_flag = ''
@@ -607,6 +613,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
     '''
     date_series=day_df['record_date']
     dates = date_series.tolist()
+    day_df['x_axis'] = day_df['record_date'].apply(lambda x: x[2:])
 
     h_delta = 0.02
 
@@ -675,7 +682,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         ####################################################################################################################
         #boll
         ax04.set_xticks(range(0, len(day_df.index), step))
-        ax04.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        #ax04.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        ax04.set_xticklabels(day_df['x_axis'][::step],  rotation=degree)  #index transfer to date
         candlestick2_ochl(ax04, day_df['open'], day_df['close'], day_df['high'],
                                       day_df['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
         #boll
@@ -693,7 +701,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
 
         #candles
         ax03.set_xticks(range(0, len(day_df.index), step))
-        ax03.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        #ax03.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        ax04.set_xticklabels(day_df['x_axis'][::step],  rotation=degree)  #index transfer to date
         candlestick2_ochl(ax03, day_df['open'], day_df['close'], day_df['high'],
             day_df['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
         #plt.rcParams['font.sans-serif']=['Microsoft JhengHei'] 
@@ -761,7 +770,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         ax02.plot(day_df['pe'], label='pe')
         ax02.plot(day_df['pb'], label='pb')
         ax02.set_xticks(range(0, len(day_df.index), step))
-        ax02.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        #ax02.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        ax02.set_xticklabels(day_df['x_axis'][::step],  rotation=degree)  #index transfer to date
         ax02.legend();
         ####################################################################################################################
 
@@ -775,7 +785,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         ax01.bar(day_df.index, green_hist, label="Green-MACD", color='g')
 
         ax01.set_xticks(range(0, len(day_df.index), step))
-        ax01.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        #ax01.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        ax01.set_xticklabels(day_df['x_axis'][::step],  rotation=degree)  #index transfer to date
         ax01.legend();
 
        ####################################################################################################################
@@ -785,8 +796,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         volume_overlay(ax00, day_df['open'], day_df['close'], day_df['volume'], \
             colorup='r', colordown='g', width=0.5, alpha=0.8)
         ax00.set_xticks(range(0, len(day_df.index), step))
-        ax00.set_xticklabels(day_df['record_date'][::step], rotation=degree)
         #ax00.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
+        ax00.set_xticklabels(day_df['x_axis'][::step], rotation=degree)
         #ax00.plot(ma_vol_50, label='MA50')
         ax00.plot(ma_vol_100, label='MA100')
         ax00.legend();
