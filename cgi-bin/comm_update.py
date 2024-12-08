@@ -250,7 +250,7 @@ def show_realdata(file_name):
         if debug:
             print("i=%d,  new_code:%s" %(i, new_code))
 
-        new_pre_price = new_price = new_percent = total_mv = 0
+        new_pre_price = new_price = new_percent = total_mv = pe = 0
         
         if new_name == '5GETF':
             eastmoney_begin = i
@@ -271,6 +271,9 @@ def show_realdata(file_name):
                 new_price       = real_df['close'][0]
                 new_percent     = real_df['percent'][0]
                 total_mv        = round(real_df['mkt_cap'][0]/10000/10000, 2)
+                pe = real_df['pe'][0] 
+                pe_pct = real_df['pe_pct'][0] 
+                pe = str(pe) + '-' + str(pe_pct)
 
             #get total_mv from daily db, get price percent from zlje1
             tmp_zlje_df = zlje_df[zlje_df['stock_code'] == new_code]
@@ -443,7 +446,7 @@ def show_realdata(file_name):
         
 
 
-        data_list.append([new_date, new_code, new_name, total_mv, new_pre_price, new_price, new_percent, \
+        data_list.append([new_date, new_code, new_name, total_mv, new_pre_price, new_price, new_percent, pe, \
                 is_peach, is_zig, is_quad, zlje, zlje_3, zlje_5, zlje_10, \
                 h_chg, fund_info, \
                 new_hsgt_date, new_hsgt_share_holding, new_hsgt_percent, \
@@ -452,7 +455,7 @@ def show_realdata(file_name):
 
         #data_list.append([str_date, my_list[i], my_list_cn[i], df['pre_close'][0], df['price'][0] ])
 
-    data_column = ['curr_date', 'code', 'name', 'total_mv', 'pre_price', 'price', 'a_pct', \
+    data_column = ['curr_date', 'code', 'name', 'total_mv', 'pre_price', 'price', 'a_pct', 'pe',\
             'peach', 'zig', 'quad', 'zlje', 'zlje_3', 'zlje_5', 'zlje_10', \
             'holder_change', 'jigou', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', 'hk_m_total']

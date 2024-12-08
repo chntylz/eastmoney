@@ -41,7 +41,8 @@ hdata=HData_eastmoney_day("usr","usr")
 
 #debug switch
 debug = 0
-#debug = 1
+debug = 1
+debug = 0
 within_days = 8
 
 #return the day(j) and cross_flag(true or false) if P is true during with_days, P is cross(5, 30), etc
@@ -110,6 +111,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         is_cup_tea = 0 
         is_duck_head = 0
         
+        pe_pct = 0
         
 
 
@@ -182,12 +184,13 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             # print('NaN: code:%s, name:%s' % (nowcode, nowname ))
             #error handle
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
             continue
          
         db_max_date = detail_info['record_date'][len(detail_info)-1]
         if debug:
             print('type(db_max_date)=%s' % type(db_max_date))
+            print('(db_max_date)=%s' % (db_max_date))
 
         #format transfer '2021-01-01' -> '20210101' 
         if time_is_equal(db_max_date.replace('-',''), nowdate.strftime("%Y%m%d")):
@@ -201,6 +204,28 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     (nowcode, db_max_date, nowdate.strftime("%Y%m%d")))
             
             continue
+
+
+        ##############################################################################
+        #pe_pct
+        pe_df = detail_info.sort_values('record_date', ascending=0)
+        pe_df = pe_df.reset_index(drop=True)
+        pe_df = pe_df.head(300)
+
+        pe = pe_df['pe'][0]
+        pe_df = pe_df[pe_df['pe'] != 0]
+        pe_max = pe_df['pe'].max()
+        pe_min = pe_df['pe'].min()
+        delta = pe_max - pe_min
+        if delta == 0:
+            pe_pct = 0
+        else:
+            pe_pct = round((pe - pe_min) * 100 / delta, 2)
+
+        if debug:
+            print('pe=%s, pe_max=%s, pe_min=%s, pe_pct=%s' % (pe, pe_max, pe_min, pe_pct))
+            #print(pe_df.head(1))
+
             
         ##############################################################################
         #is_d_volume        
@@ -782,7 +807,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         except:
             print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                    is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
+                    is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
             continue
         else:
             pass
@@ -816,7 +841,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             if H2_days.value > 200:
                 print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
                 update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
+                        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
                 continue
 
             if debug:
@@ -933,18 +958,18 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         ###############################################################################################
         
         update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
 
         if debug:
             print('#############################################################################')
             print([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
 
     if debug:
         print('update_list:%s'% update_list)
 
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
-            'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume']
+            'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume', 'pe_pct']
     update_df=pd.DataFrame(update_list, columns=data_column)
 
 
@@ -957,7 +982,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
     if debug:
         print("start_time: %s, last_time: %s" % (start_time, last_time))
 
-    return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume]
+    return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct]
 
 def update_peach_zig_quad(nowdate, df, df1):
 
@@ -979,6 +1004,7 @@ def update_peach_zig_quad(nowdate, df, df1):
     tmp_df['is_duck_head']  = tmp_df1['is_duck_head']
     tmp_df['is_cross3line']  = tmp_df1['is_cross3line']
     tmp_df['is_d_volume']  = tmp_df1['is_d_volume']
+    tmp_df['pe_pct']  = tmp_df1['pe_pct']
 
     tmp_df.to_csv('./csv/' + nowdate.strftime("%Y-%m-%d") + '_cross_condition.csv', encoding='gbk')
 
@@ -1032,7 +1058,7 @@ if __name__ == '__main__':
            pool.map(worker, data_list))
     
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
-        'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume']
+        'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume', 'pe_pct']
 
     if debug:
         print(mplist)

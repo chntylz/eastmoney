@@ -163,7 +163,7 @@ if __name__ == '__main__':
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)
     print(stock_df.head(5))
-    #stock_df=stock_df.head(4)
+    stock_df=stock_df.head(4)
     #exit()
 
 
