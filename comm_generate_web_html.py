@@ -569,7 +569,7 @@ def comm_write_to_file(f, k, df, filename):
                     f.write('           <a href="../../sina_html/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 elif item_name == 'zig':
                     f.write('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
-                elif item_name == 'pe':
+                elif item_name == 'pe_pct':
                     f.write('           <a href="https://iwencai.com/unifiedwap/result?w=%spe" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 else:
                     f.write('           <a> %s</a>\n'%(element_value))
@@ -963,7 +963,8 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         total_mv=round(daily_df.mkt_cap[i] / unit_yi, 2)
         
         #2024-12-08, add pe
-        pe = str(daily_df.pe[i]) + '-' + str(daily_df.pe_pct[i])
+        pe = daily_df.pe[i] 
+        pe_pct=daily_df.pe_pct[i]
 
         industry_name = ''
         try:
@@ -1088,14 +1089,14 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
 
         data_list.append([new_date, stock_code, stock_name, close_p, close, \
                 hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, \
-                money_total, total_mv,  industry_name, pe, \
+                money_total, total_mv,  industry_name, pe, pe_pct,\
                 is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea, is_cross3line,\
                 zlje, zlje_3, zlje_5, zlje_10,h_chg, \
                 jigou])
 
     data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', \
-            'hk_m_total', 'total_mv', 'industry', 'pe', \
+            'hk_m_total', 'total_mv', 'industry', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3', \
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ,\
             'jigou']
@@ -1107,7 +1108,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     if debug:
         print(ret_df)
 
-    data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', 'pe', \
+    data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
             'jigou', \
