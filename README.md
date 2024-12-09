@@ -39,3 +39,10 @@ add pe_ttm
 1. zig
 2. pe  处于低位 30%一下
 
+
+
+hangye bankuai
+https://data.eastmoney.com/bkzj/hy.html
+https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery112307780615049826384_1733732028771&pn=1&pz=500&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1733732028772
+
+

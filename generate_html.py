@@ -376,7 +376,7 @@ if __name__ == '__main__':
     if len(html_pe_df):
         generate_html(df_global, html_pe_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_basic_df len < 1')
+        print('#error, html_pe_df len < 1')
 
     #exit()
 
@@ -488,13 +488,15 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start basic')
     curr_dir=curr_day_w
-    basic_df = df[(df.is_2d3pct > 1) & (df.is_zig > 0)]
+    #basic_df = df[(df.is_2d3pct > 1) & (df.is_zig > 0)]
+    basic_df = df[(df.percent > 5)]
     html_basic_df = convert_to_html_df(basic_df, curr_dir, curr_day)
-    html_basic_df = html_basic_df.sort_values('zig', ascending=1)
+    html_basic_df = html_basic_df.sort_values('a_pct', ascending=1)
     if len(html_basic_df):
         generate_html(df_global, html_basic_df, stock_data_dir, curr_dir, curr_day)
     else:
         print('#error, html_basic_df len < 1')
+
 
     #zlje
     print('#############################################################')

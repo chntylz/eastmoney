@@ -49,9 +49,8 @@ input=0
 #start
 file_array=(
             'main_holder.py'
+            'main_company.py'
            )
-
-
 
 for value in ${file_array[@]}
 do
