@@ -115,7 +115,7 @@ def  fina_analysis_by_weimiao(stock_code, stock_name):
     df_fina     = hdata_fina.get_data_from_hdata(stock_code=code)
 
     if len(df_fina) == 0:
-        return [code, flag]
+        return [code, stock_name, flag]
     
     df_fina = df_fina.sort_values('record_date', ascending=0)
     df_fina = df_fina.reset_index(drop=True)
@@ -141,7 +141,7 @@ def  fina_analysis_by_weimiao(stock_code, stock_name):
         print(code,  stock_name)
         flag = True
 
-    return [code, flag]
+    return [code, stock_name, flag]
 
 def worker(data):
     if debug:
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)
     print(stock_df.head(5))
-    stock_df=stock_df.head(4)
+    #stock_df=stock_df.head(4)
     #exit()
 
 
@@ -177,9 +177,14 @@ if __name__ == '__main__':
        mplist.append(pool.map(worker, data_list))
 
 
-    data_column = ['stock_code', 'flag']
+    data_column = ['stock_code', 'stock_name', 'flag']
     update_df=pd.DataFrame(mplist[0], columns=data_column)
+    weimiao_df = update_df[update_df['flag'] == True]
+    del weimiao_df['flag']
     print(update_df)
+    print(weimiao_df)
+    weimiao_df.to_csv('./cgi-bin/weimiao.txt', sep=' ',  index=False)
+    
  
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

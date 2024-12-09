@@ -45,4 +45,4 @@ hangye bankuai
 https://data.eastmoney.com/bkzj/hy.html
 https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery112307780615049826384_1733732028771&pn=1&pz=500&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1733732028772
 
-
+https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery35104994650970608425_1733742729185&secid=90.BK1030&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&beg=0&end=20500101&smplmt=460&lmt=1000000&_=1733742729186

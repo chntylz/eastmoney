@@ -160,6 +160,8 @@ def get_fund_data(date=None):
 
 def get_stock_info(file_name):
     stock_list = []
+    if debug:
+        print('get_stock_info(): %s' % file_name)
     with open(file_name) as f:
         for line in f:
             if debug:
@@ -168,8 +170,13 @@ def get_stock_info(file_name):
                 if debug:
                     print('unvalid line data, skip!')
                 continue
-            space_pos = line.rfind(' ')
-            stock_list.append([line[0:space_pos], line[space_pos+1: -1]])
+            #space_pos = line.rfind(' ')
+            space_pos = line.find(' ')
+            code = line[0:space_pos]
+            name = line[space_pos+1: -1]
+            if debug:
+                print('code=%s, name=%s' % (code, name))
+            stock_list.append([code, name])
 
     return stock_list
 
@@ -245,7 +252,10 @@ def show_realdata(file_name):
         new_date        = str_date
         new_date        = str_date[2:]
         stock_code_new  = my_list[i][0]
-        new_code        = stock_code_new[2:]
+        new_code        = stock_code_new
+        if new_code[0:1] == 'S':  
+            new_code        = stock_code_new[2:]
+
         new_name        = my_list[i][1]
         if debug:
             print("i=%d,  new_code:%s" %(i, new_code))

@@ -566,8 +566,8 @@ def income_analysis_costfee(df):
     i = 0
     list = []
     list.append([df.stock_name_x[0], '营业收入', '营业成本',\
-        '毛利', '销售费用', '管理费用', '财务费用', '研发费用', '四费合计', \
-        '费用率', '毛利率', '费用率/毛利率', 'result'])
+        '毛利=营业收入-营业成本', '销售费用', '管理费用', '财务费用', '研发费用', '四费合计', \
+        '费用率=四费合计/营业收入', '毛利率', '费用率/毛利率', 'result'])
     '''
     list.append([df.stock_name_x[0], 'bizinco', 'bizcost',\
         'gross', 'salesexpe', 'manaexpe', 'finexpe_x', 'deveexpe_x', 'total_4fee', \
