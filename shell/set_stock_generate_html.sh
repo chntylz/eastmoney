@@ -66,6 +66,7 @@ file_array=(
             'volume'
             'zig'
             'zlje'
+            'pepct' 
             'generate_basic_html.py'
             'generate_index_html.py'
             'generate_hsgt_index_html.py'
@@ -96,6 +97,7 @@ do
             "$target" = "quad" -o \
             "$target" = "volume" -o \
             "$target" = "zig" -o \
+            "$target" = "pepct" -o \
             "$target" = "zlje" ];then
         comm_generate='generate_comm_index_html.py'
         log "cp -f $comm_generate /var/www/html/" 

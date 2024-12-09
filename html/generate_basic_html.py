@@ -134,7 +134,7 @@ def getAllFiles(directory):
                         ('zlje' in file) or \
                         ('repurchase' in file) or \
                         ('holder' in file) or \
-                        ('fund' in file) or \
+                        ('pepct' in file) or \
                         ('zheli' in file)  or \
                         ('macd' in file)  or \
                         ('zig' in file) or \

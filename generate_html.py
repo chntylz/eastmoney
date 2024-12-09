@@ -366,6 +366,20 @@ if __name__ == '__main__':
     else:
         print('#error, html_zig_df len < 1')
 
+    #pe and pe_pct
+    print('#############################################################')
+    print('start pe and pe_pct')
+    curr_dir=curr_day_w + '-pepct'
+    pe_df = df[(df.pe > 0 ) & (df.pe_pct < 30)]
+    html_pe_df = convert_to_html_df(pe_df, curr_dir, curr_day)
+    html_pe_df = html_pe_df.sort_values('pe', ascending=1)
+    if len(html_pe_df):
+        generate_html(df_global, html_pe_df, stock_data_dir, curr_dir, curr_day)
+    else:
+        print('#error, html_basic_df len < 1')
+
+    #exit()
+
     #double_volume  and turnoverrate > 4
     print('#############################################################')
     print('start double volume')
