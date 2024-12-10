@@ -63,4 +63,4 @@ if __name__ == '__main__':
     print("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    print("main_zlpm.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))

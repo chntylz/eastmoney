@@ -223,11 +223,12 @@ def cgi_write_to_file( df):
             elif 'pe' in col_name[j]:
                 print('           <a href="https://iwencai.com/unifiedwap/result?w=%spe" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
             elif  'roe' in col_name[j]:
+                    print('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s </a>\n'%  (tmp_stock_code, element_value))
+            elif  'zig' in col_name[j]:
                 if float(element_value) > 0:
-                    print('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> <font color="red"> %s</font></a>\n'%  (tmp_stock_code, element_value))
+                    print('           <a>  <font color="red"> %s </font></a>\n'%(element_value))
                 else:
-                    print('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> <font color="green"> %s</font></a>\n'%  (tmp_stock_code, element_value))
-
+                    print('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
             else:
                 print('           <a> %s</a>\n'%(element_value))
                                 

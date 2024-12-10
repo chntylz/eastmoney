@@ -1031,7 +1031,7 @@ def worker(name):
 
 if __name__ == '__main__':
 
-    cript_name, para1 = check_input_parameter()
+    script_name, para1 = check_input_parameter()
 
     t1 = time.time()
 
@@ -1074,4 +1074,4 @@ if __name__ == '__main__':
         print(mplist)
 
     t2 = time.time()
-    print("t2-t1=%s"%(t2-t1)) 
+    print("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))

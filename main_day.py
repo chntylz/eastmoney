@@ -105,7 +105,7 @@ def check_table():
 
 if __name__ == '__main__':
 
-    cript_name, para1 = check_input_parameter()
+    script_name, para1 = check_input_parameter()
 
     if int(para1) == 0:
         f_day = get_file_modify_day('csv/r_df_today.csv')
@@ -162,4 +162,4 @@ if __name__ == '__main__':
     print("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    print("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))

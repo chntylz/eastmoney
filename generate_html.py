@@ -311,6 +311,11 @@ if __name__ == '__main__':
 
     script_name, para1 = check_input_parameter()
     print("%s, %d"%(script_name, int(para1)))
+
+    t1 = time.time()
+    start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+
     today_date=datetime.datetime.now().date()
     nowdate=today_date-datetime.timedelta(int(para1))
 
@@ -350,6 +355,7 @@ if __name__ == '__main__':
     '''
  
 
+    top_size = 500
 
     #df = k_df = df[df.is_zig > 0]
     k_df = df
@@ -365,20 +371,6 @@ if __name__ == '__main__':
         generate_html(df_global, html_zig_df, stock_data_dir, curr_dir, curr_day)
     else:
         print('#error, html_zig_df len < 1')
-
-    #pe and pe_pct
-    print('#############################################################')
-    print('start pe and pe_pct')
-    curr_dir=curr_day_w + '-pepct'
-    pe_df = df[(df.pe > 0 ) & (df.pe_pct < 30)]
-    html_pe_df = convert_to_html_df(pe_df, curr_dir, curr_day)
-    html_pe_df = html_pe_df.sort_values('pe', ascending=1)
-    if len(html_pe_df):
-        generate_html(df_global, html_pe_df, stock_data_dir, curr_dir, curr_day)
-    else:
-        print('#error, html_pe_df len < 1')
-
-    #exit()
 
     #double_volume  and turnoverrate > 4
     print('#############################################################')
@@ -491,11 +483,27 @@ if __name__ == '__main__':
     #basic_df = df[(df.is_2d3pct > 1) & (df.is_zig > 0)]
     basic_df = df[(df.percent > 5)]
     html_basic_df = convert_to_html_df(basic_df, curr_dir, curr_day)
-    html_basic_df = html_basic_df.sort_values('a_pct', ascending=1)
+    html_basic_df = html_basic_df.sort_values('a_pct', ascending=0)
     if len(html_basic_df):
         generate_html(df_global, html_basic_df, stock_data_dir, curr_dir, curr_day)
     else:
         print('#error, html_basic_df len < 1')
+
+    #exit()
+
+    #pe and pe_pct
+    print('#############################################################')
+    print('start pe and pe_pct')
+    curr_dir=curr_day_w + '-pepct'
+    pe_df = df[(df.pe > 0 ) & (df.pe_pct < 30)]
+    html_pe_df = convert_to_html_df(pe_df, curr_dir, curr_day)
+    html_pe_df = html_pe_df.sort_values('pe', ascending=1)
+    html_pe_df = html_pe_df.head(top_size)
+    if len(html_pe_df):
+        generate_html(df_global, html_pe_df, stock_data_dir, curr_dir, curr_day)
+    else:
+        print('#error, html_pe_df len < 1')
+
 
 
     #zlje
@@ -510,6 +518,7 @@ if __name__ == '__main__':
     html_zlje_df = html_zlje_df.sort_values('zlje_3', ascending=False)
     html_zlje_df = html_zlje_df.reset_index(drop=True)
     #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
+    html_zlje_df = html_zlje_df.head(top_size)
     if len(html_zlje_df):
         generate_html(df_global, html_zlje_df, stock_data_dir, curr_dir, curr_day)
     else:
@@ -525,6 +534,7 @@ if __name__ == '__main__':
     if debug:
         print(jigou_df.head(5))
     html_jigou_df = convert_to_html_df(jigou_df, curr_dir, curr_day)
+    html_jigou_df = html_jigou_df.head(top_size)
     if len(html_jigou_df):
         generate_html(df_global, html_jigou_df, stock_data_dir, curr_dir, curr_day)
     else:
@@ -566,6 +576,7 @@ if __name__ == '__main__':
     if debug:
         print('holder_df', holder_df.head(5))
     html_holder_df = convert_to_html_df(holder_df, curr_dir, curr_day)
+    html_holder_df = html_holder_df.head(top_size)
     if len(html_holder_df):
         generate_html(df_global, html_holder_df, stock_data_dir, curr_dir, curr_day)
     else:
@@ -576,4 +587,7 @@ if __name__ == '__main__':
  
     curr_dir=curr_day_w
     os.system('cp -rf ' + stock_data_dir +'/' + curr_dir + '*  /var/www/html/stock_data/' )
+
+    t2 = time.time()
+    print("%s: t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))
 
