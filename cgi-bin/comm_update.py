@@ -25,13 +25,14 @@ from HData_eastmoney_zlje import *
 from HData_eastmoney_zlje_3 import *
 from HData_eastmoney_zlje_5 import *
 from HData_eastmoney_zlje_10 import *
-
+from HData_eastmoney_zlpm import *
 
 
 
 
 
 hdata_hsgt=HData_hsgt("usr","usr")
+hdata_zlpm=HData_eastmoney_zlpm("usr","usr")
 
 #eastmoney
 hdata_fina=HData_eastmoney_fina("usr","usr")
@@ -214,7 +215,6 @@ def show_realdata(file_name):
     zlje_10_df = get_zlje_data_from_db(url='url_10', curr_date=str_date)
     ####get zlje end####
    
-    retry = 0
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(retry)
 
@@ -223,7 +223,8 @@ def show_realdata(file_name):
             end_date=nowdate.strftime("%Y-%m-%d"))
 
 
-    #check valid data
+    #check day_df valid data
+    retry = 0
     while True:
         if debug:
             print('retry=%d' % retry)
@@ -242,9 +243,37 @@ def show_realdata(file_name):
         et_simple_df = hdata_eastmoney_day.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
                 end_date=nowdate.strftime("%Y-%m-%d"))
 
+        industry_df =  hdata_zlpm.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
+                end_date=nowdate.strftime("%Y-%m-%d"))
+
+    #check day_df valid data
+    retry = 0
+    industry_df =  hdata_zlpm.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
+        end_date=nowdate.strftime("%Y-%m-%d"))
+
+    while True:
+        if debug:
+            print('retry=%d' % retry)
+
+        if len(industry_df) > 0:
+            break;
+        
+        retry = retry + 1
+
+        nowdate=datetime.datetime.now().date()
+        nowdate=nowdate-datetime.timedelta(retry)
+
+        start_date=nowdate.strftime("%Y-%m-%d")
+        end_date=nowdate.strftime("%Y-%m-%d")
+
+        industry_df =  hdata_zlpm.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
+                end_date=nowdate.strftime("%Y-%m-%d"))
 
     if debug: 
         print(et_simple_df)
+        print(industry_df)
+
+
 
     i = 0
     eastmoney_begin = 0
@@ -272,7 +301,10 @@ def show_realdata(file_name):
             real_df = et_simple_df[et_simple_df['stock_code'] == new_code]
             real_df = real_df.reset_index(drop=True)
 
-            if len(real_df) == 0:
+            real_industry_df = industry_df[industry_df['stock_code'] == new_code]
+            real_industry_df = real_industry_df.reset_index(drop=True)
+
+            if len(real_df) == 0 :
                 print('error: %s %s %s '%(new_date, new_code, new_name))
                 continue
 
@@ -284,6 +316,10 @@ def show_realdata(file_name):
                 pe = real_df['pe'][0] 
                 pe_pct = real_df['pe_pct'][0] 
                 pe = str(pe) + '-' + str(pe_pct)
+
+            industry = ''
+            if(len(real_industry_df)):
+                industry = real_industry_df['industry'][0]
 
             #get total_mv from daily db, get price percent from zlje1
             tmp_zlje_df = zlje_df[zlje_df['stock_code'] == new_code]
@@ -456,7 +492,7 @@ def show_realdata(file_name):
         
 
 
-        data_list.append([new_date, new_code, new_name, total_mv, new_pre_price, new_price, new_percent, pe, \
+        data_list.append([new_date, new_code, new_name, total_mv, industry, new_price, new_percent, pe, \
                 is_peach, is_zig, is_quad, zlje, zlje_3, zlje_5, zlje_10, \
                 h_chg, fund_info, \
                 new_hsgt_date, new_hsgt_share_holding, new_hsgt_percent, \
@@ -465,7 +501,7 @@ def show_realdata(file_name):
 
         #data_list.append([str_date, my_list[i], my_list_cn[i], df['pre_close'][0], df['price'][0] ])
 
-    data_column = ['curr_date', 'code', 'name', 'total_mv', 'pre_price', 'price', 'a_pct', 'pe',\
+    data_column = ['curr_date', 'code', 'name', 'total_mv', 'industry', 'price', 'a_pct', 'pe',\
             'peach', 'zig', 'quad', 'zlje', 'zlje_3', 'zlje_5', 'zlje_10', \
             'holder_change', 'jigou', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', 'hk_m_total']
