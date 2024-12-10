@@ -993,11 +993,12 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         fina_df = fina_df.reset_index(drop=True)
         
         fina_date = curr_day
-        op_yoy = net_yoy = 0
+        op_yoy = net_yoy = roe = 0
         if len(fina_df):
             fina_date = fina_df['record_date'][0]
             op_yoy = fina_df['ystz'][0]
             net_yoy = fina_df['sjltz'][0]
+            roe = fina_df['weightavg_roe'][0]
 
             if debug:
                 print(stock_code_new)
@@ -1087,14 +1088,14 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         else:
             jigou = str(float_ratio) + '+' + str(delta_ratio)
 
-        data_list.append([new_date, stock_code, stock_name, close_p, close, \
+        data_list.append([new_date, stock_code, stock_name, close_p, close, roe, \
                 hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, \
                 money_total, total_mv,  industry_name, pe, pe_pct,\
                 is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea, is_cross3line,\
                 zlje, zlje_3, zlje_5, zlje_10,h_chg, \
                 jigou])
 
-    data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', \
+    data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', 'roe', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', \
             'hk_m_total', 'total_mv', 'industry', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3', \
@@ -1108,7 +1109,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     if debug:
         print(ret_df)
 
-    data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', 'pe', 'pe_pct', \
+    data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', 'roe', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
             'jigou', \

@@ -385,10 +385,12 @@ def show_realdata(file_name):
         
         op_yoy = net_yoy = 0
         fina_date = new_date
+        roe = 0
         if len(fina_df):
             fina_date = fina_df['record_date'][0]
             op_yoy = fina_df['ystz'][0]
             net_yoy = fina_df['sjltz'][0]
+            roe = fina_df['weightavg_roe'][0]
 
             if debug:
                 print(stock_code_new)
@@ -492,7 +494,7 @@ def show_realdata(file_name):
         
 
 
-        data_list.append([new_date, new_code, new_name, total_mv, industry, new_price, new_percent, pe, \
+        data_list.append([new_date, new_code, new_name, total_mv, industry, new_price, new_percent, pe, roe, \
                 is_peach, is_zig, is_quad, zlje, zlje_3, zlje_5, zlje_10, \
                 h_chg, fund_info, \
                 new_hsgt_date, new_hsgt_share_holding, new_hsgt_percent, \
@@ -501,7 +503,7 @@ def show_realdata(file_name):
 
         #data_list.append([str_date, my_list[i], my_list_cn[i], df['pre_close'][0], df['price'][0] ])
 
-    data_column = ['curr_date', 'code', 'name', 'total_mv', 'industry', 'price', 'a_pct', 'pe',\
+    data_column = ['curr_date', 'code', 'name', 'total_mv', 'industry', 'price', 'a_pct', 'pe', 'roe',\
             'peach', 'zig', 'quad', 'zlje', 'zlje_3', 'zlje_5', 'zlje_10', \
             'holder_change', 'jigou', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', 'hk_m_total']
