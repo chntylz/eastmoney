@@ -702,7 +702,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         #candles
         ax03.set_xticks(range(0, len(day_df.index), step))
         #ax03.set_xticklabels(date_series[::step],  rotation=degree)  #index transfer to date
-        ax04.set_xticklabels(day_df['x_axis'][::step],  rotation=degree)  #index transfer to date
+        ax03.set_xticklabels(day_df['x_axis'][::step],  rotation=degree)  #index transfer to date
         candlestick2_ochl(ax03, day_df['open'], day_df['close'], day_df['high'],
             day_df['low'], width=0.6, colorup='r', colordown='g', alpha=0.75)
         #plt.rcParams['font.sans-serif']=['Microsoft JhengHei'] 
