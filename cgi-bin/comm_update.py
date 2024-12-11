@@ -27,6 +27,9 @@ from HData_eastmoney_zlje_5 import *
 from HData_eastmoney_zlje_10 import *
 from HData_eastmoney_zlpm import *
 
+from HData_company_info import *
+
+hdata_company = HData_company_info("usr","usr")
 
 
 
@@ -248,6 +251,7 @@ def show_realdata(file_name):
     industry_df =  hdata_zlpm.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
         end_date=nowdate.strftime("%Y-%m-%d"))
 
+
     while True:
         if debug:
             print('retry=%d' % retry)
@@ -314,9 +318,12 @@ def show_realdata(file_name):
                 pe_pct = real_df['pe_pct'][0] 
                 pe = str(pe) + '-' + str(pe_pct)
 
+            company_df = hdata_company.get_data_from_hdata(stock_code=new_code)
             industry = ''
             if(len(real_industry_df)):
-                industry = real_industry_df['industry'][0]
+                industry = real_industry_df['industry'][0] 
+                if(len(company_df)):
+                    industry = industry +': ' + company_df.product_type[0] 
 
             #get total_mv from daily db, get price percent from zlje1
             tmp_zlje_df = zlje_df[zlje_df['stock_code'] == new_code]
