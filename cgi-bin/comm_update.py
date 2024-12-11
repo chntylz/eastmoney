@@ -243,9 +243,6 @@ def show_realdata(file_name):
         et_simple_df = hdata_eastmoney_day.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
                 end_date=nowdate.strftime("%Y-%m-%d"))
 
-        industry_df =  hdata_zlpm.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
-                end_date=nowdate.strftime("%Y-%m-%d"))
-
     #check day_df valid data
     retry = 0
     industry_df =  hdata_zlpm.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
@@ -378,7 +375,7 @@ def show_realdata(file_name):
             stock_code_new= 'SZ' + new_code 
 
         #eastmoney fina
-        fina_df = hdata_fina.get_data_from_hdata(stock_code = new_code)  # eastmoney
+        fina_df = hdata_fina.get_data_from_hdata(stock_code = new_code, limit=10)  # eastmoney
         #fina_df = hdata_fina.get_data_from_hdata(stock_code = stock_code_new)  #xueqiu
         fina_df = fina_df.sort_values('record_date', ascending=0)
         fina_df = fina_df.reset_index(drop=True)
@@ -426,7 +423,7 @@ def show_realdata(file_name):
         
         #### holder start ####
 		# eastmoney holder
-        holder_df = hdata_holder.get_data_from_hdata(stock_code = new_code)
+        holder_df = hdata_holder.get_data_from_hdata(stock_code = new_code, limit=10)
         holder_df = holder_df .sort_values('record_date', ascending=0)
         holder_df = holder_df .reset_index(drop=True)
         h0 = h1 = h2 = h_num = h_avg = delta_price  = 0
@@ -475,7 +472,7 @@ def show_realdata(file_name):
         #### fund end ####
 
         #### jigou ####
-        jigou_df = hdata_jigou.get_data_from_hdata(stock_code = new_code)
+        jigou_df = hdata_jigou.get_data_from_hdata(stock_code = new_code, limit=10)
         jigou_df = jigou_df.sort_values('record_date', ascending=False)
         jigou_df = jigou_df.reset_index(drop=True)
         float_ratio = delta_ratio = 0

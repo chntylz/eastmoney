@@ -364,13 +364,14 @@ if __name__ == '__main__':
     print('#############################################################')
     print('start zig')
     curr_dir=curr_day_w+'-zig'
-    zig_df = df[(df.is_zig == 1) | (df.is_zig == 2) ]
+    zig_df = df[(df.is_zig > 0) & (df.is_zig <= 10)]
     html_zig_df = convert_to_html_df(zig_df, curr_dir, curr_day)
     if len(html_zig_df):
         html_zig_df = html_zig_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_zig_df, stock_data_dir, curr_dir, curr_day)
     else:
         print('#error, html_zig_df len < 1')
+
 
     #double_volume  and turnoverrate > 4
     print('#############################################################')
