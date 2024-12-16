@@ -89,7 +89,6 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
     stock_len=1
     update_list=[]  #for update is_peach, is_zig, is_quad in database table
 
-
     for i in range(0,stock_len):
         #for i in range(0,5):
         #if (True):
@@ -114,7 +113,6 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         pe_pct = 0
         
 
-
         '''
         nowcode=codestock_local[i][0]
         nowname=codestock_local[i][1]
@@ -126,6 +124,11 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         nowcode_new=codestock_local #000001
         nowcode = nowcode_new[2:]
         nowcode = nowcode_new[:]
+
+        '''
+        if nowcode_new != '300573':
+            return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct]
+        '''
 
         #funcat call
         T(str(nowdate.strftime("%Y-%m-%d")))
@@ -1026,6 +1029,7 @@ def worker(name):
     if debug:
         print("Worker %s %s started" % (name[0], name[1]))
         print(name)
+    
     handle_df = calculate_peach_zig_quad(name[0], name[1])
     return handle_df
 

@@ -174,8 +174,18 @@ def get_kline_data(code=None, count=None, period=None):
 
 
 
+'''
 #https://quote.eastmoney.com/sz002224.html?jump_to_web=true#fullScreenChart
 #search kline
+peroid:
+30 30minutes
+60 60minutes
+101 day
+102 week
+103 season
+104 year
+'''
+
 def get_kline_data2(code=None, count=None, period=None):
     
     #1:sh  0:sz
