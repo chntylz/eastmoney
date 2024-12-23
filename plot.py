@@ -451,6 +451,7 @@ def zig_plot(axes, day_df):
         print('z_buy_state: %s' % z_buy_state)
 
     axes.plot(z_df, label = 'candles-zig')
+    axes.legend();
     z_len = len(z_peers)
     for i in range(z_len): 
         #print("i%d"%i)

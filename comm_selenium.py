@@ -56,7 +56,7 @@ def get_broswer():
             except:
                 pass
 
-    browser.maximize_window()  # 最大化窗口
+    #browser.maximize_window()  # 最大化窗口
     wait = WebDriverWait(browser, 10)
     with open('./stealth.min.js') as f:
         js = f.read()

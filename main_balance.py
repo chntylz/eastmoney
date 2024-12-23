@@ -46,7 +46,7 @@ def check_table():
 
 if __name__ == '__main__':
 
-    cript_name, para1 = check_input_parameter()
+    script_name, para1 = check_input_parameter()
     
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
