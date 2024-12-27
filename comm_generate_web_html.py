@@ -971,9 +971,15 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         try:
             industry_name = basic_df.loc[stock_code]['industry']
             insert_industry(dict_industry, industry_name)
-            industry_name =industry_name + ': ' + company_df.product_type[0]
-        except:
-            industry_name = 'Null'
+            if len(company_df):
+                industry_name =industry_name + ': ' + company_df.product_type[0]
+        except  Exception as e: 
+            print(e)
+            try:
+                industry_name = 'Null:' + company_df.product_type[0]
+            except Exception as e:
+                print(e)
+                industry_name = 'Null' 
             print('except industry_name %s %s' % (stock_code, stock_name))
         
         zlje = get_zlje(zlje_df, stock_code, curr_date=curr_day)

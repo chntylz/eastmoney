@@ -6,7 +6,7 @@ from HData_company_info import *
 from file_interface import *
 import  datetime
 import time 
-
+import random
 import pandas as pd
 import numpy as np
 
@@ -30,17 +30,21 @@ def get_company_info():
                 'industry_type', 'product_type', 'op_bussiness' ]
 
     all_df = pd.DataFrame()
+    df = pd.DataFrame()
+    tb=''
     for i in range(1,264):  # 爬取全部264页数据
     #for i in range(1,8):  # 爬取全部264页数据
         url = 'http://s.askci.com/stock/a/?reportTime=2017-12-31&pageNum=%s' % (str(i))
         #https://s.askci.com/stock/a/0-0?pageNum=264
         url = 'https://s.askci.com/stock/a/0-0?pageNum=%s' % (str(i))
-        tb = pd.read_html(url)[3] #经观察发现所需表格是网页中第4个表格，故为[3]
-        #tb.to_csv(r'1.csv', mode='a', encoding='utf_8_sig', header=1, index=0)
-        print('第'+str(i)+'页抓取完成')
-        df = pd.DataFrame(tb)
+        print(url)
+        time.sleep(random.randint(1, 3))
 
         try:
+            tb = pd.read_html(url)[3] #经观察发现所需表格是网页中第4个表格，故为[3]
+            #tb.to_csv(r'1.csv', mode='a', encoding='utf_8_sig', header=1, index=0)
+            print('第'+str(i)+'页抓取完成')
+            df = pd.DataFrame(tb)
             df.columns = company_cols
             if 'p_index' in df.columns:
                 del df['p_index']
@@ -58,6 +62,7 @@ def get_company_info():
         except Exception as e:
             print('#error: %s' % e)
             print(df)
+            print(tb)
         finally:
             pass
 
@@ -87,6 +92,8 @@ if __name__ == '__main__':
     print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
     df = get_company_info()
+    df = df[df['employee'] != '-']
+    df = df.drop_duplicates(subset=['stock_code'], keep='first')
     df.to_csv(r'./csv/company_info.csv', mode='w', encoding='utf_8_sig', header=1, index=0)
     if (len(df) > 100):
         #check table exist
