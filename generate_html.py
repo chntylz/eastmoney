@@ -516,7 +516,7 @@ if __name__ == '__main__':
         print(zlje_df.head(5))
     html_zlje_df = convert_to_html_df(zlje_df, curr_dir, curr_day)
     print(html_zlje_df.columns)
-    html_zlje_df = html_zlje_df.sort_values('zlje_3', ascending=False)
+    html_zlje_df = html_zlje_df.sort_values('zlje', ascending=False)
     html_zlje_df = html_zlje_df.reset_index(drop=True)
     #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
     html_zlje_df = html_zlje_df.head(top_size)
