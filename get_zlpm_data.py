@@ -144,9 +144,7 @@ def get_zlpm_data():
 
     return data_df, api_param
 
-
-
-def get_zlpm_data2():
+def get_zlpm_data2_final(pn=None):
     
     nowdate=datetime.datetime.now().date()
     if debug:
@@ -156,7 +154,9 @@ def get_zlpm_data2():
 
     url = 'https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery1123022981019595514018_'\
             + timestamp \
-            + '&fid=f184&po=1&pz=10000&pn=1&np=1&fltt=2&invt=2&'\
+            + '&fid=f184&po=1&pz=200&pn='\
+            + str(pn) \
+            + '&np=1&fltt=2&invt=2&'\
             + 'fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&'\
             + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
             + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
@@ -210,6 +210,18 @@ def get_zlpm_data2():
 
         data_df = data_df.sort_values('stock_code', ascending=1)
         data_df = data_df.reset_index(drop=True)
+
+    return data_df, api_param
+
+
+
+def get_zlpm_data2():
+    
+    data_df = pd.DataFrame()
+    api_param=''
+    for pn in range(1, 27):
+        data_df_tmp, api_param = get_zlpm_data2_final(pn)
+        data_df = pd.concat([data_df, data_df_tmp])
 
     return data_df, api_param
 

@@ -164,12 +164,7 @@ def get_realtime_data():
 
 
 
-
-
-def get_realtime_data2():
-    
-
-
+def get_realtime_data2_final(page_number):
     
     nowdate=datetime.datetime.now().date()
     if debug:
@@ -178,16 +173,30 @@ def get_realtime_data2():
     #https://quote.eastmoney.com/center/gridlist.html?st=ChangePercent&sr=-1#hs_a_board 
     
     timestamp=str(round(time.time() * 1000))
+
+    '''
     url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
             + '=jQuery1124044204950317612046_'\
             + timestamp\
-            + '&pn=1&pz=10000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&'\
+            + '&pn=2&pz=200&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&'\
+            + 'fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&'\
+            + 'fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,'\
+            + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
+            + timestamp
+    '''
+
+    url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
+            + '=jQuery1124044204950317612046_'\
+            + timestamp\
+            + '&pn=' \
+            + str(page_number) \
+            + '&pz=200&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&'\
             + 'fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&'\
             + 'fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,'\
             + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
             + timestamp
 
-    print("get_realtime_data2() url=%s" % url)
+    print("get_realtime_data2_final() url=%s" % url)
 
     browser = get_broswer()
 
@@ -256,6 +265,24 @@ def get_realtime_data2():
         #worked
         work_df = data_df[~data_df['close'].isin([0])] 
         work_df = work_df.reset_index(drop=True)
+
+    return data_df, work_df, stop_df, api_param
+
+
+
+
+
+
+
+def get_realtime_data2():
+    
+    data_df = work_df = stop_df  = pd.DataFrame()
+    api_param  = ''
+
+    for pn in range(1, 28):
+        data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final(pn)
+        data_df = pd.concat([data_df, data_df_tmp])
+        work_df = pd.concat([work_df, work_df_tmp])
 
     return data_df, work_df, stop_df, api_param
 

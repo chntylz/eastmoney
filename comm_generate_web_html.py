@@ -933,7 +933,11 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     i = 0
     for i in range(len_df):
         stock_code=daily_df.stock_code[i]
-        stock_name = basic_df.loc[stock_code]['stock_name']
+        stock_name = ''
+        try:
+            stock_name = basic_df.loc[stock_code]['stock_name']
+        except  Exception as e: 
+            print(e)
         
         #save stock_code to txt_file
         with open(txt_file,'a') as f:
