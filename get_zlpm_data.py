@@ -106,6 +106,8 @@ def get_zlpm_data():
             + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
             + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
 
+    print(url)
+
     tmp_header = get_headers()
     response = requests.get(url, headers=tmp_header)
 
