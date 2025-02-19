@@ -45,6 +45,7 @@ if __name__ == '__main__':
     df, api_param = get_zlpm_data2()
     
     df.to_csv('./csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') +'_zlpm_df.csv', encoding='gbk')
+    df = df.drop_duplicates(subset=['stock_code'], keep='first')
     
     if len(df) > 0:
         #check table exist
