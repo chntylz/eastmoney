@@ -43,7 +43,8 @@ def income_analysis_roe(df):
         roe  = df.net_asset_return_rate[i]
         if debug:
             print('roe=%s ' % roe )
-        if float(roe) < 15:
+        #if float(roe) < 15:
+        if float(roe) < 10:
             if debug:
                 print(df.iloc[i])
             flag = False

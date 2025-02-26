@@ -22,13 +22,15 @@ progrom_is_running(){
     # 查找所有匹配的PID，排除当前脚本的PID
     existing_pids=`pgrep -f "$1 $2 $3"`
     echo $existing_pids
-
+    
+    # 使用 if 语句和 [ -n ] 来检查字符串是否非空
     if [ -n "$existing_pids" ]; then
         echo "程序已在运行，即将退出"
-        log "程序已在运行，即将退出"
+        log $existing_pids
         return 1
     else
         echo "normal run "
+        log "pgrep null"
         return 0
     fi
 }
