@@ -1,7 +1,39 @@
 #/bin/sh
 #20190625,by aaron
 
-function is_work_day(){
+progrom_is_running(){
+    echo "call progrom_is_running()"
+    echo "the 0th parameter: $0"
+    echo "the 1th parameter: $1"
+    echo "the 2th parameter: $2"
+    echo "the 3th parameter: $3"
+
+    echo "$1 $2 $3"
+
+    log "call progrom_is_running()"
+    log "the 0th parameter: $0"
+    log "the 1th parameter: $1"
+    log "the 2th parameter: $2"
+    log "the 3th parameter: $3"
+
+    log "$1 $2 $3"
+
+
+    # 查找所有匹配的PID，排除当前脚本的PID
+    existing_pids=`pgrep -f "$1 $2 $3"`
+    echo $existing_pids
+
+    if [ -n "$existing_pids" ]; then
+        echo "程序已在运行，即将退出"
+        log "程序已在运行，即将退出"
+        return 1
+    else
+        echo "normal run "
+        return 0
+    fi
+}
+
+is_work_day(){
     #check whether date is valid, or not
     arr=('20190913','20190914', '20191002','20191003','20191004', 
     '20191005', '20191007', '20200101', '20200124', '20200127', 
@@ -19,7 +51,8 @@ function is_work_day(){
     '20250203', '20250204',
 
     )
-
+    echo "call is_work_day()"
+    log "call is_work_day()"
     local cur_day=$1
     #check valid day
     if [[ ("${arr[*]}" == *"$cur_day"*) ]]; then

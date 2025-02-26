@@ -109,6 +109,27 @@ do
         exit
     fi
 
+    is_running=$(progrom_is_running python3 $target 0)
+    if [[ $is_running == 1 ]] ; then
+        echo "程序已在运行，即将退出 1"
+        exit
+    else
+        echo "normal run "
+    fi
+
+
+    echo "$target"
+    # 查找所有匹配的PID，排除当前脚本的PID
+    existing_pids=`pgrep -f "python3 $target 0"`
+    echo $existing_pids
+
+    if [ -n "$existing_pids" ]; then
+        echo "程序已在运行，即将退出 2"
+        log "程序已在运行，即将退出"
+        exit 1
+    else
+        echo "normal run "
+    fi
 
     time=`date "+%Y_%m_%d_%H_%M_%S"`
     log "time python3 $target start $time" 
