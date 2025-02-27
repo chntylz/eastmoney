@@ -206,7 +206,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    stock_df=get_daily_zlje2()
+    stock_df=get_daily_zlje3()
     stock_df.to_csv('./sina/zlje.csv', encoding='utf-8-sig', float_format='%.2f')
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)

@@ -207,7 +207,7 @@ def get_jigou(get_all=0):
 
     df = tmp_df = raw_df = pd.DataFrame()
     #get all stock info
-    r_df, work_df, stop_df, api_param = get_realtime_data2()
+    r_df, work_df, stop_df, api_param = get_realtime_data3()
 
     r_len = len(r_df)
 
