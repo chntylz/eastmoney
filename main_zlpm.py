@@ -42,7 +42,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_zlpm_data2()
+    df, api_param = get_zlpm_data3()
     
     df.to_csv('./csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') +'_zlpm_df.csv', encoding='gbk')
     df = df.drop_duplicates(subset=['stock_code'], keep='first')

@@ -287,6 +287,152 @@ def get_realtime_data2():
     return data_df, work_df, stop_df, api_param
 
 
+def get_realtime_data3():
+    
+    nowdate=datetime.datetime.now().date()
+    if debug:
+        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    
+    #https://quote.eastmoney.com/center/gridlist.html?st=ChangePercent&sr=-1#hs_a_board 
+    
+    timestamp=str(round(time.time() * 1000))
+
+    '''
+    url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
+            + '=jQuery1124044204950317612046_'\
+            + timestamp\
+            + '&pn=2&pz=200&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&'\
+            + 'fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&'\
+            + 'fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,'\
+            + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
+            + timestamp
+
+    url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
+            + '=jQuery1124044204950317612046_'\
+            + timestamp\
+            + '&pn=' \
+            + str(page_number) \
+            + '&pz=200&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&'\
+            + 'fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&'\
+            + 'fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,'\
+            + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
+            + timestamp
+
+    '''
+    url = 'https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
+          + '=jQuery1124044204950317612046_'\
+          + timestamp\
+          + '&pn=1&pz=10000&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&'\
+          + 'fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&'\
+          + 'fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,'\
+          + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
+          + timestamp
+
+    print("get_realtime_data3() url=%s" % url)
+
+    browser = get_broswer()
+
+    html = ''
+    try:
+        browser.get(url)
+        browser.implicitly_wait(10)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+    api_param = json.loads(response_array[0])
+    rawdata = api_param['data']['diff']
+    data_df = pd.DataFrame(rawdata)
+    data_df = data_df.T
+
+
+    tmp_column = ['close', 'percent', 'chg', 'volume', 'amount', 'amplitude', 'turnoverrate', \
+            'pe', 'stock_code', 'stock_name', 'high', 'low', 'open', 'pre_close', \
+            'mkt_cap', 'circulation_mkt','pb','zlje']
+
+
+    if len(data_df):
+        if 'f1' in data_df.columns:
+            del data_df['f1']
+
+        if 'f10' in data_df.columns:
+            del data_df['f10']
+
+        if 'f11' in data_df.columns:
+            del data_df['f11']
+
+        if 'f13' in data_df.columns:
+            del data_df['f13']
+
+        if 'f22' in data_df.columns:
+            del data_df['f22']
+
+        if 'f24' in data_df.columns:
+            del data_df['f24']
+
+        if 'f25' in data_df.columns:
+            del data_df['f25']
+
+        if 'f115' in data_df.columns:
+            del data_df['f115']
+
+        if 'f128' in data_df.columns:
+            del data_df['f128']
+
+        if 'f140' in data_df.columns:
+            del data_df['f140']
+
+        if 'f141' in data_df.columns:
+            del data_df['f141']
+
+        if 'f136' in data_df.columns:
+            del data_df['f136']
+
+        if 'f152' in data_df.columns:
+            del data_df['f152']
+
+        data_df = data_df.replace('-',0)
+        data_df.columns = tmp_column	
+        data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
+
+        new_column = ['record_date', 'stock_code', 'stock_name', 'open', 'close', 'high', 'low',\
+            'volume', 'amount', 'amplitude', 'percent', 'chg', 'turnoverrate',\
+            'pre_close', 'pe', 'pb', 'mkt_cap', 'circulation_mkt', 'zlje' ]
+
+        data_df = data_df.loc[:, new_column]
+
+        #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
+
+        if debug:
+            print(data_df.head(5))
+
+        #all
+        data_df = data_df.sort_values('stock_code', ascending=1)
+        data_df = data_df.reset_index(drop=True)
+
+        #stopped
+        stop_df = data_df[data_df['close'].isin([0])] 
+        stop_df = stop_df.reset_index(drop=True)
+
+        #worked
+        work_df = data_df[~data_df['close'].isin([0])] 
+        work_df = work_df.reset_index(drop=True)
+
+    return data_df, work_df, stop_df, api_param
+
+
+
+
+
+
+
 
 
 

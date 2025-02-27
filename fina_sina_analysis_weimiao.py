@@ -132,6 +132,7 @@ def  fina_analysis_by_weimiao(stock_code, stock_name):
    
 
     if debug:
+        print("key_day:%s" % (key_day))
         print(df_fina)
         print(df_y_fina)
 
@@ -182,8 +183,11 @@ if __name__ == '__main__':
     update_df=pd.DataFrame(mplist[0], columns=data_column)
     weimiao_df = update_df[update_df['flag'] == True]
     del weimiao_df['flag']
-    weimiao_df['stock_name']  = weimiao_df['stock_name'].apply(lambda x: x.replace(' ', ''))
-    weimiao_df['stock_name']  = weimiao_df['stock_name'].apply(lambda x: x.replace('\"', ''))
+    try:
+        weimiao_df['stock_name']  = weimiao_df['stock_name'].apply(lambda x: x.replace(' ', ''))
+        weimiao_df['stock_name']  = weimiao_df['stock_name'].apply(lambda x: x.replace('\"', ''))
+    except Exception as e:
+        print(e)
     print(update_df)
     print(weimiao_df)
     weimiao_df.to_csv('./cgi-bin/weimiao.txt', sep=' ',  index=False)
