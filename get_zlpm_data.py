@@ -165,7 +165,7 @@ def get_zlpm_data2_final(pn=None):
 
     print(url)
 
-    browser = get_broswer()
+    browser = get_browser()
    
     html = ''
     try: 
@@ -247,7 +247,7 @@ def get_zlpm_data3():
 
     print(url)
 
-    browser = get_broswer()
+    browser = get_browser()
    
     html = ''
     try: 

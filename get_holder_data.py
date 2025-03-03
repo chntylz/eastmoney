@@ -193,7 +193,7 @@ def get_holder_data2(is_all=1, pagesize=500, pagenumber=1):
 
     print(' get_holder_data2 url= %s ' % url)
 
-    browser = get_broswer()
+    browser = get_browser()
 
     html = ''
     try:

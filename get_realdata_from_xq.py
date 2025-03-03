@@ -180,7 +180,7 @@ if __name__ == '__main__':
     #check table exist
     check_table()
 
-    browser = get_broswer()
+    browser = get_browser()
 
     try:
        df = df2 = get_data2(browser)

@@ -63,7 +63,7 @@ hdata_jigou=HData_eastmoney_jigou("usr","usr")
 
 
 def hsgt_get_hk(url):
-    browser = get_broswer()
+    browser = get_browser()
     browser.get(url)
     html_doc=browser.page_source
     soup = BeautifulSoup(html_doc, 'html.parser')

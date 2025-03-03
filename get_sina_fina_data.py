@@ -64,7 +64,7 @@ debug = 0
 
 
 def open_browser():
-    browser = get_broswer()
+    browser = get_browser()
     return browser
 
 
@@ -632,7 +632,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from bs4 import BeautifulSoup
 import pandas as pd
 
-browser = get_broswer()
+browser = get_browser()
 
 data = []
 

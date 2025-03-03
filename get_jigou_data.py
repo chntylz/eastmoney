@@ -67,7 +67,7 @@ def get_jigou_data(stock_code, record_date):
 
     html = ''
 
-    browser = get_broswer() 
+    browser = get_browser() 
     try:
         browser.get(url)
         browser.implicitly_wait(5)
@@ -336,7 +336,7 @@ from get_jigou_data import *
 
 from comm_selenium import *
 
-browser = get_broswer()
+browser = get_browser()
 
 url='https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_MAIN_ORGHOLD&columns=ALL&quoteColumns=&filter=(SECURITY_CODE%3D%22600519%22)(REPORT_DATE%3D%272024-06-30%27)&pageNumber=1&pageSize=8&sortTypes=&sortColumns=&source=WEB&client=WEB&callback=jQuery112307224581864083242&'
 

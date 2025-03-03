@@ -226,7 +226,7 @@ def get_kline_data2(code=None, count=None, period=None):
     print(url)
 
 
-    browser = get_broswer()
+    browser = get_browser()
 
     html = ''
     try:

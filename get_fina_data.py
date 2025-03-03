@@ -324,7 +324,7 @@ def get_fina_data2(page=1):
 
     print(url)
 
-    browser = get_broswer()
+    browser = get_browser()
 
     html = ''
     try:
@@ -425,7 +425,7 @@ def get_fina_data3(fina='cpd', page=1):
 
     print(' get_fina_data3() %s, %s' % (fina, url))
 
-    browser = get_broswer()
+    browser = get_browser()
 
     html = ''
     try:

@@ -134,7 +134,7 @@ if __name__ == '__main__':
     get_xq_data._init()
 
 
-    browser = get_broswer()
+    browser = get_browser()
 
     get_xq_data.set_browser(browser)
     get_xq_data.xq_login2(browser)

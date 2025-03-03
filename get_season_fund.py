@@ -91,7 +91,7 @@ def get_season_fund2(date=None, pagenumber=1, pagesize=500):
         #if debug:
         #    print(url)
         
-        browser = get_broswer()
+        browser = get_browser()
         
         html = ''
         try: 

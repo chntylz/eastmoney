@@ -240,7 +240,7 @@ def get_daily_zlje_final(url=None, pn=None):
 
     print(url)
 
-    browser = get_broswer()
+    browser = get_browser()
    
     html = ''
     try: 
@@ -306,7 +306,7 @@ def get_daily_zlje3(url=None):
 
     print(url)
 
-    browser = get_broswer()
+    browser = get_browser()
    
     html = ''
     try: 

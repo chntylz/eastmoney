@@ -198,7 +198,7 @@ def get_realtime_data2_final(page_number):
 
     print("get_realtime_data2_final() url=%s" % url)
 
-    browser = get_broswer()
+    browser = get_browser()
 
     html = ''
     try:
@@ -330,7 +330,7 @@ def get_realtime_data3():
 
     print("get_realtime_data3() url=%s" % url)
 
-    browser = get_broswer()
+    browser = get_browser()
 
     html = ''
     try:

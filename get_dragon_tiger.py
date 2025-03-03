@@ -250,7 +250,7 @@ def get_dragon_tiger2(date=None, url_type=None):
    
     print(url)
     
-    browser = get_broswer()
+    browser = get_browser()
     
     html = ''
     try:
@@ -333,7 +333,7 @@ def get_dragon_tiger3(date=None, url_type=None):
    
     print(url)
 
-    browser = get_broswer()
+    browser = get_browser()
 
     html = ''
     try:
