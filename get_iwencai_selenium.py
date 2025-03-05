@@ -11,6 +11,14 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
 
+from get_daily_zlje import *
+
+
+debug = 0
+debug = 1
+debug = 0
+
+global_first_time = True
 
 #https://medium.com/@dharmendradiwaker12/extracting-data-from-canvas-line-charts-with-selenium-python-and-javascript-2cc931104264
 def scrape_canvas_data(driver):
@@ -31,7 +39,7 @@ def scrape_canvas_data(driver):
 
         # Scroll into view of the canvas to ensure it's fully visible
         driver.execute_script("arguments[0].scrollIntoView(true);", canvas)
-        time.sleep(2)  # Wait for the canvas to load
+        #time.sleep(1)  # Wait for the canvas to load
 
         # Get canvas dimensions using JavaScript
         canvas_width = driver.execute_script("return arguments[0].width;", canvas)
@@ -67,7 +75,7 @@ def scrape_canvas_data(driver):
 
                 # Check for tooltip and extract data
                 try:
-                    date_element = WebDriverWait(driver, 5).until(
+                    date_element = WebDriverWait(driver, 30).until(
                         EC.visibility_of_element_located((By.XPATH, "//div[contains(@style, 'display: inline-block; margin-right: 10px; height:17px; line-height:17px;color: #262626')]"))
                     )
                     transaction_element = driver.find_element(By.XPATH, "//span[contains(@style, 'color: #262626;line-height:17px;height:17px;')]")
@@ -76,8 +84,9 @@ def scrape_canvas_data(driver):
                     # Extract data and store it in the list
                     date_value = date_element.text
                     transaction_value = transaction_element.text
-                    extracted_data[date_value] = transaction_value
-                    print('date_value:%s, transaction_value:%s' % (date_value, transaction_value)  )
+                    extracted_data[date_value] = float(transaction_value)
+                    if debug:
+                        print('date_value:%s, transaction_value:%s' % (date_value, transaction_value)  )
                     
                 except:
                     # No tooltip found at this point, continue to the next
@@ -88,8 +97,22 @@ def scrape_canvas_data(driver):
     except:
         pass
 
-    print(extracted_data)
-    return extracted_data
+    stock_date = ''
+    pe_pct = 0
+    try:
+        for key, value in extracted_data.items():
+            stock_date = key
+            pe_pct =  value
+            if debug:
+                print(f"{key}: {value}")  
+                print(stock_date, pe_pct)  
+    except Exception as e:
+        if debug:
+            print("%s pe failed" % stock_code)
+            print(e)
+        pass
+
+    return stock_date, pe_pct
 
 
 def get_browser_real():
@@ -101,6 +124,19 @@ def get_browser_real():
     chrome_options.add_argument(
             'user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'\
             'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36')
+
+
+    chrome_options.add_argument("disable-infobars");
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    #chrome_options.add_argument("blink-settings=imagesEnabled=false")  #image disable
+
      
     chrome_options.add_argument('--disk-cache-dir=/dev/shm  --disk-cache-size=4096000000')
 
@@ -125,7 +161,7 @@ def get_browser_real():
                 pass
 
     #browser.maximize_window()  # 最大化窗口
-    wait = WebDriverWait(browser, 10)
+    #wait = WebDriverWait(browser, 10)
     with open('./stealth.min.js') as f:
         js = f.read()
     browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
@@ -134,39 +170,76 @@ def get_browser_real():
         
     return browser
     
+
+def get_iwencai_pe(driver, stock_code):
+    url='https://iwencai.com/unifiedwap/result?w='+ stock_code + 'pe'
+    if debug:
+        print(url)
+
+    driver.get(url)
+    time.sleep(1)
+
+    global global_first_time  # 声明要修改全局变量
+    if global_first_time: 
+        try:
+            driver.find_element(By.ID, "details-button").click()
+        except Exception as e:
+            if debug:
+                #print(e)
+                pass
+
+        time.sleep(1)
+
+        try:
+            driver.find_element(By.ID, "proceed-link").click()
+        except Exception as e:
+            if debug:
+                #print(e)
+                pass
+
+        global_first_time = False
+
+
+    stock_date, pe = scrape_canvas_data(driver)
     
+    if debug:
+        print(stock_code, stock_date, pe)
+
+    return stock_code, stock_date, pe
+
+
 
 if __name__ == '__main__':
 
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
+    stock_df=get_daily_zlje3()
+    stock_df = stock_df.sort_values('f12', ascending=1)
+    stock_df = stock_df.reset_index(drop=True)
+    stock_df = stock_df.head(10)
+    print(stock_df.head(5))
+    stock_df_len = len(stock_df)
+
     driver = get_browser_real()
-    stock_code = '300573'
-    stock_code = '300475'
-    url='https://iwencai.com/unifiedwap/result?w='+ stock_code + 'pe'
-    print(url)
-    driver.get(url)
 
-    try:
-        driver.find_element(By.ID, "details-button").click()
-    except Exception as e:
-        print(e)
-        driver.find_element(By.ID, "details-button").click()
-    time.sleep(5)
+    with open('./pe.txt','w') as f:
+        f.write( 'stock_code, stock_date, pe_pct\n')
 
-    try:
-        driver.find_element(By.ID, "proceed-link").click()
-    except Exception as e:
-        print(e)
-        driver.find_element(By.ID, "proceed-link").click()
+    for i in range(stock_df_len):
+        stock_code = stock_df.f12[i]
+        if stock_code[0] == '9':
+            continue
+        if debug:
+            print(stock_code)
 
-    time.sleep(20)
+        stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
 
+        if pe_pct == 0:
+            stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
 
-    pe_data = scrape_canvas_data(driver)
-    
-    print(pe_data)
+        with open('./pe.ext','a') as f:
+            f.write('%s, %s, %s\n' % (stock_code, stock_date, pe_pct))
 
     driver.quit()
 
