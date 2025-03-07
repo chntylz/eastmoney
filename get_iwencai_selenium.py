@@ -238,7 +238,7 @@ if __name__ == '__main__':
         if pe_pct == 0:
             stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
 
-        with open('./pe.ext','a') as f:
+        with open('./pe.txt','a') as f:
             f.write('%s, %s, %s\n' % (stock_code, stock_date, pe_pct))
 
     driver.quit()
