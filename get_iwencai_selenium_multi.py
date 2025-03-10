@@ -301,9 +301,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    stock_df=get_all_stock_code()
-    stock_df = stock_df.sort_values('f12', ascending=1)
-    stock_df = stock_df.reset_index(drop=True)
+    stock_df=get_latest_zlje_from_db()
     #stock_df = stock_df.head(10)
     print(stock_df.head(5))
     stock_df_len = len(stock_df)
