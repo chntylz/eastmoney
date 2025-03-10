@@ -124,7 +124,7 @@ if __name__ == '__main__':
     #check table exist
     check_table()
 
-    r_df, work_df, stop_df, api_param = get_realtime_data3()
+    r_df, work_df, stop_df, api_param = get_realtime_data2()
 
     r_df = handle_raw_df(r_df)
     work_df = handle_raw_df(work_df)

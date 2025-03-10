@@ -214,10 +214,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    stock_df=get_daily_zlje3()
-    stock_df = stock_df.sort_values('f12', ascending=1)
-    stock_df = stock_df.reset_index(drop=True)
-    stock_df = stock_df.head(10)
+    stock_df = get_latest_zlje_from_db()
     print(stock_df.head(5))
     stock_df_len = len(stock_df)
 
@@ -227,7 +224,7 @@ if __name__ == '__main__':
         f.write( 'stock_code, stock_date, pe_pct\n')
 
     for i in range(stock_df_len):
-        stock_code = stock_df.f12[i]
+        stock_code = stock_df.stock_code[i]
         if stock_code[0] == '9':
             continue
         if debug:
@@ -238,7 +235,7 @@ if __name__ == '__main__':
         if pe_pct == 0:
             stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
 
-        with open('./pe.ext','a') as f:
+        with open('./pe.txt','a') as f:
             f.write('%s, %s, %s\n' % (stock_code, stock_date, pe_pct))
 
     driver.quit()

@@ -495,6 +495,22 @@ def get_zlje(df, stock_code, url=None, curr_date=None):
 
     return zlje
 
+def get_latest_zlje_from_db():
+    retry = 0
+    nowdate=datetime.datetime.now().date()
+    nowdate=nowdate-datetime.timedelta(retry)
+    str_date= nowdate.strftime("%Y-%m-%d")
+    ####get zlje start####
+    zlje_df   = get_zlje_data_from_db(url='url',     curr_date=str_date)
+    while len(zlje_df) == 0:
+        retry = retry + 1
+        nowdate=datetime.datetime.now().date() 
+        nowdate=nowdate-datetime.timedelta(retry)
+        str_date= nowdate.strftime("%Y-%m-%d")
+        zlje_df   = get_zlje_data_from_db(url='url',     curr_date=str_date)
+
+    return zlje_df
+
 
 
 if __name__ == '__main__':
@@ -504,7 +520,7 @@ if __name__ == '__main__':
 
     check_table()
 
-    df = get_daily_zlje3()
+    df = get_daily_zlje2()
     df = handle_raw_data(df)
     #print(list(df))
     if len(df):
@@ -512,7 +528,7 @@ if __name__ == '__main__':
     hdata_zlje.copy_from_stringio(df)
 
 
-    df_3 = get_daily_zlje3(url='url_3')
+    df_3 = get_daily_zlje2(url='url_3')
     df_3 = handle_raw_data(df_3)
     if len(df_3):
         delete_zlje_data_from_db(url='url_3')
@@ -520,7 +536,7 @@ if __name__ == '__main__':
     #print(list(df_3))
 
 
-    df_5 = get_daily_zlje3(url='url_5')
+    df_5 = get_daily_zlje2(url='url_5')
     df_5 = handle_raw_data(df_5)
     if len(df_5):
         delete_zlje_data_from_db(url='url_5')
@@ -528,7 +544,7 @@ if __name__ == '__main__':
     #print(list(df_5))
 
 
-    df_10 = get_daily_zlje3(url='url_10')
+    df_10 = get_daily_zlje2(url='url_10')
     df_10 = handle_raw_data(df_10)
     if len(df_10):
         delete_zlje_data_from_db(url='url_10')
