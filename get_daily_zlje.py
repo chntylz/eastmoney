@@ -273,10 +273,19 @@ def get_daily_zlje2(url=None):
   
     data_df = pd.DataFrame()
     
-    for pn in range(1, 27):
-       data_df_tmp = get_daily_zlje_final(url, pn)
-       data_df = pd.concat([data_df, data_df_tmp])
+    pn = 1
+    while True:
+        try:
+            data_df_tmp = get_daily_zlje_final(url, pn)
+            if len(data_df_tmp) == 0:
+                break
+            data_df = pd.concat([data_df, data_df_tmp])
+            pn = pn + 1
+        except Exception as e:
+            break
 
+    data_df = data_df.drop_duplicates(subset=['f12'], keep='first')
+    data_df = data_df.reset_index(drop=True)
     return data_df
 
 def get_daily_zlje3(url=None):

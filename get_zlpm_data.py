@@ -221,10 +221,19 @@ def get_zlpm_data2():
     
     data_df = pd.DataFrame()
     api_param=''
-    for pn in range(1, 27):
-        data_df_tmp, api_param = get_zlpm_data2_final(pn)
-        data_df = pd.concat([data_df, data_df_tmp])
+    pn = 1
+    while True:
+        try:
+            data_df_tmp, api_param = get_zlpm_data2_final(pn)
+            if len(data_df_tmp) == 0:
+                break
+            data_df = pd.concat([data_df, data_df_tmp])
+            pn = pn + 1
+        except Exception as e:
+            break
 
+    data_df = data_df.drop_duplicates(subset=['stock_code'], keep='first')
+    data_df = data_df.reset_index(drop=True)
     return data_df, api_param
 
 
@@ -308,7 +317,7 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df, api_param = get_zlpm_data3()
+    df, api_param = get_zlpm_data2()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("start_time: %s, last_time: %s" % (start_time, last_time))

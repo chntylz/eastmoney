@@ -191,7 +191,6 @@ def show_realdata(file_name):
 
     data_list = []
 
-    fund_df = get_fund_data()
 
     #file_name = 'my_optional.txt'
     my_list = get_stock_info(file_name)
@@ -199,6 +198,7 @@ def show_realdata(file_name):
         print(my_list)
     length=len(my_list)
    
+    fund_df = get_fund_data()
     
     retry = 0
     nowdate=datetime.datetime.now().date()
@@ -328,9 +328,15 @@ def show_realdata(file_name):
             #get total_mv from daily db, get price percent from zlje1
             tmp_zlje_df = zlje_df[zlje_df['stock_code'] == new_code]
             tmp_zlje_df = tmp_zlje_df.reset_index(drop=True)
-            new_price       = tmp_zlje_df['zxj'][0]
-            new_percent     = tmp_zlje_df['zdf'][0]
-            new_pre_price   = round(100*new_price/(new_percent+100), 2)
+            new_price       = 0
+            new_percent     = 0
+            new_pre_price   = 0
+            try:
+                new_price       = tmp_zlje_df['zxj'][0]
+                new_percent     = tmp_zlje_df['zdf'][0]
+                new_pre_price   = round(100*new_price/(new_percent+100), 2)
+            except Exception as e:
+                pass
 
 
             '''

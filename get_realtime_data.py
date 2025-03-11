@@ -279,11 +279,22 @@ def get_realtime_data2():
     data_df = work_df = stop_df  = pd.DataFrame()
     api_param  = ''
 
-    for pn in range(1, 28):
-        data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final(pn)
-        data_df = pd.concat([data_df, data_df_tmp])
-        work_df = pd.concat([work_df, work_df_tmp])
+    pn = 1
+    while True:
+        try:
+            data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final(pn)
+            if len(data_df_tmp) == 0:
+                break
+            data_df = pd.concat([data_df, data_df_tmp])
+            work_df = pd.concat([work_df, work_df_tmp])
+            pn = pn + 1
+        except Exception as e:
+            break
 
+    data_df = data_df.drop_duplicates(subset=['stock_code'], keep='first')
+    data_df = data_df.reset_index(drop=True)
+    work_df = work_df.drop_duplicates(subset=['stock_code'], keep='first')
+    work_df = work_df.reset_index(drop=True)
     return data_df, work_df, stop_df, api_param
 
 
