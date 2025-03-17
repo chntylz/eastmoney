@@ -13,6 +13,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from get_daily_zlje import *
 
+import random
 
 debug = 0
 debug = 1
@@ -177,7 +178,7 @@ def get_iwencai_pe(driver, stock_code):
         print(url)
 
     driver.get(url)
-    time.sleep(1)
+    time.sleep(random.randint(20,30))
 
     global global_first_time  # 声明要修改全局变量
     if global_first_time: 
@@ -215,8 +216,9 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df = get_latest_zlje_from_db()
-    print(stock_df.head(5))
     stock_df_len = len(stock_df)
+    print(stock_df.head(5))
+    print('stock_df.len:%s' % len(stock_df))
 
     driver = get_browser_real()
 

@@ -21,6 +21,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
 
+from get_daily_zlje import *
 from comm_selenium import *
 
 debug = 0
