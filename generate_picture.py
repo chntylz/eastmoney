@@ -123,7 +123,7 @@ if __name__ == '__main__':
     data_list = np.array(df)
     data_list = data_list.tolist()
 
-    processes = 4
+    processes = 16
     with multiprocessing.Pool(int(processes)) as pool:
         pool.map(worker, data_list)
 

@@ -830,9 +830,9 @@ def comm_handle_hsgt_data(df):
 
     if len(all_df) > 0:
         #the_first_line - the_second_line
-        all_df['delta1']  = all_df.groupby('stock_code')['percent'].apply(lambda i:i.diff(-1))
+        all_df['delta1']  = all_df.groupby('stock_code')['percent'].transform(lambda i:i.diff(-1))
         all_df['delta1_share'] = all_df.groupby('stock_code')['share_holding']\
-                .apply(lambda i:i.diff(-1))
+                .transform(lambda i:i.diff(-1))
         all_df['delta1_m'] = all_df['close'] * all_df['delta1_share'] / unit_yi;
         del all_df['delta1_share']
 
@@ -1315,7 +1315,7 @@ def comm_generate_web_dataframe_multi(input_df, curr_dir, curr_day, dict_industr
     if debug:
         print(data_list)
 
-    processes = 4
+    processes = 16
     mplist = []
     with multiprocessing.Pool(processes) as pool:
         mplist.append(
