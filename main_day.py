@@ -148,7 +148,7 @@ if __name__ == '__main__':
                     k_df.to_csv('./csv/k_df_' + code + '.csv', encoding='gbk')
                     hdata_day.copy_from_stringio(k_df)
     else:
-        print('today data')
+        print('today data len:%s' % len(work_df))
         work_df = work_df.drop_duplicates(subset=['stock_code'], keep='first')
         work_df.to_csv('./csv/'+ nowdate.strftime("%Y-%m-%d")+ '_realtime_df_.csv', encoding='gbk')
         hdata_day.delete_data_from_hdata(

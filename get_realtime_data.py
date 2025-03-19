@@ -24,6 +24,7 @@ import os
 import bs4
 import json
 
+pd.set_option('future.no_silent_downcasting', True)
 
 debug=1
 debug=0
