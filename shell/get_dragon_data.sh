@@ -1,5 +1,4 @@
-
-#/bin/sh
+#!/bin/sh
 #20190625,by aaron
 
 max_retry=100
