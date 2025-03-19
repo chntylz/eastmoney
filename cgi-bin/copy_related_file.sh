@@ -8,6 +8,9 @@ cp hsgt-search.cgi  $target
 cp cgi_env.py   $target
 cp hello.py     $target
 
+cp robots.txt  $target
+cp robots.txt  /var/www/html/
+
 
 cp ../HData* $target
 cp ../comm_generate_web_html.py $target
@@ -18,3 +21,4 @@ cp ../comm_selenium.py $target
 
 cp ../zig.py $target
 cp ../plot.py $target
+
