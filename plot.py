@@ -99,7 +99,7 @@ def combine_fina(a_df, b_df):
     aa=a_df
     bb=b_df
 
-    df = aa.append(bb, ignore_index=True, sort=False)
+    df = pd.concat([aa, bb], ignore_index=True, sort=False)
     df = df.sort_values('record_date')
     df = df.reset_index(drop=True)
     df = df.fillna(0)
@@ -201,7 +201,7 @@ def combine_jigou(a_df, b_df):
     aa=a_df
     bb=b_df
 
-    df = aa.append(bb, ignore_index=True, sort=False)
+    df = pd.concat([aa,bb], ignore_index=True, sort=False)
     df = df.sort_values('record_date')
     df = df.reset_index(drop=True)
     df = df.fillna(0)
@@ -253,7 +253,7 @@ def combine_holder(a_df, b_df):
     aa=a_df
     bb=b_df
 
-    df = aa.append(bb, ignore_index=True, sort=False)
+    df = pd.concat([aa,bb], ignore_index=True, sort=False)
     df = df.sort_values('record_date')
     df = df.reset_index(drop=True)
     df = df.fillna(0)
@@ -546,7 +546,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
     #day_df.index = day_df.index.format(formatter=lambda x: x.strftime('%Y-%m-%d'))
     #print(day_df.index[2])
     
-    day_df['close'].fillna(value=0, inplace=True)   
+    day_df['close'] = day_df['close'].fillna(value=0)
+
     
     ma_5  = talib.MA(np.array(day_df['close'], dtype=float), 5)
     ma_13 = talib.MA(np.array(day_df['close'], dtype=float), 13)
@@ -555,8 +556,8 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         print("ma_5.size:%d, ma_13.size:%d, ma_21.size:%d" % (ma_5.size, ma_13.size, ma_21.size))
     
     day_df['k'], day_df['d'] = talib.STOCH(day_df['high'], day_df['low'], day_df['close'])
-    day_df['k'].fillna(value=0, inplace=True)
-    day_df['d'].fillna(value=0, inplace=True)
+    day_df['k'] = day_df['k'].fillna(value=0)
+    day_df['d'] = day_df['d'].fillna(value=0)
 
     #ma_vol
     ma_vol_50 = talib.MA(np.array(day_df['volume'], dtype=float), 50)
@@ -823,10 +824,12 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         print("%s"%(exec_command_1))
     os.system(exec_command_1)
 
+    
     exec_command_2 = "rm -f " + figure_name
     if debug:
         print("%s"%(exec_command_2))
     os.system(exec_command_2)
+    
 
 
     plt.clf()

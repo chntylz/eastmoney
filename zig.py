@@ -5,7 +5,7 @@ http://www.pianshen.com/article/363258879/
 @author: duanqs
 """
 import numpy as np
-import tushare as ts
+#import tushare as ts
 
 
 debug = 0

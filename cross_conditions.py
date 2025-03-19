@@ -1054,7 +1054,7 @@ if __name__ == '__main__':
     data_list = data_list.tolist()
 
 
-    processes = 4
+    processes = 16
     number = len(nowdate_df)
     mplist = []
     with multiprocessing.Pool(int(processes)) as pool:
