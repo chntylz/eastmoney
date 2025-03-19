@@ -15,6 +15,9 @@ import os
 
 import csv
 
+
+pd.set_option('future.no_silent_downcasting', True)
+
 debug=0
 #debug=1
 
