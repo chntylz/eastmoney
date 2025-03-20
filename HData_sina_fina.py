@@ -1,6 +1,7 @@
 #!/usr/bin/env python  
 # -*- coding: utf-8 -*-
 
+from file_interface import *
 import psycopg2
 import pandas as pd
 import time
