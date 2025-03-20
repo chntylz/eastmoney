@@ -28,7 +28,7 @@ hdata_fina=HData_sina_fina("usr","usr")
 
 def plot_stock_picture(nowdate, nowcode, nowname):
     
-    print('%s: %s, %s, %s' % ( plot_stock_picture, nowdate, nowcode, nowname))
+    my_dbg('%s: %s, %s, %s' % ( plot_stock_picture, nowdate, nowcode, nowname))
 
     plt.style.use('bmh')
     fig = plt.figure(figsize=(24, 30),dpi=120)
@@ -69,14 +69,14 @@ def worker(name):
         pass
 
     if debug:
-        print("Worker %s %s started" % (name[0], name[1]))
-        print(name)
-        print("%s %s" % (nowdate, type(nowdate)))
+        my_dbg("Worker %s %s started" % (name[0], name[1]))
+        my_dbg(name)
+        my_dbg("%s %s" % (nowdate, type(nowdate)))
 
     #for date format test
     nowdate = datetime.datetime.strptime(nowdate, '%Y-%m-%d').date()
     if debug:
-        print("%s %s" % (nowdate, type(nowdate)))
+        my_dbg("%s %s" % (nowdate, type(nowdate)))
 
     plot_stock_picture(nowdate, stock_code, stock_name)
     return
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     retry = 0
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(retry)
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d"))) 
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d"))) 
     
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
     while True:
         if debug:
-            print('retry=%d' % retry)
+            my_dbg('retry=%d' % retry)
 
         if len(df) > 0:
             break;
@@ -128,8 +128,8 @@ if __name__ == '__main__':
         pool.map(worker, data_list)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     
     t2 = time.time()
-    print("t2-t1=%s"%(t2-t1)) 
+    my_dbg("t2-t1=%s"%(t2-t1)) 

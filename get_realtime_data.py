@@ -101,7 +101,7 @@ def get_realtime_data():
     
     nowdate=datetime.datetime.now().date()
     if debug:
-        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+        my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     timestamp=str(round(time.time() * 1000))
     url='https://61.push2.eastmoney.com/api/qt/clist/get?cb'\
@@ -113,11 +113,11 @@ def get_realtime_data():
             + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
             + timestamp
 
-    print(url)
+    my_dbg(url)
     tmp_header = get_headers()
-    print(tmp_header)
+    my_dbg(tmp_header)
     response = requests.get(url, headers=tmp_header)
-    print(response)
+    my_dbg(response)
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, response.text)
@@ -156,7 +156,7 @@ def get_realtime_data():
         #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
-            print(data_df)
+            my_dbg(data_df)
 
         data_df = data_df.sort_values('stock_code', ascending=1)
         data_df = data_df.reset_index(drop=True)
@@ -169,7 +169,7 @@ def get_realtime_data2_final(page_number):
     
     nowdate=datetime.datetime.now().date()
     if debug:
-        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+        my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     #https://quote.eastmoney.com/center/gridlist.html?st=ChangePercent&sr=-1#hs_a_board 
     
@@ -197,7 +197,7 @@ def get_realtime_data2_final(page_number):
             + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
             + timestamp
 
-    print("get_realtime_data2_final() url=%s" % url)
+    my_dbg("get_realtime_data2_final() url=%s" % url)
 
     browser = get_browser()
 
@@ -253,7 +253,7 @@ def get_realtime_data2_final(page_number):
         #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
-            print(data_df.head(5))
+            my_dbg(data_df.head(5))
 
         #all
         data_df = data_df.sort_values('stock_code', ascending=1)
@@ -303,7 +303,7 @@ def get_realtime_data3():
     
     nowdate=datetime.datetime.now().date()
     if debug:
-        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+        my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     #https://quote.eastmoney.com/center/gridlist.html?st=ChangePercent&sr=-1#hs_a_board 
     
@@ -340,7 +340,7 @@ def get_realtime_data3():
           + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
           + timestamp
 
-    print("get_realtime_data3() url=%s" % url)
+    my_dbg("get_realtime_data3() url=%s" % url)
 
     browser = get_browser()
 
@@ -423,7 +423,7 @@ def get_realtime_data3():
         #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
-            print(data_df.head(5))
+            my_dbg(data_df.head(5))
 
         #all
         data_df = data_df.sort_values('stock_code', ascending=1)
@@ -457,9 +457,9 @@ if __name__ == '__main__':
     data_df, work_df, stop_df, api_param = get_realtime_data2()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 

@@ -54,7 +54,7 @@ def get_season_fund(date=None, pagenumber=1, pagesize=500):
               + '&pageSize=' + str(pagesize)
 
         #if debug:
-        #    print(url)
+        #    my_dbg(url)
 
         response = requests.get(url)
         api_param = json.loads(response.text)
@@ -89,7 +89,7 @@ def get_season_fund2(date=None, pagenumber=1, pagesize=500):
               + '&pageSize=' + str(pagesize)
 
         #if debug:
-        #    print(url)
+        #    my_dbg(url)
         
         browser = get_browser()
         
@@ -107,7 +107,7 @@ def get_season_fund2(date=None, pagenumber=1, pagesize=500):
 
 
         #if debug:
-        #    print(html)	
+        #    my_dbg(html)	
 
         s=html
         f1 = s.find('{')
@@ -128,7 +128,7 @@ def get_season_fund2(date=None, pagenumber=1, pagesize=500):
         data_df = data_df.fillna(0)
 
         if debug:
-            print(data_df)
+            my_dbg(data_df)
 
     return data_df, api_param
 
@@ -144,14 +144,14 @@ def get_all_season_fund(date=None):
                 df_fund = df_fund.fillna(0)
 
                 if debug:
-                    print(df_fund)
-                    print(df_fund.columns)
+                    my_dbg(df_fund)
+                    my_dbg(df_fund.columns)
                     df_fund.to_csv('./csv/df_fund_' + str(i) + '.csv', encoding='gbk')
 
                 df = pd.concat([df, df_fund])
             
         except Exception as e:
-            print(e)
+            my_dbg(e)
             break
         else:
             i = i + 1
@@ -165,13 +165,13 @@ def get_all_season_fund(date=None):
 
 def check_table():
     table_exist = hdata_fund.table_is_exist()
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         #hdata_fund.db_hdata_xq_create()
-        print('table already exist')
+        my_dbg('table already exist')
     else:
         hdata_fund.db_hdata_xq_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
     pass
 
 if __name__ == '__main__':

@@ -50,13 +50,13 @@ hdata_dragon = HData_eastmoney_dragon('usr', 'usr')
 
 def check_table():
     table_exist = hdata_dragon.table_is_exist()
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         #hdata_dragon.db_hdata_xq_create()
-        print('table already exist')
+        my_dbg('table already exist')
     else:
         hdata_dragon.db_hdata_xq_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
 
 import random
@@ -161,11 +161,11 @@ def get_dragon_tiger(date=None, url_type=None):
     else:
         url = url_jg
    
-    print(url)
+    my_dbg(url)
     tmp_header = get_headers()
-    print(tmp_header)
+    my_dbg(tmp_header)
     response = requests.get(url, headers=tmp_header)
-    print(response)
+    my_dbg(response)
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, response.text)
@@ -248,7 +248,7 @@ def get_dragon_tiger2(date=None, url_type=None):
     else:
         url = url_jg
    
-    print(url)
+    my_dbg(url)
     
     browser = get_browser()
     
@@ -265,7 +265,7 @@ def get_dragon_tiger2(date=None, url_type=None):
         browser.quit()
 
     if debug:
-        print(html)
+        my_dbg(html)
 
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
@@ -331,7 +331,7 @@ def get_dragon_tiger3(date=None, url_type=None):
     else:
         url = url_jg
    
-    print(url)
+    my_dbg(url)
 
     browser = get_browser()
 
@@ -348,7 +348,7 @@ def get_dragon_tiger3(date=None, url_type=None):
         browser.quit()
 
     if debug:
-        print(html)
+        my_dbg(html)
 
     #把中间的'(' ')' 替换成'-', 才能正确的把json 解析出来
     s=html
@@ -382,11 +382,11 @@ if __name__ == '__main__':
     nowdate=nowdate-datetime.timedelta(int(para1))
 
     target_file = './csv/dragon-' + nowdate.strftime("%Y-%m-%d") + '*.csv'
-    print(target_file)
+    my_dbg(target_file)
 
-    print( len(glob.glob(target_file)))
+    my_dbg( len(glob.glob(target_file)))
     if len(glob.glob(target_file)):
-        print('target_file is already generated !!! return')
+        my_dbg('target_file is already generated !!! return')
         exit()
     
     check_table()
@@ -416,13 +416,13 @@ if __name__ == '__main__':
 
         cur_time = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
         conj_df.to_csv('./csv/' + cur_time + '-dragon.csv', encoding='gbk')
-        print(jg_df)
-        print(all_df)
-        print(conj_df)
+        my_dbg(jg_df)
+        my_dbg(all_df)
+        my_dbg(conj_df)
 
         hdata_dragon.delete_data_from_hdata(\
             start_date=nowdate.strftime("%Y-%m-%d"), \
             end_date=nowdate.strftime("%Y-%m-%d"))
         hdata_dragon.copy_from_stringio(conj_df)
     else:
-        print('dragon not found!!!')
+        my_dbg('dragon not found!!!')

@@ -95,7 +95,7 @@ def get_zlpm_data():
     
     nowdate=datetime.datetime.now().date()
     if debug:
-        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+        my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     timestamp=str(round(time.time() * 1000))
 
@@ -106,7 +106,7 @@ def get_zlpm_data():
             + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
             + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
 
-    print(url)
+    my_dbg(url)
 
     tmp_header = get_headers()
     response = requests.get(url, headers=tmp_header)
@@ -139,7 +139,7 @@ def get_zlpm_data():
         data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
-            print(data_df)
+            my_dbg(data_df)
 
         data_df = data_df.sort_values('stock_code', ascending=1)
         data_df = data_df.reset_index(drop=True)
@@ -150,7 +150,7 @@ def get_zlpm_data2_final(pn=None):
     
     nowdate=datetime.datetime.now().date()
     if debug:
-        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+        my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     timestamp=str(round(time.time() * 1000))
 
@@ -163,7 +163,7 @@ def get_zlpm_data2_final(pn=None):
             + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
             + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
 
-    print(url)
+    my_dbg(url)
 
     browser = get_browser()
    
@@ -208,7 +208,7 @@ def get_zlpm_data2_final(pn=None):
         #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
-            print(data_df)
+            my_dbg(data_df)
 
         data_df = data_df.sort_values('stock_code', ascending=1)
         data_df = data_df.reset_index(drop=True)
@@ -242,7 +242,7 @@ def get_zlpm_data3():
     
     nowdate=datetime.datetime.now().date()
     if debug:
-        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+        my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     timestamp=str(round(time.time() * 1000))
 
@@ -254,7 +254,7 @@ def get_zlpm_data3():
             + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
             + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
 
-    print(url)
+    my_dbg(url)
 
     browser = get_browser()
    
@@ -300,7 +300,7 @@ def get_zlpm_data3():
         #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
-            print(data_df)
+            my_dbg(data_df)
 
         data_df = data_df.sort_values('stock_code', ascending=1)
         data_df = data_df.reset_index(drop=True)
@@ -318,12 +318,12 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     df, api_param = get_zlpm_data2()
-    print(df)
+    my_dbg(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 

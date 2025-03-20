@@ -133,7 +133,7 @@ def get_holder_data(is_all=1, pagesize=500, pagenumber=1):
         url = url_latest
 
     if debug:
-        print('url= %s ' % url)
+        my_dbg('url= %s ' % url)
 
     tmp_header = get_headers()
     response = requests.get(url, headers=tmp_header)
@@ -191,7 +191,7 @@ def get_holder_data2(is_all=1, pagesize=500, pagenumber=1):
     else:
         url = url_latest
 
-    print(' get_holder_data2 url= %s ' % url)
+    my_dbg(' get_holder_data2 url= %s ' % url)
 
     browser = get_browser()
 
@@ -208,7 +208,7 @@ def get_holder_data2(is_all=1, pagesize=500, pagenumber=1):
         browser.quit()
 
     if debug:
-        print(html)
+        my_dbg(html)
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
@@ -226,12 +226,12 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     df, api_param = get_holder_data2(is_all=0, pagesize=500, pagenumber=9)
-    print(df.columns)
-    print(df)
+    my_dbg(df.columns)
+    my_dbg(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 

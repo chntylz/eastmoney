@@ -34,8 +34,8 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
     try:
         fina_data = fina_data['data']['list']
     except Exception as e:
-        print(e)
-        print(stock_code)
+        my_dbg(e)
+        my_dbg(stock_code)
         return df
 
 
@@ -48,7 +48,7 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
         s1=s[1:len(s)-1]
         d=eval(s1)
         if debug:
-            print(d)
+            my_dbg(d)
         df = pd.DataFrame(d) 
     else:
         df = pd.DataFrame(fina_data) 
@@ -56,13 +56,13 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
     if len(df):
         pass
     else:
-        print('stock_code=%s, len(df)=0, #error# abnormal' \
+        my_dbg('stock_code=%s, len(df)=0, #error# abnormal' \
                 % stock_code)
         return df
 
     if debug:
-        print(df.loc[len(df)-1])        #series
-        print(df[len(df)-2:len(df)-1])  #dataframe
+        my_dbg(df.loc[len(df)-1])        #series
+        my_dbg(df[len(df)-2:len(df)-1])  #dataframe
 
 
     len_cols = len(list(df)) 
@@ -72,8 +72,8 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
         try:
             tmp_df = pd.DataFrame(data=[x[i] for x in df.values])
         except Exception as e:
-            print(e)
-            print('try stock_code=%s, len(df)=%d, i=%d, #error# abnormal' \
+            my_dbg(e)
+            my_dbg('try stock_code=%s, len(df)=%d, i=%d, #error# abnormal' \
                     % (stock_code, len(df), i))
             return new_df
         else:
@@ -85,8 +85,8 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
         tmp_df.fillna(0, inplace=True)
         tmp_df = round(tmp_df, 4)
         if debug:
-            print('col_name=%s'% col_name)
-            print('tmp_df=%s\r'% tmp_df)
+            my_dbg('col_name=%s'% col_name)
+            my_dbg('tmp_df=%s\r'% tmp_df)
 
         if i == 3:
             new_df = tmp_df
@@ -96,9 +96,9 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
 
 
     if debug:
-        print(df.head(1))
-        print(list(df))
-        print(new_df.head(1))
+        my_dbg(df.head(1))
+        my_dbg(list(df))
+        my_dbg(new_df.head(1))
     
     #保留前3列，连接拆分出来的新df
     new_cols = ['report_date', 'report_name', 'ctime']
@@ -111,8 +111,8 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
 if __name__ == '__main__':
     
 
-    print(time.localtime(time.time()))
+    my_dbg(time.localtime(time.time()))
     t1 = time.time()
     t2 = time.time()
-    print("t1:%s, t2:%s, delta time=%s"%(t1, t2, t2-t1))
-    print(time.localtime(time.time()))
+    my_dbg("t1:%s, t2:%s, delta time=%s"%(t1, t2, t2-t1))
+    my_dbg(time.localtime(time.time()))

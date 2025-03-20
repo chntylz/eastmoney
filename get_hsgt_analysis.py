@@ -34,7 +34,7 @@ hdata_hsgt=HData_hsgt("usr","usr")
 def hsgt_get_stock_list():
     df=hdata_hsgt.get_all_list_of_stock()
     if debug:
-        print("df size is %d"% (len(df)))
+        my_dbg("df size is %d"% (len(df)))
     
     return df
 
@@ -42,13 +42,13 @@ def hsgt_get_stock_list():
 def hsgt_get_all_data():
     nowdate=datetime.datetime.now().date()
     from_date=nowdate-datetime.timedelta(150)
-    print("from_date is %s"%(from_date.strftime("%Y-%m-%d")))
+    my_dbg("from_date is %s"%(from_date.strftime("%Y-%m-%d")))
 
 
     #df=hdata_hsgt.get_all_hdata_of_stock(from_date.strftime("%Y-%m-%d"))
     df=hdata_hsgt.get_data_from_hdata(start_date=from_date.strftime("%Y-%m-%d"))
     if debug:
-        print("df size is %d"% (len(df)))
+        my_dbg("df size is %d"% (len(df)))
     
     return df
 
@@ -60,7 +60,7 @@ def hsgt_get_delta_m_of_day(df, days):
     df[target_column] = df['delta1_m']
     for i in range(1, days):
         if debug:
-            print('i=%d, days=%d'%(i, days))
+            my_dbg('i=%d, days=%d'%(i, days))
         src_column='money_sft_'+ str(i)
         df[target_column] = df[target_column] + df[src_column]
 
@@ -71,7 +71,7 @@ def hsgt_handle_all_data(df):
     all_df=df
 
     latest_date=all_df.loc[0,'record_date']
-    print('lastet_date:%s' % (latest_date))
+    my_dbg('lastet_date:%s' % (latest_date))
 
     del all_df['open']
     del all_df['high']
@@ -130,7 +130,7 @@ def hsgt_handle_all_data(df):
 
 
     if debug:
-        print(all_df.head(10))    
+        my_dbg(all_df.head(10))    
 
     #all_df=all_df[all_df['delta1_m'] != 0]
     #all_df=all_df.reset_index(drop=True)
@@ -166,7 +166,7 @@ if __name__ == '__main__':
 
     save_dir = "hsgt"
     exec_command = "mkdir -p " + (save_dir)
-    print(exec_command)
+    my_dbg(exec_command)
     os.system(exec_command)
 
     file_name=save_dir + '-' + datetime.datetime.strptime(latest_date,'%Y-%m-%d').strftime("%Y-%m-%d-%w") + '-r0'

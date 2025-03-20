@@ -40,7 +40,7 @@ class HData_eastmoney_zlje_5(object):
         self.db_connect()
         self.cur.execute("select count(*) from pg_class where relname = 'eastmoney_zlje_5_table' ;")
         ans=self.cur.fetchall()
-        #print(list(ans[0])[0])
+        #my_dbg(list(ans[0])[0])
         if list(ans[0])[0]:
             self.conn.commit()
             self.db_disconnect()
@@ -84,7 +84,7 @@ class HData_eastmoney_zlje_5(object):
         self.conn.commit()
         self.db_disconnect()
 
-        print("db_eastmoney_zlje_5_table_create finish")
+        my_dbg("db_eastmoney_zlje_5_table_create finish")
         pass
 
     def copy_from_stringio(self, df):
@@ -106,12 +106,12 @@ class HData_eastmoney_zlje_5(object):
             self.cur.copy_from(buffer, table='eastmoney_zlje_5_table', sep=",")
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print("Error: %s" % error)
+            my_dbg("Error: %s" % error)
             self.conn.rollback()
             self.db_disconnect()
             return 1
         
-        #print("copy_from_stringio() done")
+        #my_dbg("copy_from_stringio() done")
         self.db_disconnect()
 
 
@@ -188,7 +188,7 @@ class HData_eastmoney_zlje_5(object):
         sql_temp += ";"
 
         if debug:
-            print("get_data_from_hdata, sql_temp:%s" % sql_temp)
+            my_dbg("get_data_from_hdata, sql_temp:%s" % sql_temp)
 
 
 
@@ -204,8 +204,8 @@ class HData_eastmoney_zlje_5(object):
         df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))        
 
         if debug:
-            print(type(df))
-            print(df.head(2))
+            my_dbg(type(df))
+            my_dbg(df.head(2))
     
         return df
         pass
@@ -255,7 +255,7 @@ class HData_eastmoney_zlje_5(object):
         sql_temp += ";"
 
         if debug:
-            print("delete_data_from_hdata, sql_temp:%s" % sql_temp)
+            my_dbg("delete_data_from_hdata, sql_temp:%s" % sql_temp)
 
         self.cur.execute(sql_temp)
         self.conn.commit()

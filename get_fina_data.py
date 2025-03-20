@@ -152,8 +152,8 @@ def get_current_date(date=None):
         elif tmp_date < target_date[3]:
             fina_date = nowdate.strftime('%Y-') + target_date[2]
         else: 
-            print('error case')
-    print('fina_date is %s' % fina_date)
+            my_dbg('error case')
+    my_dbg('fina_date is %s' % fina_date)
     return fina_date
 
 
@@ -275,10 +275,10 @@ def get_fina_data(page=1):
             + '&type=RPT_LICO_FN_CPD&sty=ALL&'\
             # '&filter=(REPORTDATE%3D%272021-06-30%27)'
 
-    print(url)
+    my_dbg(url)
     tmp_header = get_headers()
     response = requests.get(url, headers=tmp_header)
-    print(response)
+    my_dbg(response)
 
     response.encoding = 'utf-8'  
     p1 = re.compile(r'[(](.*?)[)]', re.S)  #'xxx(yyy)zzz', 提取括号的内容yyy
@@ -322,7 +322,7 @@ def get_fina_data2(page=1):
             + '&type=RPT_LICO_FN_CPD&sty=ALL&'\
             # '&filter=(REPORTDATE%3D%272021-06-30%27)'
 
-    print(url)
+    my_dbg(url)
 
     browser = get_browser()
 
@@ -340,7 +340,7 @@ def get_fina_data2(page=1):
 
 
     if debug:
-        print(html)
+        my_dbg(html)
  
     p1 = re.compile(r'[(](.*?)[)]', re.S)  #'xxx(yyy)zzz', 提取括号的内容yyy
 
@@ -423,7 +423,7 @@ def get_fina_data3(fina='cpd', page=1):
     else :
         url = cpd_url;
 
-    print(' get_fina_data3() %s, %s' % (fina, url))
+    my_dbg(' get_fina_data3() %s, %s' % (fina, url))
 
     browser = get_browser()
 
@@ -441,7 +441,7 @@ def get_fina_data3(fina='cpd', page=1):
 
 
     if debug:
-        print(html)
+        my_dbg(html)
  
     p1 = re.compile(r'[(](.*?)[)]', re.S)  #'xxx(yyy)zzz', 提取括号的内容yyy
 
@@ -479,11 +479,11 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     df, api_param = get_fina_data3('cpd', 1)
-    print(df)
+    my_dbg(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 

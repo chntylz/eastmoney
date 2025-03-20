@@ -92,14 +92,14 @@ def handle_raw_df(df):
 
 def check_table():
     table_exist = hdata_day.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         if int(para1):
             #hdata_day.db_hdata_eastmoney_create()
-            print('table already exist, recreate')
+            my_dbg('table already exist, recreate')
     else:
         #hdata_day.db_hdata_eastmoney_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
 
 
@@ -109,9 +109,9 @@ if __name__ == '__main__':
 
     if int(para1) == 0:
         f_day = get_file_modify_day('csv/r_df_today.csv')
-        print('f_day=%d' % f_day)
+        my_dbg('f_day=%d' % f_day)
         if f_day == 0:
-            print(' exit... ')
+            my_dbg(' exit... ')
             sys.exit(0)
     
     t1 = time.time()
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(int(para1))
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
     #check table exist
     check_table()
@@ -130,7 +130,7 @@ if __name__ == '__main__':
     work_df = handle_raw_df(work_df)
 
     if int(para1):
-        print('get kline data')
+        my_dbg('get kline data')
         r_len = len(r_df)
         if r_len:
             for i in range(0, r_len):
@@ -148,7 +148,7 @@ if __name__ == '__main__':
                     k_df.to_csv('./csv/k_df_' + code + '.csv', encoding='gbk')
                     hdata_day.copy_from_stringio(k_df)
     else:
-        print('today data len:%s' % len(work_df))
+        my_dbg('today data len:%s' % len(work_df))
         work_df = work_df.drop_duplicates(subset=['stock_code'], keep='first')
         work_df.to_csv('./csv/'+ nowdate.strftime("%Y-%m-%d")+ '_realtime_df_.csv', encoding='gbk')
         hdata_day.delete_data_from_hdata(
@@ -160,7 +160,7 @@ if __name__ == '__main__':
         
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))
+    my_dbg("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))

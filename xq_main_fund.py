@@ -53,8 +53,8 @@ def get_fund_rawdata(report_date):
         tmp_df = xq_get_fund(stock_code_new, report_date)
 
         if debug:
-            print(i, stock_code_new)
-            print(tmp_df)
+            my_dbg(i, stock_code_new)
+            my_dbg(tmp_df)
         #add stock_code
         #tmp_df['symbol'] = stock_code_new
         if len(tmp_df):
@@ -77,17 +77,17 @@ def get_fund_rawdata(report_date):
             t_2 = time.time()
             d_t = t_2 - t_1
             if debug:
-                print(t_1, t_2)
-                print(' get_fund_rawdata() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
+                my_dbg(t_1, t_2)
+                my_dbg(' get_fund_rawdata() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
                         (i, stock_code_new, d_t, len(tmp_df)))
 
 
     tt_2 = time.time()
     delta_t = tt_2 - tt_1
     if debug:
-        print(' get_fund_rawdata() delta_t=%f' % delta_t)
-        print('len(list(df))=%d' % len(list(df)))
-        print('list(df)=%s' % list(df))
+        my_dbg(' get_fund_rawdata() delta_t=%f' % delta_t)
+        my_dbg('len(list(df))=%d' % len(list(df)))
+        my_dbg('list(df)=%s' % list(df))
 
     return df
 
@@ -97,25 +97,25 @@ def get_fund(report_date):
     df = df.reset_index(drop=True)
 
     if debug:
-        print('len(df)=%d' % len(df))
-        print(df.head(10))
+        my_dbg('len(df)=%d' % len(df))
+        my_dbg(df.head(10))
 
     return df
 
 
 def check_table():
     table_exist = hdata_fund.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         hdata_fund.db_hdata_xq_create()
-        print('table already exist')
+        my_dbg('table already exist')
     else:
         hdata_fund.db_hdata_xq_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
 
 def update_database_fund(report_date):
-    print('update_database_fund() %s' % report_date)
+    my_dbg('update_database_fund() %s' % report_date)
     df_fund = get_fund(report_date)
     hdata_fund.copy_from_stringio(df_fund)
     df_fund.to_csv('./csv/test_xq_fund_' + report_date +'.csv', encoding='gbk')
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     nowdate=datetime.datetime.now().date()
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
     check_table()
 
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     browser.quit()
     
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))

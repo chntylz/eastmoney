@@ -74,7 +74,7 @@ def get_index_data():
     
     nowdate=datetime.datetime.now().date()
     if debug:
-        print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+        my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
     
     timestamp=str(round(time.time() * 1000))
 
@@ -136,7 +136,7 @@ def get_index_data():
         #df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
 
         if debug:
-            print(df)
+            my_dbg(df)
 
     return df, api_param
 
@@ -153,9 +153,9 @@ if __name__ == '__main__':
     df, api_param = get_index_data()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 

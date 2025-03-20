@@ -76,13 +76,13 @@ def close_broser(browser):
         browser.close()
         browser.quit()
     except Exception as e:
-        print(e)
+        my_dbg(e)
 
     
 
 def worker(data):
     if debug:
-        print(data)
+        my_dbg(data)
     stock_code = data[2]
     stock_name = data[3]
 
@@ -94,7 +94,7 @@ def worker(data):
 def get_sina_comm_data(url):
 
     if debug:
-        print(url)
+        my_dbg(url)
 
     data = []
     gen_cols = []
@@ -108,7 +108,7 @@ def get_sina_comm_data(url):
     try:
         browser.get(url)
     except Exception as e:
-        print(e)
+        my_dbg(e)
         #close
         close_broser(browser)
         return data, gen_cols
@@ -129,16 +129,16 @@ def get_sina_comm_data(url):
         if '报表日期' in tbodys[i].text or '报告日期' in tbodys[i].text: #check where valid data is located tbodys 
             tbody_find = True
             if debug:
-                print(" right tbody is found, i=%d" % i)
+                my_dbg(" right tbody is found, i=%d" % i)
             break
         else:
             if False:
-                print(i)
+                my_dbg(i)
             pass
     
 
     if tbody_find == False:
-        print('### correct tbodys_find is False , return')
+        my_dbg('### correct tbodys_find is False , return')
         #close
         close_broser(browser)
         return data, gen_cols
@@ -154,8 +154,8 @@ def get_sina_comm_data(url):
         length = len(tds)
 
         if False:
-            print('--------------------------------')
-            print(tds)
+            my_dbg('--------------------------------')
+            my_dbg(tds)
         
         #'/corp/view/vFD_FinanceSummaryHistory.php?stockid=600660&type=TOTLIABSHAREQUI&cate=zcfz0'
         # we assume there must be 2 items exist
@@ -173,18 +173,18 @@ def get_sina_comm_data(url):
                 abbr = abbr.lower()
                 gen_cols.append(abbr)
                 if False:
-                    print('href:%s'% href)
-                    print('tmp:%s' % tmp)
-                    print('start:%d'%start)
-                    print('end:%d' % end)
-                    print('abbr:%s' % abbr)
+                    my_dbg('href:%s'% href)
+                    my_dbg('tmp:%s' % tmp)
+                    my_dbg('start:%d'%start)
+                    my_dbg('end:%d' % end)
+                    my_dbg('abbr:%s' % abbr)
             except Exception as e:
                 if debug:
-                    print('error: %s' % tds)
+                    my_dbg('error: %s' % tds)
                 if '报表日期' in tds[0].contents[0].text or '报告日期' in tds[0].contents[0].text:
                     abbr = 'record_date'
                     if debug:
-                        print('abbr:%s'%abbr)
+                        my_dbg('abbr:%s'%abbr)
                     gen_cols.append(abbr)
                 else:
                     href = tds[0].contents[0].find_all('a')
@@ -198,7 +198,7 @@ def get_sina_comm_data(url):
                         abbr = tmp[start+1 : end]
                     abbr = abbr.lower()
                     if debug:
-                        print('abbr:%s'%abbr)
+                        my_dbg('abbr:%s'%abbr)
                     gen_cols.append(abbr)
 
         if length == 2:
@@ -231,14 +231,14 @@ def get_sina_comm_data(url):
                 continue
                 
             if debug:
-                print(tds)
-                print(len(tds))
-                print(tds[0].contents[0].text)
-                print(tds[1].contents[0])
-                print(tds[2].contents[0])
-                print(tds[3].contents[0])
-                print(tds[4].contents[0])
-                print('--------------------------------')
+                my_dbg(tds)
+                my_dbg(len(tds))
+                my_dbg(tds[0].contents[0].text)
+                my_dbg(tds[1].contents[0])
+                my_dbg(tds[2].contents[0])
+                my_dbg(tds[3].contents[0])
+                my_dbg(tds[4].contents[0])
+                my_dbg('--------------------------------')
             data.append([tds[0].contents[0].text.replace(',',''), 
                     tds[1].contents[0].replace(',',''), 
                     tds[2].contents[0].replace(',',''), 
@@ -259,8 +259,8 @@ def get_sina_comm_data(url):
 def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column):
 
     if debug:
-        print('len(data)=%d, len(data_column)=%d '%(len(data), len(data_column)))
-        print(data_column)
+        my_dbg('len(data)=%d, len(data_column)=%d '%(len(data), len(data_column)))
+        my_dbg(data_column)
     
     df = pd.DataFrame(data)
     df = df.T
@@ -272,7 +272,7 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
         #change column order
         #df = df.loc[:, data_column]
     except Exception as e:
-        print(data, stock_code, stock_name, year, target_type, data_column)
+        my_dbg(data, stock_code, stock_name, year, target_type, data_column)
 
     '''
     df['stock_code'] = stock_code
@@ -296,14 +296,14 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
     df.insert(1, 'stock_code', new_column_data)
 
     if debug:
-        print(np.array(df[0:1])[0])  #print the first row of df
+        my_dbg(np.array(df[0:1])[0])  #my_dbg the first row of df
         df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_tmp.csv', encoding='utf-8-sig')
 
     if target_type == 'balance' and  '银行' in stock_name:
         return df
 
     if debug:
-        print(df)
+        my_dbg(df)
 
     '''
     delete column or row: https://blog.csdn.net/songyunli1111/article/details/79306639
@@ -325,16 +325,16 @@ def handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_
 def sina_check_table(database):
     table_exist = database.table_is_exist() 
     if debug:
-        print('table_exist=%d' % table_exist)
+        my_dbg('table_exist=%d' % table_exist)
 
     if table_exist:
         #database.db_hdata_sina_create()
         if debug:
-            print('table already exist')
+            my_dbg('table already exist')
     else:
         database.db_hdata_sina_create()
         if debug:
-            print('table not exist, create')
+            my_dbg('table not exist, create')
 
 
 
@@ -346,9 +346,9 @@ def sina_update_database(database, df, data, stock_code, stock_name, year, targe
         #database.db_hdata_sina_create()
         database.copy_from_stringio(df)
     except Exception as e:
-        print("### insert data into database")
-        print(data, stock_code, stock_name, year, target_type, data_column)
-        print(df)
+        my_dbg("### insert data into database")
+        my_dbg(data, stock_code, stock_name, year, target_type, data_column)
+        my_dbg(df)
         df.to_csv('./csv_data/'+ year + '_' + target_type + '_' +  stock_code + '_error.csv', encoding='utf-8-sig')
 
 
@@ -371,7 +371,7 @@ def get_sina_fina_data(stock_code, stock_name, year):
     #catch html data
     data, data_column = get_sina_comm_data(url)
     if len(data) == 0 or len(data_column) == 0:
-        print('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
+        my_dbg('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
         return df
 
     data_column = [ 'record_date', 'diluted_eps', 'weighted_eps', 'eps_adjusted', 'eps_after_deducting_non_recurring_gains_and_losses', \
@@ -410,15 +410,15 @@ def get_sina_fina_data(stock_code, stock_name, year):
     group_by_record_date_df=df.groupby('record_date')
     for record_date, group_df in group_by_record_date_df:
         if group_df is None:
-            print('%s %s, group_df is None' % (stock_code, record_date) )
+            my_dbg('%s %s, group_df is None' % (stock_code, record_date) )
             continue
 
         if len(group_df) < 1:
-            print('%s %s, len(group_df) < 1' % (stock_code, record_date))
+            my_dbg('%s %s, len(group_df) < 1' % (stock_code, record_date))
             continue
 
         if debug:
-            print(' get_sina_fina_data: %s %s' % (stock_code, record_date) )
+            my_dbg(' get_sina_fina_data: %s %s' % (stock_code, record_date) )
         group_df = group_df.reset_index(drop=True)
 
         sina_update_database(hdata_sina_fina, group_df, data, stock_code, stock_name, record_date, target_type, data_column)
@@ -442,7 +442,7 @@ def get_sina_cashflow_data(stock_code, stock_name, year):
     #catch html data
     data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
-        print('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
+        my_dbg('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
@@ -450,11 +450,11 @@ def get_sina_cashflow_data(stock_code, stock_name, year):
     group_by_record_date_df=df.groupby('record_date')
     for record_date, group_df in group_by_record_date_df:
         if group_df is None:
-            print('%s %s, group_df is None' % (stock_code, record_date) )
+            my_dbg('%s %s, group_df is None' % (stock_code, record_date) )
             continue
 
         if len(group_df) < 1:
-            print('%s %s, len(group_df) < 1' % (stock_code, record_date))
+            my_dbg('%s %s, len(group_df) < 1' % (stock_code, record_date))
             continue
 
         group_df = group_df.reset_index(drop=True)
@@ -480,18 +480,18 @@ def get_sina_income_data(stock_code, stock_name, year ):
     #catch html data
     data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
-        print('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
+        my_dbg('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
     group_by_record_date_df=df.groupby('record_date')
     for record_date, group_df in group_by_record_date_df:
         if group_df is None:
-            print('%s %s, group_df is None' % (stock_code, record_date) )
+            my_dbg('%s %s, group_df is None' % (stock_code, record_date) )
             continue
 
         if len(group_df) < 1:
-            print('%s %s, len(group_df) < 1' % (stock_code, record_date))
+            my_dbg('%s %s, len(group_df) < 1' % (stock_code, record_date))
             continue
 
         group_df = group_df.reset_index(drop=True)
@@ -517,22 +517,22 @@ def get_sina_balance_data(stock_code, stock_name, year):
     #catch html data
     data, data_column = get_sina_comm_data( url)
     if len(data) == 0 or len(data_column) == 0:
-        print('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
+        my_dbg('### get html source is NULL, return, %s %s %s %s ' % (stock_code, stock_name, year, target_type) );
         return df
 
     df = handle_sina_comm_data(data, stock_code, stock_name, year, target_type, data_column)
     group_by_record_date_df=df.groupby('record_date')
     for record_date, group_df in group_by_record_date_df:
         if group_df is None:
-            print('%s %s, group_df is None' % (stock_code, record_date) )
+            my_dbg('%s %s, group_df is None' % (stock_code, record_date) )
             continue
 
         if len(group_df) < 1:
-            print('%s %s, len(group_df) < 1' % (stock_code, record_date))
+            my_dbg('%s %s, len(group_df) < 1' % (stock_code, record_date))
             continue
 
         if debug:
-            print(' get_sina_balance_data: %s %s' % (stock_code, record_date) )
+            my_dbg(' get_sina_balance_data: %s %s' % (stock_code, record_date) )
 
         group_df = group_df.reset_index(drop=True)
         sina_update_database(hdata_sina_balance, group_df, data, stock_code, stock_name, record_date, target_type, data_column)
@@ -585,7 +585,7 @@ def get_sina_fina_by_selenium():
 
     close_broser(browser)
     if debug:
-        print(data)
+        my_dbg(data)
 
     df = pd.DataFrame(data)
     df = df.T
@@ -596,12 +596,12 @@ if __name__ == '__main__':
 
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s" % start_time)
+    my_dbg("start_time: %s" % start_time)
 
     stock_df=get_daily_zlje2()
     stock_df = stock_df.sort_values('f12', ascending=1)
     stock_df = stock_df.reset_index(drop=True)
-    print(stock_df.head(5))
+    my_dbg(stock_df.head(5))
     #stock_df=stock_df.head(4)
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
@@ -615,10 +615,10 @@ if __name__ == '__main__':
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 '''
 
@@ -657,12 +657,12 @@ tbodys = soup.find_all('tbody')
 i=0
 for i in range(len(tbodys)):
     if '报表日期' in tbodys[i].text or '报告日期' in tbodys[i].text: #check where valid data is located tbodys
-        print(" right tbody is found")
-        print(i)
+        my_dbg(" right tbody is found")
+        my_dbg(i)
         break
     else:
         if False:
-            print(i)
+            my_dbg(i)
         pass
 
 tbody = tbodys[i]
@@ -700,8 +700,8 @@ df = pd.DataFrame(data)
 # 在第 1 列位置插入新列 'C'
 new_column_data = [7, 8, 9]
 df.insert(1, 'C', new_column_data)
-print('插入新列 C 后的 DataFrame:')
-print(df)
+my_dbg('插入新列 C 后的 DataFrame:')
+my_dbg(df)
 
 '''
 

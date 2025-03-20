@@ -29,13 +29,13 @@ hdata_zlpm=HData_eastmoney_zlpm("usr","usr")
 
 def check_table():
     table_exist = hdata_zlpm.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         hdata_zlpm.db_hdata_eastmoney_create()
-        print('table already exist')
+        my_dbg('table already exist')
     else:
         hdata_zlpm.db_hdata_eastmoney_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
 if __name__ == '__main__':
 
@@ -56,12 +56,12 @@ if __name__ == '__main__':
                 )
         hdata_zlpm.copy_from_stringio(df)
     else:
-        print('zlpm dataframe is null')
+        my_dbg('zlpm dataframe is null')
 
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("main_zlpm.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("main_zlpm.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))

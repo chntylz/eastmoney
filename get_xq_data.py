@@ -35,7 +35,7 @@ def xq_get_browser():
     return  _global_browser[0]
 
 def xq_login(driver):
-    print('xq_login')
+    my_dbg('xq_login')
     time.sleep(1)
     driver.get('https://xueqiu.com/user/login')
     time.sleep(2)
@@ -51,7 +51,7 @@ def xq_login2(driver):
     #selenium example
     #https://vimsky.com/examples/detail/python-ex-selenium.webdriver.support.ui-WebDriverWait-send_keys-method.html
     #https://www.cnblogs.com/denise1108/p/10551019.html
-    print('xq_login')
+    my_dbg('xq_login')
     driver.get('https://xueqiu.com/')
     elem = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.NAME, 'username')))
     elem.send_keys('chntylz@gmail.com')
@@ -87,14 +87,14 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     
     url += str(count)
 
-    print(url)
+    my_dbg(url)
     _global_browser = xq_get_browser()
     try:
         pass
         # xq_login2(_global_browser)
     except Exception as e:
-        print(e)
-        print('alread login in')
+        my_dbg(e)
+        my_dbg('alread login in')
     finally:
         pass
 
@@ -104,7 +104,7 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
         _global_browser.implicitly_wait(5)
         html = _global_browser.page_source
     except Exception as e:
-        print(e)
+        my_dbg(e)
         #_global_browser.close()
         #_global_browser.quit()
     finally:
@@ -113,7 +113,7 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
         pass
      
     if debug:
-        print(html)
+        my_dbg(html)
     
     s=html
     f1 = s.find('{')
@@ -128,9 +128,9 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
         fina_data = json.loads(response_array[0])
     except Exception as e:
         xq_login2(_global_browser)
-        print(e)
-        print(url)
-        print(html)
+        my_dbg(e)
+        my_dbg(url)
+        my_dbg(html)
     finally:
         pass
  
@@ -146,15 +146,15 @@ def xq_get_holder_data(symbol, page=1, size=10):
         + '&extend=true&page=' + str(page) + '&size=' + str(size)      
 
     data_df = pd.DataFrame()
-    print(url)
+    my_dbg(url)
 
     _global_browser = xq_get_browser()
     try:
         pass
         # xq_login2(browser)
     except Exception as e:
-        print(e)
-        print('alread login in')
+        my_dbg(e)
+        my_dbg('alread login in')
     finally:
         pass
 
@@ -165,7 +165,7 @@ def xq_get_holder_data(symbol, page=1, size=10):
         _global_browser.implicitly_wait(5)
         html = _global_browser.page_source
     except Exception as e:
-        print(e)
+        my_dbg(e)
         # _global_browser.close()
         # _global_browser.quit()
     finally:
@@ -174,7 +174,7 @@ def xq_get_holder_data(symbol, page=1, size=10):
         pass
 
     if debug:
-        print(html)
+        my_dbg(html)
     
     s=html
     f1 = s.find('{')
@@ -190,9 +190,9 @@ def xq_get_holder_data(symbol, page=1, size=10):
         data_df = pd.DataFrame(rawdata)
     except Exception as e:
         xq_login2(_global_browser)
-        print(e)
-        print(url)
-        print(html)
+        my_dbg(e)
+        my_dbg(url)
+        my_dbg(html)
     finally:
         pass
  
@@ -209,7 +209,7 @@ def xq_get_fund(stock_code, report_date):
             + 'symbol=' + stock_code + '&timestamp=' + fund_report_date + '&extend=true'
 
     html = ''
-    print(url)
+    my_dbg(url)
 
     _global_browser = xq_get_browser()
     try:
@@ -218,7 +218,7 @@ def xq_get_fund(stock_code, report_date):
         _global_browser.get(url)
         html = _global_browser.page_source
     except Exception as e:
-        print(e)
+        my_dbg(e)
     finally:
         pass
 
@@ -241,9 +241,9 @@ def xq_get_fund(stock_code, report_date):
         data = data['data']['fund_items']
     except Exception as e:
         xq_login2(_global_browser)
-        print(e)
-        print(url)
-        print(html)
+        my_dbg(e)
+        my_dbg(url)
+        my_dbg(html)
     finally:
         pass
 
@@ -260,5 +260,5 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(fina_data) 
 
-    print(df)
+    my_dbg(df)
  

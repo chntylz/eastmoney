@@ -133,11 +133,11 @@ def get_kline_data(code=None, count=None, period=None):
         + '&_='\
         + timestamp
 
-    print(url)
+    my_dbg(url)
     tmp_header = get_headers()
-    print(tmp_header)
+    my_dbg(tmp_header)
     response = requests.get(url, headers=tmp_header)
-    print(response)
+    my_dbg(response)
 
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
@@ -165,7 +165,7 @@ def get_kline_data(code=None, count=None, period=None):
         data_df = data_df.loc[:, new_column]
 
     if debug:
-        print(data_df.head(5))
+        my_dbg(data_df.head(5))
 
 
         
@@ -223,7 +223,7 @@ def get_kline_data2(code=None, count=None, period=None):
         + '&_='\
         + timestamp
 
-    print(url)
+    my_dbg(url)
 
 
     browser = get_browser()
@@ -234,7 +234,7 @@ def get_kline_data2(code=None, count=None, period=None):
         browser.implicitly_wait(5)
         html = browser.page_source
     except Exception as e:
-        print(e)
+        my_dbg(e)
         browser.close()
         browser.quit()
     finally:
@@ -243,14 +243,14 @@ def get_kline_data2(code=None, count=None, period=None):
 
 
     if debug:
-        print(html)
+        my_dbg(html)
 
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
     try:
         api_param = json.loads(response_array[0])
     except Exception as e:
-        print(e)
+        my_dbg(e)
     finally:
         pass
 
@@ -276,7 +276,7 @@ def get_kline_data2(code=None, count=None, period=None):
         data_df = data_df.loc[:, new_column]
 
     if debug:
-        print(data_df)
+        my_dbg(data_df)
         
     return data_df, api_param
 
@@ -292,7 +292,7 @@ if __name__ == '__main__':
     df, api_param = get_kline_data2('000977', 10)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))

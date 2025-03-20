@@ -75,11 +75,11 @@ y = df['close'].to_numpy()
 z = df['holder_num'].to_numpy()
 #z = z/10000.0
 
-print('len(x)=%d, len(y)=%d, len(z)=%d'  % (len(x), len(y), len(z)))
-print('[x: %s ]' % x)
-print('[holder_df.record_date: %s]' % holder_df.record_date)
-print('[y: %s ]' % y)
-print('[z: %s ]' % z)
+my_dbg('len(x)=%d, len(y)=%d, len(z)=%d'  % (len(x), len(y), len(z)))
+my_dbg('[x: %s ]' % x)
+my_dbg('[holder_df.record_date: %s]' % holder_df.record_date)
+my_dbg('[y: %s ]' % y)
+my_dbg('[z: %s ]' % z)
 
 
 fig = plt.figure(figsize=(24, 30),dpi=240)
@@ -99,7 +99,7 @@ i = 0
 j = 0
 
 for i in range(h_len):
-    print('i:%d j:%d' % (i, j))
+    my_dbg('i:%d j:%d' % (i, j))
     if j >= len(holder_df):
         break
     if df.record_date[i] == holder_df.record_date[j]:

@@ -39,7 +39,7 @@ class HData_hsgt(object):
         self.db_connect()
         self.cur.execute("select count(*) from pg_class where relname = 'hdata_hsgt_table' ;")
         ans=self.cur.fetchall()
-        #print(list(ans[0])[0])
+        #my_dbg(list(ans[0])[0])
         if list(ans[0])[0]:
             self.conn.commit()
             self.db_disconnect()
@@ -89,7 +89,7 @@ class HData_hsgt(object):
                 ''')
         self.conn.commit()
         self.db_disconnect()
-        print("db_hdata_hsgt_table_create finish")
+        my_dbg("db_hdata_hsgt_table_create finish")
         pass
 
 
@@ -128,12 +128,12 @@ class HData_hsgt(object):
     def insert_perstock_hdatadate(self,  data):#插入一支股票的所有历史数据到数据库#如果有code和index相同的不重复插入
 
         self.db_connect()
-        #print(" insert_perstock_hdatadate begin")
+        #my_dbg(" insert_perstock_hdatadate begin")
         if data is None:
-            print("None")
+            my_dbg("None")
         else:
             for i in range(0,len(data)):
-                # print (i)
+                # my_dbg (i)
                 str_temp=""
 
                 str_temp+="\'"+data.index[i].strftime("%Y-%m-%d")+"\'"
@@ -144,13 +144,13 @@ class HData_hsgt(object):
                     str_temp+=","+"\'"+str(data.iloc[i,j])+"\'"
 
                 sql_temp="values"+"("+str_temp+")"
-                #print(sql_temp)
+                #my_dbg(sql_temp)
                 self.cur.execute("insert into hdata_hsgt_table "+sql_temp+";")
             self.conn.commit()
         self.db_disconnect()
 
 
-        #print(" insert_perstock_hdatadate finish")
+        #my_dbg(" insert_perstock_hdatadate finish")
 
 
     def insert_optimize_stock_hdatadate(self, data):#插入一支股票的所有历史数据到数据库#如果有code和index相同的不重复插入
@@ -158,15 +158,15 @@ class HData_hsgt(object):
         self.db_connect()
         #data format: record_date , stock_code, share_holding, percent
 
-        #print(" insert_perstock_hdatadate begin")
+        #my_dbg(" insert_perstock_hdatadate begin")
         if data is None:
-            print("None")
+            my_dbg("None")
         else:
             length = len(data)
             sql_cmd = ""
             each_num = 1000
             for i in range(0,length):
-                # print (i)
+                # my_dbg (i)
 
                 str_temp=""
                 #str_temp+="\'"+data.index[i].strftime("%Y-%m-%d")+"\'"
@@ -182,20 +182,20 @@ class HData_hsgt(object):
                     sql_cmd = sql_cmd+","
 
                 if i % each_num == 0:
-                    #print(sql_cmd)
+                    #my_dbg(sql_cmd)
                     if(sql_cmd != ""):
                         self.cur.execute("insert into hdata_hsgt_table ( " + cur_culumn + ") values "+sql_cmd+";")
                         self.conn.commit()
                         sql_cmd = ""
 
-            #print(sql_cmd)
+            #my_dbg(sql_cmd)
             if(sql_cmd != ""):
                 self.cur.execute("insert into hdata_hsgt_table ( " + cur_culumn + ") values "+sql_cmd+";")
                 self.conn.commit()
 
 
         self.db_disconnect()
-        #print(stock_code+" insert_perstock_hdatadate finish")
+        #my_dbg(stock_code+" insert_perstock_hdatadate finish")
 
     def get_all_hdata_of_stock_code(self, stock_code):#将数据库中的数据读取并转为dataframe格式返回
 
@@ -389,7 +389,7 @@ class HData_hsgt(object):
         sql_temp += ";"
 
         if debug:
-            print("get_data_from_hdata, sql_temp:%s" % sql_temp)
+            my_dbg("get_data_from_hdata, sql_temp:%s" % sql_temp)
 
 
 
@@ -405,8 +405,8 @@ class HData_hsgt(object):
         df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))        
 
         if debug:
-            print(type(df))
-            print(df.head(2))
+            my_dbg(type(df))
+            my_dbg(df.head(2))
     
         return df
         pass
@@ -427,12 +427,12 @@ class HData_hsgt(object):
             self.cur.copy_from(buffer, table='hdata_hsgt_table', sep=",")
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print("Error: %s" % error)
+            my_dbg("Error: %s" % error)
             self.conn.rollback()
             self.db_disconnect()
             return 1
         
-        #print("copy_from_stringio() done")
+        #my_dbg("copy_from_stringio() done")
         self.db_disconnect()
 
 

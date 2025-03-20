@@ -170,7 +170,7 @@ class HData_sina_balance(object):
         self.db_connect()
         self.cur.execute("select count(*) from pg_class where relname = 'sina_balance_table' ;")
         ans=self.cur.fetchall()
-        #print(list(ans[0])[0])
+        #my_dbg(list(ans[0])[0])
         if list(ans[0])[0]:
             self.conn.commit()
             self.db_disconnect()
@@ -297,7 +297,7 @@ class HData_sina_balance(object):
         self.conn.commit()
         self.db_disconnect()
 
-        print("db_sina_balance_table_create finish")
+        my_dbg("db_sina_balance_table_create finish")
         pass
 
     def copy_from_stringio(self, df):
@@ -316,12 +316,12 @@ class HData_sina_balance(object):
             self.cur.copy_from(buffer, table='sina_balance_table', sep=",")
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print("Error: %s" % error)
+            my_dbg("Error: %s" % error)
             self.conn.rollback()
             self.db_disconnect()
             return 1
         
-        #print("copy_from_stringio() done")
+        #my_dbg("copy_from_stringio() done")
         self.db_disconnect()
 
 
@@ -353,16 +353,16 @@ class HData_sina_balance(object):
         t1=time.time()
 
         if debug:
-            print('insert_all_stock_data()')
+            my_dbg('insert_all_stock_data()')
         if data is None:
-            print("None")
+            my_dbg("None")
         else:
             length = len(data)
             sql_cmd = ""
             each_num = 1000
             for i in range(0,length):
                 if debug:
-                    print (i)
+                    my_dbg (i)
 
                 #str_temp+="\'"+stock_code+"\'"+","
                 #str_temp+="\'"+data.index[i]+"\'"
@@ -385,31 +385,31 @@ class HData_sina_balance(object):
 
                 if i % each_num == 0 and i != 0:
                     if debug:
-                        print(sql_cmd)
+                        my_dbg(sql_cmd)
                     if(sql_cmd != ""):
                         balance_cmd = "insert into sina_balance_table ("\
                                 + sina_cols + \
                                 " ) values "+sql_cmd+";"
                         if debug:
-                            print(balance_cmd)
+                            my_dbg(balance_cmd)
                         self.cur.execute(balance_cmd)
                         self.conn.commit()
                         sql_cmd = ""
 
             if debug:
-                print(sql_cmd)
+                my_dbg(sql_cmd)
             if(sql_cmd != ""):
                 balance_cmd = "insert into sina_balance_table ("\
                         + sina_cols + \
                         " ) values "+sql_cmd+";"
                 if debug:
-                    print(balance_cmd)
+                    my_dbg(balance_cmd)
                 self.cur.execute(balance_cmd)
                 self.conn.commit()
 
         if debug:
-            print(time.time()-t1)
-            print('insert_all_stock_data(\\)')
+            my_dbg(time.time()-t1)
+            my_dbg('insert_all_stock_data(\\)')
 
         self.db_disconnect()
 
@@ -418,10 +418,10 @@ class HData_sina_balance(object):
         t0 = t1 = t2 = t3 = t4 = t5 = time.time()
 
         if debug:
-            print('insert_all_stock_data()')
+            my_dbg('insert_all_stock_data()')
 
         if data is None:
-            print("None")
+            my_dbg("None")
         else:
             length = len(data)
             sql_cmd = []
@@ -429,7 +429,7 @@ class HData_sina_balance(object):
             for i in range(length):
                 t1 = time.time()
                 if debug:
-                    print (i)
+                    my_dbg (i)
 
                 #str_temp+="\'"+stock_code+"\'"+","
                 #str_temp+="\'"+data.index[i]+"\'"
@@ -458,10 +458,10 @@ class HData_sina_balance(object):
 
                 if i % each_num == 0 and i != 0:
                     if debug:
-                        print(sql_cmd)
-                        print("--------------------------------------")
+                        my_dbg(sql_cmd)
+                        my_dbg("--------------------------------------")
                         t=''.join(sql_cmd)
-                        print(t)
+                        my_dbg(t)
                     if len(sql_cmd):
                         balance_sql = [] 
                         balance_sql.append("insert into sina_balance_table (")
@@ -469,24 +469,24 @@ class HData_sina_balance(object):
                         balance_sql.append( " ) values ")
                         balance_sql.append(''.join(sql_cmd))
                         balance_sql.append( "  on conflict (stock_code, record_date) do nothing ; ")
-                        #print(''.join(balance_sql))
+                        #my_dbg(''.join(balance_sql))
                         sql_cmd = []
                         if debug:
-                            print(balance_sql)
+                            my_dbg(balance_sql)
                         t2 = time.time()
                         self.cur.execute(''.join(balance_sql))
                         t3 = time.time()
                         self.conn.commit()
                         t4 = time.time()
-                        print(t1, t2, t3, t4, t5)
+                        my_dbg(t1, t2, t3, t4, t5)
                 t5 = time.time()
             if debug:
-                print(t5-t1)
-                print(sql_cmd)
-                print(sql_cmd)
-                print("--------------------------------------")
+                my_dbg(t5-t1)
+                my_dbg(sql_cmd)
+                my_dbg(sql_cmd)
+                my_dbg("--------------------------------------")
                 t=''.join(sql_cmd)
-                print(t)
+                my_dbg(t)
 
             if len(sql_cmd):
                 balance_sql = []
@@ -495,17 +495,17 @@ class HData_sina_balance(object):
                 balance_sql.append( " ) values ")
                 balance_sql.append(''.join(sql_cmd))
                 balance_sql.append( "  on conflict (stock_code, record_date) do nothing; ")
-                #print(''.join(balance_sql))
+                #my_dbg(''.join(balance_sql))
                 sql_cmd = []
                 self.cur.execute(''.join(balance_sql))
                 self.conn.commit()
 
 
         if debug:
-            print(time.time()-t0)
-            print('insert_all_stock_data(\\)')
+            my_dbg(time.time()-t0)
+            my_dbg('insert_all_stock_data(\\)')
 
-        print('insert_all_stock_data(\\) %s records are updated successfully' % len(data))
+        my_dbg('insert_all_stock_data(\\) %s records are updated successfully' % len(data))
 
         self.db_disconnect()
 
@@ -516,17 +516,17 @@ class HData_sina_balance(object):
         t0 = t1 = t2 = t3 = t4 = t5 = time.time()
 
         if debug:
-            print('insert_all_stock_data_3()')
+            my_dbg('insert_all_stock_data_3()')
 
         if data is None:
-            print("None")
+            my_dbg("None")
         else:
             data.to_sql(name='sina_balance_table', con=self.conn, if_exists = 'replace', index=False)
             pass
 
         if debug:
-            print(time.time()-t0)
-            print('insert_all_stock_data_3(\\)')
+            my_dbg(time.time()-t0)
+            my_dbg('insert_all_stock_data_3(\\)')
 
         self.db_disconnect()
 
@@ -600,7 +600,7 @@ class HData_sina_balance(object):
         sql_temp += ";"
 
         if debug:
-            print("get_data_from_hdata, sql_temp:%s" % sql_temp)
+            my_dbg("get_data_from_hdata, sql_temp:%s" % sql_temp)
 
 
 
@@ -616,8 +616,8 @@ class HData_sina_balance(object):
         df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))        
 
         if debug:
-            print(type(df))
-            print(df.head(2))
+            my_dbg(type(df))
+            my_dbg(df.head(2))
     
         return df
         pass
@@ -666,7 +666,7 @@ class HData_sina_balance(object):
 
         sql_temp += ";"
 
-        print("delete_data_from_hdata, sql_temp:%s" % sql_temp)
+        my_dbg("delete_data_from_hdata, sql_temp:%s" % sql_temp)
 
         self.cur.execute(sql_temp)
         self.conn.commit()
