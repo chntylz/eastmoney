@@ -30,9 +30,9 @@ hdata_balance  = HData_sina_balance("usr","usr")
 hdata_cashflow = HData_sina_cashflow("usr","usr")
 
 
-def my_print():
+def my_my_dbg():
     if debug:
-        print()
+        my_dbg()
 
 def income_analysis_roe(df):
     df_len=len(df)
@@ -42,11 +42,11 @@ def income_analysis_roe(df):
     for i in range(df_len):
         roe  = df.net_asset_return_rate[i]
         if debug:
-            print('roe=%s ' % roe )
+            my_dbg('roe=%s ' % roe )
         #if float(roe) < 15:
         if float(roe) < 10:
             if debug:
-                print(df.iloc[i])
+                my_dbg(df.iloc[i])
             flag = False
             break
 
@@ -62,10 +62,10 @@ def income_analysis_liab(df):
     for i in range(df_len):
         asset_liability_ratio = df.asset_liability_ratio[i]
         if debug:
-            print('asset_liability_ratio=%s ' % asset_liability_ratio )
+            my_dbg('asset_liability_ratio=%s ' % asset_liability_ratio )
         if float(asset_liability_ratio) >= 60:
             if debug:
-                print(df.iloc[i])
+                my_dbg(df.iloc[i])
             flag = False
             break
 
@@ -79,10 +79,10 @@ def income_analysis_cash_of_netincome(df):
     for i in range(df_len):
         cash_of_netincome  = df.net_operating_cash_flow_to_net_profit_ratio[i]
         if debug:
-            print('cash_of_netincome=%s ' % cash_of_netincome )
+            my_dbg('cash_of_netincome=%s ' % cash_of_netincome )
         if float(cash_of_netincome) < 0.8:
             if debug:
-                print(df.iloc[i])
+                my_dbg(df.iloc[i])
             flag = False
             break
 
@@ -97,10 +97,10 @@ def income_analysis_gross_rate(df):
     for i in range(df_len):
         main_profit_rate  = df.main_business_profit_rate[i]
         if debug:
-            print('main_profit_rate  =%s ' %  main_profit_rate  )
+            my_dbg('main_profit_rate  =%s ' %  main_profit_rate  )
         if float(main_profit_rate) < 30:
             if debug:
-                print(df.iloc[i])
+                my_dbg(df.iloc[i])
             flag = False
             break
 
@@ -132,22 +132,22 @@ def  fina_analysis_by_weimiao(stock_code, stock_name):
    
 
     if debug:
-        print("key_day:%s" % (key_day))
-        print(df_fina)
-        print(df_y_fina)
+        my_dbg("key_day:%s" % (key_day))
+        my_dbg(df_fina)
+        my_dbg(df_y_fina)
 
     if  income_analysis_liab(df_y_fina)  and \
         income_analysis_roe(df_y_fina)  and \
         income_analysis_cash_of_netincome(df_y_fina)  and \
         income_analysis_gross_rate(df_y_fina):
-        print(code,  stock_name)
+        my_dbg(code,  stock_name)
         flag = True
 
     return [code, stock_name, flag]
 
 def worker(data):
     if debug:
-        print(data)
+        my_dbg(data)
     stock_code = data[2]
     stock_name = data[3]
 
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df=get_latest_zlje_from_db()
-    print(stock_df.head(5))
+    my_dbg(stock_df.head(5))
     #stock_df=stock_df.head(4)
     #exit()
 
@@ -185,17 +185,17 @@ if __name__ == '__main__':
         weimiao_df['stock_name']  = weimiao_df['stock_name'].apply(lambda x: x.replace(' ', ''))
         weimiao_df['stock_name']  = weimiao_df['stock_name'].apply(lambda x: x.replace('\"', ''))
     except Exception as e:
-        print(e)
-    print(update_df)
-    print(weimiao_df)
+        my_dbg(e)
+    my_dbg(update_df)
+    my_dbg(weimiao_df)
     weimiao_df.to_csv('./cgi-bin/weimiao.txt', sep=' ',  index=False)
     
  
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 

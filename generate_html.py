@@ -59,7 +59,7 @@ lastdate=nowdate-datetime.timedelta(1)
 curr_day=nowdate.strftime("%Y-%m-%d")
 curr_day_w=nowdate.strftime("%Y-%m-%d-%w")
 last_day=lastdate.strftime("%Y-%m-%d")
-print("curr_day:%s, last_day:%s"%(curr_day, last_day))
+my_dbg("curr_day:%s, last_day:%s"%(curr_day, last_day))
 '''
 
 def continue_handle_html_body_special(df_global, newfile, date):
@@ -74,7 +74,7 @@ def continue_handle_html_body_special(df_global, newfile, date):
 
         t1 = time.time()
         #df = get_today_item(curr_day)
-        print('delta time= %s ' % (time.time() - t1))
+        my_dbg('delta time= %s ' % (time.time() - t1))
 
         # 找出上涨的股票
         df_up = df_global[df_global['percent'] > 0.00]
@@ -89,15 +89,15 @@ def continue_handle_html_body_special(df_global, newfile, date):
 
         s_debug= ('<p> A股上涨个数： %d,  A股下跌个数： %d,  A股走平个数:  %d</p>' % \
                 (df_up.shape[0], df_down.shape[0], df_even.shape[0]))
-        print(s_debug)
+        my_dbg(s_debug)
         f.write('%s\n'%(s_debug))
 
         s_debug=('<p> 涨停数量：%d 个</p>' % (limit_up.shape[0]))
-        print(s_debug)
+        my_dbg(s_debug)
         f.write('%s\n'%(s_debug))
 
         s_debug=('<p> 跌停数量：%d 个</p>' % (limit_down.shape[0]))
-        print(s_debug)
+        my_dbg(s_debug)
         f.write('%s\n'%(s_debug))
 
         f.write('<p>-----------------------------------我是分割线-----------------------------------</p>\n')
@@ -140,41 +140,41 @@ def generate_html(df_global, df, stock_data_dir, curr_dir, curr_day):
    
 
 def get_current_k_data(date):
-    print(date)
+    my_dbg(date)
     df = hdata.get_data_from_hdata(start_date=date, \
             end_date=date)
     if len(df):
-        print(df.head(2))
+        my_dbg(df.head(2))
     return df
 
 def convert_to_html_df_multi(df, curr_dir, curr_day):
     dict_industry.clear()
     if len(df) < 1:
-        print('#error, df data len < 1, return')
+        my_dbg('#error, df data len < 1, return')
         return df
     df = df.reset_index(drop=True)
     if len(df):
         html_df = comm_generate_web_dataframe_multi(df, curr_dir, curr_day, dict_industry )
         if debug:
-            print('dict_industry:%s' % dict_industry)
+            my_dbg('dict_industry:%s' % dict_industry)
     else:
         html_df = df
-        print('#error, html_df data len < 1, return None')
+        my_dbg('#error, html_df data len < 1, return None')
     return html_df
 
 def convert_to_html_df(df, curr_dir, curr_day):
     dict_industry.clear()
     if len(df) < 1:
-        print('#error, df data len < 1, return')
+        my_dbg('#error, df data len < 1, return')
         return df
     df = df.reset_index(drop=True)
     if len(df):
         html_df = comm_generate_web_dataframe_new(df, curr_dir, curr_day, dict_industry )
         if debug:
-            print('dict_industry:%s' % dict_industry)
+            my_dbg('dict_industry:%s' % dict_industry)
     else:
         html_df = df
-        print('#error, html_df data len < 1, return None')
+        my_dbg('#error, html_df data len < 1, return None')
     return html_df
 
 def combine_zlje_data(db_table=None, first_df=None, second_df=None, curr_day=None):
@@ -187,9 +187,9 @@ def combine_zlje_data(db_table=None, first_df=None, second_df=None, curr_day=Non
     ret_df = pd.DataFrame()
 
     if db_table is not None:
-        print(curr_day)
+        my_dbg(curr_day)
         second_df = db_table.get_data_from_hdata(start_date=curr_day, end_date=curr_day)
-        print(second_df)
+        my_dbg(second_df)
         second_df = second_df.sort_values('stock_code')
         second_df = second_df.reset_index(drop=True)
         df2 = second_df
@@ -198,7 +198,7 @@ def combine_zlje_data(db_table=None, first_df=None, second_df=None, curr_day=Non
         df2 = second_df
         ret_df = pd.merge(df1, df2, how='inner', on=['stock_code'])
 
-    print(ret_df.columns)
+    my_dbg(ret_df.columns)
 
     if 'zlje_x' in ret_df.columns:
         ret_df = ret_df.sort_values('zlje_x', ascending=False)
@@ -223,8 +223,8 @@ def get_latest_jigou_data():
     jigou_df=  jigou_table.get_data_from_hdata()
 
     if debug:
-        print(" get_latest_jigou_data ")
-        print(jigou_df)
+        my_dbg(" get_latest_jigou_data ")
+        my_dbg(jigou_df)
 
     group_by_stock_code_df=jigou_df.groupby('stock_code')
     jigou_df = jigou_df.sort_values('record_date', ascending=False)
@@ -240,7 +240,7 @@ def get_holder_data(current_date):
     #nowdate = datetime.datetime.now().date()
     nowdate = current_date
     lastdate = nowdate - datetime.timedelta(365 * 3) #3 years ago
-    print('nowdate:%s, lastdate:%s' % (nowdate, lastdate))
+    my_dbg('nowdate:%s, lastdate:%s' % (nowdate, lastdate))
     holder_data  =  holder_table.get_data_from_hdata( start_date=lastdate.strftime("%Y%m%d"), \
             end_date=nowdate.strftime("%Y%m%d"))
     return holder_data
@@ -256,8 +256,8 @@ def handle_holder_data_continuous(holder_raw_df):
 
     for stock_code, group_df in group_by_stock_code_df:
         if debug:
-            print(stock_code)
-            print(group_df.head(1))
+            my_dbg(stock_code)
+            my_dbg(group_df.head(1))
 
         i = holder_pct_i = 0
         group_df = group_df.sort_values('record_date', ascending=0)
@@ -287,7 +287,7 @@ def handle_holder_data_continuous(holder_raw_df):
 
 
         if debug:
-            print(max_date, stock_code, holder_num, i, holder_num_ratio, holder_pct_i ) 
+            my_dbg(max_date, stock_code, holder_num, i, holder_num_ratio, holder_pct_i ) 
         
         data_list.append([max_date, stock_code, holder_num, i, holder_num_ratio, holder_pct_i ]) 
 
@@ -301,7 +301,7 @@ def handle_holder_data_continuous(holder_raw_df):
     ret_df = ret_df.sort_values('holder_num_ratio', ascending=1)
 
     if debug:
-        print(ret_df)
+        my_dbg(ret_df)
 
     return ret_df
 
@@ -310,7 +310,7 @@ def handle_holder_data_continuous(holder_raw_df):
 if __name__ == '__main__':
 
     script_name, para1 = check_input_parameter()
-    print("%s, %d"%(script_name, int(para1)))
+    my_dbg("%s, %d"%(script_name, int(para1)))
 
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -319,7 +319,7 @@ if __name__ == '__main__':
     today_date=datetime.datetime.now().date()
     nowdate=today_date-datetime.timedelta(int(para1))
 
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d"))) 
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d"))) 
     #test
     lastdate=nowdate-datetime.timedelta(1)
 
@@ -327,7 +327,7 @@ if __name__ == '__main__':
     curr_day=nowdate.strftime("%Y-%m-%d")
     curr_day_w=nowdate.strftime("%Y-%m-%d-%w")
     last_day=lastdate.strftime("%Y-%m-%d")
-    print("curr_day:%s, last_day:%s"%(curr_day, last_day))
+    my_dbg("curr_day:%s, last_day:%s"%(curr_day, last_day))
     
     stock_data_dir="stock_data"
     curr_dir=curr_day_w+'-zig'
@@ -340,18 +340,18 @@ if __name__ == '__main__':
 
     '''
     #zlje
-    print('#############################################################')
-    print('start zlje')
+    my_dbg('#############################################################')
+    my_dbg('start zlje')
     curr_dir=curr_day_w+'-zlje'
     zlje_df = combine_zlje_data(db_table=zlje_table, first_df=df, second_df=None)
     if debug:
-        print(zlje_df)
+        my_dbg(zlje_df)
     html_zlje_df = convert_to_html_df(zlje_df, curr_dir, curr_day)
     #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
     if len(html_zlje_df):
         generate_html(df_global, html_zlje_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_zlje_df len < 1')
+        my_dbg('#error, html_zlje_df len < 1')
     '''
  
 
@@ -361,8 +361,8 @@ if __name__ == '__main__':
     k_df = df
 
     #zig
-    print('#############################################################')
-    print('start zig')
+    my_dbg('#############################################################')
+    my_dbg('start zig')
     curr_dir=curr_day_w+'-zig'
     zig_df = df[(df.is_zig > 0) & (df.is_zig <= 10)]
     html_zig_df = convert_to_html_df(zig_df, curr_dir, curr_day)
@@ -370,12 +370,12 @@ if __name__ == '__main__':
         html_zig_df = html_zig_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_zig_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_zig_df len < 1')
+        my_dbg('#error, html_zig_df len < 1')
 
 
     #double_volume  and turnoverrate > 4
-    print('#############################################################')
-    print('start double volume')
+    my_dbg('#############################################################')
+    my_dbg('start double volume')
     curr_dir=curr_day_w+'-volume'
     volume_df = df[(df.is_d_volume == 1) & (df.is_zig > 0) & (df.percent > 3.0) & (df.turnoverrate > 4.0)]
     html_volume_df =  convert_to_html_df(volume_df, curr_dir, curr_day)
@@ -383,13 +383,13 @@ if __name__ == '__main__':
         html_volume_df = html_volume_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_volume_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_volume_df len < 1')
+        my_dbg('#error, html_volume_df len < 1')
 
 
 
     #quad
-    print('#############################################################')
-    print('start quad')
+    my_dbg('#############################################################')
+    my_dbg('start quad')
     curr_dir=curr_day_w+'-quad'
     quad_df = df[(df.is_quad == 1) & (df.is_zig > 0)]
     html_quad_df =  convert_to_html_df(quad_df, curr_dir, curr_day)
@@ -397,12 +397,12 @@ if __name__ == '__main__':
         html_quad_df = html_quad_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_quad_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_quad_df len < 1')
+        my_dbg('#error, html_quad_df len < 1')
 
 
     #peach
-    print('#############################################################')
-    print('start peach')
+    my_dbg('#############################################################')
+    my_dbg('start peach')
     curr_dir=curr_day_w+'-peach'
     peach_df = df[(df.is_peach == 1) & (df.is_zig > 0)]
     html_peach_df = convert_to_html_df(peach_df, curr_dir, curr_day)
@@ -410,11 +410,11 @@ if __name__ == '__main__':
         html_peach_df = html_peach_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_peach_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_peach_df len < 1')
+        my_dbg('#error, html_peach_df len < 1')
 
     #5days
-    print('#############################################################')
-    print('start 5days')
+    my_dbg('#############################################################')
+    my_dbg('start 5days')
     curr_dir=curr_day_w+'-5days'
     up_days_df = df[(df.is_up_days == 1) & (df.is_zig > 0)]
     html_up_days_df = convert_to_html_df(up_days_df, curr_dir, curr_day)
@@ -422,11 +422,11 @@ if __name__ == '__main__':
         html_up_days_df = html_up_days_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_up_days_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_5days_df len < 1')
+        my_dbg('#error, html_5days_df len < 1')
 
     #macd
-    print('#############################################################')
-    print('start macd')
+    my_dbg('#############################################################')
+    my_dbg('start macd')
     curr_dir=curr_day_w+'-macd'
     macd_df = df[(df.is_macd == 1) & (df.is_zig > 0)]
     html_macd_df = convert_to_html_df(macd_df, curr_dir, curr_day)
@@ -434,12 +434,12 @@ if __name__ == '__main__':
         html_macd_df = html_macd_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_macd_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_macd_df len < 1')
+        my_dbg('#error, html_macd_df len < 1')
 
 
     #cup_tea
-    print('#############################################################')
-    print('start cup_tea')
+    my_dbg('#############################################################')
+    my_dbg('start cup_tea')
     curr_dir=curr_day_w+'-cuptea'
     cuptea_df = df[(df.is_cup_tea == 1) & (df.is_zig > 0)]
     html_cuptea_df = convert_to_html_df(cuptea_df, curr_dir, curr_day)
@@ -447,11 +447,11 @@ if __name__ == '__main__':
         html_cuptea_df = html_cuptea_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_cuptea_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_cuptea_df len < 1')
+        my_dbg('#error, html_cuptea_df len < 1')
 
     #duck_head
-    print('#############################################################')
-    print('start duck_head')
+    my_dbg('#############################################################')
+    my_dbg('start duck_head')
     curr_dir=curr_day_w+'-duckhead'
     duckhead_df = df[(df.is_duck_head == 1) & (df.is_zig > 0)]
     html_duckhead_df = convert_to_html_df(duckhead_df, curr_dir, curr_day)
@@ -459,11 +459,11 @@ if __name__ == '__main__':
         html_duckhead_df = html_duckhead_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_duckhead_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_duckhead_df len < 1')
+        my_dbg('#error, html_duckhead_df len < 1')
 
     #cross3line
-    print('#############################################################')
-    print('start cross3line')
+    my_dbg('#############################################################')
+    my_dbg('start cross3line')
     curr_dir=curr_day_w+'-cross3line'
     cross3line_df = df[(df.is_cross3line == 1) & (df.is_zig >= 0)]
     #cross3line_df = df[(df.is_cross3line == 1)]
@@ -473,13 +473,13 @@ if __name__ == '__main__':
         html_cross3line_df = html_cross3line_df.sort_values('zig', ascending=1)
         generate_html(df_global, html_cross3line_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_cross3line_df len < 1')
+        my_dbg('#error, html_cross3line_df len < 1')
 
 
 
     #basic
-    print('#############################################################')
-    print('start basic')
+    my_dbg('#############################################################')
+    my_dbg('start basic')
     curr_dir=curr_day_w
     #basic_df = df[(df.is_2d3pct > 1) & (df.is_zig > 0)]
     basic_df = df[(df.percent > 5)]
@@ -488,13 +488,13 @@ if __name__ == '__main__':
     if len(html_basic_df):
         generate_html(df_global, html_basic_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_basic_df len < 1')
+        my_dbg('#error, html_basic_df len < 1')
 
     #exit()
 
     #pe and pe_pct
-    print('#############################################################')
-    print('start pe and pe_pct')
+    my_dbg('#############################################################')
+    my_dbg('start pe and pe_pct')
     curr_dir=curr_day_w + '-pepct'
     pe_df = df[(df.pe > 0 ) & (df.pe_pct < 30)]
     html_pe_df = convert_to_html_df(pe_df, curr_dir, curr_day)
@@ -503,19 +503,19 @@ if __name__ == '__main__':
     if len(html_pe_df):
         generate_html(df_global, html_pe_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_pe_df len < 1')
+        my_dbg('#error, html_pe_df len < 1')
 
 
 
     #zlje
-    print('#############################################################')
-    print('start zlje')
+    my_dbg('#############################################################')
+    my_dbg('start zlje')
     curr_dir=curr_day_w+'-zlje'
     zlje_df = combine_zlje_data(db_table=zlje_table, first_df=k_df, second_df=None)
     if debug:
-        print(zlje_df.head(5))
+        my_dbg(zlje_df.head(5))
     html_zlje_df = convert_to_html_df(zlje_df, curr_dir, curr_day)
-    print(html_zlje_df.columns)
+    my_dbg(html_zlje_df.columns)
     html_zlje_df = html_zlje_df.sort_values('zlje', ascending=False)
     html_zlje_df = html_zlje_df.reset_index(drop=True)
     #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
@@ -523,33 +523,33 @@ if __name__ == '__main__':
     if len(html_zlje_df):
         generate_html(df_global, html_zlje_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_zlje_df len < 1')
+        my_dbg('#error, html_zlje_df len < 1')
      
     #jigou
-    print('#############################################################')
-    print('start jigou')
+    my_dbg('#############################################################')
+    my_dbg('start jigou')
     curr_dir=curr_day_w+'-jigou'
     jigou_raw_df =  get_latest_jigou_data()
 
     jigou_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=jigou_raw_df)
     if debug:
-        print(jigou_df.head(5))
+        my_dbg(jigou_df.head(5))
     html_jigou_df = convert_to_html_df(jigou_df, curr_dir, curr_day)
     html_jigou_df = html_jigou_df.head(top_size)
     if len(html_jigou_df):
         generate_html(df_global, html_jigou_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_jigou_df len < 1')
+        my_dbg('#error, html_jigou_df len < 1')
 
    
     
     #dragon
-    print('#############################################################')
-    print('start dragon')
+    my_dbg('#############################################################')
+    my_dbg('start dragon')
     curr_dir=curr_day_w+'-dragon'
     dragon_df = combine_zlje_data(db_table=dragon_table, first_df=k_df, second_df=None)
     if debug:
-        print(dragon_df.head(5))
+        my_dbg(dragon_df.head(5))
     if len(dragon_df):
         dragon_df = dragon_df[(dragon_df.percent > 0.0)]
         html_dragon_df = convert_to_html_df(dragon_df, curr_dir, curr_day)
@@ -557,38 +557,38 @@ if __name__ == '__main__':
         if len(html_dragon_df):
             generate_html(df_global, html_dragon_df, stock_data_dir, curr_dir, curr_day)
         else:
-            print('#error, html_dragon_df len < 1')
+            my_dbg('#error, html_dragon_df len < 1')
 
     #holder
-    print('#############################################################')
-    print('start holder')
+    my_dbg('#############################################################')
+    my_dbg('start holder')
     curr_dir=curr_day_w+'-holder'
 
     holder_raw_df = get_holder_data(nowdate)
     if debug:
-        print('holder_raw_df', holder_raw_df.head(5))
+        my_dbg('holder_raw_df', holder_raw_df.head(5))
 
     holder_df = handle_holder_data_continuous(holder_raw_df)
     if debug:
-        print('holder_df', holder_df.head(5))
+        my_dbg('holder_df', holder_df.head(5))
     
     holder_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=holder_df)
 
     if debug:
-        print('holder_df', holder_df.head(5))
+        my_dbg('holder_df', holder_df.head(5))
     html_holder_df = convert_to_html_df(holder_df, curr_dir, curr_day)
     html_holder_df = html_holder_df.head(top_size)
     if len(html_holder_df):
         generate_html(df_global, html_holder_df, stock_data_dir, curr_dir, curr_day)
     else:
-        print('#error, html_holder_df len < 1')
+        my_dbg('#error, html_holder_df len < 1')
 
-    print('#############################################################')
+    my_dbg('#############################################################')
 
  
     curr_dir=curr_day_w
     os.system('cp -rf ' + stock_data_dir +'/' + curr_dir + '*  /var/www/html/stock_data/' )
 
     t2 = time.time()
-    print("%s: t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))
+    my_dbg("%s: t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))
 

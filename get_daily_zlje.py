@@ -192,13 +192,13 @@ def get_daily_zlje(url=None):
                 + timestamp +'&fid=f62&po=1&pz=10000&pn=1&np=1&fltt=2&invt=2&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2&fields=f12%2Cf14%2Cf2%2Cf3%2Cf62%2Cf184%2Cf66%2Cf69%2Cf72%2Cf75%2Cf78%2Cf81%2Cf84%2Cf87%2Cf204%2Cf205%2Cf124'
 
     if debug:
-        print(url)
+        my_dbg(url)
 
-    print(url)
+    my_dbg(url)
     tmp_header = get_headers()
-    print(tmp_header)
+    my_dbg(tmp_header)
     response = requests.get(url, headers=tmp_header)
-    print(response)
+    my_dbg(response)
 
    
     p1 = re.compile(r'[(](.*?)[)]', re.S)
@@ -236,9 +236,9 @@ def get_daily_zlje_final(url=None, pn=None):
                 + '&np=1&fltt=2&invt=2&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2&fields=f12%2Cf14%2Cf2%2Cf3%2Cf62%2Cf184%2Cf66%2Cf69%2Cf72%2Cf75%2Cf78%2Cf81%2Cf84%2Cf87%2Cf204%2Cf205%2Cf124'
 
     if debug:
-        print(url)
+        my_dbg(url)
 
-    print(url)
+    my_dbg(url)
 
     browser = get_browser()
    
@@ -255,7 +255,7 @@ def get_daily_zlje_final(url=None, pn=None):
         browser.quit()
 
 
-    #print(html)
+    #my_dbg(html)
    
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
@@ -311,9 +311,9 @@ def get_daily_zlje3(url=None):
                 + '&np=2&fltt=2&invt=2&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2&fields=f12%2Cf14%2Cf2%2Cf3%2Cf62%2Cf184%2Cf66%2Cf69%2Cf72%2Cf75%2Cf78%2Cf81%2Cf84%2Cf87%2Cf204%2Cf205%2Cf124'
 
     if debug:
-        print(url)
+        my_dbg(url)
 
-    print(url)
+    my_dbg(url)
 
     browser = get_browser()
    
@@ -330,7 +330,7 @@ def get_daily_zlje3(url=None):
         browser.quit()
 
 
-    #print(html)
+    #my_dbg(html)
    
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
@@ -338,7 +338,7 @@ def get_daily_zlje3(url=None):
     rawdata = api_param['data']['diff']
     data_df = pd.DataFrame(rawdata)
     data_df = data_df.T
-    print(data_df)
+    my_dbg(data_df)
     
 
 
@@ -368,13 +368,13 @@ def handle_raw_data(df):
 
 
     if debug:
-        print(df)
+        my_dbg(df)
 
     df_list = list(df)
     len_df = len(df_list)
     for i in range(0, len_df):
         if debug:
-            print(i, len_df,df_list[i])
+            my_dbg(i, len_df,df_list[i])
         new_col_name = mapping[df_list[i]]
         df = df.rename(columns={df_list[i]:new_col_name})
 
@@ -405,40 +405,40 @@ def handle_raw_data(df):
 
 def check_table():
     table_exist = hdata_zlje.table_is_exist()
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         #hdata_zlje.db_hdata_xq_create()
-        print('table already exist')
+        my_dbg('table already exist')
     else:
         hdata_zlje.db_hdata_xq_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
     table_3_exist = hdata_zlje_3.table_is_exist()
-    print('table_3_exist=%d' % table_3_exist)
+    my_dbg('table_3_exist=%d' % table_3_exist)
     if table_3_exist:
         #hdata_zlje_3.db_hdata_xq_create()
-        print('table_3 already exist')
+        my_dbg('table_3 already exist')
     else:
         hdata_zlje_3.db_hdata_xq_create()
-        print('table_3 not exist, create')
+        my_dbg('table_3 not exist, create')
 
     table_5_exist = hdata_zlje_5.table_is_exist()
-    print('table_5_exist=%d' % table_5_exist)
+    my_dbg('table_5_exist=%d' % table_5_exist)
     if table_5_exist:
         #hdata_zlje_5.db_hdata_xq_create()
-        print('table_5 already exist')
+        my_dbg('table_5 already exist')
     else:
         hdata_zlje_5.db_hdata_xq_create()
-        print('table_5 not exist, create')
+        my_dbg('table_5 not exist, create')
 
     table_10_exist = hdata_zlje_10.table_is_exist()
-    print('table_10_exist=%d' % table_10_exist)
+    my_dbg('table_10_exist=%d' % table_10_exist)
     if table_10_exist:
         #hdata_zlje_10.db_hdata_xq_create()
-        print('table_10 already exist')
+        my_dbg('table_10 already exist')
     else:
         hdata_zlje_10.db_hdata_xq_create()
-        print('table_10 not exist, create')
+        my_dbg('table_10 not exist, create')
 
     pass
 
@@ -495,7 +495,7 @@ def get_zlje(df, stock_code, url=None, curr_date=None):
     tmp_zlje_df = zlje_df[zlje_df['stock_code'] == stock_code]
     tmp_zlje_df = tmp_zlje_df.reset_index(drop=True)
     if debug:
-            print(new_code, len(tmp_zlje_df))
+            my_dbg(new_code, len(tmp_zlje_df))
 
     if len(tmp_zlje_df):
         zlje = tmp_zlje_df['zlje'][0]
@@ -531,7 +531,7 @@ if __name__ == '__main__':
 
     df = get_daily_zlje2()
     df = handle_raw_data(df)
-    #print(list(df))
+    #my_dbg(list(df))
     if len(df):
         delete_zlje_data_from_db()
     hdata_zlje.copy_from_stringio(df)
@@ -542,7 +542,7 @@ if __name__ == '__main__':
     if len(df_3):
         delete_zlje_data_from_db(url='url_3')
     hdata_zlje_3.copy_from_stringio(df_3)
-    #print(list(df_3))
+    #my_dbg(list(df_3))
 
 
     df_5 = get_daily_zlje2(url='url_5')
@@ -550,7 +550,7 @@ if __name__ == '__main__':
     if len(df_5):
         delete_zlje_data_from_db(url='url_5')
     hdata_zlje_5.copy_from_stringio(df_5)
-    #print(list(df_5))
+    #my_dbg(list(df_5))
 
 
     df_10 = get_daily_zlje2(url='url_10')
@@ -558,13 +558,13 @@ if __name__ == '__main__':
     if len(df_10):
         delete_zlje_data_from_db(url='url_10')
     hdata_zlje_10.copy_from_stringio(df_10)
-    #print(list(df_10))
+    #my_dbg(list(df_10))
 
     if debug:
-        print(list(df))
-        print(list(df_3))
-        print(list(df_5))
-        print(list(df_10))
+        my_dbg(list(df))
+        my_dbg(list(df_3))
+        my_dbg(list(df_5))
+        my_dbg(list(df_10))
 
     df.to_csv('csv/' +   datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_1.csv', encoding='gbk')
     df_3.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_3.csv', encoding='gbk')

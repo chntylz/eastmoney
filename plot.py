@@ -69,8 +69,8 @@ def check_is_bottom(nowdate, nowcode, nowname, within):
         T(str(nowdate))
         S(nowcode)
         if debug:
-            print(' check_is_bottom ')
-            print(str(nowdate), nowcode, nowname, O, H, L, C)
+            my_dbg(' check_is_bottom ')
+            my_dbg(str(nowdate), nowcode, nowname, O, H, L, C)
 
 
         ##############################################################################
@@ -88,7 +88,7 @@ def check_is_bottom(nowdate, nowcode, nowname, within):
         X_21=IF(X_19>REF(X_19,1) and REF(X_19,1)<REF(X_19,2) and X_19<23,1.5,0);
         if X_16 and  X_15 and X_17 and X_21:
             if debug:
-                print('check_is_bottom ### %s, %s, %s' %(str(nowdate), nowcode, nowname))
+                my_dbg('check_is_bottom ### %s, %s, %s' %(str(nowdate), nowcode, nowname))
             is_bottom = True
             break
 
@@ -305,8 +305,8 @@ def close_plot(axes,c_holder_df, step, degree):
     df['x_axis'] = df['record_date'].apply(lambda x: x[2:])
     c_close = df['close']
     if debug:
-        print('record_date: %s' % df['record_date'])
-        print('c_close: %s' % c_close)
+        my_dbg('record_date: %s' % df['record_date'])
+        my_dbg('c_close: %s' % c_close)
     axes.plot(c_close, label = 'close')
     axes.set_xticks(range(0, len(df.index), step))
     axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
@@ -321,7 +321,7 @@ def holder_plot(axes, holder_df, c_holder_df, step, degree):
     #holder
     holder = c_holder_df['holder_num']
     if debug:
-        print('holder_num: %s' % holder)
+        my_dbg('holder_num: %s' % holder)
     axes.plot(holder,  '-r', label = 'holder')
     axes.set_xticks(range(0, len(df.index), step))
     axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
@@ -331,7 +331,7 @@ def holder_plot(axes, holder_df, c_holder_df, step, degree):
     i = 0
     j = 0
     for i in range(h_len):
-        #print('i:%d j:%d' % (i, j))
+        #my_dbg('i:%d j:%d' % (i, j))
         if j >= len(holder_df):
             break
         #compare original holder data with new combined data
@@ -351,7 +351,7 @@ def fina_yy_plot(axes, fina_df, c_fina_df, step, degree):
     #yy_rate
     yy_rate = c_fina_df['main_business_income_growth_rate']
     if debug:
-        print('yy_rate : %s' % yy_rate  )
+        my_dbg('yy_rate : %s' % yy_rate  )
     axes.plot(yy_rate ,  '-r', label = 'yy_rate ')
     axes.set_xticks(range(0, len(df.index), step))
     axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
@@ -361,7 +361,7 @@ def fina_yy_plot(axes, fina_df, c_fina_df, step, degree):
     i = 0
     j = 0
     for i in range(df_len):
-        #print('i:%d j:%d' % (i, j))
+        #my_dbg('i:%d j:%d' % (i, j))
         if j >= len(fina_df):
             break
         #compare original data with new combined data
@@ -380,7 +380,7 @@ def fina_net_plot(axes, fina_df, c_fina_df, step, degree):
     #net_rate
     net_rate = c_fina_df['net_profit_growth_rate']
     if debug:
-        print('net_rate : %s' % net_rate  )
+        my_dbg('net_rate : %s' % net_rate  )
     axes.plot(net_rate ,  '-b', label = 'net_rate ')
     axes.set_xticks(range(0, len(df.index), step))
     axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
@@ -390,7 +390,7 @@ def fina_net_plot(axes, fina_df, c_fina_df, step, degree):
     i = 0
     j = 0
     for i in range(df_len):
-        #print('i:%d j:%d' % (i, j))
+        #my_dbg('i:%d j:%d' % (i, j))
         if j >= len(fina_df):
             break
         #compare original data with new combined data
@@ -408,7 +408,7 @@ def jigou_plot(axes, jigou_df, c_jigou_df, step, degree):
     #jigou
     jigou = c_jigou_df['freeshares_ratio']
     if debug:
-        print('jigou : %s' % jigou  )
+        my_dbg('jigou : %s' % jigou  )
     axes.plot(jigou ,  '-r', label = 'jigou ')
     axes.set_xticks(range(0, len(df.index), step))
     axes.set_xticklabels(df['x_axis'][::step],  rotation=degree)
@@ -418,7 +418,7 @@ def jigou_plot(axes, jigou_df, c_jigou_df, step, degree):
     i = 0
     j = 0
     for i in range(df_len):
-        #print('i:%d j:%d' % (i, j))
+        #my_dbg('i:%d j:%d' % (i, j))
         if j >= len(jigou_df):
             break
         #compare original data with new combined data
@@ -444,17 +444,17 @@ def zig_plot(axes, day_df):
     #add label and vlines for zig
     z_df, z_peers, z_d, z_k, z_buy_state=zig(day_df)
     if debug:
-        print('z_df: %s'    % z_df)
-        print('z_peers: %s' % z_peers)
-        print('z_d: %s'     % z_d)
-        print('z_k: %s'     % z_k)
-        print('z_buy_state: %s' % z_buy_state)
+        my_dbg('z_df: %s'    % z_df)
+        my_dbg('z_peers: %s' % z_peers)
+        my_dbg('z_d: %s'     % z_d)
+        my_dbg('z_k: %s'     % z_k)
+        my_dbg('z_buy_state: %s' % z_buy_state)
 
     axes.plot(z_df, label = 'candles-zig')
     axes.legend();
     z_len = len(z_peers)
     for i in range(z_len): 
-        #print("i%d"%i)
+        #my_dbg("i%d"%i)
         x1 = z_peers[i]
         y1 = z_df[z_peers[i]]
 
@@ -471,7 +471,7 @@ def zig_plot(axes, day_df):
             continue
 
         if debug:
-            print("y1:%s" % y1)
+            my_dbg("y1:%s" % y1)
         if z_buy_state[i] == 1:
             axes.vlines(x1, 0, y1, colors='red', linewidth=1)
         else:
@@ -482,7 +482,7 @@ def zig_plot(axes, day_df):
         if z_peers[-1] - z_peers[-2] < 10: #delta days  < 10 from today
             if z_buy_state[-2] == 1:  #valid zig must 1, that means valley
                 if debug:
-                    print('%s gold node, buy it!!' % nowcode )
+                    my_dbg('%s gold node, buy it!!' % nowcode )
                 buy_flag = '-buy'
 
     #check the last zig status
@@ -503,48 +503,48 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
     z_status = ''
 
     if debug:
-        print("code:%s, name:%s" % (nowcode, nowname ))
+        my_dbg("code:%s, name:%s" % (nowcode, nowname ))
 
     c_holder_df = combine_holder(day_df, holder_df)
     c_fina_df = combine_fina(day_df, fina_df)
     c_jigou_df = combine_jigou(day_df, jigou_df)
 
     if debug:
-        print('day_df: %s' % day_df.head(2))
-        print('holder_df: %s' % holder_df.head(2))
-        print('fina_df: %s' % fina_df.head(2))
-        print('jigou_df: %s' % jigou_df.head(2))
+        my_dbg('day_df: %s' % day_df.head(2))
+        my_dbg('holder_df: %s' % holder_df.head(2))
+        my_dbg('fina_df: %s' % fina_df.head(2))
+        my_dbg('jigou_df: %s' % jigou_df.head(2))
 
-        print('c_holder_df: %s' % c_holder_df.head(2))
-        print('c_fina_df: %s' % c_fina_df.head(2))
-        print('c_jigou_df: %s' % c_jigou_df.head(2))
+        my_dbg('c_holder_df: %s' % c_holder_df.head(2))
+        my_dbg('c_fina_df: %s' % c_fina_df.head(2))
+        my_dbg('c_jigou_df: %s' % c_jigou_df.head(2))
  
 
     #skip ST
     if ('ST' in nowname):
         if debug:
-            print("skip code: code:%s, name:%s" % (nowcode, nowname ))
+            my_dbg("skip code: code:%s, name:%s" % (nowcode, nowname ))
         
         return
 
     if False:
-        print(day_df)
+        my_dbg(day_df)
     
     #fix NaN bug
     if len(day_df) < 3  or (day_df is None):
-        # print('NaN: code:%s, name:%s' % (nowcode, nowname ))
+        # my_dbg('NaN: code:%s, name:%s' % (nowcode, nowname ))
         return
     
     #funcat call
     T(str(nowdate))
     S(nowcode)
-    #print(str(nowdate), nowcode, nowname, O, H, L, C)
+    #my_dbg(str(nowdate), nowcode, nowname, O, H, L, C)
     today_p = ((C - REF(C, 1))/REF(C, 1))
     today_p = round (today_p.value, 4)
 
 
     #day_df.index = day_df.index.format(formatter=lambda x: x.strftime('%Y-%m-%d'))
-    #print(day_df.index[2])
+    #my_dbg(day_df.index[2])
     
     day_df['close'] = day_df['close'].fillna(value=0)
 
@@ -553,7 +553,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
     ma_13 = talib.MA(np.array(day_df['close'], dtype=float), 13)
     ma_21 = talib.MA(np.array(day_df['close'], dtype=float), 21)
     if debug:
-        print("ma_5.size:%d, ma_13.size:%d, ma_21.size:%d" % (ma_5.size, ma_13.size, ma_21.size))
+        my_dbg("ma_5.size:%d, ma_13.size:%d, ma_21.size:%d" % (ma_5.size, ma_13.size, ma_21.size))
     
     day_df['k'], day_df['d'] = talib.STOCH(day_df['high'], day_df['low'], day_df['close'])
     day_df['k'] = day_df['k'].fillna(value=0)
@@ -710,9 +710,9 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         #plt.rcParams['font.sans-serif']=['Microsoft JhengHei'] 
 
         #k-line
-        #print("ma_5:->")
-        #print(ma_5)
-        #print("ma_5:<-")
+        #my_dbg("ma_5:->")
+        #my_dbg(ma_5)
+        #my_dbg("ma_5:<-")
         ax03.plot(ma_5, label='MA5')
         ax03.plot(ma_13, label='MA13')
         ax03.plot(ma_21, label='MA21')
@@ -727,7 +727,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
         try:
             bottom_flag = check_is_bottom(nowdate, nowcode, nowname, 3)
         except Exception as e:
-            print(e)
+            my_dbg(e)
         
         if bottom_flag:
             buy_flag = buy_flag + '-bottom'
@@ -746,7 +746,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
                 if c_fina_df.pb[i] == 0 and c_fina_df.adjusted_net_assets_per_share[i] != 0:
                     c_fina_df.loc[i, 'pb'] = round(c_fina_df.close[i] / c_fina_df.adjusted_net_assets_per_share[i], 2)
             
-            print(c_fina_df[['record_date', 'stock_code', 'close', 'eps_adjusted', 'pe', 'adjusted_net_assets_per_share', 'pb']])
+            my_dbg(c_fina_df[['record_date', 'stock_code', 'close', 'eps_adjusted', 'pe', 'adjusted_net_assets_per_share', 'pb']])
 
         pe_df = day_df[day_df['pe'] != 0]
         if pe_pb:
@@ -808,7 +808,7 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
     figure_name = nowcode + '.png'
 
     if debug:
-        print('figure_name:%s' % figure_name)
+        my_dbg('figure_name:%s' % figure_name)
     
     #if False:
     if True:
@@ -821,13 +821,13 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
 
     exec_command_1 = "cp -f " + figure_name + "  /var/www/html/picture/"
     if debug:
-        print("%s"%(exec_command_1))
+        my_dbg("%s"%(exec_command_1))
     os.system(exec_command_1)
 
     
     exec_command_2 = "rm -f " + figure_name
     if debug:
-        print("%s"%(exec_command_2))
+        my_dbg("%s"%(exec_command_2))
     os.system(exec_command_2)
     
 

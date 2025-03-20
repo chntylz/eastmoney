@@ -318,8 +318,8 @@ def hsgt_get_continuous_info(df, select):
     group_by_stock_code_df=all_df.groupby('stock_code')
     for stock_code, group_df in group_by_stock_code_df:
         if debug:
-            print(stock_code)
-            print(group_df.head(1))
+            my_dbg(stock_code)
+            my_dbg(group_df.head(1))
         
         group_df    = group_df.reset_index(drop=True) #reset index
         max_date    = group_df.loc[0, 'record_date']
@@ -363,7 +363,7 @@ def hsgt_get_continuous_info(df, select):
             for i in range(length):
                 delta_m = group_df.loc[i]['delta1_m']
                 if debug:
-                    print('delta_m=%f'%(delta_m))
+                    my_dbg('delta_m=%f'%(delta_m))
 
                 if delta_m < 0:
                     tmp_flag = 1
@@ -385,7 +385,7 @@ def hsgt_get_continuous_info(df, select):
             for i in range(length):
                 delta_m = group_df.loc[i]['delta1_m']
                 if debug:
-                    print('delta_m=%f'%(delta_m))
+                    my_dbg('delta_m=%f'%(delta_m))
 
                 if delta_m >= 0:
                     tmp_flag = 1
@@ -399,7 +399,7 @@ def hsgt_get_continuous_info(df, select):
                 
         money_total = round(money_total,2)
         if debug:
-            print(max_date, stock_code, stock_cname, total_mv, hk_pct, close, a_pct, \
+            my_dbg(max_date, stock_code, stock_cname, total_mv, hk_pct, close, a_pct, \
                     is_peach, is_zig, is_quad, is_cross3line, \
                     op_yoy, net_yoy, \
                     zlje, zlje_3, zlje_5, zlje_10, \
@@ -446,7 +446,7 @@ def comm_write_headline_column(f, df):
     col_len=len(list(df))
     for j in range(0, col_len): 
         if debug:
-            print(('list(df)[%d]=%s') % (j, list(df)[j]))
+            my_dbg(('list(df)[%d]=%s') % (j, list(df)[j]))
 
         f.write('        <td>\n')
         if (j == 0):
@@ -495,7 +495,7 @@ def comm_write_to_file(f, k, df, filename):
         a_array=df[i:i+1].values  #get line of df
         tmp_stock_code=a_array[0][1] 
         xueqiu_url, hsgt_url, fina_url, holder_url, jigou_url = comm_handle_link(tmp_stock_code)
-        #print(filename[11:21])
+        #my_dbg(filename[11:21])
         dragon_url = 'https://data.eastmoney.com/stock/lhb,' + filename[11:21] + ',' + tmp_stock_code + '.html'
 
         col_name = list(df)
@@ -506,7 +506,7 @@ def comm_write_to_file(f, k, df, filename):
             element_value = a_array[0][j] #get a[i][j] element
 
             if debug:
-                print('element_value: %s' % element_value)
+                my_dbg('element_value: %s' % element_value)
             '''
             list(df)[0]=record_date
             list(df)[1]=stock_code
@@ -702,7 +702,7 @@ def comm_handle_html_head(filename, title, latest_date):
 #filename includes hsgt or fina
 def comm_handle_html_body(filename, all_df, select='topy10'):
     if debug:
-        print('filename: %s' % filename)
+        my_dbg('filename: %s' % filename)
     with open(filename,'a') as f:
         if 'hsgt' in filename:
             daily_df  = hsgt_get_daily_data(all_df)
@@ -778,9 +778,9 @@ def comm_handle_html_end(filename, target_dir=''):
         exec_command = 'cp -rf ' + filename + ' /var/www/html/stock_data/' + target_dir + '/'
         os.system(exec_command)
 
-    print(exec_command)
+    my_dbg(exec_command)
     if debug:
-        print(exec_command)
+        my_dbg(exec_command)
     pass
 
 
@@ -799,7 +799,7 @@ def comm_get_hsgt_continous_info(df):
     for i in range(hsgt_df_len):
         delta_m = hsgt_df.loc[i]['delta1_m']
         if debug:
-            print('delta_m=%f'%(delta_m))
+            my_dbg('delta_m=%f'%(delta_m))
 
         if delta_m >= 0:
             tmp_flag = 1
@@ -840,8 +840,8 @@ def comm_handle_hsgt_data(df):
         all_df=all_df.reset_index(drop=True)
 
         if debug:
-            print(type(all_df))
-            print(all_df.head(2))
+            my_dbg(type(all_df))
+            my_dbg(all_df.head(2))
 
     hsgt_df = all_df
 
@@ -925,7 +925,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     basic_df = basic_df.set_index('stock_code')
     
     if debug:
-        print('basic_df= %s' %  basic_df)
+        my_dbg('basic_df= %s' %  basic_df)
 
 
     data_list = []
@@ -937,7 +937,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         try:
             stock_name=daily_df.stock_name[i]
         except  Exception as e: 
-            print(e)
+            my_dbg(e)
             stock_name=daily_df.stock_name_x[i]
         
         #save stock_code to txt_file
@@ -979,13 +979,13 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             if len(company_df):
                 industry_name =industry_name + ': ' + company_df.product_type[0]
         except  Exception as e: 
-            print(e)
+            my_dbg(e)
             try:
                 industry_name = 'Null:' + company_df.product_type[0]
             except Exception as e:
-                print(e)
+                my_dbg(e)
                 industry_name = 'Null' 
-            print('except industry_name %s %s' % (stock_code, stock_name))
+            my_dbg('except industry_name %s %s' % (stock_code, stock_name))
         
         zlje = get_zlje(zlje_df, stock_code, curr_date=curr_day)
         zlje_3 = get_zlje(zlje_3_df, stock_code, curr_date=curr_day)
@@ -1013,8 +1013,8 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             roe = fina_df['weightavg_roe'][0]
 
             if debug:
-                print(stock_code_new)
-                print(fina_df)
+                my_dbg(stock_code_new)
+                my_dbg(fina_df)
         
         #xueqiu fina 
         '''
@@ -1031,8 +1031,8 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             net_yoy = fina_df['net_profit_atsopc_yoy'][0]
             
             if debug:
-                print(stock_code_new)
-                print(fina_df)
+                my_dbg(stock_code_new)
+                my_dbg(fina_df)
         '''
 
         fina=str(round(op_yoy,2)) +' ' + str(round(net_yoy,2))
@@ -1119,7 +1119,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     ret_df = ret_df.fillna(0)
     ret_df=ret_df.round(2)
     if debug:
-        print(ret_df)
+        my_dbg(ret_df)
 
     data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', 'roe', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\
@@ -1180,9 +1180,9 @@ def comm_generate_real_dataframe(data):
     stock_code = data[1]
     stock_name = data[2]
 
-    print("%s %s" % (curr_day, stock_code))
+    my_dbg("%s %s" % (curr_day, stock_code))
     if debug:
-        print("%s %s" % (curr_day, stock_code))
+        my_dbg("%s %s" % (curr_day, stock_code))
 
     #get basic stock info
     basic_df = zlpm_data(stock_code=None, start_date=curr_day, end_date=curr_day, limit=0)
@@ -1217,7 +1217,7 @@ def comm_generate_real_dataframe(data):
         industry_name = basic_df.loc[stock_code]['industry']
     except:
         industry_name = 'Null'
-        print('except industry_name %s %s' % (stock_code, stock_name))
+        my_dbg('except industry_name %s %s' % (stock_code, stock_name))
     insert_industry(dict_industry, industry_name)
     '''
 
@@ -1239,7 +1239,7 @@ def comm_generate_real_dataframe(data):
         net_yoy = fina_df['sjltz'][0]
 
         if debug:
-            print(fina_df)
+            my_dbg(fina_df)
     
     fina=str(round(op_yoy,2)) +' ' + str(round(net_yoy,2))
     new_date = fina_date + '<br>'+ fina + '</br>'
@@ -1289,7 +1289,7 @@ def comm_generate_real_dataframe(data):
 
 def worker(data):
     if debug:
-        print(data)
+        my_dbg(data)
 
     return comm_generate_real_dataframe(data)
                 
@@ -1298,7 +1298,7 @@ def worker(data):
 
 def comm_generate_web_dataframe_multi(input_df, curr_dir, curr_day, dict_industry):
     
-    print("comm_generate_web_dataframe_multi")
+    my_dbg("comm_generate_web_dataframe_multi")
     unit_yi = 10000 * 10000
     shell_cmd = 'mkdir -p stock_data/' + curr_dir
     os.system(shell_cmd)
@@ -1313,7 +1313,7 @@ def comm_generate_web_dataframe_multi(input_df, curr_dir, curr_day, dict_industr
     data_list = data_list.tolist()
 
     if debug:
-        print(data_list)
+        my_dbg(data_list)
 
     processes = multiprocessing.cpu_count()
     mplist = []
@@ -1335,7 +1335,7 @@ def comm_generate_web_dataframe_multi(input_df, curr_dir, curr_day, dict_industr
     ret_df=ret_df.round(2)
     ret_df.to_csv('./csv/test_comm_multi.csv', encoding='gbk')
     if debug:
-        print(ret_df)
+        my_dbg(ret_df)
 
     data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\

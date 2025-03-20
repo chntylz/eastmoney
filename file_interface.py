@@ -19,6 +19,32 @@ from funcat import *
 from funcat.data.aaron_backend import AaronDataBackend
 set_data_backend(AaronDataBackend())
 
+
+
+def my_dbg(*args, **kwargs):
+    """
+    重写print函数，在输出内容前添加时间戳。
+    时间戳格式为: [YYYY-MM-DD HH:MM:SS]
+    保留原print所有参数功能，包括sep, end, file, flush等
+    """
+    # 生成时间戳
+    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S] ")
+    
+    # 提取并移除sep参数，用于拼接原始消息
+    sep = kwargs.pop('sep', ' ')
+    
+    # 将原始参数转换为字符串消息
+    message = sep.join(map(str, args))
+    
+    # 组合时间戳和消息
+    full_message = timestamp + message
+    
+    # 调用原始print函数，传递其他参数
+    print(full_message, **kwargs)
+
+
+
+
 #把时间戳转化为时间: 1479264792 to 2016-11-16 10:53:12
 def TimeStampToTime(timestamp):
     timeStruct = time.localtime(timestamp)
@@ -146,8 +172,8 @@ def get_file_modify_day(filename=None):
     filemt2= time.localtime() #不带参数就是当前时间
     t2=time.mktime(filemt2)
 
-    #print(datetime.timedelta(seconds=t2-t1).days)
-    #print(datetime.timedelta(seconds=t2-t1).seconds)
+    #my_dbg(datetime.timedelta(seconds=t2-t1).days)
+    #my_dbg(datetime.timedelta(seconds=t2-t1).seconds)
 
     return (datetime.timedelta(seconds=t2-t1).days)
 
@@ -160,64 +186,39 @@ def check_input_parameter():
         python demo.py 1
         '''
     if len(argv) > 2:
-        print(USAGE)  # 如果传入的参数不足，输出正确用法
+        my_dbg(USAGE)  # 如果传入的参数不足，输出正确用法
         exit(1) # 异常退出(下面的代码将不会被执行)
 
     script_name, para1 = argv  # 将传入的参数赋值进行使用
-    print("%s, %d"%(script_name, int(para1)))
+    my_dbg("%s, %d"%(script_name, int(para1)))
 
     return script_name, para1
 
 
 
-
-
-def check_input_parameter():
-# 如果执行的方式错误输出使用方法
-    USAGE = '''
-        用法错误，正确方式如下：
-        python demo.py 1
-        '''
-    if len(argv) > 2:
-        print(USAGE)  # 如果传入的参数不足，输出正确用法
-        exit(1) # 异常退出(下面的代码将不会被执行)
-
-    script_name, para1 = argv  # 将传入的参数赋值进行使用
-    print("%s, %d"%(script_name, int(para1)))
-
-    return script_name, para1
-
-
-
-    #gold cross, return 1
-    #dead cross, return -1
-    #others, return 0    
 def macd_cross(dif, dea):
     ret = 0 
     if len(dif) < 2 or len(dea) < 2:
-        print('###error, dif len < 2')
+        my_dbg('###error, dif len < 2')
         return ret
     if dif[-1] > dea[-1] and dif[-2] <= dea[-2]:
         ret = 1
     if dif[-1] < dea[-1] and dif[-2] >= dea[-2]:
         ret = -1
-    #print('macd_cross ret=%d'% ret)
+    #my_dbg('macd_cross ret=%d'% ret)
     return ret
-
-
-
 
 def remove_dir(nowdate, save_dir, sub_name):
 
     cmd = save_dir + '/' + nowdate.strftime("%Y-%m-%d-%w") + sub_name
-    print('%s'%cmd)
+    my_dbg('%s'%cmd)
 
     if os.path.exists(cmd):
         shutil.rmtree(cmd)
 
     #/var/www/html/stock_data/
     cmd = '/var/www/html/' + save_dir + '/' + nowdate.strftime("%Y-%m-%d-%w") + sub_name
-    print('%s'%cmd)
+    my_dbg('%s'%cmd)
 
     if os.path.exists(cmd):
         shutil.rmtree(cmd)
@@ -280,15 +281,15 @@ def string2timestamp(strValue):
     t = d.timetuple() 
     timeStamp = int(time.mktime(t)) 
     timeStamp = float(str(timeStamp) + str("%06d" % d.microsecond))/1000000 
-    #print(timeStamp)
+    #my_dbg(timeStamp)
     return timeStamp 
   except ValueError as e: 
-    #print(e)
+    #my_dbg(e)
     d = datetime.datetime.strptime(strValue, "%Y-%m-%d") 
     t = d.timetuple() 
     timeStamp = int(time.mktime(t)) 
     timeStamp = float(str(timeStamp) + str("%06d" % d.microsecond))/1000000 
-    #print(timeStamp)
+    #my_dbg(timeStamp)
     return timeStamp 
 
 # 1440751417.283 --> '2015-08-28 16:43:37.283' 
@@ -299,7 +300,7 @@ def timestamp2string(timeStamp):
     # 2015-08-28 16:43:37.283000' 
     return str1 
   except Exception as e: 
-    print(e) 
+    my_dbg(e) 
     return '' 
 
 
@@ -352,21 +353,21 @@ def money_unit_transfer(x):
 
         if '亿' in x:
             ret = float(x[:len(x)-1]) * 10000 * 10000
-            #print('亿')
-            #print(ret)
+            #my_dbg('亿')
+            #my_dbg(ret)
         elif '万' in x:
             ret = float(x[:len(x)-1]) * 10000 
-            #print('万')
-            #print(ret)
+            #my_dbg('万')
+            #my_dbg(ret)
         else:
             ret = float(x)
-            #print('normal')
-            #print(ret)
+            #my_dbg('normal')
+            #my_dbg(ret)
 
         if minus_flag:
             ret = ret * (-1)
     except Exception as e:
-        print('error: %s,  %s' % (e, x ))
+        my_dbg('error: %s,  %s' % (e, x ))
     finally:
         pass
 
@@ -388,27 +389,5 @@ def stock_code_format(x):
 
     return x
 
-
-
-def my_dbg(*args, **kwargs):
-    """
-    重写print函数，在输出内容前添加时间戳。
-    时间戳格式为: [YYYY-MM-DD HH:MM:SS]
-    保留原print所有参数功能，包括sep, end, file, flush等
-    """
-    # 生成时间戳
-    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S] ")
-    
-    # 提取并移除sep参数，用于拼接原始消息
-    sep = kwargs.pop('sep', ' ')
-    
-    # 将原始参数转换为字符串消息
-    message = sep.join(map(str, args))
-    
-    # 组合时间戳和消息
-    full_message = timestamp + message
-    
-    # 调用原始print函数，传递其他参数
-    print(full_message, **kwargs)
 
 

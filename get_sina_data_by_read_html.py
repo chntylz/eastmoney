@@ -143,11 +143,11 @@ def insert_to_database(df, type_table):
         cols = fina_cols
         database = hdata_sina_fina
     else:
-        print('### type_table:%s is null, return'% type_table)
+        my_dbg('### type_table:%s is null, return'% type_table)
         return df
 
     if debug:
-        print('cols=%s, df.columns=%s' % (len(cols), len(df.columns)))
+        my_dbg('cols=%s, df.columns=%s' % (len(cols), len(df.columns)))
 
     try:
         df.columns = cols
@@ -157,7 +157,7 @@ def insert_to_database(df, type_table):
             df = df.head(1)  #only update the latest item
         database.copy_from_stringio(df)
     except Exception as e:
-        print("### error (%s):%s %s" % (e, type_table, df.head(1)))
+        my_dbg("### error (%s):%s %s" % (e, type_table, df.head(1)))
 
     return df
 
@@ -180,7 +180,7 @@ def get_sina_data_from_read_html(stock_code, stock_name, type_table, year):
         table_idx = 12
         url = 'https://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/' + stock_code + '/ctrl/' + year + '/displaytype/4.phtml'
     else:
-        print('### type_table is null, return')
+        my_dbg('### type_table is null, return')
 
 
     tb = pd.read_html(url)
@@ -201,7 +201,7 @@ def get_sina_data_from_read_html(stock_code, stock_name, type_table, year):
 
     if debug:
         df.to_csv('./sina/' + year + '_' + type_table + '_' + stock_code + '_sina_html.csv', mode='w', encoding='utf_8_sig', header=1, index=0)
-        print(df)
+        my_dbg(df)
 
     #insert_to_database(df, type_table)
 
@@ -252,7 +252,7 @@ def get_sina_fina_data(stock_code, stock_name):
 
 def worker(data):
     if debug:
-        print(data)
+        my_dbg(data)
     stock_code = data[2]
     stock_name = data[3]
 
@@ -267,7 +267,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df=get_latest_zlje_from_db()
-    print(stock_df.head(5))
+    my_dbg(stock_df.head(5))
     #stock_df=stock_df.head(4)
     #exit()
 
@@ -290,9 +290,9 @@ if __name__ == '__main__':
         pool.map(worker, data_list)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 

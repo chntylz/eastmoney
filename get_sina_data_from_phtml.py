@@ -90,7 +90,7 @@ def insert_to_database(df, type_table):
         cols = cash_cols
         database = hdata_sina_cashflow
     else:
-        print('### type_table is null, return')
+        my_dbg('### type_table is null, return')
 
     try:
         df.columns = cols
@@ -102,7 +102,7 @@ def insert_to_database(df, type_table):
             df = df.head(1)  #only update the latest item
         database.copy_from_stringio(df)
     except Exception as e:
-        print("### error (%s):%s %s" % (e, type_table, df.head(1)))
+        my_dbg("### error (%s):%s %s" % (e, type_table, df.head(1)))
 
     return df
 
@@ -120,7 +120,7 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
     elif type_table == 'cashflow':  
         url = 'https://money.finance.sina.com.cn/corp/go.php/vDOWN_CashFlow/displaytype/4/stockid/' + stock_code  + '/ctrl/all.phtml'
     else:
-        print('### type_table is null, return')
+        my_dbg('### type_table is null, return')
 
     csv_file = './sina/' + stock_code + '_' + type_table + '.csv'
 
@@ -131,7 +131,7 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
         #download file
         cmd = 'curl -s  ' + url + ' >' + ' ' + csv_file
         if debug:
-            print(cmd)
+            my_dbg(cmd)
         os.system(cmd)
 
     df = pd.DataFrame()
@@ -140,7 +140,7 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
         df=pd.read_csv(csv_file , sep='\s', encoding='gbk', engine='python', index_col=0)
         #df=pd.read_csv(csv_file , sep='\s', encoding='utf-8', engine='python')
     except Exception as e:
-        print('error %s %s: %s' % (stock_code, type_table, e))
+        my_dbg('error %s %s: %s' % (stock_code, type_table, e))
         return
 
     df=df.T
@@ -157,7 +157,7 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
         #delete file
         cmd = 'rm -f ' + csv_file
         if debug:
-            print(cmd)
+            my_dbg(cmd)
         os.system(cmd)
 
         csv_file = './sina/' +  stock_code + '_' + type_table + '_new.csv'
@@ -173,7 +173,7 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
 
 def worker(data):
     if debug:
-        print(data)
+        my_dbg(data)
     stock_code = data[2]
     stock_name = data[3]
 
@@ -184,7 +184,7 @@ def worker(data):
     if os.path.exists(csv_balance) and \
         os.path.exists(csv_income) and \
         os.path.exists(csv_cashflow):
-        print('%s %s already exists' % (stock_code, stock_name))
+        my_dbg('%s %s already exists' % (stock_code, stock_name))
 
         if csv_exist:
             get_sina_data_from_phtml(stock_code, stock_name, 'balance')
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df = get_latest_zlje_from_db()
-    print(stock_df.head(5))
+    my_dbg(stock_df.head(5))
     #stock_df=stock_df.head(4)
     #exit()
 
@@ -229,9 +229,9 @@ if __name__ == '__main__':
         pool.map(worker, data_list)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 

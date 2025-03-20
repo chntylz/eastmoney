@@ -81,10 +81,10 @@ def get_jigou_data(stock_code, record_date):
         #browser.close()
         #browser.quit()
 
-    print(" get_jigou_data() stock_code:%s, record_date:%s, url= %s" %  (stock_code, record_date, url))
+    my_dbg(" get_jigou_data() stock_code:%s, record_date:%s, url= %s" %  (stock_code, record_date, url))
 
     #if debug:
-    #    print(html)
+    #    my_dbg(html)
 
     s=html
 
@@ -95,7 +95,7 @@ def get_jigou_data(stock_code, record_date):
         api_param = json.loads(response_array[0])
     except Exception as e:
         if debug:
-            print("retry ...") 
+            my_dbg("retry ...") 
         retry = retry - 1
         browser.get(url)
         browser.implicitly_wait(5)
@@ -109,16 +109,16 @@ def get_jigou_data(stock_code, record_date):
             api_param = json.loads(response_array[0])
         except Exception as e:
             if debug:
-                print(e)
-                print(s)
+                my_dbg(e)
+                my_dbg(s)
             browser.close()
             browser.quit()
             return df
         if debug:
-            print(e)
-            print(s)
-            print(response_array)
-            print('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
+            my_dbg(e)
+            my_dbg(s)
+            my_dbg(response_array)
+            my_dbg('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
 
 
     rawdata = ''
@@ -126,11 +126,11 @@ def get_jigou_data(stock_code, record_date):
         rawdata = api_param['result']['data']
     except Exception as e:
         if debug:
-            print(api_param)
-            print(e)
-            print('get_jigou_data rawdata is none %s %s' % (stock_code, record_date))
+            my_dbg(api_param)
+            my_dbg(e)
+            my_dbg('get_jigou_data rawdata is none %s %s' % (stock_code, record_date))
 
-            print("retry ...") 
+            my_dbg("retry ...") 
         retry = retry - 1
         browser.get(url)
         browser.implicitly_wait(5)
@@ -145,20 +145,20 @@ def get_jigou_data(stock_code, record_date):
             rawdata = api_param['result']['data']
         except Exception as e:
             if debug:
-                print(e)
-                print(s)
+                my_dbg(e)
+                my_dbg(s)
             browser.close()
             browser.quit()
             return df,df
         if debug:
-            print(e)
-            print(s)
-            print(response_array)
-            print('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
+            my_dbg(e)
+            my_dbg(s)
+            my_dbg(response_array)
+            my_dbg('get_jigou_data api_para is none %s %s' % (stock_code, record_date))
 
 
     if debug:
-        print("retry=%d"% retry) 
+        my_dbg("retry=%d"% retry) 
 
     data_df = pd.DataFrame(rawdata)
     data_df = data_df.fillna(0)
@@ -213,15 +213,15 @@ def get_jigou(get_all=0):
 
     position, date_list = get_curr_season()
     latest_date = date_list[position]
-    print('position: %s' % position )
-    print('data_list: %s' % date_list )
+    my_dbg('position: %s' % position )
+    my_dbg('data_list: %s' % date_list )
 
     new_date_list = []
 
     #which season data will be fetched
     table_exist = hdata_jigou.table_is_exist()
     if debug:
-        print('table_exist=%d' % table_exist)
+        my_dbg('table_exist=%d' % table_exist)
 
     if table_exist:
         new_date_list.append(date_list[position])
@@ -230,9 +230,9 @@ def get_jigou(get_all=0):
 
     for my_date in date_list:
         if get_all:
-            print("get all seasons")
+            my_dbg("get all seasons")
         else:
-            print("get current season")
+            my_dbg("get current season")
             if my_date is not latest_date:
                 continue
 
@@ -242,7 +242,7 @@ def get_jigou(get_all=0):
             
             #record_date = '2021-09-30'
             if debug:
-                print("%s, %s"%(stock_code, record_date))
+                my_dbg("%s, %s"%(stock_code, record_date))
             
             #check it is exist or not 
             #if check_ji_data_exist(stock_code, record_date):
@@ -250,7 +250,7 @@ def get_jigou(get_all=0):
                 
             tmp_df , raw_df = get_jigou_data(stock_code, record_date)
             if debug:
-                print(tmp_df)
+                my_dbg(tmp_df)
             
             df = pd.concat([df, tmp_df])
 
@@ -283,16 +283,16 @@ def get_jigou(get_all=0):
 def check_table(get_all=0):
     table_exist = hdata_jigou.table_is_exist()
     if get_all:
-        print('table_exist=%d' % table_exist)
+        my_dbg('table_exist=%d' % table_exist)
         if table_exist:
             hdata_jigou.db_hdata_xq_create()
-            print('table already exist')
+            my_dbg('table already exist')
         else:
             hdata_jigou.db_hdata_xq_create()
-            print('table not exist, create')
+            my_dbg('table not exist, create')
         pass
     else:
-        print('table_exist=%d' % table_exist)
+        my_dbg('table_exist=%d' % table_exist)
 
 if __name__ == '__main__':
  
@@ -316,10 +316,10 @@ if __name__ == '__main__':
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 
 '''

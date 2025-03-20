@@ -41,7 +41,7 @@ def income_analysis_assets(df):
 
     for i in range(df_len):
         if debug:
-            print('record_date=%s, i=%d, total_assets=%f, total_assets_new=%f'\
+            my_dbg('record_date=%s, i=%d, total_assets=%f, total_assets_new=%f'\
                     %(df.record_date[i], i, df.total_assets[i]/y_unit, df.total_assets_new[i] * 100))
         if df.total_assets_new[i] < 0.2:
             flag = False
@@ -70,7 +70,7 @@ def income_analysis_liab(df):
     '''
     for i in range(df_len):
         if debug:
-            print('record_date=%s, i=%d, total_assets=%f, total_liab=%f, asset_liab_ratio_x=%f, '\
+            my_dbg('record_date=%s, i=%d, total_assets=%f, total_liab=%f, asset_liab_ratio_x=%f, '\
                     %(df.record_date[i], i, df.total_assets[i]/y_unit, \
                     df.total_liab[i]/y_unit, df.asset_liab_ratio_x[i]))
         if df.asset_liab_ratio_x[i] >= 60:
@@ -104,7 +104,7 @@ def income_analysis_loan(df):
     '''
     for i in range(df_len):
         if debug:
-            print('record_date=%s, i=%d, currency_funds=%f, st_loan=%f, interest_payable=%f, \
+            my_dbg('record_date=%s, i=%d, currency_funds=%f, st_loan=%f, interest_payable=%f, \
                 noncurrent_liab_due_in1y=%f, lt_loan=%f, bond_payable=%f, lt_payable=%f, \
                 total_loan=%f '\
                 %(df.record_date[i], i, df.currency_funds[i]/y_unit, df.st_loan[i]/y_unit, \
@@ -696,11 +696,11 @@ def fina_data_analysis(df):
     group_by_stock_code_df=all_df.groupby('stock_code')
     for stock_code, group_df in group_by_stock_code_df:
         if group_df is None:
-            print('%s, group_df is None' % stock_code )
+            my_dbg('%s, group_df is None' % stock_code )
             continue
 
         if len(group_df) < 1:
-            print('%s, len(group_df) < 1' % stock_code )
+            my_dbg('%s, len(group_df) < 1' % stock_code )
             continue
 
         ret_df = pd.DataFrame()
@@ -710,8 +710,8 @@ def fina_data_analysis(df):
         '''
         group_df = group_df.reset_index(drop=True)
         if debug:
-            print(stock_code)
-            print(group_df.head(1))
+            my_dbg(stock_code)
+            my_dbg(group_df.head(1))
         #get stock_cname
         stock_code_new = stock_code[2:] 
         stock_name = symbol(stock_code_new)
@@ -768,7 +768,7 @@ def fina_data_analysis(df):
         
         if flag and flag_net_increase and flag_ncf and flag_paid_asset and flag_net_profit and flag_main_frofit and flag_costfee and flag_gross \
             and flag_revnue and flag_roe and flag_invest and flag_fix_assets and flag_asset and flag_liab and flag_loan and flag_pay_recv :
-            print("################################### %s, %s ################################\n"% (stock_code, stock_name))
+            my_dbg("################################### %s, %s ################################\n"% (stock_code, stock_name))
     
     pass
 

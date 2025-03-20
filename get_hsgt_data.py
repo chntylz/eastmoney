@@ -90,30 +90,30 @@ def hsgt_get_hk(url):
         tds = tr.find_all('td')
         length = len(tds)
         if debug:
-            print('-------------------------------- tr_idx=%d' % tr_idx)
+            my_dbg('-------------------------------- tr_idx=%d' % tr_idx)
         for td_idx, td in enumerate(tds):
             if debug:
-                #print('td_idx %d' % td_idx)
+                #my_dbg('td_idx %d' % td_idx)
                 pass
             final_td=td
             for div_idx, div in enumerate(td.find_all('div')):
                 final_div=div
-                #print('div_idx %d' % div_idx)
+                #my_dbg('div_idx %d' % div_idx)
                 if td_idx == 0:
                     if div_idx == 0:
                         if debug:
-                            print(div.contents[0].text)
+                            my_dbg(div.contents[0].text)
                     if div_idx == 1:
                         if debug:
-                            print(div.contents[0].text)
+                            my_dbg(div.contents[0].text)
                         code = div.contents[0].text
                 if td_idx == 1:
                     if div_idx == 0:
                         if debug:
-                            print(div.contents[0].text)
+                            my_dbg(div.contents[0].text)
                     if div_idx == 1:
                         if debug:
-                            print(div.contents[0].text)
+                            my_dbg(div.contents[0].text)
                         stock_cname=div.contents[0].text
                         sharp_pos=stock_cname.rfind('#')
                         if stock_cname[sharp_pos+1] == ' ':
@@ -123,21 +123,21 @@ def hsgt_get_hk(url):
                 if td_idx == 2:
                     if div_idx == 0:
                         if debug:
-                            print(div.contents[0].text)
+                            my_dbg(div.contents[0].text)
                     if div_idx == 1:
                         if debug:
-                            print(div.contents[0].text)
+                            my_dbg(div.contents[0].text)
                         share_holding=div.contents[0].text.replace(',','')
                 if td_idx == 3:
                     if div_idx == 0:
                         if debug:
-                            print(div.contents[0].text)
+                            my_dbg(div.contents[0].text)
                     if div_idx == 1:
                         if debug:
-                            print(div.contents[0].text)
+                            my_dbg(div.contents[0].text)
                         percent=div.contents[0].text.replace('%','')
         data_list.append([cur_date, stock_code, share_holding, percent])
-        print(code, stock_cname, cur_date, stock_code, share_holding, percent)
+        my_dbg(code, stock_cname, cur_date, stock_code, share_holding, percent)
 
 
     data_column=['record_date', 'stock_code', 'share_holding', 'percent']
@@ -166,7 +166,7 @@ def hsgt_get_sh_sz():
     sz_df = hsgt_get_hk_sz()    
     sh_df = hsgt_get_hk_sh()
     df = pd.concat([sh_df, sz_df])
-    print('len(df)=%d '% len(df) )
+    my_dbg('len(df)=%d '% len(df) )
 
 
     ####get zlje start####
@@ -185,12 +185,12 @@ def hsgt_get_sh_sz():
         
         #ETF, skip
         if hsgt_code[0] == '5' or hsgt_code[0] == '1':
-            print('ETF %s skip' % hsgt_code)
+            my_dbg('ETF %s skip' % hsgt_code)
             continue
         
         if debug:
-            print(idx) # 输出每行的索引值
-            print(d[0], d[1],d[2],d[3])
+            my_dbg(idx) # 输出每行的索引值
+            my_dbg(d[0], d[1],d[2],d[3])
 
         #### zlje start ####
         zlje = get_zlje(zlje_df,     hsgt_code, curr_date=hsgt_date)
@@ -224,7 +224,7 @@ def hsgt_get_sh_sz():
             net_yoy = fina_df['sjltz'][0]
 
             if debug:
-                print(fina_df.head(1))
+                my_dbg(fina_df.head(1))
  
         #### fina end ####
  
@@ -276,19 +276,19 @@ def hsgt_get_sh_sz():
         day_df=hdata_day.get_data_from_hdata(stock_code=hsgt_code, 
                 start_date=hsgt_date, end_date=hsgt_date)
         if debug:
-            print("hsgt_date:%s, hsgt_code:%s, hsgt_holding:%s, hsgt_percent:%s "% \
+            my_dbg("hsgt_date:%s, hsgt_code:%s, hsgt_holding:%s, hsgt_percent:%s "% \
                  (hsgt_date, hsgt_code, hsgt_holding, hsgt_percent))
-            print('print day_df: %s'% day_df.head(1))
+            my_dbg('my_dbg day_df: %s'% day_df.head(1))
 
         #for date format transfer
         nowdate = datetime.datetime.strptime(hsgt_date, '%Y-%m-%d').date()
         if debug:
-            print("%s %s" % (nowdate, type(nowdate)))
+            my_dbg("%s %s" % (nowdate, type(nowdate)))
 
         retry = 0
         while True:
             if debug:
-                print('retry=%d' % retry)
+                my_dbg('retry=%d' % retry)
 
             if len(day_df) > 0:
                 break;
@@ -325,10 +325,10 @@ def hsgt_get_sh_sz():
                     zlje, zlje_3, zlje_5, zlje_10,\
                     h0, h1, h2, jigou ])
         else:
-            print('############## code:%s, date=%s, daily data is null!!! ##############' % (hsgt_code, hsgt_date))
+            my_dbg('############## code:%s, date=%s, daily data is null!!! ##############' % (hsgt_code, hsgt_date))
 
     if debug:
-        print(list_tmp)
+        my_dbg(list_tmp)
 
     dataframe_cols = ['record_date', 'stock_code','hsgt_cname', 'share_holding', 'hk_pct', \
             'open', 'close', 'high', 'low', 'volume', 'total_mv', \
@@ -347,7 +347,7 @@ def hsgt_get_sh_sz():
     '''
     
     if debug:
-        print(df.head(10))
+        my_dbg(df.head(10))
 
     df.to_csv('./csv/' + datetime.datetime.now().date().strftime('%Y-%m-%d') + '_hsgt.csv', encoding='utf-8')
 
@@ -373,7 +373,7 @@ def hsgt_get_day_item_from_json(file_path):
         if line_num == 1 or line_num == line_count:
             continue
         if debug:
-            print("line_num:%d, %s"%(line_num, line))
+            my_dbg("line_num:%d, %s"%(line_num, line))
         
         #{"date": "2019-08-23", "stock_ename": "SHENZHEN MINDRAY BIO-MEDICAL ELECTRONICS CO., LTD. (A #300760)", "code": "77760", "share_holding": "19601172", "percent": "1.61%"}
         line=str(line)
@@ -385,7 +385,7 @@ def hsgt_get_day_item_from_json(file_path):
         s=s.replace('\\', '')
 
         if debug:
-            print('s---->%s'%(s))
+            my_dbg('s---->%s'%(s))
         d=json.loads(s, strict=False)
         line=d
 
@@ -397,7 +397,7 @@ def hsgt_get_day_item_from_json(file_path):
         position=hsgt_ename.rfind('#')
         hsgt_code=hsgt_ename[position+1: -1]
         if len(hsgt_code) < 6:
-            print('error data! hsgt_code:%s'%(hsgt_code))
+            my_dbg('error data! hsgt_code:%s'%(hsgt_code))
             hsgt_code='0'.join(hsgt_code)
 
         #### zlje start ####
@@ -437,7 +437,7 @@ def hsgt_get_day_item_from_json(file_path):
             net_yoy = fina_df['net_profit_atsopc_yoy'][0]
             
             if debug:
-                print(fina_df)
+                my_dbg(fina_df)
         #### fina end ####
  
  
@@ -493,7 +493,7 @@ def hsgt_get_day_item_from_json(file_path):
         pos_s=hsgt_cname.rfind('[')
         pos_e=hsgt_cname.rfind(']')
         hsgt_cname=hsgt_cname[pos_s+1: pos_e]
-        #print(hsgt_cname)
+        #my_dbg(hsgt_cname)
 
         #get share_holding
         hsgt_holding=float(line['share_holding'])
@@ -513,12 +513,12 @@ def hsgt_get_day_item_from_json(file_path):
         day_df=hdata_day.get_data_from_hdata(stock_code=stock_code_new, 
                 start_date=hsgt_date, end_date=hsgt_date)
         if debug:
-            print("line_num:%d, hsgt_date:%s, hsgt_code:%s, hsgt_holding:%s, hsgt_percent:%s,\
+            my_dbg("line_num:%d, hsgt_date:%s, hsgt_code:%s, hsgt_holding:%s, hsgt_percent:%s,\
                     hsgt_ename:%s, hsgt_cname:%s"% \
                  (line_num, hsgt_date, hsgt_code, hsgt_holding, hsgt_percent,\
                      hsgt_ename, hsgt_cname))
-            print('print day_df:')
-            print(day_df)
+            my_dbg('my_dbg day_df:')
+            my_dbg(day_df)
         if len(day_df) > 0:
             day_dict=day_df.to_dict()
 
@@ -543,10 +543,10 @@ def hsgt_get_day_item_from_json(file_path):
                     zlje, zlje_3, zlje_5, zlje_10,\
                     h0, h1, h2, jigou ])
         else:
-            print('############## code:%s, name=%s, daily data is null!!! ##############' % (hsgt_code, hsgt_cname))
+            my_dbg('############## code:%s, name=%s, daily data is null!!! ##############' % (hsgt_code, hsgt_cname))
 
     if debug:
-        print(list_tmp)
+        my_dbg(list_tmp)
 
     dataframe_cols = ['record_date', 'stock_code','hsgt_cname', 'share_holding', 'hk_pct', \
             'open', 'close', 'high', 'low', 'volume', 'total_mv', \
@@ -563,7 +563,7 @@ def hsgt_get_day_item_from_json(file_path):
     del df["record_date"]
     
     if debug:
-        print(df)
+        my_dbg(df)
 
     df.to_csv('./csv/' + datetime.datetime.now().date().strftime('%Y-%m-%d') + '_hsgt_debug.csv', encoding='utf-8')
 
@@ -577,7 +577,7 @@ def hsgt_get_all_data():
 
     latest_date = hdata_hsgt.db_get_latest_date_of_stock()
     if debug:
-        print(type(latest_date))
+        my_dbg(type(latest_date))
 
 
     if latest_date:
@@ -586,7 +586,7 @@ def hsgt_get_all_data():
     else:
         latest_date='20180101'
 
-    print('latest_date:%s'%(latest_date))
+    my_dbg('latest_date:%s'%(latest_date))
 
     curr_dir=cur_file_dir()#获取当前.py脚本文件的文件路径
     json_dir=curr_dir+'/hkexnews_scrapy/hkexnews_scrapy/json'
@@ -594,23 +594,23 @@ def hsgt_get_all_data():
     all_files=getAllFiles(json_dir)
     #if debug:
     if 0:
-        print(all_files)
+        my_dbg(all_files)
 
     for tmp_file in all_files:
         file_size=get_FileSize(tmp_file)
         if debug:
-            print("%s size is:%f"%(tmp_file, file_size))
+            my_dbg("%s size is:%f"%(tmp_file, file_size))
        
         if file_size < 1 :
             if debug:
-                print(tmp_file)
+                my_dbg(tmp_file)
             continue
 
         position=tmp_file.rfind('.json.gz')
         curr_date=tmp_file[position-8:position]
         result=compare_time(curr_date, latest_date)
         if debug:
-            print("result=%s, curr_date %s < latest_date:%s"%(result, curr_date, latest_date))
+            my_dbg("result=%s, curr_date %s < latest_date:%s"%(result, curr_date, latest_date))
 
         if result is False: 
             #insert data into hdata_hsgt_table
@@ -622,13 +622,13 @@ def hsgt_get_all_data():
 
 def check_table():
     table_exist = hdata_hsgt.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         #hdata_hsgt.db_hdata_date_create()
-        print(' hdata_hsgt table already exist, recreate')
+        my_dbg(' hdata_hsgt table already exist, recreate')
     else:
         hdata_hsgt.db_hdata_date_create()
-        print(' hdata_hsgt table not exist, create')
+        my_dbg(' hdata_hsgt table not exist, create')
 
 
 

@@ -51,7 +51,7 @@ def get_zlje(df, stock_code, url=None, curr_date=None):
     tmp_zlje_df = zlje_df[zlje_df['stock_code'] == stock_code]
     tmp_zlje_df = tmp_zlje_df.reset_index(drop=True)
     if debug:
-            print(new_code, len(tmp_zlje_df))
+            my_dbg(new_code, len(tmp_zlje_df))
 
     if len(tmp_zlje_df):
         zlje = tmp_zlje_df['zlje'][0]
@@ -103,12 +103,12 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     nowdate=datetime.datetime.now().date()
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
        
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))

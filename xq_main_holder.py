@@ -53,8 +53,8 @@ def get_original_data():
         tmp_df = xq_get_holder_data(stock_code_new)
 
         if debug:
-            print(i, stock_code_new)
-            print(tmp_df)
+            my_dbg(i, stock_code_new)
+            my_dbg(tmp_df)
         #add stock_code
         #tmp_df['symbol'] = stock_code_new
         if len(tmp_df):
@@ -85,16 +85,16 @@ def get_original_data():
             t_2 = time.time()
             d_t = t_2 - t_1
             if debug:
-                print(t_1, t_2)
-                print('get_holder() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
+                my_dbg(t_1, t_2)
+                my_dbg('get_holder() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
                         (i, stock_code_new, d_t, len(tmp_df)))
 
     tt_2 = time.time()
     delta_t = tt_2 - tt_1
     if debug:
-        print('get_holder() delta_t=%f' % delta_t)
-        print('len(list(df))=%d' % len(list(df)))
-        print('list(df)=%s' % list(df))
+        my_dbg('get_holder() delta_t=%f' % delta_t)
+        my_dbg('len(list(df))=%d' % len(list(df)))
+        my_dbg('list(df)=%s' % list(df))
 
     return df
 
@@ -104,25 +104,25 @@ def get_holder():
     df = df.reset_index(drop=True)
 
     if debug:
-        print('len(df)=%d' % len(df))
-        print(df.head(10))
+        my_dbg('len(df)=%d' % len(df))
+        my_dbg(df.head(10))
 
     return df
 
 
 def check_table():
     table_exist = hdata_holder.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         hdata_holder.db_hdata_xq_create()
-        print('table already exist')
+        my_dbg('table already exist')
     else:
         hdata_holder.db_hdata_xq_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
 
 def update_database_holder():
-    print('holder')
+    my_dbg('holder')
     hdata_holder.db_hdata_xq_create()
     df_holder = get_holder()
     df_holder.to_csv('./csv/test_holder.csv', encoding='gbk')
@@ -144,7 +144,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     nowdate=datetime.datetime.now().date()
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
     update_database_holder()
     
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     browser.quit()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))

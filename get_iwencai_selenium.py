@@ -87,14 +87,14 @@ def scrape_canvas_data(driver):
                     transaction_value = transaction_element.text
                     extracted_data[date_value] = float(transaction_value)
                     if debug:
-                        print('date_value:%s, transaction_value:%s' % (date_value, transaction_value)  )
+                        my_dbg('date_value:%s, transaction_value:%s' % (date_value, transaction_value)  )
                     
                 except:
                     # No tooltip found at this point, continue to the next
                     pass
             except Exception as outer_exception:
                 # Handle any other issues like JavaScript or element issues
-                print(f"Error at x_offset: {x_offset}, {outer_exception}")
+                my_dbg(f"Error at x_offset: {x_offset}, {outer_exception}")
     except:
         pass
 
@@ -105,12 +105,12 @@ def scrape_canvas_data(driver):
             stock_date = key
             pe_pct =  value
             if debug:
-                print(f"{key}: {value}")  
-                print(stock_date, pe_pct)  
+                my_dbg(f"{key}: {value}")  
+                my_dbg(stock_date, pe_pct)  
     except Exception as e:
         if debug:
-            print("%s pe failed" % stock_code)
-            print(e)
+            my_dbg("%s pe failed" % stock_code)
+            my_dbg(e)
         pass
 
     return stock_date, pe_pct
@@ -175,7 +175,7 @@ def get_browser_real():
 def get_iwencai_pe(driver, stock_code):
     url='https://iwencai.com/unifiedwap/result?w='+ stock_code + 'pe'
     if debug:
-        print(url)
+        my_dbg(url)
 
     driver.get(url)
     time.sleep(random.randint(20,30))
@@ -186,7 +186,7 @@ def get_iwencai_pe(driver, stock_code):
             driver.find_element(By.ID, "details-button").click()
         except Exception as e:
             if debug:
-                #print(e)
+                #my_dbg(e)
                 pass
 
         time.sleep(1)
@@ -195,7 +195,7 @@ def get_iwencai_pe(driver, stock_code):
             driver.find_element(By.ID, "proceed-link").click()
         except Exception as e:
             if debug:
-                #print(e)
+                #my_dbg(e)
                 pass
 
         global_first_time = False
@@ -204,7 +204,7 @@ def get_iwencai_pe(driver, stock_code):
     stock_date, pe = scrape_canvas_data(driver)
     
     if debug:
-        print(stock_code, stock_date, pe)
+        my_dbg(stock_code, stock_date, pe)
 
     return stock_code, stock_date, pe
 
@@ -217,8 +217,8 @@ if __name__ == '__main__':
 
     stock_df = get_latest_zlje_from_db()
     stock_df_len = len(stock_df)
-    print(stock_df.head(5))
-    print('stock_df.len:%s' % len(stock_df))
+    my_dbg(stock_df.head(5))
+    my_dbg('stock_df.len:%s' % len(stock_df))
 
     driver = get_browser_real()
 
@@ -230,7 +230,7 @@ if __name__ == '__main__':
         if stock_code[0] == '9':
             continue
         if debug:
-            print(stock_code)
+            my_dbg(stock_code)
 
         stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
 
@@ -244,9 +244,9 @@ if __name__ == '__main__':
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("main_company.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("main_company.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
     
     

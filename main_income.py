@@ -34,13 +34,13 @@ hdata_income=HData_eastmoney_income("usr","usr")
 
 def check_table():
     table_exist = hdata_income.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         hdata_income.db_hdata_eastmoney_create()
-        print('table already exist')
+        my_dbg('table already exist')
     else:
         hdata_income.db_hdata_eastmoney_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
        
 
@@ -53,11 +53,11 @@ if __name__ == '__main__':
 
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(int(para1))
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
     
     if int(para1):
-        print('get history income data')
+        my_dbg('get history income data')
         get_all = 1
     else:
         get_all = 0
@@ -71,15 +71,15 @@ if __name__ == '__main__':
             if len(f_df):
 
                 if debug:
-                    print(f_df)
-                    print(f_df.columns)
+                    my_dbg(f_df)
+                    my_dbg(f_df.columns)
                     f_df.to_csv('./csv/f_df_' + str(i) + '.csv', encoding='gbk')
 
                 df = pd.concat([df, f_df])
 
             
         except Exception as e:
-            print(e)
+            my_dbg(e)
             break
         else:
             i = i + 1
@@ -90,12 +90,12 @@ if __name__ == '__main__':
     try :
         df = df.drop_duplicates(subset=['security_code', 'reportdate'], keep='first')
     except Exception as e:
-        print(e)
+        my_dbg(e)
     
     try :
         df = df.drop_duplicates(subset=['security_code', 'report_date'], keep='first')
     except Exception as e:
-        print(e)
+        my_dbg(e)
    
     if len(df) > 0:
         #check table exist
@@ -107,15 +107,15 @@ if __name__ == '__main__':
             #PostgreSQL数据库如果不存在则插入，存在则更新
             hdata_income.insert_all_stock_data_2(df)
     else:
-        print('income dataframe is null')
+        my_dbg('income dataframe is null')
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
-    print("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))
 
 
 #read csv data, then import to database

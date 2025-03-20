@@ -97,7 +97,7 @@ def gen_headline_column(filename, df):
         col_len=len(list(df))
         for j in range(0, col_len): 
             if debug:
-                print(('list(df)[%d]=%s') % (j, list(df)[j]))
+                my_dbg(('list(df)[%d]=%s') % (j, list(df)[j]))
 
             f.write('        <td>\n')
             f.write('           <a> %s</a>\n'%(list(df)[j]))
@@ -107,7 +107,7 @@ def gen_headline_column(filename, df):
 
 def gen_html_body(filename, df):
     if debug:
-        print('filename: %s' % filename)
+        my_dbg('filename: %s' % filename)
     gen_headline_column(filename, df)
     with open(filename,'a') as f:
         df_len=len(df)
@@ -169,7 +169,7 @@ def income_analysis_assets(df):
                 totasset_yoy = (df.totasset[i] - df.totasset[i+1]) * 100 / df.totasset[i+1]
 
         if debug:
-            print('record_date=%s, i=%d, totasset=%f, totasset_yoy=%f'\
+            my_dbg('record_date=%s, i=%d, totasset=%f, totasset_yoy=%f'\
                     %(df.record_date[i], i, df.totasset[i]/y_unit, totasset_yoy))
         if float(totasset_yoy) < 30:
             flag = False
@@ -203,7 +203,7 @@ def income_analysis_liab(df):
         if df.totasset[i]:
             asset_liability_ratio = df.totliab[i] * 100 / df.totasset[i]
         if debug:
-            print('record_date=%s, i=%d, totasset=%f, totliab=%f, asset_liability_ratio=%f, '\
+            my_dbg('record_date=%s, i=%d, totasset=%f, totliab=%f, asset_liability_ratio=%f, '\
                     %(df.record_date[i], i, df.totasset[i]/y_unit, \
                     df.totliab[i]/y_unit, asset_liability_ratio))
         if float(asset_liability_ratio) >= 60:
@@ -242,7 +242,7 @@ def income_analysis_loan(df):
         if delta < 0:
             flag = False
         if debug:
-            print('record_date=%s, i=%d, curfds=%f, shorttermborr=%F, intepaya=%f, \
+            my_dbg('record_date=%s, i=%d, curfds=%f, shorttermborr=%F, intepaya=%f, \
                 duenoncliab=%f, longborr=%f, bdspaya=%f, longpayatOT=%f, \
                 total_loan=%f, delta=%f, flag=%s '\
                 %(df.record_date[i], i, round(df.curfds[i]/y_unit, 2), df.shorttermborr[i]/y_unit, \
@@ -890,11 +890,11 @@ def fina_data_analysis(df):
     group_by_stock_code_df=all_df.groupby('stock_code')
     for stock_code, group_df in group_by_stock_code_df:
         if group_df is None:
-            print('%s, group_df is None' % stock_code )
+            my_dbg('%s, group_df is None' % stock_code )
             continue
 
         if len(group_df) < 1:
-            print('%s, len(group_df) < 1' % stock_code )
+            my_dbg('%s, len(group_df) < 1' % stock_code )
             continue
 
         '''
@@ -908,8 +908,8 @@ def fina_data_analysis(df):
         group_df = group_df.reset_index(drop=True)
         group_df = group_df.head(number + 1)
         if debug:
-            print(stock_code)
-            print(group_df.head(1))
+            my_dbg(stock_code)
+            my_dbg(group_df.head(1))
 
         
         '''先看总资产 看总资产，判断公司实力及扩张能力 >30%'''
@@ -971,7 +971,7 @@ def fina_data_analysis(df):
             try:
                 del ret_df[6]
             except Exception as e:
-                print("### error (%s):%s " % (e, ret_df.head(1)))
+                my_dbg("### error (%s):%s " % (e, ret_df.head(1)))
 
         #ret_df.to_csv('./sina_html/sina_' + stock_code +  '.csv', encoding='utf-8-sig')
         #ret_df.to_csv('./sina_html/sina_' + stock_code + '_' + ret_df.stock_name_x[0] + '.csv', encoding='utf-8-sig')
@@ -985,17 +985,17 @@ def fina_data_analysis(df):
         
         if flag and flag_net_increase and flag_ncf and flag_paid_asset and flag_netprofit and flag_main_frofit and flag_costfee and flag_gross \
             and flag_revnue and flag_net_asset_return_rate and flag_invest and flag_fix_assets and flag_asset and flag_liab and flag_loan and flag_pay_recv :
-            print("################################### %s ###############################\n"% (stock_code))
+            my_dbg("################################### %s ###############################\n"% (stock_code))
 
         if flag_gross and flag_netprofit and flag_net_asset_return_rate:
-            print(" 连续5年的毛利率大于40% and 连续5年的净利润现金含量大于100% and 连续5年的ROE大于15%: %s \n"% (stock_code))
+            my_dbg(" 连续5年的毛利率大于40% and 连续5年的净利润现金含量大于100% and 连续5年的ROE大于15%: %s \n"% (stock_code))
 
         #end for loop
 
     #copy to /var/www/html/
     exec_command = "cp -rf ./sina_html /var/www/html/"
     if debug:
-        print("%s"%(exec_command))
+        my_dbg("%s"%(exec_command))
     os.system(exec_command)
 
     pass
@@ -1057,8 +1057,8 @@ def get_data_from_fina_income_balance_cashflow():
     #df = df.T.drop_duplicates().T
 
     if debug:
-        print(len(df))
-        print(df.head(5))
+        my_dbg(len(df))
+        my_dbg(df.head(5))
 
 
     df=df.fillna(0)
@@ -1096,9 +1096,9 @@ if __name__ == '__main__':
     fina_data_analysis(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
 

@@ -96,14 +96,14 @@ def scrape_canvas_data(driver):
                     transaction_value = transaction_element.text
                     extracted_data[date_value] = float(transaction_value)
                     if debug:
-                        print('date_value:%s, transaction_value:%s' % (date_value, transaction_value)  )
+                        my_dbg('date_value:%s, transaction_value:%s' % (date_value, transaction_value)  )
                     
                 except:
                     # No tooltip found at this point, continue to the next
                     pass
             except Exception as outer_exception:
                 # Handle any other issues like JavaScript or element issues
-                print(f"Error at x_offset: {x_offset}, {outer_exception}")
+                my_dbg(f"Error at x_offset: {x_offset}, {outer_exception}")
     except:
         pass
 
@@ -114,12 +114,12 @@ def scrape_canvas_data(driver):
             stock_date = key
             pe_pct =  value
             if debug:
-                print(f"{key}: {value}")  
-                print(stock_date, pe_pct)  
+                my_dbg(f"{key}: {value}")  
+                my_dbg(stock_date, pe_pct)  
     except Exception as e:
         if debug:
-            print("%s pe failed" % stock_code)
-            print(e)
+            my_dbg("%s pe failed" % stock_code)
+            my_dbg(e)
         pass
 
     return stock_date, pe_pct
@@ -188,7 +188,7 @@ def get_iwencai_pe(stock_code):
 
     url='https://iwencai.com/unifiedwap/result?w='+ stock_code + 'pe'
     if debug:
-        print(url)
+        my_dbg(url)
 
     driver.get(url)
     time.sleep(random.randint(1, 5))
@@ -199,7 +199,7 @@ def get_iwencai_pe(stock_code):
             driver.find_element(By.ID, "details-button").click()
         except Exception as e:
             if debug:
-                #print(e)
+                #my_dbg(e)
                 pass
 
         time.sleep(1)
@@ -208,7 +208,7 @@ def get_iwencai_pe(stock_code):
             driver.find_element(By.ID, "proceed-link").click()
         except Exception as e:
             if debug:
-                #print(e)
+                #my_dbg(e)
                 pass
 
         global_first_time = False
@@ -217,7 +217,7 @@ def get_iwencai_pe(stock_code):
     stock_date, pe = scrape_canvas_data(driver)
     
     if debug:
-        print(stock_code, stock_date, pe)
+        my_dbg(stock_code, stock_date, pe)
 
     driver.quit()
     
@@ -250,9 +250,9 @@ def get_all_stock_code(url=None):
                 + '&np=2&fltt=2&invt=2&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2&fields=f12%2Cf14%2Cf2%2Cf3%2Cf62%2Cf184%2Cf66%2Cf69%2Cf72%2Cf75%2Cf78%2Cf81%2Cf84%2Cf87%2Cf204%2Cf205%2Cf124'
 
     if debug:
-        print(url)
+        my_dbg(url)
 
-    print(url)
+    my_dbg(url)
 
     browser = get_browser()
    
@@ -269,7 +269,7 @@ def get_all_stock_code(url=None):
         browser.quit()
 
 
-    #print(html)
+    #my_dbg(html)
    
     p1 = re.compile(r'[(](.*?)[)]', re.S)
     response_array = re.findall(p1, html)
@@ -277,7 +277,7 @@ def get_all_stock_code(url=None):
     rawdata = api_param['data']['diff']
     data_df = pd.DataFrame(rawdata)
     data_df = data_df.T
-    print(data_df)
+    my_dbg(data_df)
     
 
 
@@ -286,8 +286,8 @@ def get_all_stock_code(url=None):
 
 def worker(name):
     if debug:
-        print("Worker %s %s %s started" % (name[0], name[1], name[2]))
-        print(name)
+        my_dbg("Worker %s %s %s started" % (name[0], name[1], name[2]))
+        my_dbg(name)
     stock_code = name[2]
     stock_code, stock_date, pe_pct = get_iwencai_pe(stock_code)
     return [stock_code, stock_date, pe_pct]
@@ -304,7 +304,7 @@ if __name__ == '__main__':
 
     stock_df=get_latest_zlje_from_db()
     #stock_df = stock_df.head(10)
-    print(stock_df.head(5))
+    my_dbg(stock_df.head(5))
     stock_df_len = len(stock_df)
 
 
@@ -324,18 +324,18 @@ if __name__ == '__main__':
     data_column=['stock_code', 'record_date', 'pe_pct']
 
     if debug:
-        print(mplist)
-        print('**********************************************')
-        print(mplist[0])
+        my_dbg(mplist)
+        my_dbg('**********************************************')
+        my_dbg(mplist[0])
     update_df=pd.DataFrame(mplist[0], columns=data_column)
     update_df.to_csv('./csv/' + nowdate.strftime("%Y-%m-%d")  + 'iwencai_pe.txt', sep=',', index=False, header=False, encoding='utf-8')
 
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("main_company.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("main_company.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
     
     

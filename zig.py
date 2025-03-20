@@ -16,7 +16,7 @@ ZIG_STATE_FALL = 2
 
 def recurse_set_state(buy_state, pos, state):
     if debug:
-        print("recurse_set_state")
+        my_dbg("recurse_set_state")
     if pos == 0:
         pass
     else:
@@ -31,7 +31,7 @@ def recurse_set_state(buy_state, pos, state):
 def get_buy_state(peers, dates, prices):
     length = len(peers)
     if debug:
-        print('length is %s' % length)
+        my_dbg('length is %s' % length)
     buy_state = [];
     for i in range(0, length):
         buy_state.append(0)
@@ -45,15 +45,15 @@ def get_buy_state(peers, dates, prices):
         recurse_set_state(buy_state, length - 2, 0)
 
     if debug:
-        print("buy_state:%s" % buy_state)
+        my_dbg("buy_state:%s" % buy_state)
     return buy_state
 
 def zig(df):
     x = 0.35
     k = df["close"]
     d = df.index
-    #print(k)
-    #print(d)
+    #my_dbg(k)
+    #my_dbg(d)
     # 循环前的变量初始化
     # 端点 候选点 扫描点 端点列表 拐点线列表 趋势状态
     peer_i = 0
@@ -63,7 +63,7 @@ def zig(df):
     z = np.zeros(len(k))
     state = ZIG_STATE_START
     while True:
-        #print(peers)
+        #my_dbg(peers)
         scan_i += 1
         if scan_i == len(k) - 1:
             # 扫描到尾部
@@ -125,22 +125,22 @@ def zig(df):
         for j in range(peer_end_i - peer_start_i +1):
             z[j + peer_start_i] = start_value + a*j
     
-    # print(u'...转向点的阀值、个数、位置和日期...')        
+    # my_dbg(u'...转向点的阀值、个数、位置和日期...')        
     if debug:
-        print('zig: %d, %d' % (x, len(peers)))
-        print("zig peers:%s" % peers)
+        my_dbg('zig: %d, %d' % (x, len(peers)))
+        my_dbg("zig peers:%s" % peers)
     dates = [d[i] for i in peers]  #时间
     if debug:
-        print("zig: dates:%s" % dates)
+        my_dbg("zig: dates:%s" % dates)
     prices=[k[i] for i in peers]
     if debug:
-        print("zig prices:%s" % prices)
-        print(list(k))
-        print(list(z))
+        my_dbg("zig prices:%s" % prices)
+        my_dbg(list(k))
+        my_dbg(list(z))
 
     buy_state = get_buy_state(peers, dates, prices)
     if debug:
-        print("zig buy_state:%s" % buy_state)
+        my_dbg("zig buy_state:%s" % buy_state)
 
     
     return z, peers, d, k, buy_state

@@ -52,14 +52,14 @@ def get_cross_info(P):
     for j in range(0, within_days):
         cross = REF(P, j)
         if debug:
-            print('P%d=%s type(cross)=%s' % (j, cross, type(cross)))
+            my_dbg('P%d=%s type(cross)=%s' % (j, cross, type(cross)))
         if cross:
             if debug:
-                print('j=%d: condition is OK'% j)
+                my_dbg('j=%d: condition is OK'% j)
             return j, cross
         else:
             if debug:
-                print('j=%d: condition is NG'% j)
+                my_dbg('j=%d: condition is NG'% j)
 
     return j, cross
 
@@ -138,7 +138,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         nowname = nowname[nowname.rfind('[') + 1:]
         nowname = nowname[:nowname.rfind(']')]
         if debug:
-            print(str(nowdate.strftime("%Y-%m-%d")), nowcode, nowname, O, H, L, C)
+            my_dbg(str(nowdate.strftime("%Y-%m-%d")), nowcode, nowname, O, H, L, C)
 
         stock_code_new=''
         if nowcode_new[0:1] == '6':
@@ -149,7 +149,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
 
         if debug:
-            print("code:%s, name:%s" % (nowcode, nowname ))
+            my_dbg("code:%s, name:%s" % (nowcode, nowname ))
 
 
         if 0:
@@ -157,7 +157,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             #if ('ST' in nowname or '300' in nowcode):
             if ('ST' in nowname or '68' in nowcode):
                 if debug:
-                    print("skip code: code:%s, name:%s" % (nowcode, nowname ))
+                    my_dbg("skip code: code:%s, name:%s" % (nowcode, nowname ))
                 continue
         else:
             pass
@@ -166,7 +166,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if 0:
             if '1213' not in  nowcode :
                 continue
-            print("code:%s, name:%s" % (nowcode, nowname ))
+            my_dbg("code:%s, name:%s" % (nowcode, nowname ))
 
         '''
         #database table item list
@@ -177,14 +177,14 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 end_date=nowdate.strftime("%Y-%m-%d"),
                 limit=700)
         if debug:
-            print(detail_info)
+            my_dbg(detail_info)
            
         df_len = len(detail_info)
 
         #fix NaN bug
         # if len(detail_info) == 0 or (detail_info is None):
         if len(detail_info) <= within_days  or (detail_info is None):
-            # print('NaN: code:%s, name:%s' % (nowcode, nowname ))
+            # my_dbg('NaN: code:%s, name:%s' % (nowcode, nowname ))
             #error handle
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
                 is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
@@ -192,18 +192,18 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
          
         db_max_date = detail_info['record_date'][len(detail_info)-1]
         if debug:
-            print('type(db_max_date)=%s' % type(db_max_date))
-            print('(db_max_date)=%s' % (db_max_date))
+            my_dbg('type(db_max_date)=%s' % type(db_max_date))
+            my_dbg('(db_max_date)=%s' % (db_max_date))
 
         #format transfer '2021-01-01' -> '20210101' 
         if time_is_equal(db_max_date.replace('-',''), nowdate.strftime("%Y%m%d")):
             if debug:
-                print('date is ok')
+                my_dbg('date is ok')
             else:
                 pass
         else:
             #invalid data, skip this
-            print('###error###: nowcode:%s, database max date:%s, nowdate:%s' % \
+            my_dbg('###error###: nowcode:%s, database max date:%s, nowdate:%s' % \
                     (nowcode, db_max_date, nowdate.strftime("%Y%m%d")))
             
             continue
@@ -226,8 +226,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             pe_pct = round((pe - pe_min) * 100 / delta, 2)
 
         if debug:
-            print('pe=%s, pe_max=%s, pe_min=%s, pe_pct=%s' % (pe, pe_max, pe_min, pe_pct))
-            #print(pe_df.head(1))
+            my_dbg('pe=%s, pe_max=%s, pe_min=%s, pe_pct=%s' % (pe, pe_max, pe_min, pe_pct))
+            #my_dbg(pe_df.head(1))
 
             
         ##############################################################################
@@ -292,10 +292,10 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             is_d_volume =  1
 
         if is_d_volume:
-            print("[is_d_volume] volume is bigger than last day: code:%s, name:%s" % \
+            my_dbg("[is_d_volume] volume is bigger than last day: code:%s, name:%s" % \
                 (nowcode, nowname ))
         if debug:
-            print('is_d_volume %s' % is_d_volume)
+            my_dbg('is_d_volume %s' % is_d_volume)
 
         ################################################################################################
 
@@ -349,7 +349,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
 
         if debug:
-            print(cond_1, cond_2, cond_3, cond_4, cond_5 , cond_6)
+            my_dbg(cond_1, cond_2, cond_3, cond_4, cond_5 , cond_6)
 
         line3_cnt = 0
         if cond_1:
@@ -370,10 +370,10 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if (line3_cnt > 3 ) and cond_6:
             is_cross3line = 1 
 
-            print("[yi yang chuan san xian] cross: code:%s, name:%s" % \
+            my_dbg("[yi yang chuan san xian] cross: code:%s, name:%s" % \
                 (nowcode, nowname ))
             if debug:
-                print('is_cross3line %s' % is_cross3line)
+                my_dbg('is_cross3line %s' % is_cross3line)
 
           
         ##############################################################################
@@ -414,7 +414,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             cond_5 = peach_exist(nowdate, nowcode, 2, detail_info)
             if cond_5 and today_p > 0.01:
                 is_peach = 1 
-                print("[tao_yuan_san_jie_yi] peach and macd golden cross: code:%s, name:%s" % \
+                my_dbg("[tao_yuan_san_jie_yi] peach and macd golden cross: code:%s, name:%s" % \
                     (nowcode, nowname ))
         else:
 
@@ -422,7 +422,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             cond_1 = C > O and today_p > 0.01 and \
                     ( REF(C, 1) <  REF(EMA(C,12), 1) and C > EMA(C,12))
             if debug:
-                print( REF(C, 1) ,  REF(EMA(C,12), 1) ,  C , EMA(C,12))
+                my_dbg( REF(C, 1) ,  REF(EMA(C,12), 1) ,  C , EMA(C,12))
 
             #C cross boll-mid
             cond_2 = (O < middleband[-1] and C > middleband[-1])
@@ -433,7 +433,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             #dif dea become big
             cond_3 = dif[-1] > dif[-2] or dea[-1] > dea[-2]
             if debug:
-                print(dif[-1] , dif[-2] , dea[-1] , dea[-2])
+                my_dbg(dif[-1] , dif[-2] , dea[-1] , dea[-2])
 
             #C cross ma5 and ma10
             low=min(REF(C,1), O)
@@ -447,28 +447,28 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
 
             if debug:
-                print(cond_1, cond_2, cond_3, cond_4, cond_5 , cond_6)
+                my_dbg(cond_1, cond_2, cond_3, cond_4, cond_5 , cond_6)
 
             if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
                 is_peach = 1 
 
-                print("[tao_yuan_san_jie_yi_adv] peach and macd golden cross: code:%s, name:%s" % \
+                my_dbg("[tao_yuan_san_jie_yi_adv] peach and macd golden cross: code:%s, name:%s" % \
                     (nowcode, nowname ))
                 if debug:
-                    print('is_peach %s' % is_peach)
+                    my_dbg('is_peach %s' % is_peach)
         ################################################################################################
         #is_zig
         #zig condition
         z_df, z_peers, z_d, z_k, z_buy_state=zig(detail_info)
 
         if debug:
-            print('zig info: z_peers=%s' %(z_peers))
+            my_dbg('zig info: z_peers=%s' %(z_peers))
             for k in range(0,len(z_peers)):
-                print('zig info: z_peers_date=%s' %(z_d[z_peers[k]]))
+                my_dbg('zig info: z_peers_date=%s' %(z_d[z_peers[k]]))
 
-            print('zig info: z_d=%s' %(z_d))
-            print('zig info: z_k=%s' %(z_k))
-            print('zig info: z_buy_state=%s' %(z_buy_state))
+            my_dbg('zig info: z_d=%s' %(z_d))
+            my_dbg('zig info: z_k=%s' %(z_k))
+            my_dbg('zig info: z_buy_state=%s' %(z_buy_state))
 
         z_len = len(z_peers)
         #calculate buy or sell
@@ -480,7 +480,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 is_zig = delta_day * (-1)
 
         if debug:
-            print('is_zig=%s' % is_zig)
+            my_dbg('is_zig=%s' % is_zig)
 
            
 
@@ -496,7 +496,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         P3=CROSS(MA10,MA30)
         P4=CROSS(MA10,MA60)
         if debug:
-            print('P1=%s, P2=%s, P3=%s, P4=%s'% (P1, P2, P3, P4))
+            my_dbg('P1=%s, P2=%s, P3=%s, P4=%s'% (P1, P2, P3, P4))
 
         p1_5c30_pos, p1_5c30_cross =  get_cross_info(P1)
         p2_5c60_pos, p2_5c60_cross =  get_cross_info(P2)
@@ -505,21 +505,21 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
 
         if debug:
-            print('p1_5c30_pos:%s, p1_5c30_cross:%s' %(p1_5c30_pos, p1_5c30_cross))
-            print('p2_5c60_pos:%s, p2_5c60_cross:%s' %(p2_5c60_pos, p2_5c60_cross))
-            print('p3_10c30_pos:%s, p3_10c30_cross:%s' %(p3_10c30_pos, p3_10c30_cross))
-            print('p4_10c60_pos:%s, p4_10c60_cross:%s' %(p4_10c60_pos, p4_10c60_cross))
+            my_dbg('p1_5c30_pos:%s, p1_5c30_cross:%s' %(p1_5c30_pos, p1_5c30_cross))
+            my_dbg('p2_5c60_pos:%s, p2_5c60_cross:%s' %(p2_5c60_pos, p2_5c60_cross))
+            my_dbg('p3_10c30_pos:%s, p3_10c30_cross:%s' %(p3_10c30_pos, p3_10c30_cross))
+            my_dbg('p4_10c60_pos:%s, p4_10c60_cross:%s' %(p4_10c60_pos, p4_10c60_cross))
 
-            print(detail_info.record_date[df_len-1-p1_5c30_pos-1])
-            print(detail_info.record_date[df_len-1-p2_5c60_pos-1])
-            print(detail_info.record_date[df_len-1-p3_10c30_pos-1])
-            print(detail_info.record_date[df_len-1-p4_10c60_pos-1])
+            my_dbg(detail_info.record_date[df_len-1-p1_5c30_pos-1])
+            my_dbg(detail_info.record_date[df_len-1-p2_5c60_pos-1])
+            my_dbg(detail_info.record_date[df_len-1-p3_10c30_pos-1])
+            my_dbg(detail_info.record_date[df_len-1-p4_10c60_pos-1])
 
 
         # P1 P2 P3 P4 all are true during withdays
         if p1_5c30_cross and  p2_5c60_cross and  p3_10c30_cross and  p4_10c60_cross :
             if debug:
-                print('!!! %s, %s, %s' %(str(nowdate), nowcode, nowname))
+                my_dbg('!!! %s, %s, %s' %(str(nowdate), nowcode, nowname))
 
             the_min = min(O, C)
 
@@ -531,7 +531,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 if REF(the_min, s_day) >= REF(MA5, s_day):
                     c_less_ma5 = True
                     if debug:
-                        print("ma5: s_day(%d) is equal e_day(%d)" %( s_day, e_day))
+                        my_dbg("ma5: s_day(%d) is equal e_day(%d)" %( s_day, e_day))
                     else:
                         pass
                 else:
@@ -542,13 +542,13 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     #if REF(C, ps) >= REF(MA5, ps):
                         c_less_ma5 = True
                         if debug:
-                            print('MA5 condition ok')
+                            my_dbg('MA5 condition ok')
                         else:
                             pass
                     else:
                         c_less_ma5 = False
                         if debug:
-                            print('MA5 condition not ok')
+                            my_dbg('MA5 condition not ok')
                         else:
                             pass
                         break
@@ -559,12 +559,12 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             s_day = min(p3_10c30_pos, p4_10c60_pos)
             e_day = min(p1_5c30_pos, p2_5c60_pos)
             if debug:
-                print("s_day(%d)  e_day(%d)" %( s_day, e_day))
+                my_dbg("s_day(%d)  e_day(%d)" %( s_day, e_day))
             if s_day == e_day:
                 if REF(the_min, s_day) >= REF(MA60, s_day):
                     c_less_ma60 = True
                     if debug:
-                        print("ma60: s_day(%d) is equal e_day(%d)" %( s_day, e_day))
+                        my_dbg("ma60: s_day(%d) is equal e_day(%d)" %( s_day, e_day))
                     else:
                         pass
             else:
@@ -574,13 +574,13 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     #if REF(C, ps) >= REF(MA60, ps):
                         c_less_ma60 = True
                         if debug:
-                            print('MA60 condition ok')
+                            my_dbg('MA60 condition ok')
                         else:
                             pass
                     else:
                         c_less_ma60 = False
                         if debug:
-                            print('MA60 condition not ok, ps=%d' % ps)
+                            my_dbg('MA60 condition not ok, ps=%d' % ps)
                         else:
                             pass
                         break
@@ -588,10 +588,10 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             if c_less_ma5 and c_less_ma60:
                 is_quad = 1
                 if debug:
-                   print('### %s, %s, %s, is_quad=%d' %(str(nowdate), nowcode, nowname, is_quad))
+                   my_dbg('### %s, %s, %s, is_quad=%d' %(str(nowdate), nowcode, nowname, is_quad))
 
         if debug:
-            print('is_quad=%s' % is_quad)
+            my_dbg('is_quad=%s' % is_quad)
 
 
         ###############################################################################################
@@ -603,7 +603,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if cond_1 and cond_2 and cond_3 and cond_4:
             is_macd = 1
             if debug:
-                print('### %s, %s, %s, is_macd=%d' %(str(nowdate), nowcode, nowname, is_macd))
+                my_dbg('### %s, %s, %s, is_macd=%d' %(str(nowdate), nowcode, nowname, is_macd))
      
         ###############################################################################################
         #is_2d3pct
@@ -621,7 +621,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         is_2d3pct = i       
         if i > 1:
             if debug:
-                print('### %s, %s, %s, is_2d3pct=%d' %(str(nowdate), nowcode, nowname, is_2d3pct))
+                my_dbg('### %s, %s, %s, is_2d3pct=%d' %(str(nowdate), nowcode, nowname, is_2d3pct))
             pass
             
 
@@ -632,7 +632,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             cur_c = REF(C, k)
             cur_o = REF(O, k)
             if debug:
-                print(str(nowdate), nowcode, nowname, k, yes_c, cur_c, cur_o)
+                my_dbg(str(nowdate), nowcode, nowname, k, yes_c, cur_c, cur_o)
 
             if (cur_c  > cur_o) and ( cur_c < yes_c * 1.09):
                 continue;
@@ -642,7 +642,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         if 5 == k and (C < REF(C, 5) * 1.1 ): 
             is_up_days = 1
             if debug:
-                print('### %s, %s, %s, is_up_days=%d' %(str(nowdate), nowcode, nowname, is_up_days))
+                my_dbg('### %s, %s, %s, is_up_days=%d' %(str(nowdate), nowcode, nowname, is_up_days))
      
         ##############################################################################
         # old duck 
@@ -680,7 +680,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
         '''
         #is_duck_head = duck_head(detail_info)
-        #print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
+        #my_dbg('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
         A1=A2=A3=A4=PDAY1=PDAY2=PDAY3=PDAY4=PDAY5=0
         MA5 = MA(CLOSE,5);
         MA10 = MA(CLOSE,10);
@@ -699,11 +699,11 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 A2= COUNT(CROSS(MA10,MA5),PDAY2.value)>=1;
 
         if debug:
-            print('PDAY1:%s' % PDAY1) 
-            print('PDAY2:%s' % PDAY2) 
-            print('PDAY3:%s' % PDAY3) 
-            print('PDAY4:%s' % PDAY4) 
-            print('PDAY5:%s' % PDAY5) 
+            my_dbg('PDAY1:%s' % PDAY1) 
+            my_dbg('PDAY2:%s' % PDAY2) 
+            my_dbg('PDAY3:%s' % PDAY3) 
+            my_dbg('PDAY4:%s' % PDAY4) 
+            my_dbg('PDAY5:%s' % PDAY5) 
 
 
             if PDAY1 < 100 and PDAY2 < 100 and PDAY3 < 100 and PDAY5 < 100:
@@ -714,11 +714,11 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 A4 = (LLV(C, PDAY2.value) > LLV(C, PDAY5.value + 1)) and (C > MA60)
 
         if debug:
-            print(A1, A2, A3, A4)
+            my_dbg(A1, A2, A3, A4)
 
         if A1 and A2 and A3 and A4:
             is_duck_head = 1
-            print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
+            my_dbg('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
  
         '''
 
@@ -731,13 +731,13 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         try:
             a1_c = REF(C, a1).value
         except Exception as e:
-            print(e)
-            print(nowcode)
+            my_dbg(e)
+            my_dbg(nowcode)
             a1 = len(H.series) - 1 
             a1_c = REF(C, a1).value
 
         if debug:
-            print('foot of duck, day=', a1, 'price', a1_c)
+            my_dbg('foot of duck, day=', a1, 'price', a1_c)
 
         #鸭头距离
         A2 = HHV(C,a1)
@@ -745,7 +745,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         A3 = BARSLAST(C == a2)
         a3 = int(A3.value + 1)
         if debug:
-            print('head of duck, day=', a3, 'price', a2)
+            my_dbg('head of duck, day=', a3, 'price', a2)
 
         #鸭脚距离 > 鸭头距离
         cond_1 = (a1 > a3)
@@ -766,7 +766,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         a4 = A4.value
         cond_4 = a3 > a4  
         if debug:
-            print('cross(ma10,ma5), day=', a4)
+            my_dbg('cross(ma10,ma5), day=', a4)
 
         #LLV(C, a3) 在 ma30 ma60 之上
         cond_5 =  LLV(C, a3) > MA30
@@ -780,12 +780,12 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 or is_up_days)
 
         if debug:
-            print('duckhead:',cond_1, cond_2, cond_3, cond_4, cond_5, cond_6)
+            my_dbg('duckhead:',cond_1, cond_2, cond_3, cond_4, cond_5, cond_6)
                 
         if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
             is_duck_head = 1
             if debug:
-                print('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
+                my_dbg('### %s, %s, %s, is_duck_head=%d' %(str(nowdate), nowcode, nowname, is_duck_head))
  
 
 
@@ -808,7 +808,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         try :
             H1 = HHV(REF(H, 1), in_day)    
         except:
-            print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
+            my_dbg('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
                     is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
             continue
@@ -829,7 +829,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         L1_days = BARSLAST(REF(C, 1) == L1.value)          
         L1_date = detail_info.record_date[df_len-1-L1_days.value-1]
 
-        #print(H1, L1 , H1_days, L1_days)
+        #my_dbg(H1, L1 , H1_days, L1_days)
         if L1_days.value > 1 and H1_days.value > L1_days.value:
             #第二次最高价：第一次最低价以来的最高价(当天除外)
             #H2 = HHV(REF(H, 1), L1_days.value -1)     
@@ -840,16 +840,16 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             #H2_days = BARSLAST(REF(H, 1)== H2.value )      
             H2_days = BARSLAST(REF(C, 1)== H2 )      
             if debug:
-                print(nowcode,H2_days)
+                my_dbg(nowcode,H2_days)
             if H2_days.value > 200:
-                print('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
+                my_dbg('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
                 update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
                         is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
                 continue
 
             if debug:
-                print(H2_days)
-                print(df_len-1-H2_days.value-1)
+                my_dbg(H2_days)
+                my_dbg(df_len-1-H2_days.value-1)
             H2_date = detail_info.record_date[df_len-1-H2_days.value-1]
 
             #计算底部横盘天数，涨跌幅不能超过2%
@@ -860,11 +860,11 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     cond_11 = cond_22 = False
                     #N天内，涨跌幅不能超过2%
                     if debug:
-                        print('### N=%d %s, %s, %s' %(N, str(nowdate), nowcode, nowname))
-                        print('%s: delta_p=%s in %s' % (DATETIME, (HHV(C,N)-LLV(C,N))/LLV(C,N), N))
-                        print(HHV(C,N))
-                        print(LLV(C,N))
-                        print(REF(C,1))
+                        my_dbg('### N=%d %s, %s, %s' %(N, str(nowdate), nowcode, nowname))
+                        my_dbg('%s: delta_p=%s in %s' % (DATETIME, (HHV(C,N)-LLV(C,N))/LLV(C,N), N))
+                        my_dbg(HHV(C,N))
+                        my_dbg(LLV(C,N))
+                        my_dbg(REF(C,1))
 
                     try :
                         cond_11 = EXIST(((C-REF(C,1))/C) < -0.02 , N) 
@@ -881,7 +881,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                         target = max(target, N)
                     N += 1
                 if debug:
-                    print('target=%s, N=%s' % (target, N))
+                    my_dbg('target=%s, N=%s' % (target, N))
                 return target
 
             K = 0
@@ -892,7 +892,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 H2_cur_date=datetime.datetime.strptime(H2_date,'%Y-%m-%d')
                 cur_date_new=L1_cur_date+datetime.timedelta(int(K))
                 if debug:
-                    print('L1_cur_date=%s, H2_cur_date=%s, cur_date_new=%s, K=%s' %\
+                    my_dbg('L1_cur_date=%s, H2_cur_date=%s, cur_date_new=%s, K=%s' %\
                             (L1_cur_date.strftime('%Y%m%d'), \
                             H2_cur_date.strftime('%Y%m%d'), \
                             cur_date_new.strftime('%Y%m%d'), \
@@ -906,17 +906,17 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
                 max_botton_days = max(max_botton_days , get_max_days_by_pct())
                 if debug:
-                    print(max_botton_days, K) 
+                    my_dbg(max_botton_days, K) 
                 K +=1
 
             #底部至少2天
             cond_3 = max_botton_days >= 2 
 
             if debug:
-                print('->1')
+                my_dbg('->1')
             if H2_days.value > 1 and L1_days.value > H2_days.value:
                 if debug:
-                    print('->2')
+                    my_dbg('->2')
                 loop = 1
                 cond_4 = True
                 #H2 -> C 之间， C > MA(C, 10)
@@ -934,29 +934,29 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 L2_date = detail_info.record_date[df_len-1-L2_days.value-1]
                 
                 if debug:
-                    print(L2, L2_days, L2_date)
+                    my_dbg(L2, L2_days, L2_date)
                 
         #突破: 收盘价 > 杯柄的最高价
         cond_5 = C > H2
         if debug:
-            print('C=', C,',', 'H2=', H2)
+            my_dbg('C=', C,',', 'H2=', H2)
 
         if debug:
-            print('is_cup_tea condition:', cond_1, cond_2, cond_3, cond_4, cond_5)
+            my_dbg('is_cup_tea condition:', cond_1, cond_2, cond_3, cond_4, cond_5)
         if (cond_1 and cond_2 and cond_3 and cond_4 and cond_5):
         #if 1:
             is_cup_tea = 1
             if debug:
-                print('H1=%s, H1_days=%s, H1_date=%s, L1=%s , L1_days=%s, L1_date=%s, delta_H1_L1=[%s,%s]' % \
+                my_dbg('H1=%s, H1_days=%s, H1_date=%s, L1=%s , L1_days=%s, L1_date=%s, delta_H1_L1=[%s,%s]' % \
                         (H1, H1_days, H1_date, L1, L1_days, L1_date, H1_days - L1_days, (L1 - H1)/H))
-                print('H2=%s, H2_days=%s, H2_date=%s, L2=%s , L2_days=%s, L2_date=%s, delta_L1_H2=[%s,%s]' % \
+                my_dbg('H2=%s, H2_days=%s, H2_date=%s, L2=%s , L2_days=%s, L2_date=%s, delta_L1_H2=[%s,%s]' % \
                         (H2, H2_days, H2_date, L2, L2_days, L2_date, L1_days - H2_days, (H2 - L1)/ L1))
-                print('max_botton_days=%s' % max_botton_days) 
-                print(cond_1, cond_2, cond_3, cond_4, cond_5)
-                print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
+                my_dbg('max_botton_days=%s' % max_botton_days) 
+                my_dbg(cond_1, cond_2, cond_3, cond_4, cond_5)
+                my_dbg('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
         if debug:
-            print(cond_1, cond_2, cond_3, cond_4, cond_5)
-            print('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
+            my_dbg(cond_1, cond_2, cond_3, cond_4, cond_5)
+            my_dbg('### %s, %s, %s, is_cup_tea=%d' %(str(nowdate), nowcode, nowname, is_cup_tea))
 
         ###############################################################################################
         
@@ -964,12 +964,12 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                 is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
 
         if debug:
-            print('#############################################################################')
-            print([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
+            my_dbg('#############################################################################')
+            my_dbg([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
                 is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
 
     if debug:
-        print('update_list:%s'% update_list)
+        my_dbg('update_list:%s'% update_list)
 
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
             'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume', 'pe_pct']
@@ -978,12 +978,12 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
 
     if debug:
-        print(update_df)
+        my_dbg(update_df)
     #hdata.update_allstock_hdatadate(update_df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     if debug:
-        print("start_time: %s, last_time: %s" % (start_time, last_time))
+        my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct]
 
@@ -1012,7 +1012,7 @@ def update_peach_zig_quad(nowdate, df, df1):
     tmp_df.to_csv('./csv/' + nowdate.strftime("%Y-%m-%d") + '_cross_condition.csv', encoding='gbk')
 
     if debug:
-        print(tmp_df)
+        my_dbg(tmp_df)
 
     #return   #debug
 
@@ -1027,8 +1027,8 @@ def update_peach_zig_quad(nowdate, df, df1):
 
 def worker(name):
     if debug:
-        print("Worker %s %s started" % (name[0], name[1]))
-        print(name)
+        my_dbg("Worker %s %s started" % (name[0], name[1]))
+        my_dbg(name)
     
     handle_df = calculate_peach_zig_quad(name[0], name[1])
     return handle_df
@@ -1041,7 +1041,7 @@ if __name__ == '__main__':
 
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(int(para1))
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d"))) 
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d"))) 
 
     nowdate_df = hdata.get_data_from_hdata(\
             start_date=nowdate.strftime("%Y-%m-%d"), \
@@ -1065,17 +1065,17 @@ if __name__ == '__main__':
         'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume', 'pe_pct']
 
     if debug:
-        print(mplist)
-        print('**********************************************8')
-        print(mplist[0])
+        my_dbg(mplist)
+        my_dbg('**********************************************8')
+        my_dbg(mplist[0])
     update_df=pd.DataFrame(mplist[0], columns=data_column)
     update_df.to_csv('./csv/' + nowdate.strftime("%Y-%m-%d")  + '_multi.txt', sep=',', index=False, header=False, encoding='utf-8')
 
     if len(update_df) > 3000:
         update_peach_zig_quad(nowdate, nowdate_df, update_df) 
     if debug:
-        print(update_df)
-        print(mplist)
+        my_dbg(update_df)
+        my_dbg(mplist)
 
     t2 = time.time()
-    print("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))
+    my_dbg("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))

@@ -78,13 +78,13 @@ def xq_get_original_data(datatype=None):
         if len(tmp_df):
             pass
         else:
-            print('stock_code_new=%s, len(df)=0, #error# abnormal'\
+            my_dbg('stock_code_new=%s, len(df)=0, #error# abnormal'\
                     % stock_code_new)
             continue
 
         if debug:
-            print(i, stock_code_new)
-            print(tmp_df)
+            my_dbg(i, stock_code_new)
+            my_dbg(tmp_df)
         #add stock_code
         #tmp_df['symbol'] = stock_code_new
         tmp_df.insert(1, 'symbol' , stock_code_new, allow_duplicates=False)
@@ -99,16 +99,16 @@ def xq_get_original_data(datatype=None):
             t_2 = time.time()
             d_t = t_2 - t_1
             if debug:
-                print(t_1, t_2)
-                print('xq_get_fina() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
+                my_dbg(t_1, t_2)
+                my_dbg('xq_get_fina() i=%d, stock_code_new =%s ,d_t=%f, len(tmp_df)=%d' % \
                         (i, stock_code_new, d_t, len(tmp_df)))
 
     tt_2 = time.time()
     delta_t = tt_2 - tt_1
     if debug:
-        print('xq_get_fina() delta_t=%f' % delta_t)
-        print('len(list(df))=%d' % len(list(df)))
-        print('list(df)=%s' % list(df))
+        my_dbg('xq_get_fina() delta_t=%f' % delta_t)
+        my_dbg('len(list(df))=%d' % len(list(df)))
+        my_dbg('list(df)=%s' % list(df))
 
     return df
 
@@ -120,25 +120,25 @@ def xq_get_fina(datatype=None):
     df = df.reset_index(drop=True)
 
     if debug:
-        print('len(df)=%d' % len(df))
-        print(df.head(10))
+        my_dbg('len(df)=%d' % len(df))
+        my_dbg(df.head(10))
 
     return df
 
 
 def check_table():
     table_exist = hdata_fina.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         hdata_fina.db_hdata_xq_create()
-        print('table already exist')
+        my_dbg('table already exist')
     else:
         hdata_fina.db_hdata_xq_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
 
 def update_database_indicator():
-    print('#indicator zhuyao caiwu zhibiao')
+    my_dbg('#indicator zhuyao caiwu zhibiao')
     df_indicator = xq_get_fina()
     df_indicator.to_csv('./csv/test_xq_indicator.csv', encoding='gbk')
     df_indicator = df_indicator.drop_duplicates(subset=['report_date', 'symbol'], keep='first')
@@ -154,7 +154,7 @@ def spilt_df(df, key_word):
     try:
         index = df_colunms.get_loc(key_word)
     except:
-        print('error: %s not found' % key_word)
+        my_dbg('error: %s not found' % key_word)
     else:
         pass
 
@@ -164,7 +164,7 @@ def spilt_df(df, key_word):
     return df_tmp
 
 def update_database_income():
-    print('#income  net profit')
+    my_dbg('#income  net profit')
     df_income = xq_get_fina(datatype='income')
     df_income.to_csv('./csv/test_xq_income.csv', encoding='gbk')
     df_income = df_income.drop_duplicates(subset=['report_date', 'symbol'], keep='first')
@@ -175,7 +175,7 @@ def update_database_income():
     pass
 
 def update_database_balance():
-    print('#balance zichan fuzhai biao')
+    my_dbg('#balance zichan fuzhai biao')
     df_balance = xq_get_fina(datatype='balance')
     df_balance.to_csv('./csv/test_xq_balance.csv', encoding='gbk')
     df_balance = df_balance.drop_duplicates(subset=['report_date', 'symbol'], keep='first')
@@ -186,7 +186,7 @@ def update_database_balance():
     pass
     
 def update_database_cashflow():
-    print('#cashflow xianjinliuliang biao')
+    my_dbg('#cashflow xianjinliuliang biao')
     df_cashflow = xq_get_fina(datatype='cashflow')
     df_cashflow.to_csv('./csv/test_xq_cashflow.csv', encoding='gbk')
     df_cashflow = df_cashflow.drop_duplicates(subset=['report_date', 'symbol'], keep='first')
@@ -215,12 +215,12 @@ if __name__ == '__main__':
         python demo.py 1
         '''
     if len(argv) > 3:
-        print(USAGE)  # 如果传入的参数不足，输出正确用法
+        my_dbg(USAGE)  # 如果传入的参数不足，输出正确用法
         exit(1) # 异常退出(下面的代码将不会被执行)
 
     script_name, para1, para2 = argv  # 将传入的参数赋值进行使用
     
-    print("%s, %d, %s"%(script_name, int(para1), para2))
+    my_dbg("%s, %d, %s"%(script_name, int(para1), para2))
 
 
     t1 = time.time()
@@ -228,29 +228,29 @@ if __name__ == '__main__':
 
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(int(para1))
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
     if para2 == "indicator":
-        print("indicator")
+        my_dbg("indicator")
         update_database_indicator()
 
     if para2 == "income":
-        print("income")
+        my_dbg("income")
         update_database_income()
 
     if para2 == "balance":
-        print("balance")
+        my_dbg("balance")
         update_database_balance()
 
     if para2 == "cashflow":
-        print("cashflow")
+        my_dbg("cashflow")
         update_database_cashflow()
     
     browser.close()
     browser.quit()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))

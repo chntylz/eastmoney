@@ -1,6 +1,7 @@
 #!/usr/bin/env python  
 # -*- coding: utf-8 -*-
 
+from file_interface import *
 import psycopg2
 import pandas as pd
 import time
@@ -90,7 +91,7 @@ class HData_eastmoney_income(object):
         self.db_connect()
         self.cur.execute("select count(*) from pg_class where relname = 'eastmoney_income_table' ;")
         ans=self.cur.fetchall()
-        #print(list(ans[0])[0])
+        #my_dbg(list(ans[0])[0])
         if list(ans[0])[0]:
             self.conn.commit()
             self.db_disconnect()
@@ -160,7 +161,7 @@ class HData_eastmoney_income(object):
         self.conn.commit()
         self.db_disconnect()
 
-        print("db_eastmoney_income_table_create finish")
+        my_dbg("db_eastmoney_income_table_create finish")
         pass
 
     def copy_from_stringio(self, df):
@@ -179,12 +180,12 @@ class HData_eastmoney_income(object):
             self.cur.copy_from(buffer, table='eastmoney_income_table', sep=",")
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print("Error: %s" % error)
+            my_dbg("Error: %s" % error)
             self.conn.rollback()
             self.db_disconnect()
             return 1
         
-        #print("copy_from_stringio() done")
+        #my_dbg("copy_from_stringio() done")
         self.db_disconnect()
 
 
@@ -216,16 +217,16 @@ class HData_eastmoney_income(object):
         t1=time.time()
 
         if debug:
-            print('insert_all_stock_data()')
+            my_dbg('insert_all_stock_data()')
         if data is None:
-            print("None")
+            my_dbg("None")
         else:
             length = len(data)
             sql_cmd = ""
             each_num = 1000
             for i in range(0,length):
                 if debug:
-                    print (i)
+                    my_dbg (i)
 
                 #str_temp+="\'"+stock_code+"\'"+","
                 #str_temp+="\'"+data.index[i]+"\'"
@@ -248,31 +249,31 @@ class HData_eastmoney_income(object):
 
                 if i % each_num == 0 and i != 0:
                     if debug:
-                        print(sql_cmd)
+                        my_dbg(sql_cmd)
                     if(sql_cmd != ""):
                         incomel_cmd = "insert into eastmoney_income_table ("\
                                 + eastmoney_cols + \
                                 " ) values "+sql_cmd+";"
                         if debug:
-                            print(incomel_cmd)
+                            my_dbg(incomel_cmd)
                         self.cur.execute(incomel_cmd)
                         self.conn.commit()
                         sql_cmd = ""
 
             if debug:
-                print(sql_cmd)
+                my_dbg(sql_cmd)
             if(sql_cmd != ""):
                 incomel_cmd = "insert into eastmoney_income_table ("\
                         + eastmoney_cols + \
                         " ) values "+sql_cmd+";"
                 if debug:
-                    print(incomel_cmd)
+                    my_dbg(incomel_cmd)
                 self.cur.execute(incomel_cmd)
                 self.conn.commit()
 
         if debug:
-            print(time.time()-t1)
-            print('insert_all_stock_data(\\)')
+            my_dbg(time.time()-t1)
+            my_dbg('insert_all_stock_data(\\)')
 
         self.db_disconnect()
 
@@ -281,10 +282,10 @@ class HData_eastmoney_income(object):
         t0 = t1 = t2 = t3 = t4 = t5 = time.time()
 
         if debug:
-            print('insert_all_stock_data()')
+            my_dbg('insert_all_stock_data()')
 
         if data is None:
-            print("None")
+            my_dbg("None")
         else:
             length = len(data)
             sql_cmd = []
@@ -292,7 +293,7 @@ class HData_eastmoney_income(object):
             for i in range(length):
                 t1 = time.time()
                 if debug:
-                    print (i)
+                    my_dbg (i)
 
                 #str_temp+="\'"+stock_code+"\'"+","
                 #str_temp+="\'"+data.index[i]+"\'"
@@ -321,10 +322,10 @@ class HData_eastmoney_income(object):
 
                 if i % each_num == 0 and i != 0:
                     if debug:
-                        print(sql_cmd)
-                        print("--------------------------------------")
+                        my_dbg(sql_cmd)
+                        my_dbg("--------------------------------------")
                         t=''.join(sql_cmd)
-                        print(t)
+                        my_dbg(t)
                     if len(sql_cmd):
                         incomel_sql = [] 
                         incomel_sql.append("insert into eastmoney_income_table (")
@@ -332,24 +333,24 @@ class HData_eastmoney_income(object):
                         incomel_sql.append( " ) values ")
                         incomel_sql.append(''.join(sql_cmd))
                         incomel_sql.append( "  on conflict (stock_code, record_date) do nothing ; ")
-                        #print(''.join(incomel_sql))
+                        #my_dbg(''.join(incomel_sql))
                         sql_cmd = []
                         if debug:
-                            print(incomel_sql)
+                            my_dbg(incomel_sql)
                         t2 = time.time()
                         self.cur.execute(''.join(incomel_sql))
                         t3 = time.time()
                         self.conn.commit()
                         t4 = time.time()
-                        print(t1, t2, t3, t4, t5)
+                        my_dbg(t1, t2, t3, t4, t5)
                 t5 = time.time()
             if debug:
-                print(t5-t1)
-                print(sql_cmd)
-                print(sql_cmd)
-                print("--------------------------------------")
+                my_dbg(t5-t1)
+                my_dbg(sql_cmd)
+                my_dbg(sql_cmd)
+                my_dbg("--------------------------------------")
                 t=''.join(sql_cmd)
-                print(t)
+                my_dbg(t)
 
             if len(sql_cmd):
                 incomel_sql = []
@@ -358,17 +359,17 @@ class HData_eastmoney_income(object):
                 incomel_sql.append( " ) values ")
                 incomel_sql.append(''.join(sql_cmd))
                 incomel_sql.append( "  on conflict (stock_code, record_date) do nothing; ")
-                #print(''.join(incomel_sql))
+                #my_dbg(''.join(incomel_sql))
                 sql_cmd = []
                 self.cur.execute(''.join(incomel_sql))
                 self.conn.commit()
 
 
         if debug:
-            print(time.time()-t0)
-            print('insert_all_stock_data(\\)')
+            my_dbg(time.time()-t0)
+            my_dbg('insert_all_stock_data(\\)')
 
-        print('insert_all_stock_data(\\) %s records are updated successfully' % len(data))
+        my_dbg('insert_all_stock_data(\\) %s records are updated successfully' % len(data))
 
         self.db_disconnect()
 
@@ -379,17 +380,17 @@ class HData_eastmoney_income(object):
         t0 = t1 = t2 = t3 = t4 = t5 = time.time()
 
         if debug:
-            print('insert_all_stock_data_3()')
+            my_dbg('insert_all_stock_data_3()')
 
         if data is None:
-            print("None")
+            my_dbg("None")
         else:
             data.to_sql(name='eastmoney_income_table', con=self.conn, if_exists = 'replace', index=False)
             pass
 
         if debug:
-            print(time.time()-t0)
-            print('insert_all_stock_data_3(\\)')
+            my_dbg(time.time()-t0)
+            my_dbg('insert_all_stock_data_3(\\)')
 
         self.db_disconnect()
 
@@ -463,7 +464,7 @@ class HData_eastmoney_income(object):
         sql_temp += ";"
 
         if debug:
-            print("get_data_from_hdata, sql_temp:%s" % sql_temp)
+            my_dbg("get_data_from_hdata, sql_temp:%s" % sql_temp)
 
 
 
@@ -479,8 +480,8 @@ class HData_eastmoney_income(object):
         df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))        
 
         if debug:
-            print(type(df))
-            print(df.head(2))
+            my_dbg(type(df))
+            my_dbg(df.head(2))
     
         return df
         pass
@@ -529,7 +530,7 @@ class HData_eastmoney_income(object):
 
         sql_temp += ";"
 
-        print("delete_data_from_hdata, sql_temp:%s" % sql_temp)
+        my_dbg("delete_data_from_hdata, sql_temp:%s" % sql_temp)
 
         self.cur.execute(sql_temp)
         self.conn.commit()
