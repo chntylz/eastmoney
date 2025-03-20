@@ -1060,9 +1060,9 @@ if __name__ == '__main__':
     if len(handle_df) > 3000:
         update_peach_zig_quad(nowdate, nowdate_df, handle_df) 
 
-    processes = 4
+    processes = multiprocessing.cpu_count()
     number = len(nowdate_df)
-    with multiprocessing.Pool(int(processes)) as pool:
+    with multiprocessing.Pool(processes) as pool:
         pool.map(worker, range(number))
 
     '''
@@ -1075,10 +1075,10 @@ if __name__ == '__main__':
     with open('/var/www/cgi-bin/my_optional2.txt','w') as f:  # w is used for the fisrt time 
         f.write("#stock_code nowname\n")
 
-    processes = 4
+    processes = multiprocessing.cpu_count()
     number = len(nowdate_df)
     mplist = []
-    with multiprocessing.Pool(int(processes)) as pool:
+    with multiprocessing.Pool(processes) as pool:
        mplist.append(
            pool.map(worker, data_list))
     

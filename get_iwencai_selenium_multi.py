@@ -315,9 +315,9 @@ if __name__ == '__main__':
     data_list = data_list.tolist()
 
 
-    processes = 30
+    processes = multiprocessing.cpu_count()
     mplist = []
-    with multiprocessing.Pool(int(processes)) as pool:
+    with multiprocessing.Pool(processes) as pool:
        mplist.append(
            pool.map(worker, data_list))
     
