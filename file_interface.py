@@ -391,3 +391,24 @@ def stock_code_format(x):
 
 
 
+def is_workday_time():
+    # 获取当前时间
+    now = datetime.datetime.now()
+    
+    # 定义工作日的范围（周一到周五）
+    if now.weekday() >= 5:  # 5 是周六，6 是周日
+        return False
+    
+    # 定义时间范围（9:30 至 15:00）
+    start_time = datetime.time(9, 30)  # 9:30
+    end_time =  datetime.time(15, 0)    # 15:00
+    
+    # 判断当前时间是否在范围内
+    if start_time <= now.time() <= end_time:
+        return True
+    else:
+        return False
+
+
+
+

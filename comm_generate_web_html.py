@@ -92,7 +92,7 @@ def cgi_handle_html_head(title_name, refresh=0):
     print('<html>\n')
     print('<head>\n')
     print('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n')
-    if refresh:
+    if refresh and is_workday_time():
         print('<meta http-equiv="refresh" content="60">\n')
     print('<title> %s-%s </title>\n' % (title_name, datetime.datetime.now().date()))
     print('\n')
