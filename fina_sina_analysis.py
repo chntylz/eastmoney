@@ -905,6 +905,8 @@ def fina_data_analysis(df):
         ret_df = pd.DataFrame()
         number = 5
 
+        #fix bug 
+        group_df = group_df.sort_values('record_date', ascending=0)
         group_df = group_df.reset_index(drop=True)
         group_df = group_df.head(number + 1)
         if debug:
