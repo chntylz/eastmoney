@@ -387,3 +387,28 @@ def stock_code_format(x):
         x = '0' + x
 
     return x
+
+
+
+def my_dbg(*args, **kwargs):
+    """
+    重写print函数，在输出内容前添加时间戳。
+    时间戳格式为: [YYYY-MM-DD HH:MM:SS]
+    保留原print所有参数功能，包括sep, end, file, flush等
+    """
+    # 生成时间戳
+    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S] ")
+    
+    # 提取并移除sep参数，用于拼接原始消息
+    sep = kwargs.pop('sep', ' ')
+    
+    # 将原始参数转换为字符串消息
+    message = sep.join(map(str, args))
+    
+    # 组合时间戳和消息
+    full_message = timestamp + message
+    
+    # 调用原始print函数，传递其他参数
+    print(full_message, **kwargs)
+
+
