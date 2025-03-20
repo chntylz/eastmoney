@@ -606,9 +606,9 @@ if __name__ == '__main__':
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
 
-    processes = 4
+    processes = multiprocessing.cpu_count()
     number = len(stock_df)
-    with multiprocessing.Pool(int(processes)) as pool:
+    with multiprocessing.Pool(processes) as pool:
         pool.map(worker, data_list)
 
 

@@ -123,8 +123,8 @@ if __name__ == '__main__':
     data_list = np.array(df)
     data_list = data_list.tolist()
 
-    processes = 16
-    with multiprocessing.Pool(int(processes)) as pool:
+    processes = multiprocessing.cpu_count()
+    with multiprocessing.Pool(processes) as pool:
         pool.map(worker, data_list)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

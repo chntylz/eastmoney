@@ -1315,7 +1315,7 @@ def comm_generate_web_dataframe_multi(input_df, curr_dir, curr_day, dict_industr
     if debug:
         print(data_list)
 
-    processes = 16
+    processes = multiprocessing.cpu_count()
     mplist = []
     with multiprocessing.Pool(processes) as pool:
         mplist.append(

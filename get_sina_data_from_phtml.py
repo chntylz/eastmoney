@@ -223,9 +223,9 @@ if __name__ == '__main__':
         hdata_sina_cashflow.db_hdata_sina_create()
     '''
 
-    processes = 4
+    processes = multiprocessing.cpu_count()
     number = len(stock_df)
-    with multiprocessing.Pool(int(processes)) as pool:
+    with multiprocessing.Pool(processes) as pool:
         pool.map(worker, data_list)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
