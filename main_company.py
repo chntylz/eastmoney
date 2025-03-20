@@ -40,13 +40,13 @@ def get_company_info():
         url = 'http://s.askci.com/stock/a/?reportTime=2017-12-31&pageNum=%s' % (str(i))
         #https://s.askci.com/stock/a/0-0?pageNum=264
         url = 'https://s.askci.com/stock/a/0-0?pageNum=%s' % (str(i))
-        print(url)
+        my_dbg(url)
         time.sleep(random.randint(1, 3))
 
         try:
             tb = pd.read_html(url)[3] #经观察发现所需表格是网页中第4个表格，故为[3]
             #tb.to_csv(r'1.csv', mode='a', encoding='utf_8_sig', header=1, index=0)
-            print('第'+str(i)+'页抓取完成')
+            my_dbg('第'+str(i)+'页抓取完成')
             df = pd.DataFrame(tb)
             df.columns = company_cols
             if 'p_index' in df.columns:
@@ -63,9 +63,9 @@ def get_company_info():
 
             all_df = pd.concat([all_df, df])
         except Exception as e:
-            print('#error: %s' % e)
-            print(df)
-            print(tb)
+            my_dbg('#error: %s' % e)
+            my_dbg(df)
+            my_dbg(tb)
         finally:
             pass
 
@@ -76,13 +76,13 @@ def get_company_info():
 
 def check_table():
     table_exist = company_info.table_is_exist() 
-    print('table_exist=%d' % table_exist)
+    my_dbg('table_exist=%d' % table_exist)
     if table_exist:
         company_info.db_hdata_company_create()
-        print('table already exist, recreate')
+        my_dbg('table already exist, recreate')
     else:
         company_info.db_hdata_company_create()
-        print('table not exist, create')
+        my_dbg('table not exist, create')
 
 
 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     nowdate=datetime.datetime.now().date()
-    print("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
 
     df = get_company_info()
     df = df[df['employee'] != '-']
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         company_info.copy_from_stringio(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    print("start_time: %s, last_time: %s" % (start_time, last_time))
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
-    print("main_company.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
+    my_dbg("main_company.py t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
