@@ -170,7 +170,7 @@ if __name__ == '__main__':
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
 
-    processes = 4
+    processes = 16
     number = len(stock_df)
     mplist = []
     with multiprocessing.Pool(int(processes)) as pool:

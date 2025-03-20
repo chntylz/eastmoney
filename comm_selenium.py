@@ -11,6 +11,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 def get_browser():
 
+    path_chromedriver='/usr/bin/chromedriver'
+    path_chromedriver='/snap/bin/chromium.chromedriver'
     browser = None
     
     # 添加无头headlesss
@@ -38,12 +40,12 @@ def get_browser():
 
 
     try:
-        browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+        browser = webdriver.Chrome(executable_path=path_chromedriver,
             chrome_options=chrome_options)
     except:
         time.sleep(60)
         try:
-            browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+            browser = webdriver.Chrome(executable_path=path_chromedriver,
                 chrome_options=chrome_options)
         except:
             pass
@@ -51,7 +53,7 @@ def get_browser():
         if browser is None:
             try:
                 time.sleep(60)
-                browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+                browser = webdriver.Chrome(executable_path=path_chromedriver,
                     chrome_options=chrome_options)
             except:
                 pass

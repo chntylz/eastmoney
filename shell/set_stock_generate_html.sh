@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 #20190625,by aaron
 
 cd ~/eastmoney/html

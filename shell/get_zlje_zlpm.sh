@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #20190625,by aaron
 
 
@@ -72,11 +72,12 @@ hh=`date '+%H'`
 mm=`date '+%M'`
 if [ $hh -eq 14 -a  $mm -gt 29 -a $mm -lt 40 ]  ; then
     log 'it is 14:30~14:40 exit'
+    log "*********************** end ********************************" 
     exit
 fi
 
 
-for value in ${file_array[@]}
+for value in ${file_array[@]};
 do
     log " -- for loop --" 
     target=$value
@@ -104,7 +105,7 @@ do
 
         log "cd $work_path"  
         cd $work_path
-   else
+    else
         log "exit"  
         exit
     fi

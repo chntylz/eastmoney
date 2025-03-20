@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #20190625,by aaron
 
 

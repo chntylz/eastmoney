@@ -1,5 +1,4 @@
-
-#/bin/sh
+#!/bin/sh
 #20190625,by aaron
 
 max_retry=100
@@ -63,13 +62,13 @@ do
     cd ~/eastmoney/ && python3 main_day.py 0 >> $logfile 2>&1  
     ret=$?
     
-    if [ $ret -eq 0] 
+    if [ $ret -eq 0]; 
     then 
         break
     fi
 
     retry=$[$retry+1]
-    if [ $retry -ge $max_retry ]
+    if [ $retry -ge $max_retry ];
     then
         break
     fi
