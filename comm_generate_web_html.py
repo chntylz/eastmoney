@@ -71,7 +71,7 @@ def cgi_write_headline_column(df):
     col_len=len(list(df))
     for j in range(0, col_len): 
         print('        <th>\n')
-        print('        <a> %s</a>\n'%(list(df)[j]))
+        print('        <a> <font color="blue"> %s </font> </a>\n'%(list(df)[j]))
         print('        </th>\n')
 
     '''
