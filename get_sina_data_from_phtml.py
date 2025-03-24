@@ -224,6 +224,8 @@ if __name__ == '__main__':
     '''
 
     processes = multiprocessing.cpu_count()
+    if processes > 4:
+        processes = 4
     number = len(stock_df)
     with multiprocessing.Pool(processes) as pool:
         pool.map(worker, data_list)
