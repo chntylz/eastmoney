@@ -184,7 +184,8 @@ def get_browser_real():
 def get_iwencai_pe(stock_code):
 
 
-    driver = get_browser_real()
+    #driver = get_browser_real()
+    driver = get_browser()
 
     url='https://iwencai.com/unifiedwap/result?w='+ stock_code + 'pe'
     if debug:

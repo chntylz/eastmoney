@@ -13,6 +13,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from get_daily_zlje import *
 
+from comm_selenium import *
+
 import random
 
 debug = 0
@@ -220,7 +222,7 @@ if __name__ == '__main__':
     my_dbg(stock_df.head(5))
     my_dbg('stock_df.len:%s' % len(stock_df))
 
-    driver = get_browser_real()
+    driver = get_browser()
 
     with open('./pe.txt','w') as f:
         f.write( 'stock_code, stock_date, pe_pct\n')
@@ -236,9 +238,11 @@ if __name__ == '__main__':
 
         if pe_pct == 0:
             stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
+    
+        cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
         with open('./pe.txt','a') as f:
-            f.write('%s, %s, %s\n' % (stock_code, stock_date, pe_pct))
+            f.write('%s, %s, %s, %s\n' % (cur_time, stock_code, stock_date, pe_pct))
 
     driver.quit()
 
