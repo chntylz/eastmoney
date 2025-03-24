@@ -372,6 +372,7 @@ if __name__ == '__main__':
     else:
         my_dbg('#error, html_zig_df len < 1')
 
+    #exit()
 
     #double_volume  and turnoverrate > 4
     my_dbg('#############################################################')

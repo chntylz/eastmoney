@@ -178,6 +178,9 @@ def cgi_write_to_file( df):
     #print('%s\n'%(list(df)))
     df_len=len(df)
     for i in range(0, df_len): #loop line
+        
+        if (i>0 and (i % 20 == 0)):
+            cgi_write_headline_column(df)
 
         print('    <tr>\n')
         a_array=df[i:i+1].values  #get line of df
@@ -490,6 +493,10 @@ def comm_write_to_file(f, k, df, filename):
     #f.write('%s\n'%(list(df)))
     df_len=len(df)
     for i in range(0, df_len): #loop line
+
+        if (i>0 and (i % 20 == 0)):
+            comm_write_headline_column(f, df)
+
 
         f.write('    <tr>\n')
         a_array=df[i:i+1].values  #get line of df
