@@ -490,13 +490,12 @@ if __name__ == '__main__':
     else:
         my_dbg('#error, html_basic_df len < 1')
 
-    #exit()
 
-    #pe and pe_pct
+    #pe and pe_pct iwencai_pe
     my_dbg('#############################################################')
     my_dbg('start pe and pe_pct')
     curr_dir=curr_day_w + '-pepct'
-    pe_df = df[(df.pe > 0 ) & (df.pe_pct < 30)]
+    pe_df = df[(df.pe > 0 ) & (df.iwencai_pe < 30) & (df.is_zig > 0)]
     html_pe_df = convert_to_html_df(pe_df, curr_dir, curr_day)
     html_pe_df = html_pe_df.sort_values('pe', ascending=1)
     html_pe_df = html_pe_df.head(top_size)
@@ -506,6 +505,7 @@ if __name__ == '__main__':
         my_dbg('#error, html_pe_df len < 1')
 
 
+    #exit()
 
     #zlje
     my_dbg('#############################################################')
