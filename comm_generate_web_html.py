@@ -570,7 +570,7 @@ def comm_write_to_file(f, k, df, filename):
                     f.write('           <a href="../../sina_html/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 elif item_name == 'roe':
                     f.write('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
-                elif item_name == 'pe_pct':
+                elif item_name == 'iwen_pe':
                     f.write('           <a href="https://iwencai.com/unifiedwap/result?w=%spe" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 else:
                     f.write('           <a> %s</a>\n'%(element_value))
@@ -969,6 +969,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         total_mv=round(daily_df.mkt_cap[i] / unit_yi, 2)
         
         #2024-12-08, add pe
+        iwen_pe = daily_df.iwencai_pe[i] 
         pe = daily_df.pe[i] 
         pe_pct=daily_df.pe_pct[i]
 
@@ -1102,14 +1103,14 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
 
         data_list.append([new_date, stock_code, stock_name, close_p, close, roe, \
                 hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, \
-                money_total, total_mv,  industry_name, pe, pe_pct,\
+                money_total, total_mv,  industry_name, iwen_pe, pe, pe_pct,\
                 is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea, is_cross3line,\
                 zlje, zlje_3, zlje_5, zlje_10,h_chg, \
                 jigou])
 
     data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', 'roe', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', \
-            'hk_m_total', 'total_mv', 'industry', 'pe', 'pe_pct', \
+            'hk_m_total', 'total_mv', 'industry', 'iwen_pe', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3', \
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ,\
             'jigou']
@@ -1121,7 +1122,8 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     if debug:
         my_dbg(ret_df)
 
-    data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  'a_pct', 'close', 'roe', 'pe', 'pe_pct', \
+    data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  \
+            'a_pct', 'close', 'roe', 'iwen_pe', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\
             'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
             'jigou', \
@@ -1130,7 +1132,13 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             'hk_m_total', 'm_per_day']
 
     #adjust column orders
-    ret_df=ret_df.loc[:,data_column]
+
+    try:
+        ret_df=ret_df.loc[:,data_column]
+    except Exception as e:
+        my_dbg("error---------------------------------------------")
+        my_dbg(e)
+        my_dbg(ret_df)
 
     if 'pbuy' in input_df.columns:
         ret_df.insert(12, 'dragon', round(input_df['pbuy'] / 10000/10000, 2))

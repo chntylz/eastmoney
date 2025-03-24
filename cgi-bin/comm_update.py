@@ -314,9 +314,10 @@ def show_realdata(file_name):
                 new_price       = real_df['close'][0]
                 new_percent     = real_df['percent'][0]
                 total_mv        = round(real_df['mkt_cap'][0]/10000/10000, 2)
+                iwen_pe = real_df['iwencai_pe'][0] 
                 pe = real_df['pe'][0] 
                 pe_pct = real_df['pe_pct'][0] 
-                pe = str(pe) + '-' + str(pe_pct)
+                pe = str(iwen_pe) + '-' + str(pe) + '-' + str(pe_pct)
 
             company_df = hdata_company.get_data_from_hdata(stock_code=new_code)
             industry = ''
