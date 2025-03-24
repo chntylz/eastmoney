@@ -32,8 +32,8 @@ fi
 #日志
 log() {
     if [ "$1" ]; then
-        #echo -e "[$(date)] - $1"  >> $logfile
-        sed -i "1i [$(date)] - $1 " $logfile
+        echo -e "[$(date)] - $1"  >> $logfile
+        #sed -i "1i [$(date)] - $1 " $logfile
     fi
 }
 

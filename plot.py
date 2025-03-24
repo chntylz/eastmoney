@@ -46,6 +46,7 @@ from funcat import *
 from funcat.data.aaron_backend import AaronDataBackend
 set_data_backend(AaronDataBackend())
 
+from file_interface import *
 
 
 #debug switch
