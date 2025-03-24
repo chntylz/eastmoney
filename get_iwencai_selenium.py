@@ -216,14 +216,22 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df = get_latest_zlje_from_db()
+    stock_df =  stock_df.head(5)
     stock_df_len = len(stock_df)
     my_dbg(stock_df.head(5))
     my_dbg('stock_df.len:%s' % len(stock_df))
 
     driver = get_browser_real()
 
-    with open('./pe.txt','w') as f:
-        f.write( 'timestamp, stock_code, stock_date, pe_pct\n')
+    exec_command = "mkdir -p csv" 
+    os.system(exec_command)
+
+    pe_file = time.strftime("%Y-%m-%d", time.localtime())
+    pe_file = './csv/' + pe_file +'_pe.csv'
+
+
+    with open(pe_file,'w') as f:
+        f.write( 'timestamp,stock_code,stock_date,iwencai_pe\n')
 
     for i in range(stock_df_len):
         stock_code = stock_df.stock_code[i]
@@ -239,12 +247,14 @@ if __name__ == '__main__':
 
         cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-        with open('./pe.txt','a') as f:
-            f.write('%s, %s, %s, %s\n' % (cur_time, stock_code, stock_date, pe_pct))
+        with open(pe_file,'a') as f:
+            f.write('%s,%s,%s,%s\n' % (cur_time, stock_code, stock_date, pe_pct))
 
 
     driver.quit()
 
+    exec_command = "cp -f " + pe_file  + "  csv/pe.csv" 
+    os.system(exec_command)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))

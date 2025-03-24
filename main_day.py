@@ -72,6 +72,8 @@ def handle_raw_df(df):
         df['is_d_volume'] = 0
     if 'pe_pct' not in df.columns:
         df['pe_pct'] = 0
+    if 'iwencai_pe' not in df.columns:
+        df['iwencai_pe'] = 0
 
 
     df=df.fillna(0)
@@ -82,7 +84,7 @@ def handle_raw_df(df):
         'pre_close', 'pe', 'pb', 'mkt_cap', 'circulation_mkt', 'zlje',\
         'is_peach' , 'is_zig' , 'is_quad' ,\
         'is_macd', 'is_2d3pct', 'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line', 'is_d_volume' ,\
-        'pe_pct' ]
+        'pe_pct', 'iwencai_pe' ]
         
     #resort conlums
     df = df[new_cols]

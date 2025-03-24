@@ -79,7 +79,7 @@ def yitoujing(df, k):
     else:
         return False
 
-def calculate_peach_zig_quad(nowdate, nowdata_df):
+def calculate_peach_zig_quad(nowdate, nowdata_df, iwencai_pe):
 
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -111,6 +111,7 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         is_duck_head = 0
         
         pe_pct = 0
+        iwencai_pe = iwencai_pe
         
 
         '''
@@ -127,7 +128,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
 
         '''
         if nowcode_new != '300573':
-            return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct]
+            return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, \
+                is_d_volume, pe_pct, iwencai_pe ]
         '''
 
         #funcat call
@@ -187,7 +190,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             # my_dbg('NaN: code:%s, name:%s' % (nowcode, nowname ))
             #error handle
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, \
+                pe_pct, iwencai_pe ])
             continue
          
         db_max_date = detail_info['record_date'][len(detail_info)-1]
@@ -207,7 +211,6 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
                     (nowcode, db_max_date, nowdate.strftime("%Y%m%d")))
             
             continue
-
 
         ##############################################################################
         #pe_pct
@@ -810,7 +813,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         except:
             my_dbg('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
             update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                    is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
+                    is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, \
+                    pe_pct, iwencai_pe ])
             continue
         else:
             pass
@@ -844,7 +848,8 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
             if H2_days.value > 200:
                 my_dbg('### error %s, %s, %s' %(str(nowdate), nowcode, nowname))
                 update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
+                        is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, \
+                        pe_pct, iwencai_pe ])
                 continue
 
             if debug:
@@ -961,18 +966,21 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
         ###############################################################################################
         
         update_list.append([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, \
+                pe_pct, iwencai_pe ])
 
         if debug:
             my_dbg('#############################################################################')
             my_dbg([nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, \
-                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct])
+                is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume,\
+                pe_pct, iwencai_pe ])
 
     if debug:
         my_dbg('update_list:%s'% update_list)
 
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
-            'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume', 'pe_pct']
+        'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , \
+        'is_d_volume', 'pe_pct', 'iwencai_pe' ]
     update_df=pd.DataFrame(update_list, columns=data_column)
 
 
@@ -985,7 +993,9 @@ def calculate_peach_zig_quad(nowdate, nowdata_df):
     if debug:
         my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
-    return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct]
+    return [nowdate.strftime("%Y-%m-%d"), nowcode_new, is_peach, is_zig, is_quad, is_macd, \
+        is_2d3pct, is_up_days, is_cup_tea, is_duck_head, is_cross3line, is_d_volume, pe_pct, \
+        iwencai_pe ]
 
 def update_peach_zig_quad(nowdate, df, df1):
 
@@ -1008,6 +1018,7 @@ def update_peach_zig_quad(nowdate, df, df1):
     tmp_df['is_cross3line']  = tmp_df1['is_cross3line']
     tmp_df['is_d_volume']  = tmp_df1['is_d_volume']
     tmp_df['pe_pct']  = tmp_df1['pe_pct']
+    tmp_df['iwencai_pe']  = tmp_df1['iwencai_pe']
 
     tmp_df.to_csv('./csv/' + nowdate.strftime("%Y-%m-%d") + '_cross_condition.csv', encoding='gbk')
 
@@ -1030,7 +1041,11 @@ def worker(name):
         my_dbg("Worker %s %s started" % (name[0], name[1]))
         my_dbg(name)
     
-    handle_df = calculate_peach_zig_quad(name[0], name[1])
+    stock_date = name[0]
+    stock_code = name[1]
+    iwencai_pe = name[len(name)-1] # the last one
+ 
+    handle_df = calculate_peach_zig_quad(stock_date, stock_code, iwencai_pe)
     return handle_df
 
 if __name__ == '__main__':
@@ -1049,6 +1064,15 @@ if __name__ == '__main__':
             )
 
 
+    iwencai_df = pd.read_csv('./csv/pe.csv',  converters={'stock_code':str})
+
+    
+    # 将 iwencai_df 的 stock_code 和 iwencai_pe 映射为字典
+    code_to_pe = iwencai_df.set_index("stock_code")["iwencai_pe"].to_dict()
+    # 更新 nowdate_df 的 iwencai_pe 列：匹配则替换，否则保留原值
+    nowdate_df["iwencai_pe"] = nowdate_df["stock_code"].map(code_to_pe).fillna(nowdate_df["iwencai_pe"])
+
+
     #nowdate_df = nowdate_df.head(10)  # small size for test
     data_list = np.array(nowdate_df)
     data_list = data_list.tolist()
@@ -1062,7 +1086,8 @@ if __name__ == '__main__':
            pool.map(worker, data_list))
     
     data_column=['record_date', 'stock_code', 'is_peach', 'is_zig', 'is_quad', \
-        'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', 'is_cross3line' , 'is_d_volume', 'pe_pct']
+        'is_macd', 'is_2d3pct' ,'is_up_days', 'is_cup_tea', 'is_duck_head', \
+        'is_cross3line' , 'is_d_volume', 'pe_pct', 'iwencai_pe']
 
     if debug:
         my_dbg(mplist)
