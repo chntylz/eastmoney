@@ -97,7 +97,8 @@ else
 
     python3 cross_conditions.py 0 >> $logfile 2>&1 \
     && python3 generate_html.py 0 >> $logfile 2>&1 \
-    && ~/eastmoney/shell/set_stock_generate_html.sh 
+    && ~/eastmoney/shell/set_stock_generate_html.sh  \
+    python3 get_iwencai_selenium.py
 fi
 
 

@@ -118,6 +118,8 @@ def scrape_canvas_data(driver):
 
 def get_browser_real():
 
+    path_chromedriver='/usr/bin/chromedriver'
+    path_chromedriver='/snap/bin/chromium.chromedriver'
     browser = None
     
     # 添加无头headlesss
@@ -143,12 +145,12 @@ def get_browser_real():
 
 
     try:
-        browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+        browser = webdriver.Chrome(executable_path=path_chromedriver,
             chrome_options=chrome_options)
     except:
         time.sleep(60)
         try:
-            browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+            browser = webdriver.Chrome(executable_path=path_chromedriver,
                 chrome_options=chrome_options)
         except:
             pass
@@ -156,7 +158,7 @@ def get_browser_real():
         if browser is None:
             try:
                 time.sleep(60)
-                browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
+                browser = webdriver.Chrome(executable_path=path_chromedriver,
                     chrome_options=chrome_options)
             except:
                 pass
@@ -216,12 +218,13 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df = get_latest_zlje_from_db()
-    stock_df =  stock_df.head(5)
+    #stock_df =  stock_df.head(5)
     stock_df_len = len(stock_df)
     my_dbg(stock_df.head(5))
     my_dbg('stock_df.len:%s' % len(stock_df))
 
-    driver = get_browser_real()
+    #driver = get_browser_real()
+    driver = get_browser()
 
     exec_command = "mkdir -p csv" 
     os.system(exec_command)
