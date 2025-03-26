@@ -4,7 +4,6 @@ import os,sys
 import cgi
 
 import psycopg2 
-import tushare as ts
 import numpy as np
 
 from HData_hsgt import *
@@ -13,9 +12,9 @@ from HData_eastmoney_holder import *
 from HData_sina_fina import *
 
 from zig import *
-from plot import *
+#from plot import *
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 import  datetime
 
@@ -24,6 +23,8 @@ from comm_generate_web_html import *
 
 
 
+debug=0
+debug=1
 debug=0
 
 nowdate=datetime.datetime.now().date()
@@ -62,18 +63,18 @@ def hsgt_get_delta_m_of_day(df, days):
 
     return df
 
-
+'''
 def plot_stock_picture(nowcode, nowname):
     #define canvas out of loop
     plt.style.use('bmh')
     fig = plt.figure(figsize=(24, 30),dpi=120)
     new_nowcode = nowcode
-    '''
-    if nowcode[0:1] == '6':
-        new_nowcode = 'SH' + nowcode
-    else:
-        new_nowcode = 'SZ' + nowcode
-    '''
+
+    #if nowcode[0:1] == '6':
+    #    new_nowcode = 'SH' + nowcode
+    #else:
+    #    new_nowcode = 'SZ' + nowcode
+
     day_df = hdata_day.get_data_from_hdata(stock_code=new_nowcode, \
             end_date=nowdate.strftime("%Y-%m-%d"), \
             limit=300)
@@ -96,6 +97,7 @@ def plot_stock_picture(nowcode, nowname):
     sub_name = ''
     plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, save_dir, fig, sub_name)
     plt.close('all')
+'''
 
 def get_xueqiu_url(stock_code_tmp):
 
@@ -117,7 +119,6 @@ def get_df_and_stock_code(name):
     else:
         df=hdata_hsgt.get_all_hdata_of_stock_cname(name)
         stock_code_tmp=aaron_get_stock_code(name)
-        
     return df,stock_code_tmp 
 
 
@@ -132,22 +133,22 @@ def get_html_data(all_df):
         del all_df['low']
         del all_df['volume']
 
-        all_df['delta_close']  = all_df.groupby('stock_code')['close'].apply(lambda i:i.diff(-1))
+        all_df['delta_close']  = all_df.groupby('stock_code')['close'].transform(lambda i:i.diff(-1))
         all_df['delta_c'] = all_df['delta_close'] * 100 / (all_df['close'] - all_df['delta_close'])
         del all_df['delta_close']
 
 
-        all_df['delta1']  =all_df.groupby('stock_code')['percent'].apply(lambda i:i.diff(-1))
-        all_df['delta1_share'] = all_df.groupby('stock_code')['share_holding'].apply(lambda i:i.diff(-1))
+        all_df['delta1']  =all_df.groupby('stock_code')['percent'].transform(lambda i:i.diff(-1))
+        all_df['delta1_share'] = all_df.groupby('stock_code')['share_holding'].transform(lambda i:i.diff(-1))
         all_df['delta1_m'] = all_df['close'] * all_df['delta1_share'] / 10000;
         del all_df['delta1_share']
 
-        all_df['delta2']  =all_df.groupby('stock_code')['percent'].apply(lambda i:i.diff(-2))
-        all_df['delta3']  =all_df.groupby('stock_code')['percent'].apply(lambda i:i.diff(-3))
-        all_df['delta5']  =all_df.groupby('stock_code')['percent'].apply(lambda i:i.diff(-5))
-        all_df['delta10'] =all_df.groupby('stock_code')['percent'].apply(lambda i:i.diff(-10))
-        all_df['delta21'] =all_df.groupby('stock_code')['percent'].apply(lambda i:i.diff(-21))
-        all_df['delta120']=all_df.groupby('stock_code')['percent'].apply(lambda i:i.diff(-120))
+        all_df['delta2']  =all_df.groupby('stock_code')['percent'].transform(lambda i:i.diff(-2))
+        all_df['delta3']  =all_df.groupby('stock_code')['percent'].transform(lambda i:i.diff(-3))
+        all_df['delta5']  =all_df.groupby('stock_code')['percent'].transform(lambda i:i.diff(-5))
+        all_df['delta10'] =all_df.groupby('stock_code')['percent'].transform(lambda i:i.diff(-10))
+        all_df['delta21'] =all_df.groupby('stock_code')['percent'].transform(lambda i:i.diff(-21))
+        all_df['delta120']=all_df.groupby('stock_code')['percent'].transform(lambda i:i.diff(-120))
 
 
         max_number=21
@@ -199,6 +200,8 @@ if __name__ == '__main__':
         cgi_handle_html_end()
     else:
         all_df, stock_code_tmp = get_df_and_stock_code(name)
+        if debug:
+            print(all_df)
         xueqiu_url, finance_url=get_xueqiu_url(stock_code_tmp)
         df = get_html_data(all_df)
         
@@ -211,7 +214,7 @@ if __name__ == '__main__':
         if debug:
             print(' ****************************************************aaron2 ***************************')
 
-        plot_stock_picture(stock_code_tmp, name)
+        #plot_stock_picture(stock_code_tmp, name)
          
         if debug:
             print('%s %s ' %(stock_code_tmp, name))
