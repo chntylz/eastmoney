@@ -68,6 +68,11 @@ def get_jigou_data(stock_code, record_date):
     html = ''
 
     browser = get_browser() 
+
+    if browser is None:
+        my_dbg('stock_code:%s, record_date:%s, get_browser failed' % (stock_code, record_date))
+        return
+
     try:
         browser.get(url)
         browser.implicitly_wait(5)

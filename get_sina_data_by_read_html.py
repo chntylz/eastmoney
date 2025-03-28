@@ -21,6 +21,8 @@ from HData_sina_income import *
 from HData_sina_cashflow import *
 from HData_sina_fina import *
 
+
+
 hdata_sina_balance = HData_sina_balance("usr","usr")
 hdata_sina_income  = HData_sina_income("usr","usr")
 hdata_sina_cashflow= HData_sina_cashflow("usr","usr")
@@ -182,8 +184,16 @@ def get_sina_data_from_read_html(stock_code, stock_name, type_table, year):
     else:
         my_dbg('### type_table is null, return')
 
+    if debug:
+        my_dbg("table_idx=%s url=%s" % (table_idx, url) )
 
-    tb = pd.read_html(url)
+    #tb = pd.read_html(url)
+    tb = pd.read_html(url, encoding='gbk')
+
+    for idx in range(len(tb)):
+        if len(tb[idx]) > 10:
+            table_idx = idx
+        
     df=tb[table_idx]
     df=df.T
 
@@ -219,6 +229,14 @@ def get_sina_fina_data(stock_code, stock_name):
     df_fina     = pd.DataFrame()
 
     this_year = int(time.strftime("%Y", time.localtime()))
+    month = int(time.strftime("%m", time.localtime()))
+    if debug:
+        my_dbg(this_year, month)
+
+    #finianal not ready
+    if month < 4:
+        this_year = this_year - 1
+
     #get continuous 5 years data
     target_years = 5
     target_years = 1
@@ -267,10 +285,9 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df=get_latest_zlje_from_db()
-    my_dbg(stock_df.head(5))
-    #stock_df=stock_df.head(4)
+    my_dbg(stock_df.head(2))
+    #stock_df=stock_df.head(2)
     #exit()
-
 
     data_list = np.array(stock_df)
     data_list = data_list.tolist()
