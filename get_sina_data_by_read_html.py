@@ -21,6 +21,7 @@ from HData_sina_income import *
 from HData_sina_cashflow import *
 from HData_sina_fina import *
 
+pd.set_option('future.no_silent_downcasting', True)
 
 
 hdata_sina_balance = HData_sina_balance("usr","usr")
@@ -165,7 +166,9 @@ def insert_to_database(df, type_table):
 
 def get_sina_data_from_read_html(stock_code, stock_name, type_table, year):
     
-    time.sleep(random.randint(5,10)) #add time to avoid sina crawl rules
+    df = pd.DataFrame()
+
+    time.sleep(random.randint(8,10)) #add time to avoid sina crawl rules
 
     table_idx = 0
 
@@ -188,7 +191,19 @@ def get_sina_data_from_read_html(stock_code, stock_name, type_table, year):
         my_dbg("table_idx=%s url=%s" % (table_idx, url) )
 
     #tb = pd.read_html(url)
-    tb = pd.read_html(url, encoding='gbk')
+    try:
+        tb = pd.read_html(url, encoding='gbk')
+    except Exception as e:
+        my_dbg("### error (%s):%s %s %s %s %s" % \
+            (e, 'get_sina_data_from_read_html', stock_code, stock_name, type_table, year))
+        #try second time
+        try:
+            tb = pd.read_html(url, encoding='utf-8')
+        except Exception as e:
+            my_dbg("### error (%s):%s %s %s %s %s" % \
+                (e, 'get_sina_data_from_read_html', stock_code, stock_name, type_table, year))
+            return df
+    
 
     for idx in range(len(tb)):
         if len(tb[idx]) > 10:

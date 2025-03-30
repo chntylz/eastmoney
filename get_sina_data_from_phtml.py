@@ -138,10 +138,14 @@ def get_sina_data_from_phtml(stock_code, stock_name,  type_table):
     #read data from csv
     try:
         df=pd.read_csv(csv_file , sep='\s', encoding='gbk', engine='python', index_col=0)
-        #df=pd.read_csv(csv_file , sep='\s', encoding='utf-8', engine='python')
     except Exception as e:
         my_dbg('error %s %s: %s' % (stock_code, type_table, e))
-        return
+        try:
+            df=pd.read_csv(csv_file , sep='\s',  encoding='utf-8', engine='python', index_col=0)
+        except Exception as e:
+            my_dbg('error %s %s: %s' % (stock_code, type_table, e))
+            my_dbg(df)
+            return
 
     df=df.T
     if '单位' in df.columns:
@@ -208,7 +212,7 @@ if __name__ == '__main__':
 
     stock_df = get_latest_zlje_from_db()
     my_dbg(stock_df.head(5))
-    #stock_df=stock_df.head(4)
+    #stock_df = stock_df.head(1)
     #exit()
 
 

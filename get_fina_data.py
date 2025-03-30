@@ -1,6 +1,7 @@
 #!/#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 import pandas as pd
 import json
 import requests
@@ -22,6 +23,12 @@ import pandas as pd
 import os
 import re
 
+pd.set_option('future.no_silent_downcasting', True)
+
+
+
+debug=0
+debug=1
 debug=0
 
 '''

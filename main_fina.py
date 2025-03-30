@@ -96,7 +96,15 @@ if __name__ == '__main__':
         df = df.drop_duplicates(subset=['security_code', 'report_date'], keep='first')
     except Exception as e:
         my_dbg(e)
-   
+
+
+    #delete new add columns, 2025-3-30
+    need_del = ['board_name', 'ori_board_code', 'board_code']
+    for i, cols in enumerate(need_del):
+        my_dbg(cols)
+        if cols in df.columns:
+            del df[cols]
+
     if len(df) > 0:
         #check table exist
         check_table()
