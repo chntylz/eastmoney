@@ -15,7 +15,7 @@ mkdir -p runlog
 time=`date "+%Y_%m_%d_%H_%M_%S"`
 
 timeday=`date "+%Y_%m_%d_%w"`
-logfile=~/eastmoney/runlog/"$timeday"_get_holder_jijin_fina_balance_income_cashflow.sh.log
+logfile=~/eastmoney/runlog/"$timeday"_sina_get_holder_jijin_fina_balance_income_cashflow.sh.log
 
 #sed '1i 添加的内容' file 　　 #这是在第一行前添加字符串
 #sed '$i 添加的内容' file 　　 #这是在最后一行行前添加字符串
@@ -48,13 +48,11 @@ input=0
 
 #start
 file_array=(
-            'main_holder.py'
+            'get_sina_data_by_read_html.py'
+            'get_sina_data_from_phtml.py'
+            'fina_sina_analysis.py'
+            'fina_sina_analysis_weimiao.py'
             #'get_sina_fina_data.py'
-            'get_jigou_data.py'
-            'main_fina.py'
-            'main_balance.py'
-            'main_income.py'
-            'main_cashflow.py'
            )
 
 #remove sina csv
