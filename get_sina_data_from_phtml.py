@@ -26,7 +26,7 @@ hdata_sina_income  = HData_sina_income("usr","usr")
 hdata_sina_cashflow= HData_sina_cashflow("usr","usr")
 hdata_sina_fina    = HData_sina_fina("usr","usr")
 
-
+pd.set_option('future.no_silent_downcasting', True)
 
 debug = 0 
 debug = 1 

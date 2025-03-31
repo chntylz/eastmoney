@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
 #read csv data, then import to database
 '''
-df = pd.read_csv('./csv/fina_all_df_301.csv',encoding='gbk', index_col=[0], dtype={'security_code':str})
+df = pd.read_csv('./csv/fina_all_df_601.csv',encoding='gbk', index_col=[0], dtype={'security_code':str})
 df = df.drop_duplicates(subset=['security_code', 'reportdate'], keep='first')
 df = df.reset_index(drop=True)
 hdata_fina.copy_from_stringio(df)
