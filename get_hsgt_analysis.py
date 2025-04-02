@@ -8,7 +8,6 @@ from file_interface import *
 
 
 import psycopg2 #使用的是PostgreSQL数据库
-import tushare as ts
 import numpy as np
 
 from HData_hsgt import *
@@ -79,7 +78,7 @@ def hsgt_handle_all_data(df):
     del all_df['volume']
     
     #the_first_line - the_second_line
-    all_df['delta_close']  = all_df.groupby('stock_code')['close'].apply(lambda i:i.diff(-1))    
+    all_df['delta_close']  = all_df.groupby('stock_code')['close'].transform(lambda i:i.diff(-1))    
     all_df['a_pct'] = all_df['delta_close'] * 100 / (all_df['close'] - all_df['delta_close']) 
     del all_df['delta_close'] 
     
@@ -88,18 +87,18 @@ def hsgt_handle_all_data(df):
     all_df['hk_pct'] = all_df['percent_tmp']
     del all_df['percent_tmp']
 
-    all_df['delta1']  = all_df.groupby('stock_code')['hk_pct'].apply(lambda i:i.diff(-1))    
-    all_df['delta1_share'] = all_df.groupby('stock_code')['share_holding'].apply(lambda i:i.diff(-1))
+    all_df['delta1']  = all_df.groupby('stock_code')['hk_pct'].transform(lambda i:i.diff(-1))    
+    all_df['delta1_share'] = all_df.groupby('stock_code')['share_holding'].transform(lambda i:i.diff(-1))
     all_df['delta1_m'] = all_df['close'] * all_df['delta1_share'] / 10000;
     del all_df['delta1_share']
 
-    all_df['delta2']  =all_df.groupby('stock_code')['hk_pct'].apply(lambda i:i.diff(-2))                                                                                                                  
-    all_df['delta3']  =all_df.groupby('stock_code')['hk_pct'].apply(lambda i:i.diff(-3))
-    all_df['delta4']  =all_df.groupby('stock_code')['hk_pct'].apply(lambda i:i.diff(-4))
-    all_df['delta5']  =all_df.groupby('stock_code')['hk_pct'].apply(lambda i:i.diff(-5))
-    all_df['delta10'] =all_df.groupby('stock_code')['hk_pct'].apply(lambda i:i.diff(-10))
-    all_df['delta21'] =all_df.groupby('stock_code')['hk_pct'].apply(lambda i:i.diff(-21))
-    all_df['delta120']=all_df.groupby('stock_code')['hk_pct'].apply(lambda i:i.diff(-120))
+    all_df['delta2']  =all_df.groupby('stock_code')['hk_pct'].transform(lambda i:i.diff(-2))                                                                                                                  
+    all_df['delta3']  =all_df.groupby('stock_code')['hk_pct'].transform(lambda i:i.diff(-3))
+    all_df['delta4']  =all_df.groupby('stock_code')['hk_pct'].transform(lambda i:i.diff(-4))
+    all_df['delta5']  =all_df.groupby('stock_code')['hk_pct'].transform(lambda i:i.diff(-5))
+    all_df['delta10'] =all_df.groupby('stock_code')['hk_pct'].transform(lambda i:i.diff(-10))
+    all_df['delta21'] =all_df.groupby('stock_code')['hk_pct'].transform(lambda i:i.diff(-21))
+    all_df['delta120']=all_df.groupby('stock_code')['hk_pct'].transform(lambda i:i.diff(-120))
     
     
     all_df['share_holding'] = all_df['share_holding'].apply(lambda i: i/10000/10000)

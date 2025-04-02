@@ -776,13 +776,11 @@ def comm_handle_html_end(filename, target_dir=''):
         os.system('mkdir -p /var/www/html/hsgt')
         exec_command = 'cp -rf ' + filename + ' /var/www/html/hsgt/'
         os.system(exec_command)
-'''
-    elif 'fina' in filename:
-        #copy to /var/www/html/fina
-        os.system('mkdir -p /var/www/html/stock_data/finance')
-        exec_command = 'cp -rf ' + filename + ' /var/www/html/stock_data/finance/'
-        os.system(exec_command)
-'''
+    #elif 'fina' in filename:
+    #    #copy to /var/www/html/fina
+    #    os.system('mkdir -p /var/www/html/stock_data/finance')
+    #    exec_command = 'cp -rf ' + filename + ' /var/www/html/stock_data/finance/'
+    #    os.system(exec_command)
     else:
         exec_command = 'cp -rf ' + filename + ' /var/www/html/stock_data/' + target_dir + '/'
         os.system(exec_command)
