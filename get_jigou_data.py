@@ -67,7 +67,11 @@ def get_jigou_data(stock_code, record_date):
 
     html = ''
 
-    browser = get_browser() 
+    try:
+        browser = get_browser() 
+    except Exception as e:
+        my_dbg('error:%s, %s, %s, %s' % (e, 'get_jigou_data',stock_code, record_date))
+        return
 
     if browser is None:
         my_dbg('stock_code:%s, record_date:%s, get_browser failed' % (stock_code, record_date))
@@ -77,7 +81,7 @@ def get_jigou_data(stock_code, record_date):
         browser.get(url)
         browser.implicitly_wait(5)
         html = browser.page_source
-    except:
+    except Exception as e:
         pass
         browser.close()
         browser.quit()

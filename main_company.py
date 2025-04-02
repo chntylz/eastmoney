@@ -97,7 +97,7 @@ if __name__ == '__main__':
     df = get_company_info()
     df = df[df['employee'] != '-']
     df = df.drop_duplicates(subset=['stock_code'], keep='first')
-    df.to_csv(r'./csv/company_info.csv', mode='w', encoding='utf_8_sig', header=1, index=0)
+    df.to_csv(r'./csv/'+ nowdate.strftime("%Y-%m-%d") + '_company_info.csv', mode='w', encoding='utf_8_sig', header=1, index=0)
     if (len(df) > 100):
         #check table exist
         check_table()
