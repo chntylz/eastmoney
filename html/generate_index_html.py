@@ -135,7 +135,8 @@ def showImageInHTML(imageTypes,savedir):
         f.write('</td>\n')
  
         f.write('<td>\n')
-        f.write('     <a href="../cgi-bin/comm_update2.cgi"  target="_blank"> finance </a>\n')
+        #f.write('     <a href="../cgi-bin/comm_update2.cgi"  target="_blank"> finance </a>\n')
+        f.write('     <a href="fina-index.html"  target="_blank"> finance </a>\n')
         f.write('</td>\n')
         f.write('<td>\n')
         #f.write('     <a href="./stock_data/holder.html"  target="_blank"> holder </a>\n')

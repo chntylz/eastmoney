@@ -776,11 +776,13 @@ def comm_handle_html_end(filename, target_dir=''):
         os.system('mkdir -p /var/www/html/hsgt')
         exec_command = 'cp -rf ' + filename + ' /var/www/html/hsgt/'
         os.system(exec_command)
+'''
     elif 'fina' in filename:
         #copy to /var/www/html/fina
         os.system('mkdir -p /var/www/html/stock_data/finance')
         exec_command = 'cp -rf ' + filename + ' /var/www/html/stock_data/finance/'
         os.system(exec_command)
+'''
     else:
         exec_command = 'cp -rf ' + filename + ' /var/www/html/stock_data/' + target_dir + '/'
         os.system(exec_command)
@@ -944,7 +946,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
         try:
             stock_name=daily_df.stock_name[i]
         except  Exception as e: 
-            my_dbg(e)
+            #my_dbg(e)  #lots of debug info, comment out
             stock_name=daily_df.stock_name_x[i]
         
         #save stock_code to txt_file

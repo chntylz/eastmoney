@@ -86,7 +86,7 @@ if __name__ == '__main__':
             if i>pagesize:
                 break
 
-    df.to_csv('./csv/fina_all_df_' + str(i) + '.csv', encoding='gbk')
+    df.to_csv('./csv/' + nowdate.strftime("%Y-%m-%d") + '_fina_all_df_' + str(i) + '.csv', encoding='gbk')
     try :
         df = df.drop_duplicates(subset=['security_code', 'reportdate'], keep='first')
     except Exception as e:

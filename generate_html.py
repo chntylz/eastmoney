@@ -38,6 +38,9 @@ zlje_table=HData_eastmoney_zlje("usr","usr")
 from HData_eastmoney_jigou import *
 jigou_table=HData_eastmoney_jigou("usr","usr")
 
+from HData_eastmoney_fina import *
+fina_table=HData_eastmoney_fina("usr","usr")
+
 from HData_eastmoney_dragon import *
 dragon_table=HData_eastmoney_dragon("usr","usr")
 
@@ -48,6 +51,7 @@ dict_industry={}
 
 
 debug=0
+debug=1
 debug=0
 
 '''
@@ -218,7 +222,6 @@ def combine_zlje_data(db_table=None, first_df=None, second_df=None, curr_day=Non
 
     return ret_df
 
-
 def get_latest_jigou_data():
     jigou_df=  jigou_table.get_data_from_hdata()
 
@@ -234,6 +237,23 @@ def get_latest_jigou_data():
     jigou_df = jigou_df.sort_values('record_date', ascending=False)
     jigou_df = jigou_df.reset_index(drop=True)
     return jigou_df
+
+
+def get_latest_fina_data():
+    fina_df=  fina_table.get_data_from_hdata()
+
+    if debug:
+        my_dbg(" get_latest_fina_data ")
+        my_dbg(fina_df)
+
+    group_by_stock_code_df=fina_df.groupby('stock_code')
+    fina_df = fina_df.sort_values('record_date', ascending=False)
+    fina_df = fina_df.reset_index(drop=True)
+    fina_df = fina_df[fina_df.record_date == fina_df.record_date[0]]
+    #fina_df = fina_df[fina_df['record_date'] == fina_df['record_date'][0]]  #bug: some updated, some not
+    fina_df = fina_df.sort_values('ystz', ascending=False)
+    fina_df = fina_df.reset_index(drop=True)
+    return fina_df
 
 
 def get_holder_data(current_date):
@@ -504,6 +524,40 @@ if __name__ == '__main__':
         generate_html(df_global, html_pe_df, stock_data_dir, curr_dir, curr_day)
     else:
         my_dbg('#error, html_pe_df len < 1')
+
+      
+    #fina
+    my_dbg('#############################################################')
+    my_dbg('start fina')
+    curr_dir=curr_day_w+'-fina'
+    fina_raw_df =  get_latest_fina_data()
+
+    fina_raw_df = fina_raw_df[(fina_raw_df.ystz > 50) & (fina_raw_df.sjltz > 50)]
+
+    '''
+    'basic_eps',  每股收益
+    'basic_eps',  每股收益
+    'total_operate_income', 营业总收入
+    'parent_netprofit',     净利润
+    'weightavg_roe',   净资产收益率
+    'ystz',  营收入同比增长
+    'sjltz', 净利润同比增长
+    'bps',   每股净资产
+    'mgjyxjje',每股经营现金流量
+    'xsmll',    销售毛利率
+    'yshz',     营收季度环比增长率
+    'sjlhz',    净利润环比增长率
+    '''
+
+    fina_df = combine_zlje_data(db_table=None, first_df=k_df, second_df=fina_raw_df)
+    if debug:
+        my_dbg(fina_df.head(5))
+    html_fina_df = convert_to_html_df(fina_df, curr_dir, curr_day)
+    html_fina_df = html_fina_df.head(top_size)
+    if len(html_fina_df):
+        generate_html(df_global, html_fina_df, stock_data_dir, curr_dir, curr_day)
+    else:
+        my_dbg('#error, html_fina_df len < 1')
 
 
     #exit()
