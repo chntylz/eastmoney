@@ -50,7 +50,7 @@ def check_ji_data_exist(stock_code, record_date):
 def get_jigou_data(stock_code, record_date):
     retry = 3
 
-    time.sleep(random.randint(1, 2))
+    time.sleep(random.randint(2, 5))
 
     df = pd.DataFrame()
 
@@ -214,7 +214,7 @@ def get_jigou_data(stock_code, record_date):
 
 def get_jigou(get_all=0):
 
-    df = tmp_df = raw_df = pd.DataFrame()
+    df = pd.DataFrame()
     #get all stock info
     r_df, work_df, stop_df, api_param = get_realtime_data2()
 
@@ -224,6 +224,9 @@ def get_jigou(get_all=0):
     latest_date = date_list[position]
     my_dbg('position: %s' % position )
     my_dbg('data_list: %s' % date_list )
+
+    #reverse sort
+    date_list.sort(reverse=True)
 
     new_date_list = []
 
@@ -237,12 +240,14 @@ def get_jigou(get_all=0):
     else:
         new_date_list = date_list
 
-    for my_date in date_list:
+    #for my_date in date_list:
+    for date_idx, my_date in enumerate(date_list):
         if get_all:
             my_dbg("get all seasons")
         else:
             my_dbg("get current season")
-            if my_date is not latest_date:
+            #if my_date is not latest_date:
+            if date_idx != 0 or date_idx != 1:
                 continue
 
         record_date = my_date
@@ -257,9 +262,15 @@ def get_jigou(get_all=0):
             #if check_ji_data_exist(stock_code, record_date):
             #continue
                 
-            tmp_df , raw_df = get_jigou_data(stock_code, record_date)
-            if debug:
-                my_dbg(tmp_df)
+            tmp_df = pd.DataFrame()
+            raw_df = pd.DataFrame()
+            try:
+                tmp_df , raw_df = get_jigou_data(stock_code, record_date)
+            except Exception as e:
+                df.to_csv('./csv/'+ date_string + '_jigou_failed.csv', encoding='gbk')
+                my_dbg(e)
+                if debug:
+                    my_dbg(tmp_df)
             
             df = pd.concat([df, tmp_df])
 
@@ -316,7 +327,7 @@ if __name__ == '__main__':
     date_string = nowdate.strftime('%Y-%m-%d')
     
     df  = get_jigou(get_all=int(para1))
-    df.to_csv('./csv/'+ date_string + '_jigou_.csv', encoding='gbk')
+    df.to_csv('./csv/'+ date_string + '_jigou.csv', encoding='gbk')
     #df = pd.read_csv('./csv/jigou_2021-11-29.csv',encoding='gbk', converters={'stock_code': lambda x: str(x)})
 
     if len(df) > 100:

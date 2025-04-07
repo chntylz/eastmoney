@@ -308,7 +308,8 @@ def timestamp2string(timeStamp):
 
 def get_curr_season():
 
-    date_list_a = [ '0331', '0630', '0930', '1230']
+    date_list_a = [ '0331', '0630', '0930', '1230']  #format as compare_time will use
+
     date_list_b = [ '03-31', '06-30', '09-30', '12-31']
 
     nowdate=datetime.datetime.now().date()

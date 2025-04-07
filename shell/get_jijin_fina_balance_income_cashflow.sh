@@ -77,6 +77,7 @@ do
         cd $work_path
 
     else
+        input=0
         #"$target" = "get_jigou_data.py" -o \
         log "cd $work_path/"  
         cd $work_path/

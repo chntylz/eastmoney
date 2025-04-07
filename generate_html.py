@@ -232,8 +232,9 @@ def get_latest_jigou_data():
     group_by_stock_code_df=jigou_df.groupby('stock_code')
     jigou_df = jigou_df.sort_values('record_date', ascending=False)
     jigou_df = jigou_df.reset_index(drop=True)
-    jigou_df = jigou_df[jigou_df.record_date == jigou_df.record_date[0]]
+    #jigou_df = jigou_df[jigou_df.record_date == jigou_df.record_date[0]]
     #jigou_df = jigou_df[jigou_df['record_date'] == jigou_df['record_date'][0]]  #bug: some updated, some not
+    jigou_df = jigou_df.head(5000)
     jigou_df = jigou_df.sort_values('record_date', ascending=False)
     jigou_df = jigou_df.reset_index(drop=True)
     return jigou_df
@@ -518,12 +519,15 @@ if __name__ == '__main__':
     curr_dir=curr_day_w + '-pepct'
     pe_df = df[(df.pe > 0 ) & (df.iwencai_pe < 30) & (df.is_zig > 0)]
     html_pe_df = convert_to_html_df(pe_df, curr_dir, curr_day)
-    html_pe_df = html_pe_df.sort_values('pe', ascending=1)
+    my_dbg(html_pe_df.columns)
+    html_pe_df = html_pe_df.sort_values('iwen_pe', ascending=1)
     html_pe_df = html_pe_df.head(top_size)
     if len(html_pe_df):
         generate_html(df_global, html_pe_df, stock_data_dir, curr_dir, curr_day)
     else:
         my_dbg('#error, html_pe_df len < 1')
+
+    #exit()
 
       
     #fina
@@ -596,6 +600,7 @@ if __name__ == '__main__':
     else:
         my_dbg('#error, html_jigou_df len < 1')
 
+    #exit()
    
     
     #dragon
