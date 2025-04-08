@@ -275,7 +275,10 @@ def get_jigou(get_all=0):
             df = pd.concat([df, tmp_df])
 
 
-    df=df.sort_values(by=['stock_code', 'record_date'], ascending=False)
+    try:
+        df=df.sort_values(by=['stock_code', 'record_date'], ascending=False)
+    except Exception as e:
+        my_dbg(e)
 
     if get_all == 0 :
         old_df = hdata_jigou.get_data_from_hdata()
