@@ -245,9 +245,9 @@ def get_jigou(get_all=0):
         if get_all:
             my_dbg("get all seasons")
         else:
-            my_dbg("get current season")
+            my_dbg("get current season date_idx=%s" % (date_idx))
             #if my_date is not latest_date:
-            if date_idx != 0 or date_idx != 1:
+            if date_idx == 2 or date_idx == 3:
                 continue
 
         record_date = my_date
