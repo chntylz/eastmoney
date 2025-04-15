@@ -542,10 +542,10 @@ def comm_write_to_file(f, k, df, filename):
                     else:
                         f.write('           <a href="%s" target="_blank"> <font color="green"> %s </font> </a>\n'% (fina_url, element_value))
                 #elif(j == 1): 
-                elif item_name in [ 'code' ] :
+                elif item_name in [ 'code', 'stock_code' ] :
                     f.write('           <a href="%s" target="_blank"> %s[hsgt]</a>\n'%  (hsgt_url, element_value))
                 #elif(j == 2):
-                elif item_name in [ 'name' ] :
+                elif item_name in [ 'name', 'stock_cname' ] :
                     f.write('           <a href="%s" target="_blank"> %s</a>\n'%  (xueqiu_url, element_value))
                 #elif(j == 3):
                 elif item_name in [ 'total_mv' ] :
@@ -570,10 +570,10 @@ def comm_write_to_file(f, k, df, filename):
                             (dragon_url, element_value))
                 elif item_name in ['a_pct', 'zig' , 'op_yoy', 'net_yoy' ,  'h0' , 'h1' , 'h2' , 'delta1', 'delta1_m', 'money_total', 'm_per_day', 'hk_deltam']:  
                     if float(element_value) > 0:
-                        f.write('           <a> <font color="red"> %s </font></a>\n'%(element_value))
+                        f.write('           <a href="../../sina_html/sina_%s.html" target="_blank"> <font color="red"> %s </font></a>\n'%(tmp_stock_code,element_value))
                     else:
-                        f.write('           <a>  <font color="green"> %s </font></a>\n'%(element_value))
-                elif item_name == 'industry':
+                        f.write('           <a href="../../sina_html/sina_%s.html" target="_blank">  <font color="green"> %s </font></a>\n'%(tmp_stock_code,element_value))
+                elif item_name in ['industry']:
                     f.write('           <a href="../../sina_html/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 elif item_name == 'roe':
                     f.write('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))

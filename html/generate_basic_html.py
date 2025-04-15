@@ -144,6 +144,7 @@ def getAllFiles(directory):
                         ('finance' in file) or \
                         ('peach' in file) or \
                         ('cuptea' in file) or \
+                        ('fina' in file) or \
                         ('duckhead' in file) or \
                         ('cross3line' in file) or \
                         ('volume' in file) or \

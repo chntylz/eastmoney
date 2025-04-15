@@ -897,10 +897,11 @@ def fina_data_analysis(df):
             my_dbg('%s, len(group_df) < 1' % stock_code )
             continue
 
-        '''
-        if stock_code != '002922':
-            continue
-        '''
+        #if stock_code != '603477':
+        #    continue
+
+        if debug:
+            my_dbg(group_df)
 
         ret_df = pd.DataFrame()
         number = 5
@@ -1034,6 +1035,7 @@ def get_data_from_fina_income_balance_cashflow():
     key_day = '12-31'
     key_day = '09-30'
     key_day = df_income.record_date[0][5:]
+    key_day = '12-31'
 
     df_y_income     = df_income[df_income['record_date'].str.contains(key_day)]
     df_y_balance    = df_balance[df_balance['record_date'].str.contains(key_day)]
