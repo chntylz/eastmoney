@@ -535,6 +535,7 @@ if __name__ == '__main__':
     my_dbg('start fina')
     curr_dir=curr_day_w+'-fina'
     fina_raw_df =  get_latest_fina_data()
+    my_dbg('len(fina_raw_df)=%s' % (len(fina_raw_df)))
 
     fina_raw_df = fina_raw_df[(fina_raw_df.ystz > 50) & (fina_raw_df.sjltz > 50)]
 

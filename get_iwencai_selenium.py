@@ -179,8 +179,15 @@ def get_iwencai_pe(driver, stock_code):
     if debug:
         my_dbg(url)
 
-    driver.get(url)
-    time.sleep(random.randint(10,20))
+    stock_date = ''
+    pe = 100
+    try: 
+        driver.get(url)
+        time.sleep(random.randint(10,20))
+    except Exception as e:
+        my_dbg(e)
+        my_dbg('stock_code=%s' % stock_code)
+        return stock_code, '', 100
 
     global global_first_time  # 声明要修改全局变量
     if global_first_time: 
@@ -245,8 +252,16 @@ if __name__ == '__main__':
 
         stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
 
+        #try to second
         if pe_pct == 0:
-            stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
+            my_dbg('second')
+            try:
+                driver = get_browser()
+                stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
+            except Exception as e:
+                my_dbg(e)
+                
+            
 
         cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
