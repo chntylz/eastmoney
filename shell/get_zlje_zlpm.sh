@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #20190625,by aaron
 
 
@@ -47,14 +47,16 @@ input=1
 sub_str=`date -d "$input day ago" +"%Y%m%d"`
 sub_str=`date +"%Y%m%d"`
 log "today is $sub_str" >> $logfile
-judge=$(is_work_day $sub_str)
-if [[ $judge == 0 ]] ; then
+echo "today is $sub_str" >> $logfile
+is_work_day $sub_str
+if [[ $? == 0 ]] ; then
+    echo "holiday, return"
     log "holiday, return"
     exit
 else
+    echo "work day, continue"
     log "work day, continue"
 fi
-
 
 
 
