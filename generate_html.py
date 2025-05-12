@@ -596,6 +596,14 @@ if __name__ == '__main__':
         my_dbg(jigou_df.head(5))
     html_jigou_df = convert_to_html_df(jigou_df, curr_dir, curr_day)
     html_jigou_df = html_jigou_df.head(top_size)
+    html_jigou_df = html_jigou_df.sort_values(
+                by='jigou',
+                key=lambda x: x.str[:4],  # 直接在排序时提取前4字符
+                ascending=False
+            )
+    if debug:
+        my_dbg(jigou_df.head(5))
+
     if len(html_jigou_df):
         generate_html(df_global, html_jigou_df, stock_data_dir, curr_dir, curr_day)
     else:

@@ -907,6 +907,33 @@ def insert_industry(dict_name, key):
         dict_name[key]=dict_name[key] + 1
     pass
 
+from decimal import Decimal, ROUND_HALF_UP
+
+def format_number(num):
+    # 转换并四舍五入到两位小数
+    decimal_num = Decimal(str(num)).quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
+    str_num = str(decimal_num)
+    
+    # 拆分整数和小数部分
+    if '.' in str_num:
+        integer_part, decimal_part = str_num.split('.')
+    else:
+        integer_part, decimal_part = str_num, '00'
+    
+    # 处理符号和整数补零
+    sign = '-' if integer_part.startswith('-') else ''
+    digits = integer_part.lstrip('-').zfill(2)  # 去除符号后补零
+    formatted_decimal = decimal_part.ljust(2, '0')[:2]  # 小数补零至两位
+    
+    return f"{sign}{digits}.{formatted_decimal}"
+
+## 测试用例
+#print(format_number(9.995))    # 10.00（精确四舍五入进位）
+#print(format_number(-5.6))     # -05.60
+#print(format_number(3))        # 03.00
+#print(format_number(123.456))  # 123.46（整数部分保留原长度）
+
+
 def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry):
     
     unit_yi = 10000 * 10000
@@ -1102,12 +1129,17 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
             float_ratio = jigou_df['freeshares_ratio'][0]
             delta_ratio = jigou_df['delta_ratio'][0]
         
+
         jigou = ''
         if delta_ratio < 0:
-            jigou = str(float_ratio) + str(delta_ratio)
+            #jigou = str(float_ratio) + str(delta_ratio)
+            jigou =  format_number(float_ratio) +  format_number(delta_ratio)
         else:
-            jigou = str(float_ratio) + '+' + str(delta_ratio)
+            #jigou = str(float_ratio) + '+' + str(delta_ratio)
+            jigou =  format_number(float_ratio) + '+' +  format_number(delta_ratio)
 
+        if debug:
+            my_dbg('jigou: %s %s %s' % (float_ratio, delta_ratio, jigou))
         data_list.append([new_date, stock_code, stock_name, close_p, close, roe, \
                 hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, \
                 money_total, total_mv,  industry_name, iwen_pe, pe, pe_pct,\

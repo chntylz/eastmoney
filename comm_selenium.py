@@ -35,7 +35,7 @@ def get_browser():
     chrome_options.add_argument("--disable-software-rasterizer")
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument("blink-settings=imagesEnabled=false")  #image disable
+    #chrome_options.add_argument("blink-settings=imagesEnabled=false")  #image disable
      
     #chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--disk-cache-dir=/dev/shm  --disk-cache-size=4096000000')
