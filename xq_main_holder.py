@@ -125,7 +125,7 @@ def update_database_holder():
     my_dbg('holder')
     hdata_holder.db_hdata_xq_create()
     df_holder = get_holder()
-    df_holder.to_csv('./csv/test_holder.csv', encoding='gbk')
+    df_holder.to_csv('./csv/' + time.strftime("%Y-%m-%d", time.localtime())+ '_xueqiu_holder.csv', encoding='gbk')
 
 
 
@@ -134,10 +134,10 @@ if __name__ == '__main__':
     get_xq_data._init()
 
 
-    browser = get_browser()
-
+    browser = get_browser(headless=1)
     get_xq_data.set_browser(browser)
     get_xq_data.xq_login2(browser)
+    start_slider_login(browser)
 
     
     t1 = time.time()

@@ -296,8 +296,10 @@ def xq_get_raw_data2(symbol, datatype=None, is_annuals=0, count=10):
     except Exception as e:
         xq_login2(_global_browser)
         my_dbg(e)
-        my_dbg(url)
-        my_dbg(html)
+        if debug:
+            my_dbg(jigou_df.head(5))
+            my_dbg(url)
+            my_dbg(html)
     finally:
         pass
  

@@ -180,7 +180,7 @@ def showImageInHTML(imageTypes,savedir):
         f.write('\n')
         f.write('    <tr>\n')
         f.write('<p style="color:red; font-size:27px"> 联系作者: </p>\n')
-        f.write('<a href="mailto:chntylz@gmail.com" style="color:red; font-size:27px">  chntylz@gmail.com </a>\n')
+        f.write('<a href="mailto:chntylz@gmail.com" style="color:red; font-size:27px">  @me </a>\n')
         f.write('    </tr>\n')
 
         f.write('</body>\n')

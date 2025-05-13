@@ -11,7 +11,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from file_interface import *
 
 
-def get_browser():
+def get_browser(headless=None):
 
     path_chromedriver='/usr/bin/chromedriver'
     path_chromedriver='/snap/bin/chromium.chromedriver'
@@ -30,7 +30,8 @@ def get_browser():
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
      
     chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--headless")
+    if headless is None:
+        chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-software-rasterizer")
     chrome_options.add_argument('--no-sandbox')
