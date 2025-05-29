@@ -13,12 +13,6 @@ import shutil
 import numpy as np
 import pandas as pd
 
-#import talib
-#funcat
-from funcat import *
-from funcat.data.aaron_backend import AaronDataBackend
-set_data_backend(AaronDataBackend())
-
 
 
 def my_dbg(*args, **kwargs):

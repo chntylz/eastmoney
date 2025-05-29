@@ -165,8 +165,98 @@ def get_realtime_data():
     return data_df, api_param
 
 
-
 def get_realtime_data2_final(page_number):
+    
+    nowdate=datetime.datetime.now().date()
+    if debug:
+        my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d")))
+    
+    #https://quote.eastmoney.com/center/gridlist.html?st=ChangePercent&sr=-1#hs_a_board 
+    
+    timestamp=str(round(time.time() * 1000))
+
+    url='https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=1&invt=2&cb=jQuery37107585501654553213_'\
+        + timestamp\
+        + '&fs=m%3A0%2Bt%3A6%2Cm%3A0%2Bt%3A80%2Cm%3A1%2Bt%3A2%2Cm%3A1%2Bt%3A23%2Cm%3A0%2Bt%3A81%2Bs%3A2048'\
+        + '&fields=f12%2Cf13%2Cf14%2Cf1%2Cf2%2Cf4%2Cf3%2Cf152%2Cf5%2Cf6%2Cf7%2Cf15%2Cf18%2Cf16%2Cf17%2Cf10%2Cf8%2Cf9'\
+        + '&fid=f3&pn=1&pz=100&po=1&dect=1&ut=fa5fd1943c7b386f172d6893dbfba10b&wbp2u=%7C0%7C0%7C0%7Cweb&_='\
+        + timestamp
+
+
+    my_dbg("get_realtime_data2_final() url=%s" % url)
+
+    browser = get_browser()
+
+    html = ''
+    try:
+        browser.get(url)
+        browser.implicitly_wait(10)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+    api_param = json.loads(response_array[0])
+    rawdata = api_param['data']['diff']
+    data_df = pd.DataFrame(rawdata)
+
+
+    tmp_column = ['close', 'percent', 'chg', 'volume', 'amount', 'amplitude', 'turnoverrate', \
+            'pe', 'stock_code', 'stock_name', 'high', 'low', 'open', 'pre_close']
+            #'mkt_cap', 'circulation_mkt','pb','zlje']
+
+
+    if len(data_df):
+        del data_df['f1']
+
+        del data_df['f10']
+        del data_df['f13']
+        del data_df['f152']
+        data_df = data_df.replace('-',0)
+        data_df.columns = tmp_column	
+        data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"), allow_duplicates=False)
+        data_df['mkt_cap'] = 0
+        data_df['circulation_mkt'] = 0
+        data_df['pb'] = 0
+        data_df['zlje'] = 0
+
+        new_column = ['record_date', 'stock_code', 'stock_name', 'open', 'close', 'high', 'low',\
+            'volume', 'amount', 'amplitude', 'percent', 'chg', 'turnoverrate',\
+            'pre_close', 'pe', 'pb', 'mkt_cap', 'circulation_mkt', 'zlje' ]
+
+        data_df = data_df.loc[:, new_column]
+
+        #data_df.to_csv('./csv/real-' + nowdate.strftime("%Y-%m-%d")+ '.csv', encoding='gbk')
+
+        if debug:
+            my_dbg(data_df.head(5))
+
+        #all
+        data_df = data_df.sort_values('stock_code', ascending=1)
+        data_df = data_df.reset_index(drop=True)
+
+        #stopped
+        stop_df = data_df[data_df['close'].isin([0])] 
+        stop_df = stop_df.reset_index(drop=True)
+
+        #worked
+        work_df = data_df[~data_df['close'].isin([0])] 
+        work_df = work_df.reset_index(drop=True)
+
+    return data_df, work_df, stop_df, api_param
+
+
+
+
+
+
+def get_realtime_data2_final_old(page_number):
     
     nowdate=datetime.datetime.now().date()
     if debug:
@@ -198,7 +288,7 @@ def get_realtime_data2_final(page_number):
             + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
             + timestamp
 
-    my_dbg("get_realtime_data2_final() url=%s" % url)
+    my_dbg("get_realtime_data2_final_old() url=%s" % url)
 
     browser = get_browser()
 
