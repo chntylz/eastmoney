@@ -160,6 +160,7 @@ if __name__ == '__main__':
         hdata_day.copy_from_stringio(work_df)
         #hdata_day.insert_all_stock_data_3(work_df)
         
+    #bankuai 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))

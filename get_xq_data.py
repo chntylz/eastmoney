@@ -409,7 +409,9 @@ def xq_get_fund(stock_code, report_date):
         data = json.loads(response_array[0])
         data = data['data']['fund_items']
     except Exception as e:
-        xq_login2(_global_browser)
+        #xq_login2(_global_browser)
+        
+        my_dbg('xq_get_fund() %s %s' % (stock_code, report_date))
         my_dbg(e)
         my_dbg(url)
         my_dbg(html)

@@ -118,7 +118,7 @@ def update_database_fund(report_date):
     my_dbg('update_database_fund() %s' % report_date)
     df_fund = get_fund(report_date)
     hdata_fund.copy_from_stringio(df_fund)
-    df_fund.to_csv('./csv/test_xq_fund_' + report_date +'.csv', encoding='gbk')
+    df_fund.to_csv('./csv/'+ report_date + '_xq_fund.csv', encoding='gbk')
 
 
 
@@ -126,7 +126,8 @@ if __name__ == '__main__':
     
     get_xq_data._init()
 
-    browser = get_browser(headless=1)
+    #browser = get_browser(headless=1)
+    browser = get_browser()
     get_xq_data.set_browser(browser)
     get_xq_data.xq_login2(browser)
     start_slider_login(browser)
@@ -141,10 +142,11 @@ if __name__ == '__main__':
 
     check_table()
 
-    update_database_fund('2022-12-31')
-    #update_database_fund('2022-09-30')
-    #update_database_fund('2022-06-30')
-    #update_database_fund('2022-03-31')
+    update_database_fund('2025-03-31')
+    #update_database_fund('2024-12-31')
+    update_database_fund('2024-09-30')
+    update_database_fund('2024-06-30')
+    update_database_fund('2024-03-31')
     
     
     browser.close()

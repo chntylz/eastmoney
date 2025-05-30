@@ -146,24 +146,17 @@ def get_kline_data(code=None, count=None, period=None):
     name = api_param['data']['name']
 
     rawdata = api_param['data']['klines']
-    tmp_column = [ 'record_date', 'open', 'close', 'high', 'low', 'volume', 'amount', \
-            'amplitude', 'percent', 'chg', 'turnoverrate' ]
+    tmp_column = ['f1', 'zxj', 'zdf', 'zde', 'turnoverrate', 'code', 'f13',
+    'name', 'mkt', 'up_num', 'down_num', 'lzgp', 'lzgp_code', 'f141',
+    'lz_zdf' ]
 
 
     data_df = pd.DataFrame(rawdata)
 
+    #data_df.columns=tmp_column
+    #data_df = data_df.loc[:, new_column]
 
-    if len(data_df):
-        data_df = data_df[0].str.split(',', expand=True)
-        data_df.columns=tmp_column
-        data_df.insert(1, 'stock_name', name, allow_duplicates=False)
-        data_df.insert(1, 'stock_code', code, allow_duplicates=False)
-        
-        new_column = ['record_date', 'stock_code', 'stock_name', 'open', 'close', 'high', 'low',\
-                        'volume', 'amount', 'amplitude', 'percent', 'chg', 'turnoverrate']
-
-        data_df = data_df.loc[:, new_column]
-
+   
     if debug:
         my_dbg(data_df.head(5))
 
@@ -279,6 +272,60 @@ def get_kline_data2(code=None, count=None, period=None):
         my_dbg(data_df)
         
     return data_df, api_param
+
+
+#bankuai
+def get_bk_data():
+    
+    data_df = pd.DataFrame()
+
+    timestamp=str(round(time.time() * 1000))
+
+    #https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=1&invt=2&cb=jQuery37102897695379394136_1747924930196&fs=m%3A90%2Bt%3A2%2Bf%3A!50&fields=f12%2Cf13%2Cf14%2Cf1%2Cf2%2Cf4%2Cf3%2Cf152%2Cf20%2Cf8%2Cf104%2Cf105%2Cf128%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf136%2Cf222&fid=f3&pn=1&pz=100&po=1
+    url = 'https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=1&invt=2&cb=jQuery37102897695379394136_'\
+        + timestamp\
+        + '&fs=m%3A90%2Bt%3A2%2Bf%3A!50&fields=f12%2Cf13%2Cf14%2Cf1%2Cf2%2Cf4%2Cf3%2Cf152%2Cf20%2Cf8%2Cf104%2Cf105%2Cf128%2Cf140%2Cf141%2Cf207%2Cf208%2Cf209%2Cf136%2Cf222&'\
+        + 'fid=f3&pn=1&pz=100&po=1'
+        
+    my_dbg(url)
+
+    browser = get_browser()
+
+    html = ''
+    try:
+        browser.get(url)
+        browser.implicitly_wait(5)
+        html = browser.page_source
+    except Exception as e:
+        my_dbg(e)
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+
+    if debug:
+        my_dbg(html)
+
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+    try:
+        api_param = json.loads(response_array[0])
+    except Exception as e:
+        my_dbg(e)
+    finally:
+        pass
+
+    name = api_param['data']['diff']
+
+
+    data_df = pd.DataFrame(name)
+
+    if debug:
+        my_dbg(data_df)
+        
+    return data_df
 
 
 
