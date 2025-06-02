@@ -374,7 +374,7 @@ def get_realtime_data2():
     pn = 1
     while True:
         try:
-            data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final(pn)
+            data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final_old(pn)
             if len(data_df_tmp) == 0:
                 break
             data_df = pd.concat([data_df, data_df_tmp])
