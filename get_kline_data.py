@@ -364,6 +364,10 @@ def get_bk_data():
     data_df['lz_percent'] = data_df['lz_percent'].apply(lambda i: i/100)
     data_df['last_percent'] = data_df['last_percent'].apply(lambda i: i/100)
 
+
+    #add zig
+    data_df['zig'] = 0
+
     return data_df
 
 
