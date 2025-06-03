@@ -246,6 +246,10 @@ def show_realdata(file_name):
         et_simple_df = hdata_eastmoney_day.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
                 end_date=nowdate.strftime("%Y-%m-%d"))
 
+        if retry > 1000：
+            print('timeout hdata_eastmoney_day is Null')
+            
+
     #check day_df valid data
     retry = 0
     industry_df =  hdata_zlpm.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
@@ -269,6 +273,9 @@ def show_realdata(file_name):
 
         industry_df =  hdata_zlpm.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
                 end_date=nowdate.strftime("%Y-%m-%d"))
+        
+        if retry > 1000：
+            print('timeout hdata_zlpm is Null')
 
     if debug: 
         print(et_simple_df)
