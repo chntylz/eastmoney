@@ -1,0 +1,24 @@
+from multiprocessing import Pool, Manager
+import time
+
+def worker(sem, task_id):
+    with sem:  # 自动acquire/release
+        print(f"Task {task_id} acquired semaphore")
+        time.sleep(2)
+        print(f"Task {task_id} released semaphore")
+
+if __name__ == "__main__":
+    manager = Manager()
+    #sem = manager.Semaphore(2)  # 允许2个进程同时访问
+    sem = manager.Semaphore(1)  # 允许1个进程同时访问
+    tasks = range(5)
+    
+    data_list = []
+    browser = 'test'
+    
+    for idx in range(1, 5):
+        data_list.append([idx, browser])
+  
+    with Pool(processes=4) as pool:
+        pool.starmap(worker, [(sem, tid) for tid in data_list])
+

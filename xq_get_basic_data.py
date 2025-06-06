@@ -15,9 +15,31 @@ import pandas as pd
 
 from get_xq_data import *
 
+import multiprocessing
+from multiprocessing import Pool, Manager
+
+
+import get_xq_data
+from file_interface import * 
+
+from comm_selenium import *
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
+
+
+
 debug = 0
-#debug = 1
+debug = 1
+
+
 hdata_day=HData_eastmoney_day("usr","usr")
+
+
+
 
 def xq_get_stock_list():
     codestock_local=hdata_day.get_latest_data_from_hdata()
@@ -108,11 +130,99 @@ def xq_get_fina_data(stock_code, datatype=None, is_annuals=0, def_cnt=10):
     return df
 
 
+def xq_start_get_realtime_data(browser, url):
+    data_df = pd.DataFrame()
+
+    html = ''
+    try: 
+        browser.get(url)
+        browser.implicitly_wait(10)
+        html = browser.page_source
+    except:
+        browser.close()
+        browser.quit()
+    finally:
+        browser.close()
+        browser.quit()
+
+
+    #my_dbg(html)
+   
+    p1 = re.compile(r'[(](.*?)[)]', re.S)
+    response_array = re.findall(p1, html)
+    api_param = json.loads(response_array[0])
+    rawdata = api_param['data']
+    data_df = pd.DataFrame(rawdata)
+
+    if debug:
+        my_dbg('%s %s ' %( url, data_df))
+    
+    return data_df
+
+
+
+
+def worker(sem, name):
+    with sem:  # 自动acquire/release
+        print(f"Task {name} acquired semaphore")
+        time.sleep(2)
+
+        if debug:
+            my_dbg("Worker %s %s started" % (name[0], name[1]))
+        
+        page = name[0]
+        browser = name[1]
+
+        url = 'https://xueqiu.com/service/v5/stock/screener/quote/list?page='\
+            + str(page) \
+            +'&size=100&order=asc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
+
+        if debug:
+            my_dbg(url)
+
+        #xq_start_get_realtime_data(browser, url)
+
+        print(f"Task {name} released semaphore")
+        return
+
+def xq_get_realtime_data():
+ 
+    '''
+    get_xq_data._init()
+    browser = get_browser()
+    get_xq_data.set_browser(browser)
+    get_xq_data.xq_login2(browser)
+    start_slider_login(browser)
+
+    '''
+    browser = 'test'
+
+    data_list = []
+    for idx in range(1, 3):
+        data_list.append([idx, browser])
+
+    if debug:
+        my_dbg(data_list)
+
+
+
+    manager =  Manager()
+    sem = manager.Semaphore(1)  # 允许2个进程同时访问
+
+    processes = multiprocessing.cpu_count()
+    number = len(data_list)
+    mplist = []
+    with multiprocessing.Pool(processes) as pool:
+       mplist.append(
+           pool.starmap(worker, [(sem, tid) for tid in data_list]))
+ 
+
 if __name__ == '__main__':
     
 
     my_dbg(time.localtime(time.time()))
     t1 = time.time()
     t2 = time.time()
+    xq_get_realtime_data()
     my_dbg("t1:%s, t2:%s, delta time=%s"%(t1, t2, t2-t1))
     my_dbg(time.localtime(time.time()))
