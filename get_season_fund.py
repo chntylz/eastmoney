@@ -179,16 +179,19 @@ if __name__ == '__main__':
     nowdate=datetime.datetime.now().date()
     date_string = nowdate.strftime('%Y-%m-%d')
     
-    df  = get_all_season_fund('2023-12-31')
-    df2 = get_all_season_fund('2024-03-31')
-    df3 = get_all_season_fund('2024-06-30')
+    position, date_list = get_curr_season()
+    latest_date = date_list[position]
+    my_dbg('position: %s' % position )
+    my_dbg('data_list: %s' % date_list )
 
-    df = pd.concat([df, df2])
-    df = pd.concat([df, df3])
+    df = pd.DataFrame()
+    for idx,season in enumerate(date_list):
+        my_dbg(idx,season)
+        #df_tmp  = get_all_season_fund(season
+        #df = pd.concat([df, df_tmp])
 
-
-    df.to_csv('./csv/test_eastmoney_fund.csv', encoding='gbk')
     if len(df):
+        df.to_csv('./csv/test_eastmoney_fund.csv', encoding='gbk')
         check_table()
         hdata_fund.copy_from_stringio(df)
 
