@@ -12,10 +12,10 @@ from io import StringIO
 
 
 debug = 0
-#debug = 1
+debug = 1
 
-xq_simple_cols = ' record_date, stock_code, net_profit_cagr, north_net_inflow, ps, type, \
-       percent, has_follow, tick_size, pb_ttm, float_shares, \
+xq_simple_cols = ' record_date, stock_code, net_profit_cagr, north_net_inflow, ps,\
+        type, percent, has_follow, tick_size, pb_ttm, float_shares, \
        current, amplitude, pcf, current_year_percent, \
        float_market_capital, north_net_inflow_time, market_capital,\
        dividend_yield, lot_size, roe_ttm, total_percent, percent5m, \
@@ -564,6 +564,34 @@ class HData_xq_simple_day(object):
         self.conn.commit()
         self.db_disconnect()
         pass
+ 
+
+    def get_latest_data_from_hdata(self):#将数据库中的数据读取并转为dataframe格式返回
+
+        self.db_connect()
+        sql_temp = ' select * from xq_simple_d_table where record_date = '\
+                + '(select max(record_date) from xq_simple_d_table as tmp_date); '
+
+        if debug:
+            my_dbg("get_latest_data_from_hdata, sql_temp:%s" % sql_temp)
+
+        self.cur.execute(sql_temp)
+        rows = self.cur.fetchall()
+
+        self.conn.commit()
+        self.db_disconnect()
+
+        #return rows
+
+        dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
+        df = pd.DataFrame(rows, columns=dataframe_cols)
+        df['record_date'] = df['record_date'].apply(lambda x: x.strftime('%Y-%m-%d'))        
+
+        if debug:
+            my_dbg(type(df))
+            my_dbg(df.head(2))
+    
+        return df
  
 
 #alter table xq_simple_d_table add  "up_days" int not null default 0;

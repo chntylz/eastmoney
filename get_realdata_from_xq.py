@@ -180,6 +180,7 @@ if __name__ == '__main__':
     #check table exist
     check_table()
 
+'''
     browser = get_browser()
 
     try:
@@ -193,7 +194,6 @@ if __name__ == '__main__':
         #browser.quit()
         pass
 
-#'''
     time.sleep(5)
 
     try:
@@ -210,7 +210,6 @@ if __name__ == '__main__':
     df = df.drop_duplicates(subset=['symbol'], keep='first')
     df = df.reset_index(drop=True)
 
-#'''
 
     if len(df):
         df=df.fillna(0)
@@ -230,3 +229,4 @@ if __name__ == '__main__':
     t2 = time.time()
     my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
+‘’‘

@@ -168,7 +168,7 @@ def start_slider_login(driver):
     time.sleep(1)
     distance = get_distance(img_slice, img_bg, img_full)
 
-    count = 6
+    count = 100
     while count > 0:
         tracks = get_track(distance)
         move_slider(driver, tracks)

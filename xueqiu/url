@@ -11,3 +11,140 @@ https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol=SH000001,SZ399001,
 kline
 
 
+from xq_get_basic_data import *
+
+get_xq_data._init()
+browser = get_browser()
+get_xq_data.set_browser(browser)
+get_xq_data.xq_login2(browser)
+start_slider_login(browser)
+
+
+
+
+# 定义基础URL和股票代码列表
+multi_url = 'https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol='
+symbols = data_df.symbol.to_list()
+
+# 初始化空DataFrame
+df = pd.DataFrame()
+
+# 使用列表收集股票代码，每300个构建一次URL并发送请求
+codes = []
+for idx, symbol in enumerate(symbols):
+    codes.append(symbol)
+    if (idx + 1) % 200 == 0 or idx == len(symbols) - 1:
+        code_str = ','.join(codes)
+        url = multi_url + code_str
+        print(url)
+        
+        try:
+            browser.get(url)
+            time.sleep(1)
+            html = browser.page_source
+            json_data = extract_json_from_html(html)  # 确保此函数能正确提取JSON数据
+            rawdata = json_data['data']
+            tmp_df = pd.DataFrame(rawdata)
+            df = pd.concat([df, tmp_df])
+        except Exception as e:
+            print(f"Error fetching data for URL {url}: {e}")
+        
+        # 重置股票代码列表
+        codes = []
+
+# 关闭浏览器（确保所有资源被释放）
+browser.quit()
+
+
+
+
+
+get_xq_data._init()              
+browser = get_browser()          
+get_xq_data.set_browser(browser) 
+get_xq_data.xq_login2(browser)   
+start_slider_login(browser)      
+url='https://xueqiu.com/service/v5/stock/screener/quote/list?page=1&size=2&order=asc&orderby=percent&order_by=percent&market=CN&type=sh_sz'
+browser.get(url) 
+html = browser.page_source 
+
+
+
+
+'<html><head><meta name="color-scheme" content="light dark"><meta charset="utf-8"></head><body><pre>{"data":{"count":5000,"list":[{"symbol":"SZ002750","net_profit_cagr":-12.461654595189763,"north_net_inflow":null,"ps":6.2697,"type":11,"percent":-36.28,"has_follow":false,"tick_size":0.01,"pb_ttm":0.621,"float_shares":398736201,"current":0.72,"amplitude":8.85,"pcf":null,"current_year_percent":-67.12,"float_market_capital":287090065,"north_net_inflow_time":null,"market_capital":288360000,"dividend_yield":null,"lot_size":100,"roe_ttm":-8.445209990820512,"total_percent":-84.17,"percent5m":0,"income_cagr":-50.55107641584282,"amount":41370174.34,"chg":-0.41,"issue_date_ts":1427126400000,"eps":-0.1,"main_net_inflows":0,"volume":55634576,"volume_ratio":7.45,"pb":0.621,"followers":43300,"turnover_rate":13.95,"mapping_quote_current":null,"first_percent":43.99,"name":"龙津退","pe_ttm":null,"dual_counter_mapping_symbol":null,"total_shares":400500000,"limitup_days":0},{"symbol":"SZ301024","net_profit_cagr":null,"north_net_inflow":null,"ps":20.5338,"type":11,"percent":-14.39,"has_follow":false,"tick_size":0.01,"pb_ttm":6.223,"float_shares":60210000,"current":41.35,"amplitude":10.81,"pcf":null,"current_year_percent":73.74,"float_market_capital":2489683500,"north_net_inflow_time":null,"market_capital":2629239750,"dividend_yield":null,"lot_size":100,"roe_ttm":-26.38778795878196,"total_percent":-16.23,"percent5m":-1.55,"income_cagr":-14.996139761478444,"amount":316228539.38,"chg":-6.95,"issue_date_ts":1627401600000,"eps":-1.98,"main_net_inflows":3628758,"volume":7218583,"volume_ratio":0.89,"pb":6.223,"followers":3972,"turnover_rate":11.99,"mapping_quote_current":null,"first_percent":49.05,"name":"霍普股份","pe_ttm":null,"dual_counter_mapping_symbol":null,"total_shares":63585000,"limitup_days":0}]},"error_code":0,"error_description":""}</pre><div class="json-formatter-container"></div></body></html>'
+
+
+
+
+['symbol', 'net_profit_cagr', 'north_net_inflow', 'ps', 'type',\
+       'percent', 'has_follow', 'tick_size', 'pb_ttm', 'float_shares',\
+       'current', 'amplitude', 'pcf', 'current_year_percent',\
+       'float_market_capital', 'north_net_inflow_time', 'market_capital',\
+       'dividend_yield', 'lot_size', 'roe_ttm', 'total_percent', 'percent5m',\
+       'income_cagr', 'amount', 'chg', 'issu_date_ts', 'eps',\
+       'main_net_inflows', 'volume', 'volume_ratio', 'pb', 'followers',\
+       'turnover_rate', 'mapping_quote_current', 'first_percent', 'name',\
+       'pe_ttm', 'dual_counter_mapping_symbol', 'total_shares',\
+       'limitup_days']
+
+
+data_df=xq_get_realtime_data()
+
+get_xq_data._init()              
+browser = get_browser()          
+get_xq_data.set_browser(browser) 
+get_xq_data.xq_login2(browser)   
+start_slider_login(browser)    
+
+multi_url='https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol='
+symbols=data_df.symbol.to_list()
+
+df = pd.DataFrame()
+code=''
+url=''
+for idx,symbol in enumerate(symbols):
+    print(idx,symbol)
+    print(type(idx), type(symbol)
+    if idx % 300 == 0:
+        code= symbol
+    else:
+        code=code + ',' + symbol
+    if idx % 300 == 0 or idx == len(symbols):
+        url=multi_url+code
+        print(url)
+        browser.get(url)
+        html = browser.page_source 
+        json_data = extract_json_from_html(html)
+        rawdata = json_data['data']['list']
+        tmp_df = pd.DataFrame(rawdata)
+        df = pd.concat([df, tmp_df])
+        code=''
+        url=''
+ 
+  
+
+print(code)
+url=multi_url+code
+
+get_xq_data._init()              
+browser = get_browser()          
+get_xq_data.set_browser(browser) 
+get_xq_data.xq_login2(browser)   
+start_slider_login(browser)    
+
+
+browser.get(url)
+html = browser.page_source 
+
+json_data = extract_json_from_html(html)
+rawdata = json_data['data']['list']
+data_df = pd.DataFrame(rawdata)
+  
+  
+
+
+
+
+
+
+

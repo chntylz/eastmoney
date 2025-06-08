@@ -9,14 +9,13 @@ def worker(sem, task_id):
 
 if __name__ == "__main__":
     manager = Manager()
-    #sem = manager.Semaphore(2)  # 允许2个进程同时访问
-    sem = manager.Semaphore(1)  # 允许1个进程同时访问
+    sem = manager.Semaphore(1)  # 允许2个进程同时访问
     tasks = range(5)
     
     data_list = []
     browser = 'test'
     
-    for idx in range(1, 5):
+    for idx in range(1, 50):
         data_list.append([idx, browser])
   
     with Pool(processes=4) as pool:
