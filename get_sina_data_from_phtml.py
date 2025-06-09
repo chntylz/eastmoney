@@ -30,7 +30,6 @@ pd.set_option('future.no_silent_downcasting', True)
 
 debug = 0 
 debug = 1 
-debug = 0 
 
 
 update_all = 0    #create new database

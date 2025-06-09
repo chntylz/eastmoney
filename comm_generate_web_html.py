@@ -494,7 +494,7 @@ def comm_write_to_file(f, k, df, filename):
     df_len=len(df)
     for i in range(0, df_len): #loop line
 
-        if (i>0 and (i % 20 == 0)):
+        if (i>0 and (i % 10 == 0)):
             comm_write_headline_column(f, df)
 
 
