@@ -33,12 +33,12 @@ from bs4 import BeautifulSoup
 import json
 import random
 
+from HData_xq_simple_day import *
+pd.set_option('future.no_silent_downcasting', True)
 
 debug = 0
 debug = 1
-debug = 0
 
-from HData_xq_simple_day import *
 
 hdata_day=HData_xq_simple_day("usr","usr")
 
@@ -259,6 +259,10 @@ def xq_get_kday_data():
 
     # 关闭浏览器（确保所有资源被释放）
     browser.quit()
+
+    df=df.fillna(0)
+    df = df.reset_index(drop=True)
+    df['timestamp'] = df['timestamp'].apply(lambda x: get_date_from_timestamp(x))
 
     return df
 
