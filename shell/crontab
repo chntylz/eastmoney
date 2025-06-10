@@ -16,22 +16,28 @@ SHELL=/bin/sh
 # |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
 # |  |  |  |  |
 # *  *  *  *  * user-name command to be executed
-
-
 17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
 25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
 47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
 52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
 #
 
+#关闭声卡节能模式
+@reboot root   echo 0 | tee /sys/module/snd_hda_intel/parameters/power_save
+
+
+
+
 #iptable
 @reboot  root /home/aaron/linux_server_conf/iptables_aaron.sh
+@reboot  root /home/aaron/linux_server_conf/linux_client_v2ray.sh
+
 #1  3    * * *   root /home/aaron/linux_server_conf/iptables_aaron.sh &
 
-1  *    * * *   root /home/aaron/linux_server_conf/SendWANIP.sh > /tmp/sendip.log &
+#1  *    * * *   root /home/aaron/linux_server_conf/SendWANIP.sh > /tmp/sendip.log &
 
 #cloudflare 
-1  */3    * * *   root /home/aaron/linux_server_conf/set_cloudflare_dns.sh
+*/10  *    * * *   root /home/aaron/linux_server_conf/set_cloudflare_dns.sh
 
 */30  *    * * *   root /usr/sbin/ifconfig > /var/www/html/ip.txt && curl 4.ipw.cn >> /var/www/html/ip.txt  && /usr/sbin/ifconfig > /var/www/html/ifconfig && curl 4.ipw.cn >> /var/www/html/ifconfig
 
@@ -41,40 +47,52 @@ SHELL=/bin/sh
 
 
 #holder
-1 6      * * 1-5    aaron /home/aaron/eastmoney/shell/get_holder_data.sh
+1 7      * * 1-5    aaron /home/aaron/eastmoney/shell/get_holder_data.sh
+
+#database backup
+1 2      * * 6     aaron /home/aaron/linux_server_conf/set_postgresql_backup.sh 
 
 #fina 
-#1 6      * * 6     root reboot
-5 6      * * 6     aaron /home/aaron/eastmoney/shell/get_jijin_fina_balance_income_cashflow.sh
+#5 6      * * 6     aaron /home/aaron/eastmoney/shell/get_jijin_fina_balance_income_cashflow.sh
+#5 6      * * 6     aaron /home/aaron/eastmoney/shell/sina_get_jijin_fina_balance_income_cashflow.sh
+
+15 21     * * *     aaron /home/aaron/eastmoney/shell/get_jijin_fina_balance_income_cashflow.sh
+15 21     * * *     aaron /home/aaron/eastmoney/shell/sina_get_jijin_fina_balance_income_cashflow.sh
 
 #get kline data from eastmoney 
 25 9       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
 
 #update zlje zlpm data every 2 minute
 #cgi 
-*/15  9-11     * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
-*/15  13-14    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+*/30  9-11     * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+*/30  13-14    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
 
 #get kline data from eastmoney 
-#25 14       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
-
+28 14       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
 
 
 #get the last updated zlje a day
 1 15      * * 1-5       aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
 
+30 15     * * 1-5     aaron /home/aaron/eastmoney/shell/get_xq_data.sh 
+
 #get kline data from eastmoney  
-15 15        * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
+5 15        * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
+
+#get iwencai_pe, every Friday
+30 22        * * 5 aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium.py   > /tmp/iwencai.txt 2>&1 & 
 
 #get dragon data at 17:30
 30 17      * * 1-5     aaron /home/aaron/eastmoney/shell/get_dragon_data.sh 
+30 19      * * 1-5     aaron /home/aaron/eastmoney/shell/get_dragon_data.sh 
 
 #generate pciture
-30 22      * * 1-5     aaron /home/aaron/eastmoney/shell/get_generate_picture.sh 
+00 16      * * 1-5     aaron /home/aaron/eastmoney/shell/get_generate_picture.sh 
 
 
 #hsgt
-2 5     30,31 3,6,9,12   * aaron /home/aaron/eastmoney/shell/get_hsgt_data.sh
+2 5     30,31 3,6,9,12       * aaron /home/aaron/eastmoney/shell/get_hsgt_data.sh
+2 5     1,2,3,4,5 4,7,10,1   * aaron /home/aaron/eastmoney/shell/get_hsgt_data.sh
 
 
 
