@@ -28,7 +28,7 @@ import re
 from HData_eastmoney_fund import *
 
 debug = 0
-debug = 0
+debug = 1
 
 
 hdata_fund = HData_eastmoney_fund('usr', 'usr')
@@ -38,6 +38,7 @@ date_list = ['03-31', '06-30', '09-30', '12-31']
 
 def get_season_fund(date=None, pagenumber=1, pagesize=500):
 
+    api_param = ''
     data_df = pd.DataFrame()
     nowdate=datetime.datetime.now().date()
 
@@ -72,13 +73,18 @@ def get_season_fund(date=None, pagenumber=1, pagesize=500):
 
 def get_season_fund2(date=None, pagenumber=1, pagesize=500):
 
+    my_dbg(f'get_season_fund2 date:{date}, pagenumber:{pagenumber}, pagesize:{pagesize}')
+
+    api_param = ''
     data_df = pd.DataFrame()
     nowdate=datetime.datetime.now().date()
 
     if date is None:
         date = nowdate.strftime('%Y-%m-%d')
 
-    if date[5:] in date_list:
+    my_dbg(f'date[5:]={date[5:]}')
+    #if date[5:] in date_list:
+    if True:
 
         #https://data.eastmoney.com/dataapi/zlsj/list?date=2021-06-30&type=1&zjc=0&sortField=HOULD_NUM&sortDirec=1&pageNum=1&pageSize=10000
 
@@ -134,10 +140,11 @@ def get_season_fund2(date=None, pagenumber=1, pagesize=500):
 
 def get_all_season_fund(date=None):
 
+    api_param = ''
     df = pd.DataFrame()
     i = 1
     #每次最多只能得到500条数据
-    while (1):
+    while (True):
         try:
             df_fund, api_param = get_season_fund2(date=date, pagenumber=i, pagesize=500 )
             if len(df_fund):
@@ -146,19 +153,24 @@ def get_all_season_fund(date=None):
                 if debug:
                     my_dbg(df_fund)
                     my_dbg(df_fund.columns)
-                    df_fund.to_csv('./csv/df_fund_' + str(i) + '.csv', encoding='gbk')
+                    df_fund.to_csv('./csv/' + date + '_df_fund_' + str(i) + '.csv', encoding='gbk')
 
                 df = pd.concat([df, df_fund])
+            else:
+                my_dbg(f'date:{date}, i:{i}')
+                break
             
         except Exception as e:
             my_dbg(e)
             break
         else:
             i = i + 1
-
-    df['report_date'] = df['report_date'].apply(lambda x: x[:10])
-    df = df.drop_duplicates(subset=['report_date', 'secucode'], keep='first')
-    df = df.reset_index(drop=True)
+    try:
+        df['report_date'] = df['report_date'].apply(lambda x: x[:10])
+        df = df.drop_duplicates(subset=['report_date', 'secucode'], keep='first')
+        df = df.reset_index(drop=True)
+    except Exception as e:
+        my_dbg(f'get_all_season_fund date:{date} error:{e}')
 
     return df
  
@@ -184,15 +196,14 @@ if __name__ == '__main__':
     my_dbg('position: %s' % position )
     my_dbg('data_list: %s' % date_list )
 
-    df = pd.DataFrame()
+    check_table()
     for idx,season in enumerate(date_list):
         my_dbg(idx,season)
-        #df_tmp  = get_all_season_fund(season
-        #df = pd.concat([df, df_tmp])
+        try:
+            df = get_all_season_fund(season)
+            hdata_fund.copy_from_stringio(df)
+        except Exception as e:
+            my_dbg(f'error:{e}')
 
-    if len(df):
-        df.to_csv('./csv/test_eastmoney_fund.csv', encoding='gbk')
-        check_table()
-        hdata_fund.copy_from_stringio(df)
 
 

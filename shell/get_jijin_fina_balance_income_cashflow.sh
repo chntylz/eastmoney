@@ -55,6 +55,7 @@ file_array=(
             'main_balance.py'
             'main_income.py'
             'main_cashflow.py'
+            'get_season_fund.py'
            )
 
 #remove sina csv

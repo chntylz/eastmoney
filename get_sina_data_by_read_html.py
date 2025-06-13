@@ -278,7 +278,7 @@ def get_sina_fina_data(stock_code, stock_name):
     insert_to_database(df_income, 'income')
     insert_to_database(df_cashflow, 'cashflow')
     '''
-    df_fina.to_csv('./csv/' + nowdate.strftime("%Y-%m-%d")+ '_sina_read_html.csv', encoding='gbk')
+    df_fina.to_csv('./csv/' + datetime.datetime.now().strftime("%Y-%m-%d")+ '_sina_read_html.csv', encoding='gbk')
     insert_to_database(df_fina, 'fina')
     pass
 

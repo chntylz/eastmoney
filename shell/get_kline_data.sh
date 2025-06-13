@@ -100,5 +100,6 @@ else
     && ~/eastmoney/shell/set_stock_generate_html.sh 
 fi
 
+python3 main_bk.py 0
 
 log "************ end ********************************************************************************************"
