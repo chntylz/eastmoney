@@ -22,7 +22,6 @@ import time
 
 debug = 0
 debug = 1
-debug = 0
 
 hdata_fina     = HData_sina_fina("usr","usr")
 hdata_income   = HData_sina_income("usr","usr")
@@ -125,6 +124,7 @@ def  fina_analysis_by_weimiao(stock_code, stock_name):
     key_day = '12-31'
     key_day = '09-30'
     key_day = df_fina.record_date[0][5:]
+    my_dbg(f'key_day:{key_day}')
 
     df_y_fina = df_fina[df_fina['record_date'].str.contains(key_day)]
     df_y_fina = df_y_fina.reset_index(drop=True)
@@ -162,6 +162,8 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df=get_latest_zlje_from_db()
+
+    my_dbg(f'len(get_latest_zlje_from_db()):{len(stock_df)}')
     my_dbg(stock_df.head(5))
     #stock_df=stock_df.head(4)
     #exit()

@@ -46,6 +46,9 @@ source ~/eastmoney/shell/is_workday.sh
 
 input=0
 
+#'get_sina_data_by_read_html.py'    #only get fina 
+#'get_sina_data_from_phtml.py'      # get balance income cashflow 
+
 #start
 file_array=(
             'get_sina_data_by_read_html.py'

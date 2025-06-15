@@ -300,6 +300,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     stock_df=get_latest_zlje_from_db()
+    my_dbg(f'len(get_latest_zlje_from_db()):{len(stock_df)}')
     my_dbg(stock_df.head(2))
     #stock_df=stock_df.head(2)
     #exit()
