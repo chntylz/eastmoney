@@ -1,4 +1,7 @@
 from get_sina_fina_data import *
+from HData_iwencai_dde import *
+
+hdata_dde=HData_iwencai_dde("usr","usr")
 
 def parse_table(soup):
     """统一表格解析逻辑"""
@@ -14,7 +17,12 @@ def parse_table(soup):
     return result
    
 
-def scrapy_pages(browser, url):
+def scrapy_pages(url):
+
+
+    #open selenium browser
+    browser = get_browser()
+
     """单页爬取逻辑"""
     df=pd.DataFrame()
     try:
@@ -34,14 +42,13 @@ def scrapy_pages(browser, url):
     
 
     loop = 108  # actually is 1+108    
-    loop = 1  # actually is 1+108    
     while (loop):
         try:
             browser.find_element('xpath', "//a[text()='下页' and not(contains(@class,'disabled'))]").click()
         except Exception as e:
             my_dbg(f'loop:{loop}, error:{e}')
             browser.refresh()
-            loop = 0
+            loop = 108
             continue
         finally:
             pass
@@ -58,6 +65,9 @@ def scrapy_pages(browser, url):
         loop = loop - 1
 
 
+    #close selenium browser
+    close_broser(browser)
+
     #handle dataFrame
     df = df.reset_index(drop=True)
 
@@ -71,6 +81,9 @@ def scrapy_pages(browser, url):
            'dde_buy', 'dde_sell', 'amount']
     df.columns = cols
 
+    #去重
+    df = df.drop_duplicates(subset=['stock_code'], keep='first')
+
     #insert record_date
     df.insert(0, 'record_date', time.strftime("%Y-%m-%d", time.localtime()), allow_duplicates=False)
      
@@ -82,7 +95,23 @@ def scrapy_pages(browser, url):
     df['dde_net'] = df['dde_buy'] - df['dde_sell']
 
     
+    #save
+    df.to_csv('./csv/' + time.strftime("%Y-%m-%d", time.localtime()) + '_dde.csv', encoding='gbk')
+
     return df
+
+
+def check_table():
+    table_exist = hdata_dde.table_is_exist() 
+    my_dbg('table_exist=%d' % table_exist)
+    if table_exist:
+        #hdata_dde.db_hdata_iwencai_create()
+        my_dbg('table already exist, recreate')
+    else:
+        hdata_dde.db_hdata_iwencai_create()
+        my_dbg('table not exist, create')
+
+
 
 if __name__ == '__main__':
 
@@ -103,19 +132,23 @@ if __name__ == '__main__':
         
     url='https://www.iwencai.com/unifiedwap/result?w=主力控盘比例前6000的股票&querytype=stock'
 
+    dde_df = scrapy_pages(url)
+    my_dbg(dde_df)
 
-    browser = get_browser()
-    df = scrapy_pages(browser, url)
+    if len(dde_df) > 1000:
+        #check table exist
+        check_table()
 
-    close_broser(browser)
-
-    df.to_csv('./csv/' + time.strftime("%Y-%m-%d", time.localtime()) + '_dde.csv', encoding='gbk')
-    my_dbg(df)
-
+        hdata_dde.delete_data_from_hdata(
+                start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
+                end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
+                )
+        hdata_dde.copy_from_stringio(dde_df)
+ 
+    
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     t2 = time.time()
     my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
-
 
