@@ -46,8 +46,8 @@ def generate_html_form(start_date='', end_date='', stock_code=''):
     print(f"""
     <h2>股票数据全字段查询</h2>
     <form method="post">
-        <label>开始日期: <input type="date" name="start_date" value="{start_date}" required></label>
-        <label>结束日期: <input type="date" name="end_date" value="{end_date}" required></label>
+        <label>开始日期: <input type="date" name="start_date" value="{start_date}" placeholder="可留空查询全部"></label>
+        <label>结束日期: <input type="date" name="end_date" value="{end_date}" placeholder="可留空查询全部"></label>
         <label>股票代码: <input type="text" name="stock_code" value="{stock_code}" placeholder="可留空查询全部"></label>
         <input type="submit" value="查询">
     </form>
@@ -65,14 +65,34 @@ def display_results(start_date, end_date, stock_code):
                 return
                 
             # 构建动态查询条件
-            query = "SELECT * FROM iwencai_dde_table WHERE record_date BETWEEN %s AND %s"
-            params = [start_date, end_date]
+            query = "SELECT * FROM iwencai_dde_table"
+
+            params = []
+            if start_date:
+                query += " WHERE record_date BETWEEN %s AND %s"
+                params = [start_date, end_date]
             
-            if stock_code:
-                query += " AND stock_code = %s"
-                params.append(stock_code)
+            if stock_code :
+                if start_date:
+                    if stock_code.isdigit():
+                       query += " AND stock_code = %s"
+                    else:
+                        query += " AND stock_name = %s"
+
+                    params.append(stock_code)
+                else:
+                    if stock_code.isdigit():
+                       query += " WHERE stock_code = %s"
+                    else:
+                        query += " WHERE stock_name = %s"
+                       
+                    params.append(stock_code)
+            else:
+                pass
                 
-            query += " ORDER BY record_date DESC, stock_code LIMIT 500"
+            query += " ORDER BY record_date DESC, rank ASC, stock_code LIMIT 500"
+
+            print(query)
             
             cursor.execute(query, params)
             results = cursor.fetchall()
@@ -135,8 +155,8 @@ def main():
     
     generate_html_form(start_date, end_date, stock_code)
     
-    if start_date and end_date:
-        display_results(start_date, end_date, stock_code)
+    #if start_date and end_date:
+    display_results(start_date, end_date, stock_code)
     
     print("""
     </body>

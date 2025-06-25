@@ -15,6 +15,17 @@ from get_daily_zlje import *
 
 import random
 
+
+# basic
+import numpy as np
+import pandas as pd
+
+from HData_iwencai_pe import *
+
+hdata_pe=HData_iwencai_pe("usr","usr")
+
+
+
 debug = 0
 debug = 1
 debug = 0
@@ -217,6 +228,16 @@ def get_iwencai_pe(driver, stock_code):
 
     return stock_code, stock_date, pe
 
+def check_table():
+    table_exist = hdata_pe.table_is_exist() 
+    my_dbg('table_exist=%d' % table_exist)
+    if table_exist:
+        #hdata_pe.db_hdata_iwencai_create()
+        my_dbg('table already exist, recreate')
+    else:
+        hdata_pe.db_hdata_iwencai_create()
+        my_dbg('table not exist, create')
+
 
 
 if __name__ == '__main__':
@@ -239,6 +260,7 @@ if __name__ == '__main__':
     pe_file = time.strftime("%Y-%m-%d", time.localtime())
     pe_file = './csv/' + pe_file +'_pe.csv'
 
+    pe_list = []
 
     with open(pe_file,'w') as f:
         f.write( 'timestamp,stock_code,stock_date,iwencai_pe\n')
@@ -268,8 +290,24 @@ if __name__ == '__main__':
         with open(pe_file,'a') as f:
             f.write('%s,%s,%s,%s\n' % (cur_time, stock_code, stock_date, pe_pct))
 
+        pe_list.append([cur_time, stock_code, stock_date, pe_pct])
 
     driver.quit()
+
+    data_column = ['run_date', 'stock_code', 'record_date', 'pe_pct' ]
+    pe_df=pd.DataFrame(pe_list, columns=data_column)
+
+    if len(pe_df) > 1000:
+        #check table exist
+        check_table()
+
+        hdata_pe.delete_data_from_hdata(
+                start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
+                end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
+                )
+        hdata_pe.copy_from_stringio(pe_df)
+ 
+
 
     exec_command = "cp -f " + pe_file  + "  csv/pe.csv" 
     os.system(exec_command)
