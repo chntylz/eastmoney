@@ -39,6 +39,7 @@ from HData_eastmoney_zlje_5 import *
 from HData_eastmoney_zlje_10 import *
 
 from HData_company_info import *
+from HData_iwencai_dde import *
 
 import multiprocessing
 
@@ -49,6 +50,7 @@ hdata_jigou=HData_eastmoney_jigou("usr","usr")
 hdata_fina=HData_eastmoney_fina("usr","usr")
 
 hdata_company = HData_company_info("usr","usr")
+hdata_dde = HData_iwencai_dde("usr","usr")
 
 #xueqiu
 #hdata_fina=HData_xq_fina("usr","usr")
@@ -225,6 +227,8 @@ def cgi_write_to_file( df):
                 print('           <a href="../../sina_html/sina_%s.html" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
             elif 'pe' in col_name[j]:
                 print('           <a href="https://iwencai.com/unifiedwap/result?w=%spe" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+            elif 'dde' in col_name[j]:
+                print('           <a href="../../cgi-bin/hsgt-search.cgi?stock_code=%s" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
             elif  'roe' in col_name[j]:
                     print('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s </a>\n'%  (tmp_stock_code, element_value))
             elif  'zig' in col_name[j]:
@@ -579,6 +583,8 @@ def comm_write_to_file(f, k, df, filename):
                     f.write('           <a href="https://vip.stock.finance.sina.com.cn/corp/go.php/vFD_DupontAnalysis/stockid/%s/displaytype/10.phtml" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 elif item_name == 'iwen_pe':
                     f.write('           <a href="https://iwencai.com/unifiedwap/result?w=%spe" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
+                elif item_name == 'dde':
+                    f.write('           <a href="../../cgi-bin/hsgt-search.cgi?stock_code=%s" target="_blank"> %s</a>\n'%  (tmp_stock_code, element_value))
                 else:
                     f.write('           <a> %s</a>\n'%(element_value))
             
@@ -945,6 +951,8 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     with open(txt_file,'w') as f:
         f.write('\n')
 
+    dde_df = hdata_dde.get_data_from_hdata(start_date=curr_day, end_date=curr_day)
+
     zlje_df   = get_zlje_data_from_db(url='url',     curr_date=curr_day)
     zlje_3_df = get_zlje_data_from_db(url='url_3',   curr_date=curr_day)
     zlje_5_df = get_zlje_data_from_db(url='url_5',   curr_date=curr_day)
@@ -1021,6 +1029,20 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
                 my_dbg(e)
                 industry_name = 'Null' 
             my_dbg('except industry_name %s %s' % (stock_code, stock_name))
+        
+        #####dde rank and zlkp_pct start 2025-06-25 ####
+        tmp_dde_df = dde_df[dde_df['stock_code'] == stock_code]
+        tmp_dde_df = tmp_dde_df.reset_index(drop=True)
+        if debug:
+                my_dbg(stock_code, len(tmp_dde_df))
+        dde = ''
+        if len(tmp_dde_df):
+            rank = int(tmp_dde_df['rank'][0])
+            zlkp_pct  = tmp_dde_df['zlkp_pct'][0]
+            dde = str(rank) + '<br>' + str(zlkp_pct) + '</br>'
+        #####dde rank and zlkp_pct end ####
+
+
         
         zlje = get_zlje(zlje_df, stock_code, curr_date=curr_day)
         zlje_3 = get_zlje(zlje_3_df, stock_code, curr_date=curr_day)
@@ -1144,14 +1166,14 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
                 hsgt_date, hsgt_share, hsgt_percent, hsgt_delta1, hsgt_deltam, days, \
                 money_total, total_mv,  industry_name, iwen_pe, pe, pe_pct,\
                 is_peach, is_zig, is_quad, is_2d3pct, is_cup_tea, is_cross3line,\
-                zlje, zlje_3, zlje_5, zlje_10,h_chg, \
+                dde, zlje, zlje_3, zlje_5, zlje_10,h_chg, \
                 jigou])
 
     data_column = ['cur_date', 'code', 'name', 'a_pct', 'close', 'roe', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', \
             'hk_m_total', 'total_mv', 'industry', 'iwen_pe', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3', \
-            'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ,\
+            'dde', 'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change' ,\
             'jigou']
 
     ret_df=pd.DataFrame(data_list, columns=data_column)
@@ -1164,7 +1186,7 @@ def comm_generate_web_dataframe_new(input_df, curr_dir, curr_day, dict_industry)
     data_column = ['cur_date', 'code', 'name', 'total_mv', 'industry',  \
             'a_pct', 'close', 'roe', 'iwen_pe', 'pe', 'pe_pct', \
             'peach', 'zig', 'quad', '2d3pct', 'cup_tea', 'cross3',\
-            'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
+            'dde', 'zlje', 'zlje_3', 'zlje_5', 'zlje_10', 'holder_change',\
             'jigou', \
             'hk_date', 'hk_share', 'hk_pct', \
             'hk_delta1', 'hk_deltam', 'days', \

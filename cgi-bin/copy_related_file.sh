@@ -4,6 +4,7 @@ cp comm_update*    $target
 cp weimiao.txt  $target
 #cp my_optional.txt  $target
 cp hsgt-search.cgi  $target
+cp iwencai_dde.cgi    $target
 
 cp cgi_env.py   $target
 cp hello.py     $target
@@ -21,4 +22,5 @@ cp ../comm_selenium.py $target
 
 cp ../zig.py $target
 cp ../plot.py $target
+
 

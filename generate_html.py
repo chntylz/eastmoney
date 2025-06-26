@@ -576,7 +576,12 @@ if __name__ == '__main__':
         my_dbg(zlje_df.head(5))
     html_zlje_df = convert_to_html_df(zlje_df, curr_dir, curr_day)
     my_dbg(html_zlje_df.columns)
-    html_zlje_df = html_zlje_df.sort_values('zlje', ascending=False)
+
+    html_zlje_df['temp_sort'] = html_zlje_df['dde'].str.split('<').str[0]  # 提取"<"前内容
+    html_zlje_df['temp_sort'] = html_zlje_df['temp_sort'].astype(int)
+    html_zlje_df = html_zlje_df.sort_values('temp_sort')
+    html_zlje_df.drop('temp_sort', axis=1, inplace=True)  # 删除临时列
+
     html_zlje_df = html_zlje_df.reset_index(drop=True)
     #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
     html_zlje_df = html_zlje_df.head(top_size)
