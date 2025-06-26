@@ -28,6 +28,7 @@ from HData_eastmoney_zlje_10 import *
 from HData_eastmoney_zlpm import *
 
 from HData_company_info import *
+from HData_iwencai_dde import *
 
 hdata_company = HData_company_info("usr","usr")
 
@@ -50,6 +51,7 @@ hdata_holder=HData_xq_holder("usr","usr")
 
 hdata_xq_simple = HData_xq_simple_day('usr', 'usr')
 hdata_eastmoney_day = HData_eastmoney_day('usr', 'usr')
+hdata_dde = HData_iwencai_dde("usr","usr")
 
 debug=0
 debug=1
@@ -204,6 +206,11 @@ def show_realdata(file_name):
     nowdate=datetime.datetime.now().date()
     nowdate=nowdate-datetime.timedelta(retry)
     str_date= nowdate.strftime("%Y-%m-%d")
+
+
+    #get dde dataFrame
+    dde_df = hdata_dde.get_data_from_hdata(start_date=str_date, end_date=str_date)
+
     ####get zlje start####
     zlje_df   = get_zlje_data_from_db(url='url',     curr_date=str_date)
     while len(zlje_df) == 0:
@@ -333,6 +340,8 @@ def show_realdata(file_name):
                 if(len(company_df)):
                     industry = industry +': ' + company_df.product_type[0] 
 
+
+
             #get total_mv from daily db, get price percent from zlje1
             tmp_zlje_df = zlje_df[zlje_df['stock_code'] == new_code]
             tmp_zlje_df = tmp_zlje_df.reset_index(drop=True)
@@ -374,7 +383,20 @@ def show_realdata(file_name):
         is_zig = real_df['is_zig'][0] 
         is_quad = real_df['is_quad'][0] 
         is_peach = real_df['is_peach'][0] 
-        
+       
+        #####dde rank and zlkp_pct start 2025-06-25 ####
+        tmp_dde_df = dde_df[dde_df['stock_code'] == new_code]
+        tmp_dde_df = tmp_dde_df.reset_index(drop=True)
+        dde = ''
+        if len(tmp_dde_df):
+            rank = int(tmp_dde_df['rank'][0])
+            zlkp_pct  = tmp_dde_df['zlkp_pct'][0]
+            dde = str(rank) + '<br>' + str(zlkp_pct) + '</br>'
+        #####dde rank and zlkp_pct end ####
+
+
+
+
         #### zlje start ####
         zlje    = get_zlje(zlje_df,     new_code, curr_date=str_date)
         zlje_3  = get_zlje(zlje_3_df,   new_code, curr_date=str_date)
@@ -513,7 +535,7 @@ def show_realdata(file_name):
 
 
         data_list.append([new_date, new_code, new_name, total_mv, industry, new_price, new_percent, roe, pe, \
-                is_peach, is_zig, is_quad, zlje, zlje_3, zlje_5, zlje_10, \
+                is_peach, is_zig, is_quad, dde, zlje, zlje_3, zlje_5, zlje_10, \
                 h_chg, fund_info, \
                 new_hsgt_date, new_hsgt_share_holding, new_hsgt_percent, \
                 new_hsgt_delta1, new_hsgt_deltam, conti_day, money_total])
@@ -522,7 +544,7 @@ def show_realdata(file_name):
         #data_list.append([str_date, my_list[i], my_list_cn[i], df['pre_close'][0], df['price'][0] ])
 
     data_column = ['curr_date', 'code', 'name', 'total_mv', 'industry', 'price', 'a_pct', 'roe', 'pe',\
-            'peach', 'zig', 'quad', 'zlje', 'zlje_3', 'zlje_5', 'zlje_10', \
+            'peach', 'zig', 'quad', 'dde', 'zlje', 'zlje_3', 'zlje_5', 'zlje_10', \
             'holder_change', 'jigou', \
             'hk_date', 'hk_share', 'hk_pct', 'hk_delta1', 'hk_deltam', 'days', 'hk_m_total']
 
