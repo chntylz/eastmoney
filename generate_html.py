@@ -575,6 +575,7 @@ if __name__ == '__main__':
     if debug:
         my_dbg(zlje_df.head(5))
     html_zlje_df = convert_to_html_df(zlje_df, curr_dir, curr_day)
+    html_zlje_df = html_zlje_df[(html_zlje_df.a_pct > 0)]
     my_dbg(html_zlje_df.columns)
 
     html_zlje_df['temp_sort'] = html_zlje_df['dde'].str.split('<').str[0]  # 提取"<"前内容

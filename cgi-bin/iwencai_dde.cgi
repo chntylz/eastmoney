@@ -110,8 +110,17 @@ def display_results(start_date, end_date, stock_code):
             # 输出数据
             for row in results:
                 print("<tr>")
-                for value in row:
-                    print(f"<td>{value if value is not None else ''}</td>")
+
+                for i, value in enumerate(row):
+                    if columns[i][0] == "stock_code":  # 判断是否为股票代码列
+                        if value[0] == "6":
+                            print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SH{value}' target='_blank'>{value}</a></td>")
+                        else:
+                            print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{value}' target='_blank'>{value}</a></td>")
+
+                    else:
+                        print(f"<td>{value if value is not None else ''}</td>")
+
                 print("</tr>")
             
             print("</table></div>")

@@ -109,22 +109,22 @@ def scrape_canvas_data(driver):
     except:
         pass
 
-    stock_date = ''
+    record_date = ''
     pe_pct = 0
     try:
         for key, value in extracted_data.items():
-            stock_date = key
+            record_date = key
             pe_pct =  value
             if debug:
                 my_dbg(f"{key}: {value}")  
-                my_dbg(stock_date, pe_pct)  
+                my_dbg(record_date, pe_pct)  
     except Exception as e:
         if debug:
             my_dbg("%s pe failed" % stock_code)
             my_dbg(e)
         pass
 
-    return stock_date, pe_pct
+    return record_date, pe_pct
 
 
 def get_browser_real():
@@ -190,7 +190,7 @@ def get_iwencai_pe(driver, stock_code):
     if debug:
         my_dbg(url)
 
-    stock_date = ''
+    record_date = ''
     pe = 100
     try: 
         driver.get(url)
@@ -221,12 +221,12 @@ def get_iwencai_pe(driver, stock_code):
         global_first_time = False
 
 
-    stock_date, pe = scrape_canvas_data(driver)
+    record_date, pe = scrape_canvas_data(driver)
     
     if debug:
-        my_dbg(stock_code, stock_date, pe)
+        my_dbg(stock_code, record_date, pe)
 
-    return stock_code, stock_date, pe
+    return stock_code, record_date, pe
 
 def check_table():
     table_exist = hdata_pe.table_is_exist() 
@@ -263,7 +263,7 @@ if __name__ == '__main__':
     pe_list = []
 
     with open(pe_file,'w') as f:
-        f.write( 'timestamp,stock_code,stock_date,iwencai_pe\n')
+        f.write( 'timestamp,stock_code,record_date,iwencai_pe\n')
 
     for i in range(stock_df_len):
         stock_code = stock_df.stock_code[i]
@@ -272,14 +272,14 @@ if __name__ == '__main__':
         if debug:
             my_dbg(stock_code)
 
-        stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
+        stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
 
         #try to second
         if pe_pct == 0:
             my_dbg('second')
             try:
                 driver = get_browser()
-                stock_code, stock_date, pe_pct = get_iwencai_pe(driver, stock_code)
+                stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
             except Exception as e:
                 my_dbg(e)
                 
@@ -288,14 +288,16 @@ if __name__ == '__main__':
         cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
         with open(pe_file,'a') as f:
-            f.write('%s,%s,%s,%s\n' % (cur_time, stock_code, stock_date, pe_pct))
+            f.write('%s,%s,%s,%s\n' % (cur_time, stock_code, record_date, pe_pct))
 
-        pe_list.append([cur_time, stock_code, stock_date, pe_pct])
+        pe_list.append([cur_time, stock_code, record_date, pe_pct])
 
     driver.quit()
 
     data_column = ['run_date', 'stock_code', 'record_date', 'pe_pct' ]
     pe_df=pd.DataFrame(pe_list, columns=data_column)
+    pe_df['record_date'] = pd.to_datetime(pe_df['record_date'], errors='coerce')
+    pe_df = pe_df.dropna(subset=['record_date'])  # 删除无效日期
 
     if len(pe_df) > 1000:
         #check table exist
@@ -305,6 +307,7 @@ if __name__ == '__main__':
                 start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
                 end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
                 )
+
         hdata_pe.copy_from_stringio(pe_df)
  
 
