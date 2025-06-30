@@ -67,12 +67,15 @@ SHELL=/bin/sh
 */30  9-11     * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
 */30  13-14    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
 
+*/30  9-14      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1 
+
 #get kline data from eastmoney 
 28 14       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
 
 
 #get the last updated zlje a day
 1 15      * * 1-5       aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+1 15      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
 
 30 15     * * 1-5     aaron /home/aaron/eastmoney/shell/get_xq_data.sh 
 
@@ -80,7 +83,7 @@ SHELL=/bin/sh
 5 15        * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
 
 #get iwencai_pe, every Friday
-30 22        * * 5 aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium.py   > /tmp/iwencai.txt 2>&1 & 
+1 0        * * 6 aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_pe.py   > /tmp/iwencai_pe.txt 2>&1 & 
 
 #get dragon data at 17:30
 30 17      * * 1-5     aaron /home/aaron/eastmoney/shell/get_dragon_data.sh 

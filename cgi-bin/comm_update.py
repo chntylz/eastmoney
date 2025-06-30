@@ -389,7 +389,11 @@ def show_realdata(file_name):
         tmp_dde_df = tmp_dde_df.reset_index(drop=True)
         dde = ''
         if len(tmp_dde_df):
-            rank = int(tmp_dde_df['rank'][0])
+            # dde_net > 0, plus, otherwise negtive
+            if tmp_dde_df['dde_net'][0] > 0: 
+                rank = int(tmp_dde_df['rank'][0])
+            else:
+                rank = (-1) * int(tmp_dde_df['rank'][0]) 
             zlkp_pct  = tmp_dde_df['zlkp_pct'][0]
             dde = str(rank) + '<br>' + str(zlkp_pct) + '</br>'
         #####dde rank and zlkp_pct end ####
