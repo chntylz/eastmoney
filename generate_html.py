@@ -512,14 +512,22 @@ if __name__ == '__main__':
     else:
         my_dbg('#error, html_basic_df len < 1')
 
-
     #pe and pe_pct iwencai_pe
     my_dbg('#############################################################')
     my_dbg('start pe and pe_pct')
     curr_dir=curr_day_w + '-pepct'
-    pe_df = df[(df.pe > 0 ) & (df.iwencai_pe < 30) & (df.is_zig > 0)]
+    pe_df = df[(df.pe > 0 ) & (df.iwencai_pe < 30) & (df.percent > 5)]
     html_pe_df = convert_to_html_df(pe_df, curr_dir, curr_day)
     my_dbg(html_pe_df.columns)
+
+    html_pe_df['temp_sort'] = html_pe_df['dde'].str.split('<').str[0]  # 提取"<"前内容
+    html_pe_df['temp_sort'] = html_pe_df['temp_sort'].astype(int)
+    html_pe_df = html_pe_df[(html_pe_df.temp_sort < 100) & (html_pe_df.temp_sort > 0)]  #dde rank [0 100]
+
+    html_pe_df = html_pe_df.sort_values('temp_sort')
+    html_pe_df.drop('temp_sort', axis=1, inplace=True)  # 删除临时列
+    html_pe_df = html_pe_df.reset_index(drop=True)
+
     html_pe_df = html_pe_df.sort_values('iwen_pe', ascending=1)
     html_pe_df = html_pe_df.head(top_size)
     if len(html_pe_df):
@@ -528,7 +536,6 @@ if __name__ == '__main__':
         my_dbg('#error, html_pe_df len < 1')
 
     #exit()
-
       
     #fina
     my_dbg('#############################################################')
@@ -567,7 +574,7 @@ if __name__ == '__main__':
 
     #exit()
 
-    #zlje
+    #zlje  da dan pai xu
     my_dbg('#############################################################')
     my_dbg('start zlje')
     curr_dir=curr_day_w+'-zlje'
@@ -580,7 +587,8 @@ if __name__ == '__main__':
 
     html_zlje_df['temp_sort'] = html_zlje_df['dde'].str.split('<').str[0]  # 提取"<"前内容
     html_zlje_df['temp_sort'] = html_zlje_df['temp_sort'].astype(int)
-    html_zlje_df = html_zlje_df.sort_values('temp_sort')
+    html_zlje_df = html_zlje_df[(html_zlje_df.temp_sort > 0)]  #dde rank > 0
+    html_zlje_df = html_zlje_df.sort_values('temp_sort', ascending=1)
     html_zlje_df.drop('temp_sort', axis=1, inplace=True)  # 删除临时列
 
     html_zlje_df = html_zlje_df.reset_index(drop=True)

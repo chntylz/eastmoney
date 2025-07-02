@@ -1,6 +1,9 @@
 from get_sina_fina_data import *
 from HData_iwencai_dde import *
 
+from selenium.webdriver.common.action_chains import ActionChains
+
+
 hdata_dde=HData_iwencai_dde("usr","usr")
 
 def parse_table(soup):
@@ -54,7 +57,19 @@ def scrapy_pages(url):
             pass
                           
            
-        time.sleep(random.randint(1, 2))
+        time.sleep(random.randint(1, 3))
+
+        #pull to bottom
+        try:
+            actions = ActionChains(browser)
+            actions.move_by_offset(0,100).perform()
+            time.sleep(random.randint(1, 3))
+        except Exception as e:
+            my_dbg(f'Error action move{e}')
+        finally:
+            pass
+        
+
         html_doc=browser.page_source
         soup = BeautifulSoup(html_doc, 'html.parser')
         result = parse_table(soup)   
