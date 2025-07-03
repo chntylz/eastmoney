@@ -118,6 +118,17 @@ def display_results(start_date, end_date, stock_code):
                         else:
                             print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{value}' target='_blank'>{value}</a></td>")
 
+                    elif ("dde" in columns[i][0] or "amount" in columns[i][0]):  # 判断是否包含dde
+                        if value > 100*1000*1000 or value < (-1) * 100*1000*1000 :  #亿
+                            value = value / (100*1000*1000)
+                            print(f"<td>{value if value is not None else ''}亿</td>")
+                        elif value > 10*1000 or value < (-1) * 10*1000:  #万
+                            value = value / (10*1000)
+                            print(f"<td>{value if value is not None else ''}万</td>")
+                        else:
+                            print(f"<td>{value if value is not None else ''}</td>")
+
+                        
                     else:
                         print(f"<td>{value if value is not None else ''}</td>")
 
