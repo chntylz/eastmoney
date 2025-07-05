@@ -33,6 +33,20 @@ def scrapy_pages(url):
         WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((By.TAG_NAME, "tbody"))
         )
+
+        '''
+        # 点击触发下拉框展开
+        dropdown = browser.find_element(By.CLASS_NAME, "drop-down-box")
+        dropdown.click()
+        # 定位所有选项并点击最后一个
+        options = WebDriverWait(browser, 10).until(
+                EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "ul[data-v-41d36628] > li"))
+            )
+        options[-1].click()  # 选择最后一个选项"显示100条/页"
+
+        time.sleep(random.randint(1, 3))
+        '''
+
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         result = parse_table(soup)
         df=pd.DataFrame(result[0])
@@ -57,7 +71,7 @@ def scrapy_pages(url):
             pass
                           
            
-        time.sleep(random.randint(1, 3))
+        time.sleep(random.randint(1, 5))
 
         #pull to bottom
         try:
@@ -146,6 +160,7 @@ if __name__ == '__main__':
     #https://www.iwencai.com/unifiedwap/result?w=%E4%B8%BB%E5%8A%9B%E6%8E%A7%E7%9B%98%E5%89%8D5000%E7%9A%84%E8%82%A1%E7%A5%A8&querytype=stock&addSign=1750524259294
         
     url='https://www.iwencai.com/unifiedwap/result?w=主力控盘比例前6000的股票&querytype=stock'
+    my_dbg(url)
 
     dde_df = scrapy_pages(url)
     my_dbg(dde_df)

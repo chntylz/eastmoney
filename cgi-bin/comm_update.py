@@ -210,8 +210,30 @@ def show_realdata(file_name):
 
     #get dde dataFrame
     dde_df = hdata_dde.get_data_from_hdata(start_date=str_date, end_date=str_date)
+    retry = 0
+    while True:
+        if debug:
+            print('retry=%d' % retry)
 
+        if len(dde_df) > 0:
+            break;
+        
+        retry = retry + 1
+
+        nowdate=datetime.datetime.now().date()
+        nowdate=nowdate-datetime.timedelta(retry)
+
+        start_date=nowdate.strftime("%Y-%m-%d")
+        end_date=nowdate.strftime("%Y-%m-%d")
+
+        dde_df = hdata_dde.get_data_from_hdata( start_date=nowdate.strftime("%Y-%m-%d"),\
+                end_date=nowdate.strftime("%Y-%m-%d"))
+
+        if retry > 1000:
+            print('timeout hdata_dde is Null')
+ 
     ####get zlje start####
+    retry = 0
     zlje_df   = get_zlje_data_from_db(url='url',     curr_date=str_date)
     while len(zlje_df) == 0:
         retry = retry + 1
@@ -320,7 +342,7 @@ def show_realdata(file_name):
             real_industry_df = real_industry_df.reset_index(drop=True)
 
             if len(real_df) == 0 :
-                print('error: %s %s %s '%(new_date, new_code, new_name))
+                print('error show_realdata(): %s %s %s '%(new_date, new_code, new_name))
                 continue
 
             if len(real_df):
