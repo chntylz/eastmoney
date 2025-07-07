@@ -151,15 +151,16 @@ if __name__ == '__main__':
                     hdata_day.copy_from_stringio(k_df)
     else:
         my_dbg('today data len:%s' % len(work_df))
-        work_df = work_df.drop_duplicates(subset=['stock_code'], keep='first')
-        work_df.to_csv('./csv/'+ nowdate.strftime("%Y-%m-%d")+ '_daily_data.csv', encoding='gbk')
-        hdata_day.delete_data_from_hdata(
-                start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
-                end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
-                )
-        hdata_day.copy_from_stringio(work_df)
-        #hdata_day.insert_all_stock_data_3(work_df)
-        
+        if len(work_df) > 5000:
+            work_df = work_df.drop_duplicates(subset=['stock_code'], keep='first')
+            work_df.to_csv('./csv/'+ nowdate.strftime("%Y-%m-%d")+ '_daily_data.csv', encoding='gbk')
+            hdata_day.delete_data_from_hdata(
+                    start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
+                    end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
+                    )
+            hdata_day.copy_from_stringio(work_df)
+            #hdata_day.insert_all_stock_data_3(work_df)
+            
     #bankuai 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
