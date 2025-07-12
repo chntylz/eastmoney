@@ -151,7 +151,7 @@ if __name__ == '__main__':
                     hdata_day.copy_from_stringio(k_df)
     else:
         my_dbg('today data len:%s' % len(work_df))
-        if len(work_df) > 5000:
+        if len(work_df) > 4500:
             work_df = work_df.drop_duplicates(subset=['stock_code'], keep='first')
             work_df.to_csv('./csv/'+ nowdate.strftime("%Y-%m-%d")+ '_daily_data.csv', encoding='gbk')
             hdata_day.delete_data_from_hdata(

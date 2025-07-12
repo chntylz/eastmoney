@@ -58,7 +58,8 @@ else
     log "work day, continue"
 fi
 
-
+#login auto
+cd ~/eastmoney/ && python3 eastmoney_slide.py >> $logfile  2>&1 
 
 #start
 
@@ -137,6 +138,10 @@ do
     
     
 done
+
+#login auto
+cd ~/eastmoney && python3 eastmoney_slide.py >> $logfile    2>&1 
+
 
 log "*********************** end ********************************" 
 

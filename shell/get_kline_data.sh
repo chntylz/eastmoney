@@ -46,6 +46,9 @@ else
     log "work day, continue"
 fi
 
+#login auto
+cd ~/eastmoney && python3 eastmoney_slide.py >> $logfile 2>&1 
+
 
 #start to do
 log " cd ~/eastmoney/  && python3 main_day.py 0 >> $logfile 2>&1  "
@@ -99,6 +102,9 @@ else
     && python3 generate_html.py 0 >> $logfile 2>&1 \
     && ~/eastmoney/shell/set_stock_generate_html.sh 
 fi
+
+#login auto
+cd ~/eastmoney && python3 eastmoney_slide.py >> $logfile 2>&1 
 
 python3 main_bk.py 0
 

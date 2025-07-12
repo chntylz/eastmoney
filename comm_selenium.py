@@ -41,6 +41,8 @@ def get_browser(headless=None):
     #chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--disk-cache-dir=/dev/shm  --disk-cache-size=4096000000')
 
+    #chrome_options.add_argument('--proxy-server=http://147.75.34.86:9401')
+    #chrome_options.add_argument('--proxy-server=socks5://220.167.89.46:1080')
 
     try:
         browser = webdriver.Chrome(executable_path=path_chromedriver,

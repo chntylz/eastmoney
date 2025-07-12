@@ -25,6 +25,7 @@ def scrapy_pages(url):
 
     #open selenium browser
     browser = get_browser()
+    #browser = get_browser(1)
 
     """单页爬取逻辑"""
     df=pd.DataFrame()
@@ -105,6 +106,8 @@ def scrapy_pages(url):
 
     # 处理数据中的逗号
     df = df.replace(',','', regex=True)  # 移除所有逗号
+
+    df = df.replace('--','0', regex=True)  # '--' -> 0
 
     cols = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'zlkp_pct', 'zlkp_rank', \
            'dde_buy', 'dde_sell', 'amount']

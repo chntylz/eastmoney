@@ -342,7 +342,8 @@ def show_realdata(file_name):
             real_industry_df = real_industry_df.reset_index(drop=True)
 
             if len(real_df) == 0 :
-                print('error show_realdata(): %s %s %s '%(new_date, new_code, new_name))
+                if debug: 
+                    print('error show_realdata(): %s %s %s '%(new_date, new_code, new_name))
                 continue
 
             if len(real_df):

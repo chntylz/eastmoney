@@ -276,7 +276,7 @@ if __name__ == '__main__':
 
         #try to second
         if pe_pct == 0:
-            my_dbg('second')
+            my_dbg(f'second, stock_code:{stock_code}, record_date:{record_date}')
             try:
                 driver = get_browser()
                 stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
