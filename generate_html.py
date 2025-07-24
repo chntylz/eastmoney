@@ -512,6 +512,57 @@ if __name__ == '__main__':
     else:
         my_dbg('#error, html_basic_df len < 1')
 
+
+
+    my_dbg('#############################################################')
+    my_dbg('start pe and pe_pct')
+    curr_dir = curr_day_w + '-pepct'
+
+    # 原始数据过滤
+    pe_df = df[(df.pe > 0) & (df.iwencai_pe < 30) & (df.percent > 5)].copy()
+    html_pe_df = convert_to_html_df(pe_df, curr_dir, curr_day)
+    my_dbg(html_pe_df.columns)
+    
+    
+    '''
+    型安全转换
+    通过.astype(str)确保所有数据转为字符串类型，避免原始数据中存在非字符串类型导致后续操作异常
+    
+    正则提取数字
+    使用.str.extract(r'([0-9]+)')通过正则表达式提取连续数字部分，可有效过滤非数字字符（如"<"符号或其他文本）2。提取结果为DataFrame，故需通过[0]获取第一列
+    
+    空值处理
+    .fillna('0')将提取结果中的空值（如原数据无数字时）填充为字符串"0"，避免后续转换报错
+    
+    后续处理（未展示部分）
+    通常需接.astype(int)或pd.to_numeric()完成最终整数转换，并可能配合条件过滤（如>0）
+    '''
+    # 安全处理dde字段
+    html_pe_df['temp_sort'] = (
+        html_pe_df['dde']
+        .astype(str)  # 确保为字符串类型
+        .str.split('<')
+        .str[0]
+        .replace('', '0')  # 空字符串转0
+    )
+    html_pe_df['temp_sort'] = pd.to_numeric(html_pe_df['temp_sort'], errors='coerce').fillna(0)
+    
+    # 范围过滤前检查数据有效性
+    valid_mask = (html_pe_df['temp_sort'] > 0) & (html_pe_df['temp_sort'] < 100)
+    if not valid_mask.any():
+        my_dbg('#warning: no valid dde values in range (0,100)')
+        
+    html_pe_df = html_pe_df[valid_mask].sort_values('temp_sort')
+    html_pe_df = html_pe_df.drop('temp_sort', axis=1).reset_index(drop=True)
+    
+    # 最终处理
+    html_pe_df = html_pe_df.sort_values('iwen_pe', ascending=True).head(top_size)
+    if len(html_pe_df):
+        generate_html(df_global, html_pe_df, stock_data_dir, curr_dir, curr_day)
+    else:
+        my_dbg('#error, html_pe_df len < 1')
+
+    '''
     #pe and pe_pct iwencai_pe
     my_dbg('#############################################################')
     my_dbg('start pe and pe_pct')
@@ -521,7 +572,14 @@ if __name__ == '__main__':
     my_dbg(html_pe_df.columns)
 
     html_pe_df['temp_sort'] = html_pe_df['dde'].str.split('<').str[0]  # 提取"<"前内容
-    html_pe_df['temp_sort'] = html_pe_df['temp_sort'].astype(int)
+    html_pe_df = html_pe_df.fillna(0)
+    my_dbg(f"html_pe_df.head(5):{html_pe_df.head(5)}")
+
+    try:
+        html_pe_df['temp_sort'] = html_pe_df['temp_sort'].astype(int)
+    except Exception as e:
+        my_dbg(f"error:{e}")
+
     html_pe_df = html_pe_df[(html_pe_df.temp_sort < 100) & (html_pe_df.temp_sort > 0)]  #dde rank [0 100]
 
     html_pe_df = html_pe_df.sort_values('temp_sort')
@@ -535,6 +593,9 @@ if __name__ == '__main__':
     else:
         my_dbg('#error, html_pe_df len < 1')
 
+    '''
+    
+    
     #exit()
       
     #fina
@@ -584,13 +645,32 @@ if __name__ == '__main__':
     html_zlje_df = convert_to_html_df(zlje_df, curr_dir, curr_day)
     html_zlje_df = html_zlje_df[(html_zlje_df.a_pct > 0)]
     my_dbg(html_zlje_df.columns)
-
+    
+    '''
     html_zlje_df['temp_sort'] = html_zlje_df['dde'].str.split('<').str[0]  # 提取"<"前内容
     html_zlje_df['temp_sort'] = html_zlje_df['temp_sort'].astype(int)
     html_zlje_df = html_zlje_df[(html_zlje_df.temp_sort > 0)]  #dde rank > 0
     html_zlje_df = html_zlje_df.sort_values('temp_sort', ascending=1)
     html_zlje_df.drop('temp_sort', axis=1, inplace=True)  # 删除临时列
+    '''
+     
+    # 安全提取dde数值并转换为整数 # 提取"<"前内容
+    html_zlje_df['temp_sort'] = (
+        html_zlje_df['dde']
+        .astype(str)  # 确保为字符串类型
+        .str.extract(r'([0-9]+)')[0]  # 正则提取数字更安全
+        .fillna('0')  # 空值填充为0
+    )
+     
+    # 安全类型转换（带异常处理）
+    try:
+        html_zlje_df['temp_sort'] = pd.to_numeric(html_zlje_df['temp_sort'], errors='coerce')
+        html_zlje_df = html_zlje_df[html_zlje_df['temp_sort'].notna() & (html_zlje_df['temp_sort'] > 0)]
+        html_zlje_df = html_zlje_df.sort_values('temp_sort', ascending=True)
+    finally:
+        html_zlje_df.drop('temp_sort', axis=1, inplace=True)  # 确保临时列被删除
 
+    
     html_zlje_df = html_zlje_df.reset_index(drop=True)
     #html_zlje_df = html_zlje_df.sort_values('zig', ascending=1)
     html_zlje_df = html_zlje_df.head(top_size)

@@ -44,6 +44,9 @@ def get_browser(headless=None):
     #chrome_options.add_argument('--proxy-server=http://147.75.34.86:9401')
     #chrome_options.add_argument('--proxy-server=socks5://220.167.89.46:1080')
 
+
+    chrome_options.add_argument("--window-size=1920,1080")  # 最小推荐尺寸
+
     try:
         browser = webdriver.Chrome(executable_path=path_chromedriver,
             chrome_options=chrome_options)
