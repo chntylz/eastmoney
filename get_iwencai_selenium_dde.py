@@ -6,6 +6,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 hdata_dde=HData_iwencai_dde("usr","usr")
 
+
 def parse_table(soup):
     """统一表格解析逻辑"""
     result = []
@@ -18,14 +19,35 @@ def parse_table(soup):
             table_data.append(row_data)
         result.append(table_data)
     return result
-   
+
+
+#按照group_col 计算target_col连续大于0的天数
+def count_continous_positive(df, group_col, target_col):
+    # 按股票代码分组后处理每组数据
+    return df.groupby(group_col).apply(
+        lambda x: (x[target_col] > 0).groupby(
+            (x[target_col] <= 0).cumsum()
+        ).cumcount().where(x[target_col] > 0, 0)
+    ).reset_index(level=0, drop=True)
+ 
+
+#如果当天不是星期五，返回最近的星期五
+def adjust_weekend_date():
+    today = datetime.date.today()
+    if today.weekday() >= 5:  # 5=Saturday, 6=Sunday
+        # 计算最近的星期五
+        delta = today.weekday() - 4  # 4=Friday
+        return today - datetime.timedelta(days=delta)
+    return today
+
+
 
 def scrapy_pages(url):
 
 
     #open selenium browser
-    browser = get_browser()
     #browser = get_browser(1)
+    browser = get_browser()
 
     """单页爬取逻辑"""
     df=pd.DataFrame()
@@ -58,7 +80,7 @@ def scrapy_pages(url):
     finally:
         pass
     
-
+    retry_times = 0
     loop = 108  # actually is 1+108    
     while (loop):
         try:
@@ -67,6 +89,9 @@ def scrapy_pages(url):
             my_dbg(f'loop:{loop}, error:{e}')
             browser.refresh()
             loop = 108
+            retry_times = retry_times + 1
+            if retry_times > 10:
+                break
             continue
         finally:
             pass
@@ -109,15 +134,22 @@ def scrapy_pages(url):
 
     df = df.replace('--','0', regex=True)  # '--' -> 0
 
-    cols = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'zlkp_pct', 'zlkp_rank', \
-           'dde_buy', 'dde_sell', 'amount']
+    cols = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'zlkp_rank', \
+           'dde_buy', 'dde_sell', 'amount', 'zlkp_pct']
     df.columns = cols
 
     #去重
     df = df.drop_duplicates(subset=['stock_code'], keep='first')
 
+    cols_final = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'zlkp_pct', 'zlkp_rank', \
+           'dde_buy', 'dde_sell', 'amount']
+    df = df[cols_final]
+
     #insert record_date
-    df.insert(0, 'record_date', time.strftime("%Y-%m-%d", time.localtime()), allow_duplicates=False)
+    #df.insert(0, 'record_date', time.strftime("%Y-%m-%d", time.localtime()), allow_duplicates=False)
+    valid_date = adjust_weekend_date()
+    df.insert(0, 'record_date', valid_date.strftime("%Y-%m-%d") , allow_duplicates=False)
+    
      
     #亿->10**8, 万->10**4
     df['dde_buy']  = df['dde_buy'].apply(lambda x: money_unit_transfer(x))
@@ -126,7 +158,8 @@ def scrapy_pages(url):
 
     df['dde_net'] = df['dde_buy'] - df['dde_sell']
 
-    
+    df['conti_day'] = 0
+
     #save
     df.to_csv('./csv/' + time.strftime("%Y-%m-%d", time.localtime()) + '_dde.csv', encoding='gbk')
 
@@ -171,14 +204,33 @@ if __name__ == '__main__':
     if len(dde_df) > 1000:
         #check table exist
         check_table()
+        
+        valid_date = adjust_weekend_date()
+        hdata_dde.delete_data_from_hdata(
+            start_date=valid_date.strftime("%Y-%m-%d"),
+            end_date=valid_date.strftime("%Y-%m-%d")
+            )
+        hdata_dde.copy_from_stringio(dde_df)
+
+        #计算20天内dde_net连续大于0的天数
+        s_date = valid_date - datetime.timedelta(days=20)
+        e_date = valid_date
+        df_20day = hdata_dde.get_data_from_hdata(
+            start_date=s_date.strftime("%Y-%m-%d"),
+            end_date=e_date.strftime("%Y-%m-%d")
+            )
+
+        df_conti_day = count_continous_positive(df_20day, 'stock_code', 'dde_net')
+        df_20day['conti_day'] = df_conti_day
+        df_today = df_20day[df_20day['record_date'] == valid_date.strftime("%Y-%m-%d")] 
+        df_today = df_today.reset_index(drop=True)
 
         hdata_dde.delete_data_from_hdata(
-                start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
-                end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
-                )
-        hdata_dde.copy_from_stringio(dde_df)
- 
-    
+            start_date=valid_date.strftime("%Y-%m-%d"),
+            end_date=valid_date.strftime("%Y-%m-%d")
+            )
+        hdata_dde.copy_from_stringio(df_today)
+
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 

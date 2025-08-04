@@ -111,14 +111,18 @@ def display_results(start_date, end_date, stock_code):
             for row in results:
                 print("<tr>")
 
+                tmp_code = None
+                tmp_name = None
                 for i, value in enumerate(row):
-                    if columns[i][0] == "stock_code":  # 判断是否为股票代码列
+                    tmp_column = columns[i][0] 
+                    if tmp_column == "stock_code":  # 判断是否为股票代码列
+                        tmp_code = value
                         if value[0] == "6":
                             print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SH{value}' target='_blank'>{value}</a></td>")
                         else:
                             print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{value}' target='_blank'>{value}</a></td>")
 
-                    elif ("dde" in columns[i][0] or "amount" in columns[i][0]):  # 判断是否包含dde
+                    elif ("dde" in tmp_column or "amount" in tmp_column):  # 判断是否包含dde
                         if value > 100*1000*1000 or value < (-1) * 100*1000*1000 :  #亿
                             value = value / (100*1000*1000)
                             print(f"<td>{value if value is not None else ''}亿</td>")
@@ -128,6 +132,10 @@ def display_results(start_date, end_date, stock_code):
                         else:
                             print(f"<td>{value if value is not None else ''}</td>")
 
+                    elif tmp_column == "stock_name":  # 判断是否为股票代码列
+                        tmp_name = value
+                        print(f"<td><a class='stock-link' href='iwencai_dde.cgi?stock_code={tmp_code}' target='_blank'>{value}</a></td>")
+                    
                         
                     else:
                         print(f"<td>{value if value is not None else ''}</td>")

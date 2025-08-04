@@ -15,7 +15,7 @@ debug = 0
 #debug = 1
 
 iwencai_cols = " record_date, rank, stock_code, stock_name, close, pct, \
-                zlkp_pct, zlkp_rank, dde_buy, dde_sell, amount, dde_net "
+                zlkp_pct, zlkp_rank, dde_buy, dde_sell, amount, dde_net, conti_day "
 
 
 class HData_iwencai_dde(object):
@@ -74,7 +74,8 @@ class HData_iwencai_dde(object):
                 dde_buy float,
                 dde_sell float,
                 amount float,
-                dde_net float
+                dde_net float,
+                conti_day float
             );
         alter table iwencai_dde_table add primary key(stock_code,record_date);
             ''')

@@ -15,6 +15,7 @@ def get_browser(headless=None):
 
     path_chromedriver='/usr/bin/chromedriver'
     path_chromedriver='/snap/bin/chromium.chromedriver'
+    #path_chromedriver='/home/aaron/chrome/138.0.7204.168/driver/chromedriver-linux64/chromedriver'
     browser = None
     
     # 添加无头headlesss

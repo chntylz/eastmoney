@@ -251,8 +251,11 @@ if __name__ == '__main__':
     my_dbg(stock_df.head(5))
     my_dbg('stock_df.len:%s' % len(stock_df))
 
+    head=None
+    head=1
+
     #driver = get_browser_real()
-    driver = get_browser()
+    driver = get_browser(head) 
 
     exec_command = "mkdir -p csv" 
     os.system(exec_command)
@@ -267,7 +270,7 @@ if __name__ == '__main__':
 
     for i in range(stock_df_len):
         stock_code = stock_df.stock_code[i]
-        if stock_code[0] == '9':
+        if stock_code[0] == '9' or stock_code[0] == '2':
             continue
         if debug:
             my_dbg(stock_code)
@@ -278,7 +281,7 @@ if __name__ == '__main__':
         if pe_pct == 0:
             my_dbg(f'second, stock_code:{stock_code}, record_date:{record_date}')
             try:
-                driver = get_browser()
+                driver = get_browser(head)
                 stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
             except Exception as e:
                 my_dbg(e)
