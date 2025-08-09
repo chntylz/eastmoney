@@ -136,6 +136,9 @@ def scrapy_pages(url):
 
     cols = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'zlkp_rank', \
            'dde_buy', 'dde_sell', 'amount', 'zlkp_pct']
+
+    cols = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'zlkp_pct', 'zlkp_rank', \
+           'dde_buy', 'dde_sell', 'amount']
     df.columns = cols
 
     #去重
