@@ -23,7 +23,7 @@ def get_db_connection():
     return psycopg2.connect(**DB_CONFIG)
 
 def get_table_columns():
-    """获取表字段信息"""
+    """获取表字段信息，包含添加的pe字段"""
     try:
         conn = get_db_connection()
         with conn.cursor() as cursor:
@@ -33,7 +33,10 @@ def get_table_columns():
                 WHERE table_name = 'iwencai_dde_table'
                 ORDER BY ordinal_position
             """)
-            return cursor.fetchall()
+            columns = cursor.fetchall()
+            # 添加pe字段到列列表
+            columns.append(('pe_pct', 'float'))
+            return columns
     except Exception as e:
         print(f"<p style='color:red'>获取表结构错误: {str(e)}</p>")
         return []
@@ -65,27 +68,36 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                 return
                 
             # 构建动态查询条件
-            query = "SELECT * FROM iwencai_dde_table"
+            # 构建主查询，包含HData_iwencai_pe表中最近的pe值
+            query = """
+                SELECT d.*, p.pe_pct AS pe
+                FROM iwencai_dde_table d
+                LEFT JOIN (
+                    SELECT stock_code, pe_pct, record_date,
+                           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                    FROM iwencai_pe_table
+                ) p ON d.stock_code = p.stock_code AND p.rn = 1
+            """
 
             params = []
             if start_date:
-                query += " WHERE record_date BETWEEN %s AND %s"
+                query += " WHERE d.record_date BETWEEN %s::date AND %s::date"
                 params = [start_date, end_date]
             
             if stock_code :
                 if start_date:
                     if stock_code.isdigit():
-                       query += " AND stock_code = %s"
+                       query += " AND d.stock_code = %s"
                     else:
-                        query += " AND stock_name = %s"
+                        query += " AND d.stock_name = %s"
 
                     params.append(stock_code)
                 else:
                     if stock_code.isdigit():
-                       query += " WHERE stock_code = %s"
+                       query += " WHERE d.stock_code = %s"
                     else:
-                        query += " WHERE stock_name = %s"
-                       
+                        query += " WHERE d.stock_name = %s"
+                        
                     params.append(stock_code)
             else:
                 pass
@@ -116,7 +128,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             for col in columns:
                 col_name = col[0]
                 # 为 dde_net 和 conti_day 添加排序链接
-                if col_name in ['dde_net', 'conti_day', 'pct']:
+                if col_name in ['dde_net', 'conti_day', 'pct', 'pe_pct']:
                     # 切换排序方向
                     new_order = 'DESC' if (sort_column == col_name and sort_order == 'ASC') else 'ASC'
                     print(f"<th><a href='?start_date={start_date}&end_date={end_date}&stock_code={stock_code}&sort_column={col_name}&sort_order={new_order}'>{col_name} ({'↑' if new_order == 'DESC' else '↓'})</a></th>")
