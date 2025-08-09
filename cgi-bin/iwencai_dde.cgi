@@ -54,7 +54,7 @@ def generate_html_form(start_date='', end_date='', stock_code=''):
     <hr>
     """)
 
-def display_results(start_date, end_date, stock_code):
+def display_results(start_date, end_date, stock_code, sort_column=None, sort_order='ASC'):
     """显示查询结果"""
     try:
         conn = get_db_connection()
@@ -90,7 +90,17 @@ def display_results(start_date, end_date, stock_code):
             else:
                 pass
                 
-            query += " ORDER BY record_date DESC, rank ASC, stock_code LIMIT 500"
+            # 处理排序逻辑
+            if sort_column:
+                # 确保排序字段是表中存在的列
+                valid_columns = [col[0] for col in columns]
+                if sort_column in valid_columns:
+                    query += f" ORDER BY {sort_column} {sort_order}, record_date DESC, stock_code"
+                else:
+                    query += " ORDER BY record_date DESC, rank ASC, stock_code"
+            else:
+                query += " ORDER BY record_date DESC, rank ASC, stock_code"
+            query += " LIMIT 500"
 
             print(query)
             
@@ -104,7 +114,14 @@ def display_results(start_date, end_date, stock_code):
             # 动态生成表头
             print("<div class='table-container'><table><tr>")
             for col in columns:
-                print(f"<th>{col[0]}</th>")
+                col_name = col[0]
+                # 为 dde_net 和 conti_day 添加排序链接
+                if col_name in ['dde_net', 'conti_day', 'pct']:
+                    # 切换排序方向
+                    new_order = 'DESC' if (sort_column == col_name and sort_order == 'ASC') else 'ASC'
+                    print(f"<th><a href='?start_date={start_date}&end_date={end_date}&stock_code={stock_code}&sort_column={col_name}&sort_order={new_order}'>{col_name} ({'↑' if new_order == 'DESC' else '↓'})</a></th>")
+                else:
+                    print(f"<th>{col_name}</th>")
             print("</tr>")
             
             # 输出数据
@@ -184,7 +201,12 @@ def main():
     generate_html_form(start_date, end_date, stock_code)
     
     #if start_date and end_date:
-    display_results(start_date, end_date, stock_code)
+    # 获取排序参数
+    sort_column = form.getvalue('sort_column', '')
+    sort_order = form.getvalue('sort_order', 'ASC').upper()
+    if sort_order not in ['ASC', 'DESC']:
+        sort_order = 'ASC'
+    display_results(start_date, end_date, stock_code, sort_column, sort_order)
     
     print("""
     </body>
