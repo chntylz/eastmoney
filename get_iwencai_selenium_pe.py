@@ -28,7 +28,6 @@ hdata_pe=HData_iwencai_pe("usr","usr")
 
 debug = 0
 debug = 1
-debug = 0
 
 global_first_time = True
 

@@ -47,7 +47,7 @@ def scrapy_pages(url):
 
     #open selenium browser
     #browser = get_browser(1)
-    browser = get_browser()
+    browser = get_browser(1)
 
     """单页爬取逻辑"""
     df=pd.DataFrame()
@@ -240,3 +240,18 @@ if __name__ == '__main__':
     t2 = time.time()
     my_dbg("t1:%s, t2:%s, delta=%s"%(t1, t2, t2-t1))
 
+'''
+from get_iwencai_selenium_dde import *
+
+df = pd.read_csv('./csv/2025-08-07_dde.csv',encoding='gbk', index_col=[0], dtype={'stock_code':str})
+df = df.drop_duplicates(subset=['stock_code', 'record_date'], keep='first')
+df = df.reset_index(drop=True)
+
+cols_final = ['record_date', 'rank', 'stock_code', 'stock_name', 'close', 'pct',
+   'zlkp_rank', 'dde_buy', 'dde_sell', 'amount', 'zlkp_pct']
+df = df[cols_final]     
+
+   
+hdata_dde.copy_from_stringio(df)
+
+'''
