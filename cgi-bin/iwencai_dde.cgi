@@ -146,10 +146,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                     tmp_column = columns[i][0] 
                     if tmp_column == "stock_code":  # 判断是否为股票代码列  xueqiu link
                         tmp_code = value
-                        if tmp_code[0] == "6":
-                            print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SH{tmp_code}' target='_blank'>{tmp_code}</a></td>")
-                        else:
-                            print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{tmp_code}' target='_blank'>{tmp_code}</a></td>")
+                        print(f"<td><a class='stock-link' href='iwencai_dde.cgi?stock_code={tmp_code}' target='_blank'>{tmp_code}</a></td>")
 
                     elif ("dde" in tmp_column or "amount" in tmp_column):  # 判断是否包含dde
                         if value > 100*1000*1000 or value < (-1) * 100*1000*1000 :  #亿
@@ -163,7 +160,10 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
 
                     elif tmp_column == "stock_name":  # 判断是否为股票代码列
                         tmp_name = value
-                        print(f"<td><a class='stock-link' href='iwencai_dde.cgi?stock_code={tmp_code}' target='_blank'>{tmp_name}</a></td>")
+                        if tmp_code[0] == "6":
+                            print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SH{tmp_code}' target='_blank'>{tmp_name}</a></td>")
+                        else:
+                            print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{tmp_code}' target='_blank'>{tmp_name}</a></td>")
                     
                     elif tmp_column == "pe_pct":  # 判断是否为股票代码列  iwencai_pe link
                         print(f"<td><a class='stock-link' href='https://iwencai.com/unifiedwap/result?w=?{tmp_code}pe' target='_blank'>{value}</a></td>")
