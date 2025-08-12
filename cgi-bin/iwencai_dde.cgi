@@ -36,6 +36,8 @@ def get_table_columns():
             columns = cursor.fetchall()
             # 添加pe字段到列列表
             columns.append(('pe_pct', 'float'))
+            columns.append(('ystz', 'float'))
+            columns.append(('sjltz', 'float'))
             return columns
     except Exception as e:
         print(f"<p style='color:red'>获取表结构错误: {str(e)}</p>")
@@ -70,13 +72,18 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             # 构建动态查询条件
             # 构建主查询，包含HData_iwencai_pe表中最近的pe值
             query = """
-                SELECT d.*, p.pe_pct AS pe
+                SELECT d.*, p.pe_pct AS pe, f.ystz, f.sjltz
                 FROM iwencai_dde_table d
                 LEFT JOIN (
                     SELECT stock_code, pe_pct, record_date,
                            ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
                     FROM iwencai_pe_table
                 ) p ON d.stock_code = p.stock_code AND p.rn = 1
+                LEFT JOIN (
+                    SELECT stock_code, ystz, sjltz, record_date,
+                           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                    FROM eastmoney_fina_table
+                ) f ON d.stock_code = f.stock_code AND f.rn = 1
             """
 
             params = []
@@ -128,7 +135,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             for col in columns:
                 col_name = col[0]
                 # 为 dde_net 和 conti_day 添加排序链接
-                if col_name in ['dde_net', 'conti_day', 'pct', 'pe_pct']:
+                if col_name in ['dde_net', 'conti_day', 'pct', 'pe_pct', 'ystz', 'sjltz']:
                     # 切换排序方向
                     new_order = 'DESC' if (sort_column == col_name and sort_order == 'ASC') else 'ASC'
                     print(f"<th><a href='?start_date={start_date}&end_date={end_date}&stock_code={stock_code}&sort_column={col_name}&sort_order={new_order}'>{col_name} ({'↑' if new_order == 'DESC' else '↓'})</a></th>")
@@ -168,6 +175,12 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                     elif tmp_column == "pe_pct":  # 判断是否为股票代码列  iwencai_pe link
                         print(f"<td><a class='stock-link' href='https://iwencai.com/unifiedwap/result?w=?{tmp_code}pe' target='_blank'>{value}</a></td>")
                         
+                    elif tmp_column in ["ystz", "sjltz"] :  # 判断是否为股票代码列  iwencai_pe link
+                        if tmp_code[0] == "6":
+                            print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/ZYCWZB' target='_blank'>{round(value, 2) if value is not None else ''}</a></td>")
+                        else:
+                            print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/ZYCWZB' target='_blank'>{round(value, 2) if value is not None else ''}</a></td>")
+
                     else:
                         print(f"<td>{value if value is not None else ''}</td>")
 
