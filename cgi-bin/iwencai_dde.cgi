@@ -121,7 +121,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                 query += " ORDER BY record_date DESC, rank ASC, stock_code"
             query += " LIMIT 500"
 
-            print(query)
+            #print(query)
             
             cursor.execute(query, params)
             results = cursor.fetchall()
