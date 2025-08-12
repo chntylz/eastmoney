@@ -135,10 +135,10 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             for col in columns:
                 col_name = col[0]
                 # 为 dde_net 和 conti_day 添加排序链接
-                if col_name in ['dde_net', 'conti_day', 'pct', 'pe_pct', 'ystz', 'sjltz']:
+                if col_name in ['rank', 'dde_net', 'conti_day', 'pct', 'pe_pct', 'ystz', 'sjltz']:
                     # 切换排序方向
                     new_order = 'DESC' if (sort_column == col_name and sort_order == 'ASC') else 'ASC'
-                    print(f"<th><a href='?start_date={start_date}&end_date={end_date}&stock_code={stock_code}&sort_column={col_name}&sort_order={new_order}'>{col_name} ({'↑' if new_order == 'DESC' else '↓'})</a></th>")
+                    print(f"<th><a class='sort-link' href='?start_date={start_date}&end_date={end_date}&stock_code={stock_code}&sort_column={col_name}&sort_order={new_order}'>{col_name} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
                 else:
                     print(f"<th>{col_name}</th>")
             print("</tr>")
@@ -215,6 +215,8 @@ def main():
             th { background-color: #4CAF50; color: white; position: sticky; top: 0; }
             tr:nth-child(even) { background-color: #f2f2f2; }
             tr:hover { background-color: #ddd; }
+            .stock-link { text-decoration: none; color: inherit; }
+            .sort-link { text-decoration: none; color: inherit; }
         </style>
     </head>
     <body>
