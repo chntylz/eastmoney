@@ -47,7 +47,7 @@ def scrapy_pages(url):
 
     #open selenium browser
     #browser = get_browser(1)
-    browser = get_browser(1)
+    browser = get_browser()
 
     """单页爬取逻辑"""
     df=pd.DataFrame()

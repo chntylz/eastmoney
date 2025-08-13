@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*- 
 import os,sys
-
+import gc
 import datetime
 import psycopg2 
 import numpy as np
@@ -53,6 +53,9 @@ def plot_stock_picture(nowdate, nowcode, nowname):
     sub_name = ''
     plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df, save_dir, fig, sub_name)
     plt.close('all')
+    # 显式删除大型对象以释放内存
+    del day_df, holder_df, fina_df, jigou_df
+    gc.collect()
 
 def worker(name):
     nowdate    = name[0]
@@ -126,10 +129,13 @@ if __name__ == '__main__':
     processes = multiprocessing.cpu_count()
     with multiprocessing.Pool(processes) as pool:
         pool.map(worker, data_list)
+    # 清理进程池资源
+    pool.close()
+    pool.join()
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
 
     
     t2 = time.time()
-    my_dbg("t2-t1=%s"%(t2-t1)) 
+    my_dbg("t2-t1=%s"%(t2-t1))
