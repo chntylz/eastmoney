@@ -23,28 +23,23 @@ def get_db_connection():
     return psycopg2.connect(**DB_CONFIG)
 
 def get_table_columns():
-    """获取表字段信息，包含添加的pe字段"""
-    try:
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                SELECT column_name, data_type 
-                FROM information_schema.columns 
-                WHERE table_name = 'iwencai_dde_table'
-                ORDER BY ordinal_position
-            """)
-            columns = cursor.fetchall()
-            # 添加pe字段到列列表
-            columns.append(('pe_pct', 'float'))
-            columns.append(('ystz', 'float'))
-            columns.append(('sjltz', 'float'))
-            return columns
-    except Exception as e:
-        print(f"<p style='color:red'>获取表结构错误: {str(e)}</p>")
-        return []
-    finally:
-        if 'conn' in locals():
-            conn.close()
+    """定义表字段信息，包含添加的pe和industry字段"""
+    # 直接返回我们查询中使用的列
+    return [
+        ('record_date', 'date'),
+        ('stock_code', 'text'),
+        ('stock_name', 'text'),
+        ('close', 'float'),
+        ('pct', 'float'),
+        ('dde_net', 'float'),
+        ('amount', 'float'),
+        ('rank', 'integer'),
+        ('conti_day', 'integer'),
+        ('pe', 'float'),  # 与SQL查询中的别名匹配
+        ('ystz', 'float'),
+        ('sjltz', 'float'),
+        ('industry', 'text')
+    ]
 
 def generate_html_form(start_date='', end_date='', stock_code=''):
     """生成查询表单"""
@@ -72,7 +67,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             # 构建动态查询条件
             # 构建主查询，包含HData_iwencai_pe表中最近的pe值
             query = """
-                SELECT d.*, p.pe_pct AS pe, f.ystz, f.sjltz
+                SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day, p.pe_pct AS pe, f.ystz, f.sjltz, z.industry
                 FROM iwencai_dde_table d
                 LEFT JOIN (
                     SELECT stock_code, pe_pct, record_date,
@@ -84,30 +79,42 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                            ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
                     FROM eastmoney_fina_table
                 ) f ON d.stock_code = f.stock_code AND f.rn = 1
+                LEFT JOIN (
+                    SELECT stock_code, industry, record_date,
+                           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                    FROM eastmoney_zlpm_table
+                ) z ON d.stock_code = z.stock_code AND z.rn = 1
             """
 
+            # 初始化参数列表
             params = []
-            if start_date:
-                query += " WHERE d.record_date BETWEEN %s::date AND %s::date"
-                params = [start_date, end_date]
-            
-            if stock_code :
-                if start_date:
-                    if stock_code.isdigit():
-                       query += " AND d.stock_code = %s"
-                    else:
-                        query += " AND d.stock_name = %s"
 
-                    params.append(stock_code)
+            # 构建查询条件
+            where_clauses = []
+
+            # 添加iwencai_dde_table的日期条件
+            if start_date:
+                where_clauses.append("d.record_date BETWEEN %s::date AND %s::date")
+                params.extend([start_date, end_date])
+
+            # 添加股票代码条件
+            if stock_code:
+                if stock_code.isdigit():
+                    where_clauses.append("d.stock_code = %s")
                 else:
-                    if stock_code.isdigit():
-                       query += " WHERE d.stock_code = %s"
-                    else:
-                        query += " WHERE d.stock_name = %s"
-                        
-                    params.append(stock_code)
+                    where_clauses.append("d.stock_name = %s")
+                params.append(stock_code)
+
+            # 组合WHERE子句
+            if where_clauses:
+                query += " WHERE " + " AND ".join(where_clauses)
             else:
-                pass
+                # 如果没有其他条件，我们需要确保z.record_date的条件被应用
+                today = datetime.now().strftime('%Y-%m-%d')
+                query += " WHERE z.record_date <= %s::date"
+                params.append(today)
+            
+
                 
             # 处理排序逻辑
             if sort_column:
@@ -123,8 +130,18 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
 
             #print(query)
             
+            #print(f"<p>修复后的查询: {query}</p>")
+            #print(f"<p>修复后的参数: {params}</p>")
+            #print(f"<p>占位符数量: {query.count('%s')}</p>")
+            #print(f"<p>参数数量: {len(params)}</p>")
             cursor.execute(query, params)
             results = cursor.fetchall()
+            #print(f"<p>查询结果行数: {len(results)}</p>")
+            #print(f"<p>查询结果列数: {len(results[0]) if results else 0}</p>")
+            #print(f"<p>列定义数: {len(columns)}</p>")
+            if results and len(results) > 0:
+                #print(f"<p>第一行数据: {results[0]}</p>")
+                pass
             
             if not results:
                 print("<p>未找到匹配数据</p>")
@@ -135,7 +152,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             for col in columns:
                 col_name = col[0]
                 # 为 dde_net 和 conti_day 添加排序链接
-                if col_name in ['rank', 'dde_net', 'conti_day', 'pct', 'pe_pct', 'ystz', 'sjltz']:
+                if col_name in ['rank', 'dde_net', 'conti_day', 'pct', 'pe', 'ystz', 'sjltz', 'industry']:
                     # 切换排序方向
                     new_order = 'DESC' if (sort_column == col_name and sort_order == 'ASC') else 'ASC'
                     print(f"<th><a class='sort-link' href='?start_date={start_date}&end_date={end_date}&stock_code={stock_code}&sort_column={col_name}&sort_order={new_order}'>{col_name} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
@@ -150,7 +167,11 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                 tmp_code = None
                 tmp_name = None
                 for i, value in enumerate(row):
-                    tmp_column = columns[i][0] 
+                    if i < len(columns):
+                        tmp_column = columns[i][0]
+                    else:
+                        tmp_column = f"unknown_column_{i}"
+                        print(f"<p style='color:red'>警告: 结果列索引{i}超出了columns列表范围</p>") 
                     if tmp_column == "stock_code":  # 判断是否为股票代码列  xueqiu link
                         tmp_code = value
                         print(f"<td><a class='stock-link' href='iwencai_dde.cgi?stock_code={tmp_code}' target='_blank'>{tmp_code}</a></td>")
@@ -172,9 +193,14 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                         else:
                             print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{tmp_code}' target='_blank'>{tmp_name}</a></td>")
                     
-                    elif tmp_column == "pe_pct":  # 判断是否为股票代码列  iwencai_pe link
+                    elif tmp_column == "pe":  # 判断是否为股票代码列  iwencai_pe link
                         print(f"<td><a class='stock-link' href='https://iwencai.com/unifiedwap/result?w=?{tmp_code}pe' target='_blank'>{value}</a></td>")
                         
+                    elif tmp_column == "industry":
+                        if value is not None:
+                            print(f"<td><a class='industry-link' href='iwencai_dde_industry.cgi?industry={value}' target='_blank'>{value}</a></td>")
+                        else:
+                            print(f"<td></td>")
                     elif tmp_column in ["ystz", "sjltz"] :  # 判断是否为股票代码列  iwencai_pe link
                         if tmp_code[0] == "6":
                             print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/ZYCWZB' target='_blank'>{round(value, 2) if value is not None else ''}</a></td>")
@@ -217,6 +243,8 @@ def main():
             tr:hover { background-color: #ddd; }
             .stock-link { text-decoration: none; color: inherit; }
             .sort-link { text-decoration: none; color: inherit; }
+            .industry-link { text-decoration: none; color: #0066cc; }
+            .industry-link:hover { text-decoration: underline; }
         </style>
     </head>
     <body>
