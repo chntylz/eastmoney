@@ -153,7 +153,7 @@ def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
                     elif tmp_column == 'avg_pct':
                         if value is not None:
                             color = 'red' if value > 0 else 'green'
-                            print(f"<td style='color:{color}'>{value:.2f}%</td>")
+                            print(f"<td style='color:{color}'>{value:.2f}</td>")
                         else:
                             print(f"<td></td>")
                     elif tmp_column == 'avg_dde_net':
@@ -170,7 +170,7 @@ def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
                             print(f"<td></td>")
                     elif tmp_column in ['avg_pe_pct', 'avg_ystz', 'avg_sjltz']:
                         if value is not None:
-                            print(f"<td>{value:.2f}%</td>")
+                            print(f"<td>{value:.2f}</td>")
                         else:
                             print(f"<td></td>")
                     else:
@@ -197,9 +197,12 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
 
         conn = get_db_connection()
         with conn.cursor() as cursor:
-            # 构建查询，关联三张表
+            # 构建查询，关联四张表
             query = ""
-            query += "SELECT d.*, z.industry, p.pe_pct, f.ystz, f.sjltz "
+            query += "SELECT d.*, z.industry, p.pe_pct, f.ystz, f.sjltz, "
+            query += "       h1.holder_num_ratio as holder1, "
+            query += "       h2.holder_num_ratio as holder2, "
+            query += "       h3.holder_num_ratio as holder3 "
             query += "FROM iwencai_dde_table d "
             query += "LEFT JOIN ( "
             query += "    SELECT stock_code, industry, record_date, "
@@ -219,17 +222,35 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
             query += "    FROM eastmoney_fina_table "
             query += "    WHERE record_date <= %s::date "
             query += " ) f ON d.stock_code = f.stock_code AND f.rn = 1 "
+            query += "LEFT JOIN ( "
+            query += "    SELECT stock_code, holder_num_ratio, record_date, "
+            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
+            query += "    FROM eastmoney_holder_table "
+            query += "    WHERE record_date <= %s::date "
+            query += " ) h1 ON d.stock_code = h1.stock_code AND h1.rn = 1 "
+            query += "LEFT JOIN ( "
+            query += "    SELECT stock_code, holder_num_ratio, record_date, "
+            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
+            query += "    FROM eastmoney_holder_table "
+            query += "    WHERE record_date <= %s::date "
+            query += " ) h2 ON d.stock_code = h2.stock_code AND h2.rn = 2 "
+            query += "LEFT JOIN ( "
+            query += "    SELECT stock_code, holder_num_ratio, record_date, "
+            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
+            query += "    FROM eastmoney_holder_table "
+            query += "    WHERE record_date <= %s::date "
+            query += " ) h3 ON d.stock_code = h3.stock_code AND h3.rn = 3 "
             query += "WHERE d.record_date = %s::date "
 
             # 添加行业筛选条件
-            params = [latest_date, latest_date, latest_date, latest_date]
+            params = [latest_date, latest_date, latest_date, latest_date, latest_date, latest_date, latest_date]
             if industry:
                 query += "AND z.industry = %s "
                 params.append(industry)
 
             # 处理排序逻辑
             if sort_column:
-                valid_columns = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'conti_day']
+                valid_columns = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'conti_day', 'holder1']
                 if sort_column in valid_columns:
                     query += f"ORDER BY {sort_column} {sort_order}, stock_code "
                 else:
@@ -255,16 +276,36 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
 
             # 生成表头
             print("<div class='table-container'><table><tr>")
-            for col in columns:
-                # 为可排序字段添加排序链接
-                if col in ['rank', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'conti_day']:
-                    new_order = 'DESC' if (sort_column == col and sort_order == 'ASC') else 'ASC'
+            skip_holder = False
+            for i, col in enumerate(columns):
+                if skip_holder:
+                    skip_holder = False
+                    continue
+                
+                # 处理holder1, holder2, holder3，合并为一个holder列
+                if col == 'holder1':
+                    # 为holder列添加排序链接
+                    new_order = 'DESC' if (sort_column == 'holder1' and sort_order == 'ASC') else 'ASC'
                     if industry:
-                        print(f"<th><a class='sort-link' href='?sort_column={col}&sort_order={new_order}&industry={industry}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
+                        print(f"<th><a class='sort-link' href='?sort_column=holder1&sort_order={new_order}&industry={industry}'>holder {'↑' if new_order == 'DESC' else '↓'}</a></th>")
                     else:
-                        print(f"<th><a class='sort-link' href='?sort_column={col}&sort_order={new_order}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
+                        print(f"<th><a class='sort-link' href='?sort_column=holder1&sort_order={new_order}'>holder {'↑' if new_order == 'DESC' else '↓'}</a></th>")
+                elif col == 'holder2':
+                    # 跳过holder2
+                    continue
+                elif col == 'holder3':
+                    # 跳过holder3
+                    continue
                 else:
-                    print(f"<th>{col}</th>")
+                    # 为其他可排序字段添加排序链接
+                    if col in ['rank', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'conti_day']:
+                        new_order = 'DESC' if (sort_column == col and sort_order == 'ASC') else 'ASC'
+                        if industry:
+                            print(f"<th><a class='sort-link' href='?sort_column={col}&sort_order={new_order}&industry={industry}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
+                        else:
+                            print(f"<th><a class='sort-link' href='?sort_column={col}&sort_order={new_order}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
+                    else:
+                        print(f"<th>{col}</th>")
             print("</tr>")
 
             # 输出数据
@@ -296,16 +337,84 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
                         else:
                             print(f"<td>{value if value is not None else ''}</td>")
                     elif tmp_column == "pct":
-                        if value is not None:
-                            color = 'red' if value > 0 else 'green'
-                            print(f"<td style='color:{color}'>{value:.2f}%</td>")
-                        else:
-                            print(f"<td></td>")
+                            if value is not None:
+                                color = 'red' if value > 0 else 'green'
+                                print(f"<td style='color:{color}'>{value:.2f}</td>")
+                            else:
+                                print(f"<td></td>")
+                    elif tmp_column == "holder1":
+                            # 处理holder1, holder2, holder3的值
+                            holder1 = value
+                            holder2 = row[i+1] if i+1 < len(row) else None
+                            holder3 = row[i+2] if i+2 < len(row) else None
+
+                            # 格式化holder值（全部去绝对值，根据原始值正负显示颜色）并添加超级链接
+                            holder_parts = []
+
+                            # 处理holder1
+                            if holder1 is not None:
+                                color = 'red' if holder1 > 0 else 'green'
+                                # 生成雪球股东研究链接
+                                if tmp_code and tmp_code[0] == "6":
+                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                                elif tmp_code:
+                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
+                                else:
+                                    holder_link = "#"
+                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder1):.2f}</span></a>")
+                            else:
+                                holder_parts.append("-")
+
+                            # 添加holder1和holder2之间的连字符
+                            holder_parts.append("-")
+
+                            # 处理holder2
+                            if holder2 is not None:
+                                color = 'red' if holder2 > 0 else 'green'
+                                # 生成雪球股东研究链接
+                                if tmp_code and tmp_code[0] == "6":
+                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                                elif tmp_code:
+                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
+                                else:
+                                    holder_link = "#"
+                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder2):.2f}</span></a>")
+                            else:
+                                holder_parts.append("-")
+
+                            # 添加holder2和holder3之间的连字符
+                            holder_parts.append("-")
+
+                            # 处理holder3
+                            if holder3 is not None:
+                                color = 'red' if holder3 > 0 else 'green'
+                                # 生成雪球股东研究链接
+                                if tmp_code and tmp_code[0] == "6":
+                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                                elif tmp_code:
+                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
+                                else:
+                                    holder_link = "#"
+                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder3):.2f}</span></a>")
+                            else:
+                                holder_parts.append("-")
+
+                            holder_str = "".join(holder_parts)
+                            print(f"<td>{holder_str}</td>")
+                            # 使用continue跳过当前循环的剩余部分，而不是修改i
+                            continue
+                    elif tmp_column == "holder2":
+                            # 跳过holder2
+                            continue
+                    elif tmp_column == "holder3":
+                            # 跳过holder3
+                            continue
                     elif tmp_column == "pe_pct":
                         if value is not None:
-                            print(f"<td>{value:.2f}%</td>")
+                            print(f"<td><a class='stock-link' href='https://iwencai.com/unifiedwap/result?w=?{tmp_code}pe' target='_blank'>{value:.2f}</a></td>")
                         else:
                             print(f"<td></td>")
+
                     elif tmp_column == "industry":
                         if value is not None:
                             print(f"<td><a class='industry-link' href='?industry={value}'>{value}</a></td>")
@@ -314,11 +423,12 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
                     elif tmp_column in ["ystz", "sjltz"]:
                         if value is not None:
                             if tmp_code[0] == "6":
-                                print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}%</a></td>")
+                                print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}</a></td>")
                             else:
-                                print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}%</a></td>")
+                                print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}</a></td>")
                         else:
                             print(f"<td></td>")
+
                     else:
                         print(f"<td>{value if value is not None else ''}</td>")
 

@@ -23,7 +23,7 @@ def get_db_connection():
     return psycopg2.connect(**DB_CONFIG)
 
 def get_table_columns():
-    """定义表字段信息，包含添加的pe和industry字段"""
+    """定义表字段信息，包含添加的pe、industry和holder字段"""
     # 直接返回我们查询中使用的列
     return [
         ('record_date', 'date'),
@@ -38,7 +38,10 @@ def get_table_columns():
         ('pe', 'float'),  # 与SQL查询中的别名匹配
         ('ystz', 'float'),
         ('sjltz', 'float'),
-        ('industry', 'text')
+        ('industry', 'text'),
+        ('holder1', 'float'),
+        ('holder2', 'float'),
+        ('holder3', 'float')
     ]
 
 def generate_html_form(start_date='', end_date='', stock_code=''):
@@ -67,7 +70,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             # 构建动态查询条件
             # 构建主查询，包含HData_iwencai_pe表中最近的pe值
             query = """
-                SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day, p.pe_pct AS pe, f.ystz, f.sjltz, z.industry
+                SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day, p.pe_pct AS pe, f.ystz, f.sjltz, z.industry, h1.holder1, h2.holder2, h3.holder3
                 FROM iwencai_dde_table d
                 LEFT JOIN (
                     SELECT stock_code, pe_pct, record_date,
@@ -84,6 +87,27 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                            ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
                     FROM eastmoney_zlpm_table
                 ) z ON d.stock_code = z.stock_code AND z.rn = 1
+                LEFT JOIN (
+                     SELECT * FROM (
+                         SELECT stock_code, holder_num_ratio AS holder1, record_date,
+                                ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                         FROM eastmoney_holder_table
+                     ) sub WHERE sub.rn = 1
+                 ) h1 ON d.stock_code = h1.stock_code AND h1.rn = 1
+                LEFT JOIN (
+                     SELECT * FROM (
+                         SELECT stock_code, holder_num_ratio AS holder2, record_date,
+                                ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                         FROM eastmoney_holder_table
+                     ) sub WHERE sub.rn = 2
+                 ) h2 ON d.stock_code = h2.stock_code AND h2.rn = 2
+                LEFT JOIN (
+                     SELECT * FROM (
+                         SELECT stock_code, holder_num_ratio AS holder3, record_date,
+                                ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                         FROM eastmoney_holder_table
+                     ) sub WHERE sub.rn = 3
+                 ) h3 ON d.stock_code = h3.stock_code AND h3.rn = 3
             """
 
             # 初始化参数列表
@@ -151,6 +175,12 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             print("<div class='table-container'><table><tr>")
             for col in columns:
                 col_name = col[0]
+
+                if col_name == "holder2":
+                    continue
+                elif col_name == "holder3":
+                    continue
+
                 # 为 dde_net 和 conti_day 添加排序链接
                 if col_name in ['rank', 'dde_net', 'conti_day', 'pct', 'pe', 'ystz', 'sjltz', 'industry']:
                     # 切换排序方向
@@ -201,6 +231,70 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                             print(f"<td><a class='industry-link' href='iwencai_dde_industry.cgi?industry={value}' target='_blank'>{value}</a></td>")
                         else:
                             print(f"<td></td>")
+                    elif tmp_column == "holder1":
+                            # 处理holder1, holder2, holder3的值
+                            holder1 = value
+                            holder2 = row[i+1] if i+1 < len(row) else None
+                            holder3 = row[i+2] if i+2 < len(row) else None
+
+                            # 格式化holder值（全部去绝对值，根据原始值正负显示颜色）并添加超级链接
+                            holder_parts = []
+
+                            # 处理holder1
+                            if holder1 is not None:
+                                color = 'red' if holder1 > 0 else 'green'
+                                # 生成雪球股东研究链接
+                                if tmp_code and tmp_code[0] == "6":
+                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                                elif tmp_code:
+                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
+                                else:
+                                    holder_link = "#"
+                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder1):.2f}</span></a>")
+                            else:
+                                holder_parts.append("-")
+
+                            # 添加holder1和holder2之间的连字符
+                            holder_parts.append("-")
+
+                            # 处理holder2
+                            if holder2 is not None:
+                                color = 'red' if holder2 > 0 else 'green'
+                                # 生成雪球股东研究链接
+                                if tmp_code and tmp_code[0] == "6":
+                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                                elif tmp_code:
+                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
+                                else:
+                                    holder_link = "#"
+                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder2):.2f}</span></a>")
+                            else:
+                                holder_parts.append("-")
+
+                            # 添加holder2和holder3之间的连字符
+                            holder_parts.append("-")
+
+                            # 处理holder3
+                            if holder3 is not None:
+                                color = 'red' if holder3 > 0 else 'green'
+                                # 生成雪球股东研究链接
+                                if tmp_code and tmp_code[0] == "6":
+                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                                elif tmp_code:
+                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
+                                else:
+                                    holder_link = "#"
+                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder3):.2f}</span></a>")
+                            else:
+                                holder_parts.append("-")
+
+                            # 合并holder部分并输出
+                            print(f"<td>{''.join(holder_parts)}</td>")
+                            # 跳过已处理的holder2和holder3列
+                            i += 2
+                    elif tmp_column in ["holder2", "holder3"]:
+                        # 跳过这些列，因为已经在holder1处理时一起处理了
+                        pass
                     elif tmp_column in ["ystz", "sjltz"] :  # 判断是否为股票代码列  iwencai_pe link
                         if tmp_code[0] == "6":
                             print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/ZYCWZB' target='_blank'>{round(value, 2) if value is not None else ''}</a></td>")
