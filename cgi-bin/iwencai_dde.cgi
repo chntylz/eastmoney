@@ -34,14 +34,14 @@ def get_table_columns():
         ('dde_net', 'float'),
         ('amount', 'float'),
         ('rank', 'integer'),
-        ('conti_day', 'integer'),
+        ('days', 'integer'),
         ('pe', 'float'),  # 与SQL查询中的别名匹配
         ('ystz', 'float'),
         ('sjltz', 'float'),
-        ('industry', 'text'),
         ('holder1', 'float'),
         ('holder2', 'float'),
-        ('holder3', 'float')
+        ('holder3', 'float'),
+        ('industry', 'text')
     ]
 
 def generate_html_form(start_date='', end_date='', stock_code=''):
@@ -70,7 +70,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             # 构建动态查询条件
             # 构建主查询，包含HData_iwencai_pe表中最近的pe值
             query = """
-                SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day, p.pe_pct AS pe, f.ystz, f.sjltz, z.industry, h1.holder1, h2.holder2, h3.holder3
+                SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day AS days, p.pe_pct AS pe, f.ystz, f.sjltz, h1.holder1, h2.holder2, h3.holder3, z.industry 
                 FROM iwencai_dde_table d
                 LEFT JOIN (
                     SELECT stock_code, pe_pct, record_date,
@@ -181,8 +181,8 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                 elif col_name == "holder3":
                     continue
 
-                # 为 dde_net 和 conti_day 添加排序链接
-                if col_name in ['rank', 'dde_net', 'conti_day', 'pct', 'pe', 'ystz', 'sjltz', 'industry']:
+                # 为 dde_net 和 days 添加排序链接
+                if col_name in ['rank', 'dde_net', 'days', 'pct', 'pe', 'ystz', 'sjltz', 'industry']:
                     # 切换排序方向
                     new_order = 'DESC' if (sort_column == col_name and sort_order == 'ASC') else 'ASC'
                     print(f"<th><a class='sort-link' href='?start_date={start_date}&end_date={end_date}&stock_code={stock_code}&sort_column={col_name}&sort_order={new_order}'>{col_name} {'↑' if new_order == 'DESC' else '↓'}</a></th>")

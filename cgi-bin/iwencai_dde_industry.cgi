@@ -199,10 +199,11 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
         with conn.cursor() as cursor:
             # 构建查询，关联四张表
             query = ""
-            query += "SELECT d.*, z.industry, p.pe_pct, f.ystz, f.sjltz, "
+            query += "SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day AS days, p.pe_pct, f.ystz, f.sjltz, "
             query += "       h1.holder_num_ratio as holder1, "
             query += "       h2.holder_num_ratio as holder2, "
-            query += "       h3.holder_num_ratio as holder3 "
+            query += "       h3.holder_num_ratio as holder3, "
+            query += "       z.industry "
             query += "FROM iwencai_dde_table d "
             query += "LEFT JOIN ( "
             query += "    SELECT stock_code, industry, record_date, "
@@ -250,7 +251,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
 
             # 处理排序逻辑
             if sort_column:
-                valid_columns = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'conti_day', 'holder1']
+                valid_columns = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days', 'holder1']
                 if sort_column in valid_columns:
                     query += f"ORDER BY {sort_column} {sort_order}, stock_code "
                 else:
@@ -298,7 +299,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
                     continue
                 else:
                     # 为其他可排序字段添加排序链接
-                    if col in ['rank', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'conti_day']:
+                    if col in ['rank', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days']:
                         new_order = 'DESC' if (sort_column == col and sort_order == 'ASC') else 'ASC'
                         if industry:
                             print(f"<th><a class='sort-link' href='?sort_column={col}&sort_order={new_order}&industry={industry}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
