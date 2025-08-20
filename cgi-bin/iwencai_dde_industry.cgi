@@ -186,7 +186,7 @@ def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
         if 'conn' in locals():
             conn.close()
 
-def display_results(sort_column=None, sort_order='ASC', industry=None):
+def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=None, pe_pct_lt=None, ystz_gt=None, sjltz_gt=None):
     """显示查询结果"""
     try:
         # 获取最近日期
@@ -249,6 +249,39 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
                 query += "AND z.industry = %s "
                 params.append(industry)
 
+            # 添加自定义筛选条件
+            if days_gt is not None and days_gt.strip():
+                try:
+                    days_value = float(days_gt)
+                    query += "AND d.conti_day > %s "
+                    params.append(days_value)
+                except ValueError:
+                    print("<p style='color:red'>days必须是数字</p>")
+
+            if pe_pct_lt is not None and pe_pct_lt.strip():
+                try:
+                    pe_value = float(pe_pct_lt)
+                    query += "AND p.pe_pct < %s "
+                    params.append(pe_value)
+                except ValueError:
+                    print("<p style='color:red'>pe_pct必须是数字</p>")
+
+            if ystz_gt is not None and ystz_gt.strip():
+                try:
+                    ystz_value = float(ystz_gt)
+                    query += "AND f.ystz > %s "
+                    params.append(ystz_value)
+                except ValueError:
+                    print("<p style='color:red'>ystz必须是数字</p>")
+
+            if sjltz_gt is not None and sjltz_gt.strip():
+                try:
+                    sjltz_value = float(sjltz_gt)
+                    query += "AND f.sjltz > %s "
+                    params.append(sjltz_value)
+                except ValueError:
+                    print("<p style='color:red'>sjltz必须是数字</p>")
+
             # 处理排序逻辑
             if sort_column:
                 valid_columns = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days', 'holder1']
@@ -287,10 +320,19 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
                 if col == 'holder1':
                     # 为holder列添加排序链接
                     new_order = 'DESC' if (sort_column == 'holder1' and sort_order == 'ASC') else 'ASC'
+                    # 构建查询字符串，包含所有过滤参数
+                    query_string = f"sort_column=holder1&sort_order={new_order}"
                     if industry:
-                        print(f"<th><a class='sort-link' href='?sort_column=holder1&sort_order={new_order}&industry={industry}'>holder {'↑' if new_order == 'DESC' else '↓'}</a></th>")
-                    else:
-                        print(f"<th><a class='sort-link' href='?sort_column=holder1&sort_order={new_order}'>holder {'↑' if new_order == 'DESC' else '↓'}</a></th>")
+                        query_string += f"&industry={industry}"
+                    if days_gt:
+                        query_string += f"&days_gt={days_gt}"
+                    if pe_pct_lt:
+                        query_string += f"&pe_pct_lt={pe_pct_lt}"
+                    if ystz_gt:
+                        query_string += f"&ystz_gt={ystz_gt}"
+                    if sjltz_gt:
+                        query_string += f"&sjltz_gt={sjltz_gt}"
+                    print(f"<th><a class='sort-link' href='?{query_string}'>holder {'↑' if new_order == 'DESC' else '↓'}</a></th>")
                 elif col == 'holder2':
                     # 跳过holder2
                     continue
@@ -301,10 +343,19 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
                     # 为其他可排序字段添加排序链接
                     if col in ['rank', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days']:
                         new_order = 'DESC' if (sort_column == col and sort_order == 'ASC') else 'ASC'
+                        # 构建查询字符串，包含所有过滤参数
+                        query_string = f"sort_column={col}&sort_order={new_order}"
                         if industry:
-                            print(f"<th><a class='sort-link' href='?sort_column={col}&sort_order={new_order}&industry={industry}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
-                        else:
-                            print(f"<th><a class='sort-link' href='?sort_column={col}&sort_order={new_order}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
+                            query_string += f"&industry={industry}"
+                        if days_gt:
+                            query_string += f"&days_gt={days_gt}"
+                        if pe_pct_lt:
+                            query_string += f"&pe_pct_lt={pe_pct_lt}"
+                        if ystz_gt:
+                            query_string += f"&ystz_gt={ystz_gt}"
+                        if sjltz_gt:
+                            query_string += f"&sjltz_gt={sjltz_gt}"
+                        print(f"<th><a class='sort-link' href='?{query_string}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
                     else:
                         print(f"<th>{col}</th>")
             print("</tr>")
@@ -457,16 +508,48 @@ def main():
     industry = form.getvalue('industry', '')
     overview = form.getvalue('overview', '')
 
+    # 获取筛选参数
+    days_gt = form.getvalue('days_gt', '')
+    pe_pct_lt = form.getvalue('pe_pct_lt', '')
+    ystz_gt = form.getvalue('ystz_gt', '')
+    sjltz_gt = form.getvalue('sjltz_gt', '')
+
     # 添加导航链接
     print("<div class='header'>")
     print("<a href='?'>DDE数据</a> | ")
     print("<a href='?overview=1'>行业概览统计</a>")
     print("</div>")
 
+    # 添加筛选表单
+    print("<div class='filter-form' style='margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;'>")
+    print("<h3>筛选条件</h3>")
+    print("<form method='get'>")
+    print("<input type='hidden' name='overview' value='{}'>".format(overview))
+    print("<input type='hidden' name='industry' value='{}'>".format(industry))
+    print("<table border='0'>")
+    print("<tr>")
+    print("<td>days &gt; </td>")
+    print("<td><input type='text' name='days_gt' value='{}' placeholder='0'></td>".format(form.getvalue('days_gt', '')))
+    print("<td>pe_pct &lt; </td>")
+    print("<td><input type='text' name='pe_pct_lt' value='{}' placeholder='0'></td>".format(form.getvalue('pe_pct_lt', '')))
+    print("</tr>")
+    print("<tr>")
+    print("<td>ystz &gt; </td>")
+    print("<td><input type='text' name='ystz_gt' value='{}' placeholder='0'></td>".format(form.getvalue('ystz_gt', '')))
+    print("<td>sjltz &gt; </td>")
+    print("<td><input type='text' name='sjltz_gt' value='{}' placeholder='0'></td>".format(form.getvalue('sjltz_gt', '')))
+    print("</tr>")
+    print("<tr>")
+    print("<td colspan='4'><input type='submit' value='应用筛选'> <input type='button' value='重 置' onclick='location.href=\"?overview={}&industry={}\"'></td>".format(overview, industry))
+    print("</tr>")
+    print("</table>")
+    print("</form>")
+    print("</div>")
+
     if overview:
         display_industry_overview(sort_column, sort_order)
     else:
-        display_results(sort_column, sort_order, industry)
+        display_results(sort_column, sort_order, industry, days_gt, pe_pct_lt, ystz_gt, sjltz_gt)
 
     generate_html_footer()
 
