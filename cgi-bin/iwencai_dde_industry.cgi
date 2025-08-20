@@ -31,7 +31,7 @@ def generate_html_header():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>股票DDE数据与行业查询</title>
+        <title>数据与行业查询</title>
         <meta charset="UTF-8">
         <style>
             body { font-family: Arial; margin: 20px; }
@@ -273,7 +273,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None):
             if industry:
                 print(f"<div class='header'><h2>行业: {industry} - {latest_date}</h2></div>")
             else:
-                print(f"<div class='header'><h2>股票DDE数据与行业查询 - {latest_date}</h2></div>")
+                print(f"<div class='header'><h2>DDE数据与行业查询 - {latest_date}</h2></div>")
 
             # 生成表头
             print("<div class='table-container'><table><tr>")
@@ -459,7 +459,7 @@ def main():
 
     # 添加导航链接
     print("<div class='header'>")
-    print("<a href='?'>股票DDE数据</a> | ")
+    print("<a href='?'>DDE数据</a> | ")
     print("<a href='?overview=1'>行业概览统计</a>")
     print("</div>")
 
