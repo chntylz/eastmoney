@@ -48,11 +48,34 @@ def generate_html_header():
             tr:nth-child(even) { background-color: #f2f2f2; }
             tr:hover { background-color: #ddd; }
             .stock-link { text-decoration: none; color: inherit; }
+            .date-link { text-decoration: none; color: inherit; }
             .sort-link { text-decoration: none; color: inherit; }
             .industry-link { text-decoration: none; color: #0066cc; }
             .industry-link:hover { text-decoration: underline; }
             .header { margin-bottom: 20px; }
         </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // 为所有日期链接添加点击事件
+                document.querySelectorAll('.date-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        const stockCode = this.getAttribute('data-code');
+                        const stockName = this.getAttribute('data-name');
+
+                        // 发送请求到add_to_optional.cgi
+                        fetch('add_to_optional.cgi?stock_code=' + encodeURIComponent(stockCode) + '&stock_name=' + encodeURIComponent(stockName))
+                            .then(response => response.text())
+                            .then(data => {
+                                alert('已添加 ' + stockName + '(' + stockCode + ') 到自选股');
+                            })
+                            .catch(error => {
+                                console.error('添加自选股失败:', error);
+                                alert('添加自选股失败，请重试');
+                            });
+                    });
+                });
+            });
+        </script>
     </head>
     <body>
     """)
@@ -396,9 +419,14 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
 
                 tmp_code = None
                 tmp_name = None
+                tmp_date = None
                 for i, value in enumerate(row):
                     tmp_column = columns[i]
-                    if tmp_column == "stock_code":
+                    if tmp_column == 'record_date':
+                        tmp_date = value
+                        # 创建可点击的日期链接
+                        html_buffer.append(f"<td><a href='javascript:void(0);' class='date-link' data-code='{row[columns.index('stock_code')]}' data-name='{row[columns.index('stock_name')]}'>{value}</a></td>")
+                    elif tmp_column == "stock_code":
                         tmp_code = value
                         html_buffer.append(f"<td><a class='stock-link' href='iwencai_dde.cgi?stock_code={tmp_code}' target='_blank'>{tmp_code}</a></td>")
                     elif tmp_column == "stock_name":
