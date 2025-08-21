@@ -19,9 +19,15 @@ DB_CONFIG = {
     "port": "5432"
 }
 
+# 全局数据库连接
+DB_CONN = None
+
 def get_db_connection():
     """获取数据库连接"""
-    return psycopg2.connect(**DB_CONFIG)
+    global DB_CONN
+    if DB_CONN is None or DB_CONN.closed:
+        DB_CONN = psycopg2.connect(**DB_CONFIG)
+    return DB_CONN
 
 
 def generate_html_header():
@@ -60,13 +66,21 @@ def generate_html_footer():
     """)
 
 
+# 缓存最近日期
+LATEST_DATE_CACHE = None
+
 def get_latest_date():
     """获取iwencai_dde_table表中最近的日期"""
+    global LATEST_DATE_CACHE
+    if LATEST_DATE_CACHE is not None:
+        return LATEST_DATE_CACHE
+
     try:
         conn = get_db_connection()
         with conn.cursor() as cursor:
             cursor.execute("SELECT MAX(record_date) FROM iwencai_dde_table")
             latest_date = cursor.fetchone()[0]
+            LATEST_DATE_CACHE = latest_date
             return latest_date
     except Exception as e:
         print(f"<p style='color:red'>获取最近日期错误: {str(e)}</p>")
@@ -197,12 +211,10 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
 
         conn = get_db_connection()
         with conn.cursor() as cursor:
-            # 构建查询，关联四张表
+            # 优化holder数据获取，一次获取多个记录
             query = ""
             query += "SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day AS days, p.pe_pct, f.ystz, f.sjltz, "
-            query += "       h1.holder_num_ratio as holder1, "
-            query += "       h2.holder_num_ratio as holder2, "
-            query += "       h3.holder_num_ratio as holder3, "
+            query += "       h.holder1, h.holder2, h.holder3, "
             query += "       z.industry "
             query += "FROM iwencai_dde_table d "
             query += "LEFT JOIN ( "
@@ -224,27 +236,22 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             query += "    WHERE record_date <= %s::date "
             query += " ) f ON d.stock_code = f.stock_code AND f.rn = 1 "
             query += "LEFT JOIN ( "
-            query += "    SELECT stock_code, holder_num_ratio, record_date, "
-            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
-            query += "    FROM eastmoney_holder_table "
-            query += "    WHERE record_date <= %s::date "
-            query += " ) h1 ON d.stock_code = h1.stock_code AND h1.rn = 1 "
-            query += "LEFT JOIN ( "
-            query += "    SELECT stock_code, holder_num_ratio, record_date, "
-            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
-            query += "    FROM eastmoney_holder_table "
-            query += "    WHERE record_date <= %s::date "
-            query += " ) h2 ON d.stock_code = h2.stock_code AND h2.rn = 2 "
-            query += "LEFT JOIN ( "
-            query += "    SELECT stock_code, holder_num_ratio, record_date, "
-            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
-            query += "    FROM eastmoney_holder_table "
-            query += "    WHERE record_date <= %s::date "
-            query += " ) h3 ON d.stock_code = h3.stock_code AND h3.rn = 3 "
+            query += "    SELECT stock_code, "
+            query += "           MAX(CASE WHEN rn=1 THEN holder_num_ratio END) as holder1, "
+            query += "           MAX(CASE WHEN rn=2 THEN holder_num_ratio END) as holder2, "
+            query += "           MAX(CASE WHEN rn=3 THEN holder_num_ratio END) as holder3 "
+            query += "    FROM ( "
+            query += "        SELECT stock_code, holder_num_ratio, record_date, "
+            query += "               ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
+            query += "        FROM eastmoney_holder_table "
+            query += "        WHERE record_date <= %s::date "
+            query += "    ) h_sub "
+            query += "    GROUP BY stock_code "
+            query += " ) h ON d.stock_code = h.stock_code "
             query += "WHERE d.record_date = %s::date "
 
             # 添加行业筛选条件
-            params = [latest_date, latest_date, latest_date, latest_date, latest_date, latest_date, latest_date]
+            params = [latest_date, latest_date, latest_date, latest_date, latest_date]
             if industry:
                 query += "AND z.industry = %s "
                 params.append(industry)
@@ -361,8 +368,9 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             print("</tr>")
 
             # 输出数据
+            html_buffer = []
             for row in results:
-                print("<tr>")
+                html_buffer.append("<tr>")
 
                 tmp_code = None
                 tmp_name = None
@@ -370,122 +378,119 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                     tmp_column = columns[i]
                     if tmp_column == "stock_code":
                         tmp_code = value
-                        print(f"<td><a class='stock-link' href='iwencai_dde.cgi?stock_code={tmp_code}' target='_blank'>{tmp_code}</a></td>")
+                        html_buffer.append(f"<td><a class='stock-link' href='iwencai_dde.cgi?stock_code={tmp_code}' target='_blank'>{tmp_code}</a></td>")
                     elif tmp_column == "stock_name":
                         tmp_name = value
                         if tmp_code and tmp_code[0] == "6":
-                            print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SH{tmp_code}' target='_blank'>{tmp_name}</a></td>")
+                            html_buffer.append(f"<td><a class='stock-link' href='https://xueqiu.com/S/SH{tmp_code}' target='_blank'>{tmp_name}</a></td>")
                         elif tmp_code:
-                            print(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{tmp_code}' target='_blank'>{tmp_name}</a></td>")
+                            html_buffer.append(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{tmp_code}' target='_blank'>{tmp_name}</a></td>")
                         else:
-                            print(f"<td>{value if value is not None else ''}</td>")
+                            html_buffer.append(f"<td>{value if value is not None else ''}</td>")
                     elif "dde" in tmp_column or "amount" in tmp_column:
                         if value and (value > 100*1000*1000 or value < (-1) * 100*1000*1000):
                             value = value / (100*1000*1000)
-                            print(f"<td>{value:.2f}亿</td>")
+                            html_buffer.append(f"<td>{value:.2f}亿</td>")
                         elif value and (value > 10*1000 or value < (-1) * 10*1000):
                             value = value / (10*1000)
-                            print(f"<td>{value:.2f}万</td>")
+                            html_buffer.append(f"<td>{value:.2f}万</td>")
                         else:
-                            print(f"<td>{value if value is not None else ''}</td>")
+                            html_buffer.append(f"<td>{value if value is not None else ''}</td>")
                     elif tmp_column == "pct":
-                            if value is not None:
-                                color = 'red' if value > 0 else 'green'
-                                print(f"<td style='color:{color}'>{value:.2f}</td>")
-                            else:
-                                print(f"<td></td>")
+                        if value is not None:
+                            color = 'red' if value > 0 else 'green'
+                            html_buffer.append(f"<td style='color:{color}'>{value:.2f}</td>")
+                        else:
+                            html_buffer.append(f"<td></td>")
                     elif tmp_column == "holder1":
-                            # 处理holder1, holder2, holder3的值
-                            holder1 = value
-                            holder2 = row[i+1] if i+1 < len(row) else None
-                            holder3 = row[i+2] if i+2 < len(row) else None
+                        # 处理holder1, holder2, holder3的值
+                        holder1 = value
+                        holder2 = row[i+1] if i+1 < len(row) else None
+                        holder3 = row[i+2] if i+2 < len(row) else None
 
-                            # 格式化holder值（全部去绝对值，根据原始值正负显示颜色）并添加超级链接
-                            holder_parts = []
+                        # 格式化holder值（全部去绝对值，根据原始值正负显示颜色）并添加超级链接
+                        holder_parts = []
 
-                            # 处理holder1
-                            if holder1 is not None:
-                                color = 'red' if holder1 > 0 else 'green'
-                                # 生成雪球股东研究链接
-                                if tmp_code and tmp_code[0] == "6":
-                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
-                                elif tmp_code:
-                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
-                                else:
-                                    holder_link = "#"
-                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder1):.2f}</span></a>")
+                        # 处理holder1
+                        if holder1 is not None:
+                            color = 'red' if holder1 > 0 else 'green'
+                            # 生成雪球股东研究链接
+                            if tmp_code and tmp_code[0] == "6":
+                                holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                            elif tmp_code:
+                                holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
                             else:
-                                holder_parts.append("-")
-
-                            # 添加holder1和holder2之间的连字符
+                                holder_link = "#"
+                            holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder1):.2f}</span></a>")
+                        else:
                             holder_parts.append("-")
 
-                            # 处理holder2
-                            if holder2 is not None:
-                                color = 'red' if holder2 > 0 else 'green'
-                                # 生成雪球股东研究链接
-                                if tmp_code and tmp_code[0] == "6":
-                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
-                                elif tmp_code:
-                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
-                                else:
-                                    holder_link = "#"
-                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder2):.2f}</span></a>")
-                            else:
-                                holder_parts.append("-")
+                        # 添加holder1和holder2之间的连字符
+                        holder_parts.append("-")
 
-                            # 添加holder2和holder3之间的连字符
+                        # 处理holder2
+                        if holder2 is not None:
+                            color = 'red' if holder2 > 0 else 'green'
+                            # 生成雪球股东研究链接
+                            if tmp_code and tmp_code[0] == "6":
+                                holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                            elif tmp_code:
+                                holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
+                            else:
+                                holder_link = "#"
+                            holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder2):.2f}</span></a>")
+                        else:
                             holder_parts.append("-")
 
-                            # 处理holder3
-                            if holder3 is not None:
-                                color = 'red' if holder3 > 0 else 'green'
-                                # 生成雪球股东研究链接
-                                if tmp_code and tmp_code[0] == "6":
-                                    holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
-                                elif tmp_code:
-                                    holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
-                                else:
-                                    holder_link = "#"
-                                holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder3):.2f}</span></a>")
-                            else:
-                                holder_parts.append("-")
+                        # 添加holder2和holder3之间的连字符
+                        holder_parts.append("-")
 
-                            holder_str = "".join(holder_parts)
-                            print(f"<td>{holder_str}</td>")
-                            # 使用continue跳过当前循环的剩余部分，而不是修改i
-                            continue
+                        # 处理holder3
+                        if holder3 is not None:
+                            color = 'red' if holder3 > 0 else 'green'
+                            # 生成雪球股东研究链接
+                            if tmp_code and tmp_code[0] == "6":
+                                holder_link = f"https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/GDRS"
+                            elif tmp_code:
+                                holder_link = f"https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/GDRS"
+                            else:
+                                holder_link = "#"
+                            holder_parts.append(f"<a href='{holder_link}' target='_blank' style='text-decoration: none;'><span style='color:{color}'>{abs(holder3):.2f}</span></a>")
+                        else:
+                            holder_parts.append("-")
+
+                        holder_str = "".join(holder_parts)
+                        html_buffer.append(f"<td>{holder_str}</td>")
+                        continue
                     elif tmp_column == "holder2":
-                            # 跳过holder2
-                            continue
+                        continue
                     elif tmp_column == "holder3":
-                            # 跳过holder3
-                            continue
+                        continue
                     elif tmp_column == "pe_pct":
                         if value is not None:
-                            print(f"<td><a class='stock-link' href='https://iwencai.com/unifiedwap/result?w=?{tmp_code}pe' target='_blank'>{value:.2f}</a></td>")
+                            html_buffer.append(f"<td><a class='stock-link' href='https://iwencai.com/unifiedwap/result?w=?{tmp_code}pe' target='_blank'>{value:.2f}</a></td>")
                         else:
-                            print(f"<td></td>")
-
+                            html_buffer.append(f"<td></td>")
                     elif tmp_column == "industry":
                         if value is not None:
-                            print(f"<td><a class='industry-link' href='?industry={value}'>{value}</a></td>")
+                            html_buffer.append(f"<td><a class='industry-link' href='?industry={value}'>{value}</a></td>")
                         else:
-                            print(f"<td></td>")
+                            html_buffer.append(f"<td></td>")
                     elif tmp_column in ["ystz", "sjltz"]:
                         if value is not None:
                             if tmp_code[0] == "6":
-                                print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}</a></td>")
+                                html_buffer.append(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}</a></td>")
                             else:
-                                print(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}</a></td>")
+                                html_buffer.append(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}</a></td>")
                         else:
-                            print(f"<td></td>")
-
+                            html_buffer.append(f"<td></td>")
                     else:
-                        print(f"<td>{value if value is not None else ''}</td>")
+                        html_buffer.append(f"<td>{value if value is not None else ''}</td>")
 
-                print("</tr>")
+                html_buffer.append("</tr>")
 
+            #添加这行代码以输出html_buffer中的内容
+            print(''.join(html_buffer))
             print("</table></div>")
             print(f"<p>共找到 {len(results)} 条记录</p>")
 
@@ -553,5 +558,27 @@ def main():
 
     generate_html_footer()
 
+# 在main函数结束时关闭连接
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    finally:
+        if 'DB_CONN' in globals() and DB_CONN and not DB_CONN.closed:
+            DB_CONN.close()
+
+
+
+'''
+wencai_dde_table的record_date和stock_code创建索引
+CREATE INDEX idx_iwencai_dde_record_date ON iwencai_dde_table(record_date);
+CREATE INDEX idx_iwencai_dde_stock_code ON iwencai_dde_table(stock_code);
+
+-- 为eastmoney_zlpm_table的stock_code和record_date创建索引
+CREATE INDEX idx_eastmoney_zlpm_stock_code ON eastmoney_zlpm_table(stock_code);
+CREATE INDEX idx_eastmoney_zlpm_record_date ON eastmoney_zlpm_table(record_date);
+
+-- 为eastmoney_holder_table的stock_code和record_date创建索引
+CREATE INDEX idx_eastmoney_holder_stock_code ON eastmoney_holder_table(stock_code);
+CREATE INDEX idx_eastmoney_holder_record_date ON eastmoney_holder_table(record_date);
+
+'''

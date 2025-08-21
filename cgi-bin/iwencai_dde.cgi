@@ -216,6 +216,13 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                         else:
                             print(f"<td>{value if value is not None else ''}</td>")
 
+                    elif tmp_column == "pct":  # 为pct字段添加颜色显示逻辑
+                        if value is not None:
+                            color = 'red' if value > 0 else 'green'
+                            print(f"<td><span style='color:{color}'>{value:.2f}</span></td>")
+                        else:
+                            print(f"<td></td>")
+
                     elif tmp_column == "stock_name":  # 判断是否为股票代码列
                         tmp_name = value
                         if tmp_code[0] == "6":
