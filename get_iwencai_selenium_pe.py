@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import time
+import os
+import datetime
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -14,6 +16,11 @@ from selenium.webdriver.common.action_chains import ActionChains
 from get_daily_zlje import *
 
 import random
+import logging
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+my_dbg = logging.info
 
 
 # basic
@@ -127,59 +134,70 @@ def scrape_canvas_data(driver):
 
 
 def get_browser_real():
-
-    path_chromedriver='/usr/bin/chromedriver'
-    path_chromedriver='/snap/bin/chromium.chromedriver'
     browser = None
     
-    # 添加无头headlesss
+    # 添加无头headless模式
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument(
-            'user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'\
-            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36')
+            'user-agent=Mozilla/5.0 (X11; Linux x86_64)'
+            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36')
 
-
-    chrome_options.add_argument("disable-infobars");
+    chrome_options.add_argument("disable-infobars")
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option('useAutomationExtension', False)
 
     chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless=new")  # 新版无头模式
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-software-rasterizer")
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
-    #chrome_options.add_argument("blink-settings=imagesEnabled=false")  #image disable
+    chrome_options.add_argument('--disable-dev-shm-usage')  # 解决内存问题
 
-     
-    chrome_options.add_argument('--disk-cache-dir=/dev/shm  --disk-cache-size=4096000000')
+    # 尝试不同的Chrome驱动路径
+    driver_paths = [
+        '/usr/bin/chromedriver',
+        '/snap/bin/chromium.chromedriver',
+        '/usr/local/bin/chromedriver',
+        '/usr/bin/google-chrome/chromedriver'
+    ]
 
+    max_retries = 3
+    retry_count = 0
 
-    try:
-        browser = webdriver.Chrome(executable_path=path_chromedriver,
-            chrome_options=chrome_options)
-    except:
-        time.sleep(60)
-        try:
-            browser = webdriver.Chrome(executable_path=path_chromedriver,
-                chrome_options=chrome_options)
-        except:
-            pass
-    finally:
+    while retry_count < max_retries and browser is None:
+        for path in driver_paths:
+            if os.path.exists(path):
+                try:
+                    browser = webdriver.Chrome(executable_path=path, options=chrome_options)
+                    my_dbg(f"成功使用驱动路径: {path}")
+                    break
+                except Exception as e:
+                    my_dbg(f"尝试路径 {path} 失败: {e}")
+                    continue
+
+        # 如果所有路径都失败，尝试使用系统默认
         if browser is None:
             try:
-                time.sleep(60)
-                browser = webdriver.Chrome(executable_path=path_chromedriver,
-                    chrome_options=chrome_options)
-            except:
-                pass
+                browser = webdriver.Chrome(options=chrome_options)
+                my_dbg("成功使用系统默认驱动")
+            except Exception as e:
+                my_dbg(f"使用系统默认驱动失败: {e}")
+                retry_count += 1
+                if retry_count < max_retries:
+                    my_dbg(f"等待60秒后重试... (第 {retry_count+1} 次)")
+                    time.sleep(60)
 
-    #browser.maximize_window()  # 最大化窗口
-    #wait = WebDriverWait(browser, 10)
-    with open('./stealth.min.js') as f:
-        js = f.read()
-    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source": js
-        })
+    # 加载stealth脚本防止检测
+    if browser is not None:
+        try:
+            with open('./stealth.min.js') as f:
+                js = f.read()
+            browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+                "source": js
+            })
+        except Exception as e:
+            my_dbg(f"加载stealth脚本失败: {e}")
         
     return browser
     
@@ -191,37 +209,60 @@ def get_iwencai_pe(driver, stock_code):
 
     record_date = ''
     pe = 100
-    try: 
-        driver.get(url)
-        time.sleep(random.randint(10,20))
-    except Exception as e:
-        my_dbg(e)
-        my_dbg('stock_code=%s' % stock_code)
-        return stock_code, '', 100
+    max_retries = 3
+    retries = 0
 
-    global global_first_time  # 声明要修改全局变量
-    if global_first_time: 
-        try:
-            driver.find_element(By.ID, "details-button").click()
+    while retries < max_retries:
+        try: 
+            driver.get(url)
+            time.sleep(random.randint(5,20))  # 减少等待时间，提高效率
+
+            # 检查是否有会话错误
+            page_source = driver.page_source
+            if 'invalid session id' in page_source.lower():
+                my_dbg(f"会话无效，尝试重新连接 (第 {retries+1} 次)")
+                retries += 1
+                if retries >= max_retries:
+                    return stock_code, '', 100
+                # 刷新页面
+                driver.refresh()
+                time.sleep(3)
+                continue
+
+            global global_first_time  # 声明要修改全局变量
+            if global_first_time: 
+                try:
+                    # 处理证书警告
+                    driver.find_element(By.ID, "details-button").click()
+                    time.sleep(1)
+                    driver.find_element(By.ID, "proceed-link").click()
+                except Exception as e:
+                    if debug:
+                        my_dbg(f"处理证书警告失败: {e}")
+                    pass
+
+                global_first_time = False
+
+            # 尝试获取数据
+            record_date, pe = scrape_canvas_data(driver)
+            
+            # 如果获取到有效数据，跳出循环
+            if record_date and pe > 0:
+                break
+            else:
+                my_dbg(f"未获取到有效数据，重试 (第 {retries+1} 次)")
+                retries += 1
+                time.sleep(3)
+
         except Exception as e:
-            if debug:
-                #my_dbg(e)
-                pass
+            my_dbg(f"访问失败: {e}")
+            my_dbg(f'stock_code={stock_code}')
+            retries += 1
+            if retries >= max_retries:
+                return stock_code, '', 100
+            time.sleep(3)
+            continue
 
-        time.sleep(1)
-
-        try:
-            driver.find_element(By.ID, "proceed-link").click()
-        except Exception as e:
-            if debug:
-                #my_dbg(e)
-                pass
-
-        global_first_time = False
-
-
-    record_date, pe = scrape_canvas_data(driver)
-    
     if debug:
         my_dbg(stock_code, record_date, pe)
 
@@ -274,18 +315,25 @@ if __name__ == '__main__':
         if debug:
             my_dbg(stock_code)
 
-        stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
-
-        #try to second
-        if pe_pct == 0:
-            my_dbg(f'second, stock_code:{stock_code}, record_date:{record_date}')
-            try:
-                driver = get_browser(head)
-                stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
-            except Exception as e:
-                my_dbg(e)
-                
-            
+        # 尝试获取PE数据，增加异常处理
+        try:
+            stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
+        
+            # 如果获取失败，尝试重新创建驱动并再次获取
+            if pe_pct == 0 or not record_date:
+                my_dbg(f'首次获取失败，尝试重新连接 (stock_code:{stock_code})')
+                try:
+                    # 关闭当前驱动
+                    driver.quit()
+                    # 创建新驱动
+                    driver = get_browser_real()
+                    # 再次尝试获取数据
+                    stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
+                except Exception as e:
+                    my_dbg(f'重新连接失败: {e}')
+        except Exception as e:
+            my_dbg(f'获取PE数据异常: {e}')
+            pe_pct = 100  # 设置默认值
 
         cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -301,7 +349,7 @@ if __name__ == '__main__':
     pe_df['record_date'] = pd.to_datetime(pe_df['record_date'], errors='coerce')
     pe_df = pe_df.dropna(subset=['record_date'])  # 删除无效日期
 
-    if len(pe_df) > 1000:
+    if len(pe_df) > 4000:
         #check table exist
         check_table()
 

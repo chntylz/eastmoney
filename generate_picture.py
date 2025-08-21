@@ -52,7 +52,10 @@ def plot_stock_picture(nowdate, nowcode, nowname):
     save_dir = 'picture'
     sub_name = ''
     plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df, save_dir, fig, sub_name)
-    plt.close('all')
+    plt.clf()
+    plt.cla()
+    plt.close(fig)  # # 显式关闭单个图形:ml-citation{ref="1,3" data="citationList"}
+    plt.close('all')  # 关闭所有已打开的图形窗口:ml-citation{ref="1,3" data="citationList"}
     # 显式删除大型对象以释放内存
     del day_df, holder_df, fina_df, jigou_df
     gc.collect()

@@ -65,6 +65,7 @@ cd ~/eastmoney/ && python3 eastmoney_slide.py >> $logfile  2>&1
 
 file_array=(
             'get_daily_zlje.py'
+            'eastmoney_slide.py'
             'main_zlpm.py'
            )
 
@@ -90,6 +91,7 @@ do
 
     #9:00~15:00
     if [ "$target" = "get_daily_zlje.py" -o \
+        "$target" = "eastmoney_slide.py" -o \
         "$target" = "main_zlpm.py" ];then
 
         hh=`date '+%H'`

@@ -70,7 +70,7 @@ def generate_html_footer():
 LATEST_DATE_CACHE = None
 
 def get_latest_date():
-    """获取iwencai_dde_table表中最近的日期"""
+    """获取iwencai_dde_table表中最近有数据的日期"""
     global LATEST_DATE_CACHE
     if LATEST_DATE_CACHE is not None:
         return LATEST_DATE_CACHE
@@ -78,10 +78,32 @@ def get_latest_date():
     try:
         conn = get_db_connection()
         with conn.cursor() as cursor:
+            # 获取最大日期
             cursor.execute("SELECT MAX(record_date) FROM iwencai_dde_table")
             latest_date = cursor.fetchone()[0]
-            LATEST_DATE_CACHE = latest_date
-            return latest_date
+            
+            if not latest_date:
+                return None
+            
+            # 检查该日期是否有数据
+            max_retries = 30  # 最多检查30天前的数据
+            current_date = latest_date
+            for _ in range(max_retries):
+                cursor.execute("SELECT COUNT(*) FROM iwencai_dde_table WHERE record_date = %s::date", [current_date])
+                count = cursor.fetchone()[0]
+                
+                if count > 0:
+                    # 找到有数据的日期
+                    LATEST_DATE_CACHE = current_date
+                    return current_date
+                
+                # 没有数据，检查前一天
+                current_date = current_date - pd.Timedelta(days=1)
+            
+            # 超过重试次数仍未找到数据
+            print(f"<p style='color:red'>未找到最近 {max_retries} 天内的有效数据</p>")
+            return None
+            
     except Exception as e:
         print(f"<p style='color:red'>获取最近日期错误: {str(e)}</p>")
         return None
@@ -527,7 +549,7 @@ def main():
 
     # 添加筛选表单
     print("<div class='filter-form' style='margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;'>")
-    print("<h3>筛选条件</h3>")
+    #print("<h5>筛选条件</h5>")
     print("<form method='get'>")
     print("<input type='hidden' name='overview' value='{}'>".format(overview))
     print("<input type='hidden' name='industry' value='{}'>".format(industry))
@@ -537,8 +559,8 @@ def main():
     print("<td><input type='text' name='days_gt' value='{}' placeholder='0'></td>".format(form.getvalue('days_gt', '')))
     print("<td>pe_pct &lt; </td>")
     print("<td><input type='text' name='pe_pct_lt' value='{}' placeholder='0'></td>".format(form.getvalue('pe_pct_lt', '')))
-    print("</tr>")
-    print("<tr>")
+    #print("</tr>")
+    #print("<tr>")
     print("<td>ystz &gt; </td>")
     print("<td><input type='text' name='ystz_gt' value='{}' placeholder='0'></td>".format(form.getvalue('ystz_gt', '')))
     print("<td>sjltz &gt; </td>")

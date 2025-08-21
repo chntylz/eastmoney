@@ -47,7 +47,7 @@ def scrapy_pages(url):
 
     #open selenium browser
     #browser = get_browser(1)
-    browser = get_browser()
+    browser = get_browser(1)
 
     """单页爬取逻辑"""
     df=pd.DataFrame()
@@ -81,14 +81,14 @@ def scrapy_pages(url):
         pass
     
     retry_times = 0
-    loop = 108  # actually is 1+108    
+    loop = 104  # actually is 1+104    
     while (loop):
         try:
             browser.find_element('xpath', "//a[text()='下页' and not(contains(@class,'disabled'))]").click()
         except Exception as e:
             my_dbg(f'loop:{loop}, error:{e}')
             browser.refresh()
-            loop = 108
+            loop = 104
             retry_times = retry_times + 1
             if retry_times > 10:
                 break
@@ -204,7 +204,7 @@ if __name__ == '__main__':
     dde_df = scrapy_pages(url)
     my_dbg(dde_df)
 
-    if len(dde_df) > 1000:
+    if len(dde_df) > 4000:
         #check table exist
         check_table()
         
