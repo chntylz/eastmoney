@@ -101,16 +101,14 @@ def scrapy_pages(url):
            
         time.sleep(random.randint(1, 5))
 
-        #pull to bottom
+        #pull to bottom - 使用JavaScript滚动到页面底部
         try:
-            actions = ActionChains(browser)
-            actions.move_by_offset(0,100).perform()
+            browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(random.randint(1, 3))
         except Exception as e:
-            my_dbg(f'Error action move{e}')
+            my_dbg(f'Error scrolling to bottom: {e}')
         finally:
             pass
-        
 
         html_doc=browser.page_source
         soup = BeautifulSoup(html_doc, 'html.parser')
