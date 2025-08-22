@@ -57,18 +57,19 @@ def scrapy_pages(url):
         EC.presence_of_element_located((By.TAG_NAME, "tbody"))
         )
 
-        '''
         # 点击触发下拉框展开
         dropdown = browser.find_element(By.CLASS_NAME, "drop-down-box")
         dropdown.click()
-        # 定位所有选项并点击最后一个
+        # 定位所有选项并点击"显示100条/页"
         options = WebDriverWait(browser, 10).until(
-                EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "ul[data-v-41d36628] > li"))
+                EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "div.drop-down-box > div > ul > li"))
             )
-        options[-1].click()  # 选择最后一个选项"显示100条/页"
+        for option in options:
+            if "显示100条/页" in option.text:
+                option.click()
+                break
 
         time.sleep(random.randint(1, 3))
-        '''
 
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         result = parse_table(soup)
@@ -81,14 +82,15 @@ def scrapy_pages(url):
         pass
     
     retry_times = 0
-    loop = 104  # actually is 1+104    
+    pages = 52
+    loop = pages  # actually is 1+ 52
     while (loop):
         try:
             browser.find_element('xpath', "//a[text()='下页' and not(contains(@class,'disabled'))]").click()
         except Exception as e:
             my_dbg(f'loop:{loop}, error:{e}')
             browser.refresh()
-            loop = 104
+            loop = pages
             retry_times = retry_times + 1
             if retry_times > 10:
                 break
