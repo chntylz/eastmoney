@@ -358,7 +358,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             if industry:
                 print(f"<div class='header'><h2>行业: {industry} - {latest_date}</h2></div>")
             else:
-                print(f"<div class='header'><h2>DDE数据与行业查询 - {latest_date}</h2></div>")
+                print(f"<div class='header'><h2>当日DDE数据与行业查询 - {latest_date}</h2></div>")
 
             # 生成表头
             print("<div class='table-container'><table><tr>")
@@ -571,8 +571,9 @@ def main():
 
     # 添加导航链接
     print("<div class='header'>")
-    print("<a href='?'>DDE数据</a> | ")
-    print("<a href='?overview=1'>行业概览统计</a>")
+    print("<a href='iwencai_dde.cgi'>DDE全字段查询</a> |")
+    print("<a href='?'>当日DDE数据</a> | ")
+    print("<a href='?overview=1'>行业概览统计</a> ")
     print("</div>")
 
     # 添加筛选表单
@@ -587,8 +588,8 @@ def main():
     print("<td><input type='text' name='days_gt' value='{}' placeholder='0'></td>".format(form.getvalue('days_gt', '')))
     print("<td>pe_pct &lt; </td>")
     print("<td><input type='text' name='pe_pct_lt' value='{}' placeholder='0'></td>".format(form.getvalue('pe_pct_lt', '')))
-    #print("</tr>")
-    #print("<tr>")
+    print("</tr>")
+    print("<tr>")
     print("<td>ystz &gt; </td>")
     print("<td><input type='text' name='ystz_gt' value='{}' placeholder='0'></td>".format(form.getvalue('ystz_gt', '')))
     print("<td>sjltz &gt; </td>")

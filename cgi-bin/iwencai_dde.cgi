@@ -47,7 +47,10 @@ def get_table_columns():
 def generate_html_form(start_date='', end_date='', stock_code=''):
     """生成查询表单"""
     print(f"""
-    <h2>股票数据全字段查询</h2>
+    <a href='iwencai_dde.cgi'>DDE全字段查询</a> | 
+    <a href='iwencai_dde_industry.cgi?'>当日DDE数据 </a> |
+    <a href='iwencai_dde_industry.cgi?overview=1'>行业概览统计 </a> 
+ 
     <form method="post">
         <label>开始日期: <input type="date" name="start_date" value="{start_date}" placeholder="可留空查询全部"></label>
         <label>结束日期: <input type="date" name="end_date" value="{end_date}" placeholder="可留空查询全部"></label>
@@ -328,7 +331,7 @@ def main():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>股票全字段查询</title>
+        <title>DDE全字段查询</title>
         <meta charset="UTF-8">
         <style>
             body { font-family: Arial; margin: 20px; }
