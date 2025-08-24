@@ -29,7 +29,17 @@ def count_continous_positive(df, group_col, target_col):
             (x[target_col] <= 0).cumsum()
         ).cumcount().where(x[target_col] > 0, 0)
     ).reset_index(level=0, drop=True)
- 
+
+
+# 新增函数：按照group_col 计算target_col连续大于0的天数内的总和
+def calculate_continuous_sum(df, group_col, target_col):
+    # 按股票代码分组后处理每组数据
+    return df.groupby(group_col).apply(
+        lambda x: x[target_col].where(x[target_col] > 0, 0).groupby(
+            (x[target_col] <= 0).cumsum()
+        ).cumsum()
+    ).reset_index(level=0, drop=True)
+
 
 #如果当天不是星期五，返回最近的星期五
 def adjust_weekend_date():
@@ -162,6 +172,7 @@ def scrapy_pages(url):
     df['dde_net'] = df['dde_buy'] - df['dde_sell']
 
     df['conti_day'] = 0
+    df['dde_net_all'] = 0
 
     #save
     df.to_csv('./csv/' + time.strftime("%Y-%m-%d", time.localtime()) + '_dde.csv', encoding='gbk')
@@ -223,8 +234,11 @@ if __name__ == '__main__':
             end_date=e_date.strftime("%Y-%m-%d")
             )
 
+        # 计算连续天数和总和
         df_conti_day = count_continous_positive(df_20day, 'stock_code', 'dde_net')
+        df_conti_sum = calculate_continuous_sum(df_20day, 'stock_code', 'dde_net')
         df_20day['conti_day'] = df_conti_day
+        df_20day['dde_net_all'] = df_conti_sum
         df_today = df_20day[df_20day['record_date'] == valid_date.strftime("%Y-%m-%d")] 
         df_today = df_today.reset_index(drop=True)
 

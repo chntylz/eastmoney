@@ -149,7 +149,7 @@ def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
             # 构建行业统计查询
             query = ""
             query += "SELECT z.industry, COUNT(DISTINCT d.stock_code) as stock_count, "
-            query += "       AVG(d.pct) as avg_pct, AVG(d.dde_net) as avg_dde_net, "
+            query += "       AVG(d.pct) as avg_pct, AVG(d.dde_net) as avg_dde_net, AVG(d.dde_net_all) as avg_dde_all, "
             query += "       AVG(p.pe_pct) as avg_pe_pct, AVG(f.ystz) as avg_ystz, AVG(f.sjltz) as avg_sjltz "
             query += "FROM iwencai_dde_table d "
             query += "LEFT JOIN ( "
@@ -174,7 +174,7 @@ def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
             query += "GROUP BY z.industry "
 
             # 处理排序逻辑
-            valid_columns = ['stock_count', 'avg_pct', 'avg_dde_net', 'avg_pe_pct', 'avg_ystz', 'avg_sjltz']
+            valid_columns = ['stock_count', 'avg_pct', 'avg_dde_net', 'avg_dde_all', 'avg_pe_pct', 'avg_ystz', 'avg_sjltz']
             if sort_column in valid_columns:
                 query += f"ORDER BY {sort_column} {sort_order} "
             else:
@@ -258,7 +258,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
         with conn.cursor() as cursor:
             # 优化holder数据获取，一次获取多个记录
             query = ""
-            query += "SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day AS days, p.pe_pct, f.ystz, f.sjltz, "
+            query += "SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.dde_net_all as dde_all, d.amount, d.rank, d.conti_day AS days, p.pe_pct, f.ystz, f.sjltz, "
             query += "       h.holder1, h.holder2, h.holder3, "
             query += "       z.industry "
             query += "FROM iwencai_dde_table d "
@@ -336,7 +336,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
 
             # 处理排序逻辑
             if sort_column:
-                valid_columns = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days', 'holder1']
+                valid_columns = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'dde_net', 'dde_all', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days', 'holder1']
                 if sort_column in valid_columns:
                     query += f"ORDER BY {sort_column} {sort_order}, stock_code "
                 else:
@@ -393,7 +393,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                     continue
                 else:
                     # 为其他可排序字段添加排序链接
-                    if col in ['rank', 'pct', 'dde_net', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days']:
+                    if col in ['rank', 'pct', 'dde_net', 'dde_all', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days']:
                         new_order = 'DESC' if (sort_column == col and sort_order == 'ASC') else 'ASC'
                         # 构建查询字符串，包含所有过滤参数
                         query_string = f"sort_column={col}&sort_order={new_order}"
@@ -437,7 +437,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                             html_buffer.append(f"<td><a class='stock-link' href='https://xueqiu.com/S/SZ{tmp_code}' target='_blank'>{tmp_name}</a></td>")
                         else:
                             html_buffer.append(f"<td>{value if value is not None else ''}</td>")
-                    elif "dde" in tmp_column or "amount" in tmp_column:
+                    elif "dde" in tmp_column or "amount" in tmp_column or "dde_net_all" in tmp_column:
                         if value and (value > 100*1000*1000 or value < (-1) * 100*1000*1000):
                             value = value / (100*1000*1000)
                             html_buffer.append(f"<td>{value:.2f}亿</td>")

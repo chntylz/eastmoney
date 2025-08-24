@@ -32,6 +32,7 @@ def get_table_columns():
         ('close', 'float'),
         ('pct', 'float'),
         ('dde_net', 'float'),
+        ('dde_all', 'float'),  # 添加 dde_all 字段
         ('amount', 'float'),
         ('rank', 'integer'),
         ('days', 'integer'),
@@ -73,7 +74,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             # 构建动态查询条件
             # 构建主查询，包含HData_iwencai_pe表中最近的pe值
             query = """
-                SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.amount, d.rank, d.conti_day AS days, p.pe_pct AS pe, f.ystz, f.sjltz, h1.holder1, h2.holder2, h3.holder3, z.industry 
+                SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.dde_net_all AS dde_all, d.amount, d.rank, d.conti_day AS days, p.pe_pct AS pe, f.ystz, f.sjltz, h1.holder1, h2.holder2, h3.holder3, z.industry 
                 FROM iwencai_dde_table d
                 LEFT JOIN (
                     SELECT stock_code, pe_pct, record_date,
@@ -185,7 +186,7 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                     continue
 
                 # 为 dde_net 和 days 添加排序链接
-                if col_name in ['rank', 'dde_net', 'days', 'pct', 'pe', 'ystz', 'sjltz', 'industry']:
+                if col_name in ['rank', 'dde_net', 'dde_all', 'amount', 'days', 'pct', 'pe', 'ystz', 'sjltz', 'industry']:
                     # 切换排序方向
                     new_order = 'DESC' if (sort_column == col_name and sort_order == 'ASC') else 'ASC'
                     print(f"<th><a class='sort-link' href='?start_date={start_date}&end_date={end_date}&stock_code={stock_code}&sort_column={col_name}&sort_order={new_order}'>{col_name} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
@@ -209,15 +210,19 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                         tmp_code = value
                         print(f"<td><a class='stock-link' href='iwencai_dde.cgi?stock_code={tmp_code}' target='_blank'>{tmp_code}</a></td>")
 
-                    elif ("dde" in tmp_column or "amount" in tmp_column):  # 判断是否包含dde
-                        if value > 100*1000*1000 or value < (-1) * 100*1000*1000 :  #亿
-                            value = value / (100*1000*1000)
-                            print(f"<td>{value if value is not None else ''}亿</td>")
-                        elif value > 10*1000 or value < (-1) * 10*1000:  #万
-                            value = value / (10*1000)
-                            print(f"<td>{value if value is not None else ''}万</td>")
-                        else:
-                            print(f"<td>{value if value is not None else ''}</td>")
+                    elif ("dde" in tmp_column or "amount" in tmp_column or "dde_all" in tmp_column):  # 判断是否包含dde
+                        
+                            if value is not None:
+                                if value > 100*1000*1000 or value < (-1) * 100*1000*1000 :  #亿
+                                    value = value / (100*1000*1000)
+                                    print(f"<td>{value}亿</td>")
+                                elif value > 10*1000 or value < (-1) * 10*1000:  #万
+                                    value = value / (10*1000)
+                                    print(f"<td>{value}万</td>")
+                                else:
+                                    print(f"<td>{value}</td>")
+                            else:
+                                print(f"<td></td>")
 
                     elif tmp_column == "pct":  # 为pct字段添加颜色显示逻辑
                         if value is not None:
