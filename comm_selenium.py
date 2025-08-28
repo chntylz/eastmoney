@@ -10,8 +10,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from file_interface import *
 
+import random
+proxy_support = 0
 
-def get_browser(headless=None):
+def get_browser(headless=None, proxy=None):
 
     path_chromedriver='/usr/bin/chromedriver'
     path_chromedriver='/snap/bin/chromium.chromedriver'
@@ -42,9 +44,20 @@ def get_browser(headless=None):
     #chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--disk-cache-dir=/dev/shm  --disk-cache-size=4096000000')
 
-    #chrome_options.add_argument('--proxy-server=http://147.75.34.86:9401')
-    #chrome_options.add_argument('--proxy-server=socks5://220.167.89.46:1080')
+    # 生成0或1
+    random_number = 0
+    if proxy_support :
+       random_number = random.randint(0, 1)
+       print(f"selenium proxy: {random_number}")
 
+    if random_number:
+        chrome_options.add_argument('--proxy-server=142.171.166.165:3128')
+    elif proxy :
+        chrome_options.add_argument('--proxy-server=142.171.166.165:3128')
+        #chrome_options.add_argument('--proxy-server=http://147.75.34.86:9401')
+        #chrome_options.add_argument('--proxy-server=socks5://220.167.89.46:1080')
+    else:
+        pass
 
     chrome_options.add_argument("--window-size=1920,1080")  # 最小推荐尺寸
 

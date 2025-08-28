@@ -124,6 +124,7 @@ def  fina_analysis_by_weimiao(stock_code, stock_name):
     key_day = '09-30'
     key_day = df_fina.record_date[0][5:]
     key_day = '12-31'
+    key_day = '06-30'
     my_dbg(f'key_day:{key_day}')
 
     df_y_fina = df_fina[df_fina['record_date'].str.contains(key_day)]
