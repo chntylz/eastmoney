@@ -1004,7 +1004,7 @@ def fina_data_analysis(df):
     pass
 
 
-def get_data_from_fina_income_balance_cashflow():
+def get_data_from_fina_income_balance_cashflow(key_date):
 
     code = '600660'
     code = None
@@ -1036,6 +1036,8 @@ def get_data_from_fina_income_balance_cashflow():
     key_day = '09-30'
     key_day = df_income.record_date[0][5:]
     key_day = '12-31'
+    key_day = '06-30'
+    key_day = key_date
 
     df_y_income     = df_income[df_income['record_date'].str.contains(key_day)]
     df_y_balance    = df_balance[df_balance['record_date'].str.contains(key_day)]
@@ -1093,10 +1095,15 @@ def get_data_from_fina_income_balance_cashflow():
 
 if __name__ == '__main__':
 
+    script_name, para1 = check_input_parameter()
+
+    key_date = para1; 
+        
+
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df =  get_data_from_fina_income_balance_cashflow()
+    df =  get_data_from_fina_income_balance_cashflow(key_date)
     fina_data_analysis(df)
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

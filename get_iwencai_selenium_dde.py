@@ -57,7 +57,21 @@ def scrapy_pages(url):
 
     #open selenium browser
     #browser = get_browser(1)
-    browser = get_browser(1)
+
+    # 获取当前时间的分钟数
+    current_minute = datetime.datetime.now().minute
+
+    my_proxy = 0
+    # 根据分钟数设置proxy值
+    if 0 <= current_minute <= 30:
+        my_proxy = 0
+    else:
+        my_proxy = 1
+
+    # 输出结果（可选）
+    my_dbg(f"当前分钟数: {current_minute}, my_proxy值: {my_proxy}")
+
+    browser = get_browser(headless=1, proxy=my_proxy)
 
     """单页爬取逻辑"""
     df=pd.DataFrame()

@@ -377,11 +377,13 @@ def get_realtime_data2():
             data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final_old(pn)
             #data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final(pn)
             if len(data_df_tmp) == 0:
+                my_dbg(f" get_realtime_data2() finished,  pn:{pn}")
                 break
             data_df = pd.concat([data_df, data_df_tmp])
             work_df = pd.concat([work_df, work_df_tmp])
             pn = pn + 1
         except Exception as e:
+            my_dbg(f" get_realtime_data2() error,  pn:{pn}, error:{e}")
             break
 
     data_df = data_df.drop_duplicates(subset=['stock_code'], keep='first')

@@ -6,6 +6,8 @@ import cgitb
 import psycopg2
 from datetime import datetime
 import pandas as pd
+import os
+import platform
 
 # 启用错误显示
 cgitb.enable()
@@ -245,7 +247,39 @@ def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
         if 'conn' in locals():
             conn.close()
 
-def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=None, pe_pct_lt=None, ystz_gt=None, sjltz_gt=None, pct_gt=None, dde_net_gt=None, dde_all_gt=None, amount_gt=None, holder_lt=None):
+# 添加获取自选股列表的函数
+def get_my_optional_stocks():
+    """读取自选股列表"""
+    # 检测操作系统设置文件路径
+    current_os = platform.system()
+    if current_os == 'Windows':
+        optional_file = r'C:\Users\aaron\Documents\eastmoney\cgi-bin\my_optional.txt'
+    else:
+        optional_file = '/var/www/cgi-bin/my_optional.txt'
+        
+    stocks = []
+    try:
+        if os.path.exists(optional_file):
+            with open(optional_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        parts = line.split(' ', 1)
+                        if len(parts) >= 2:
+                            stock_code = parts[0]
+                            stock_name = parts[1]
+                            # 去除可能的前缀（SH/SZ），因为数据库中可能只存储数字代码
+                            if stock_code.startswith('SH'):
+                                stock_code = stock_code[2:]
+                            elif stock_code.startswith('SZ'):
+                                stock_code = stock_code[2:]
+                            stocks.append((stock_code, stock_name))
+    except Exception as e:
+        print(f"<p style='color:red'>读取自选股文件错误: {str(e)}</p>")
+    
+    return stocks
+
+def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=None, pe_pct_lt=None, ystz_gt=None, sjltz_gt=None, pct_gt=None, dde_net_gt=None, dde_all_gt=None, amount_gt=None, holder_lt=None, optional_stocks=None):
     """显示查询结果"""
     try:
         # 获取最近日期
@@ -300,6 +334,15 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             if industry:
                 query += "AND z.industry = %s "
                 params.append(industry)
+
+            # 添加自选股筛选条件
+            if optional_stocks:
+                stock_codes = [stock[0] for stock in optional_stocks]
+                if stock_codes:
+                    # 创建占位符
+                    placeholders = ', '.join(['%s'] * len(stock_codes))
+                    query += f"AND d.stock_code IN ({placeholders}) "
+                    params.extend(stock_codes)
 
             # 添加自定义筛选条件
             if days_gt is not None and days_gt.strip():
@@ -396,8 +439,10 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                 print(f"<p>未找到 {latest_date} 的数据</p>")
                 return
 
-            # 显示当前筛选的行业
-            if industry:
+            # 显示当前筛选的标题
+            if optional_stocks:
+                print(f"<div class='header'><h2>我的自选股 - {latest_date}</h2></div>")
+            elif industry:
                 print(f"<div class='header'><h2>行业: {industry} - {latest_date}</h2></div>")
             else:
                 print(f"<div class='header'><h2>当日DDE数据与行业查询 - {latest_date}</h2></div>")
@@ -437,6 +482,8 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                         query_string += f"&amount_gt={amount_gt}"
                     if holder_lt:
                         query_string += f"&holder_lt={holder_lt}"
+                    if optional_stocks:
+                        query_string += "&my_optional=1"
                     print(f"<th><a class='sort-link' href='?{query_string}'>holder {'↑' if new_order == 'DESC' else '↓'}</a></th>")
                 elif col == 'holder2':
                     # 跳过holder2
@@ -471,6 +518,8 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                             query_string += f"&amount_gt={amount_gt}"
                         if holder_lt:
                             query_string += f"&holder_lt={holder_lt}"
+                        if optional_stocks:
+                            query_string += "&my_optional=1"
                         print(f"<th><a class='sort-link' href='?{query_string}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
                     else:
                         print(f"<th>{col}</th>")
@@ -627,6 +676,9 @@ def main():
     industry = form.getvalue('industry', '')
     overview = form.getvalue('overview', '')
 
+    # 获取自选股参数
+    my_optional = form.getvalue('my_optional', '')
+
     # 获取筛选参数
     days_gt = form.getvalue('days_gt', '')
     pe_pct_lt = form.getvalue('pe_pct_lt', '')
@@ -639,19 +691,29 @@ def main():
     amount_gt = form.getvalue('amount_gt', '')
     holder_lt = form.getvalue('holder_lt', '')
 
+    # 初始化自选股列表
+    optional_stocks = None
+    if my_optional:
+        optional_stocks = get_my_optional_stocks()
+        if not optional_stocks:
+            print("<p style='color:red'>未找到自选股数据或自选股文件格式不正确</p>")
+
     # 添加导航链接
     print("<div class='header'>")
     print("<a href='iwencai_dde.cgi'>DDE全字段查询</a> |")
     print("<a href='?'>当日DDE数据</a> | ")
-    print("<a href='?overview=1'>行业概览统计</a> ")
+    print("<a href='?overview=1'>行业概览统计</a> | ")
+    print("<a href='?my_optional=1'>我的自选</a>")
     print("</div>")
 
     # 添加筛选表单
     print("<div class='filter-form' style='margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;'>")
     #print("<h5>筛选条件</h5>")
     print("<form method='get'>")
-    print("<input type='hidden' name='overview' value='{}'>".format(overview))
-    print("<input type='hidden' name='industry' value='{}'>".format(industry))
+    print(f"<input type='hidden' name='overview' value='{overview}'>")
+    print(f"<input type='hidden' name='industry' value='{industry}'>")
+    if my_optional:
+        print("<input type='hidden' name='my_optional' value='1'>")
     print("<table border='0'>")
     print("<tr>")
     print("<td>days &gt; </td>")
@@ -696,7 +758,7 @@ def main():
     if overview:
         display_industry_overview(sort_column, sort_order)
     else:
-        display_results(sort_column, sort_order, industry, days_gt, pe_pct_lt, ystz_gt, sjltz_gt, pct_gt, dde_net_gt, dde_all_gt, amount_gt, holder_lt)
+        display_results(sort_column, sort_order, industry, days_gt, pe_pct_lt, ystz_gt, sjltz_gt, pct_gt, dde_net_gt, dde_all_gt, amount_gt, holder_lt, optional_stocks)
 
     generate_html_footer()
 

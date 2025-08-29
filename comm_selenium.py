@@ -50,10 +50,13 @@ def get_browser(headless=None, proxy=None):
        random_number = random.randint(0, 1)
        print(f"selenium proxy: {random_number}")
 
+    random_number = 0
+
     if random_number:
         chrome_options.add_argument('--proxy-server=142.171.166.165:3128')
     elif proxy :
         chrome_options.add_argument('--proxy-server=142.171.166.165:3128')
+        print(f"proxy is used")
         #chrome_options.add_argument('--proxy-server=http://147.75.34.86:9401')
         #chrome_options.add_argument('--proxy-server=socks5://220.167.89.46:1080')
     else:
