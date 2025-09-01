@@ -240,7 +240,7 @@ def get_daily_zlje_final(url=None, pn=None):
 
     my_dbg(url)
 
-    browser = get_browser()
+    browser = get_browser(headless=None, proxy=1)
    
     html = ''
     try: 
@@ -529,10 +529,14 @@ if __name__ == '__main__':
 
     check_table()
 
+    t1 = time.time()
+    start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
     df = get_daily_zlje2()
     df = handle_raw_data(df)
     #my_dbg(list(df))
     if len(df):
+        my_dbg(f"len(df)={len(df)}")
         delete_zlje_data_from_db()
     hdata_zlje.copy_from_stringio(df)
     df.to_csv('csv/' +   datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_1.csv', encoding='gbk')
@@ -541,6 +545,7 @@ if __name__ == '__main__':
     df_3 = get_daily_zlje2(url='url_3')
     df_3 = handle_raw_data(df_3)
     if len(df_3):
+        my_dbg(f"len(df_3)={len(df_3)}")
         delete_zlje_data_from_db(url='url_3')
     hdata_zlje_3.copy_from_stringio(df_3)
     #my_dbg(list(df_3))
@@ -550,6 +555,7 @@ if __name__ == '__main__':
     df_5 = get_daily_zlje2(url='url_5')
     df_5 = handle_raw_data(df_5)
     if len(df_5):
+        my_dbg(f"len(df_5)={len(df_5)}")
         delete_zlje_data_from_db(url='url_5')
     hdata_zlje_5.copy_from_stringio(df_5)
     #my_dbg(list(df_5))
@@ -559,6 +565,7 @@ if __name__ == '__main__':
     df_10 = get_daily_zlje2(url='url_10')
     df_10 = handle_raw_data(df_10)
     if len(df_10):
+        my_dbg(f"len(df_10)={len(df_10)}")
         delete_zlje_data_from_db(url='url_10')
     hdata_zlje_10.copy_from_stringio(df_10)
     #my_dbg(list(df_10))
@@ -571,4 +578,9 @@ if __name__ == '__main__':
         my_dbg(list(df_10))
 
 
+    last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
+
+    t2 = time.time()
+    my_dbg("%s t1:%s, t2:%s, delta=%s"%(script_name, t1, t2, t2-t1))
 

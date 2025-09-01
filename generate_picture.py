@@ -130,6 +130,7 @@ if __name__ == '__main__':
     data_list = data_list.tolist()
 
     processes = multiprocessing.cpu_count()
+    processes = 8
     with multiprocessing.Pool(processes) as pool:
         pool.map(worker, data_list)
     # 清理进程池资源

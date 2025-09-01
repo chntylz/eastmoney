@@ -639,7 +639,7 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                             html_buffer.append(f"<td><a class='industry-link' href='?industry={value}'>{value}</a></td>")
                         else:
                             html_buffer.append(f"<td></td>")
-                    elif tmp_column in ["ystz", "sjltz"]:
+                    elif tmp_column in ["ystz"]:
                         if value is not None:
                             if tmp_code[0] == "6":
                                 html_buffer.append(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SH{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}</a></td>")
@@ -647,6 +647,8 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                                 html_buffer.append(f"<td><a class='stock-link' href='https://xueqiu.com/snowman/S/SZ{tmp_code}/detail#/ZYCWZB' target='_blank'>{value:.2f}</a></td>")
                         else:
                             html_buffer.append(f"<td></td>")
+                    elif tmp_column in ["sjltz"]:
+                            html_buffer.append(f"<td><a class='stock-link' href='../sina_html/sina_{tmp_code}.html' target='_blank'>{value:.2f}</a></td>")
                     else:
                         html_buffer.append(f"<td>{value if value is not None else ''}</td>")
 

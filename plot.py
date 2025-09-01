@@ -29,6 +29,7 @@ import datetime as datetime
 import time
 import os
 import sys
+import gc
 
 #talib
 import talib
@@ -839,15 +840,19 @@ def plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df
 
     # 深度清理流程
     # 移除坐标轴
-    ax07.remove()
-    ax06.remove()
-    ax05.remove()
-    ax05.remove()
-    ax04.remove()
-    ax03.remove()
-    ax02.remove()
-    ax01.remove()
-    ax00.remove()
+    try:
+        ax07.remove()
+        ax06.remove()
+        ax05.remove()
+        ax05.remove()
+        ax04.remove()
+        ax03.remove()
+        ax02.remove()
+        ax01.remove()
+        ax00.remove()
+    except Exception as e:
+        my_dbg(f"error:{e}")
+
     fig.clear()      # 清除图形内容
     plt.close(fig)   # 关闭图形对象
     del fig, ax07, ax06, ax05, ax04, ax03, ax02, ax01,    # 删除对象引用

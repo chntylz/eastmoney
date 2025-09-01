@@ -11,7 +11,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from file_interface import *
 
 import random
-proxy_support = 0
+proxy_support = 1
 
 def get_browser(headless=None, proxy=None):
 
@@ -47,16 +47,22 @@ def get_browser(headless=None, proxy=None):
     # 生成0或1
     random_number = 0
     if proxy_support :
-       random_number = random.randint(0, 1)
-       print(f"selenium proxy: {random_number}")
+        random_number = random.randint(0, 2)
+        #print(f"selenium proxy: {random_number}")
+    
+    #random_number = 0
 
-    random_number = 0
+    if proxy :
+        if random_number == 1:
+            chrome_options.add_argument('--proxy-server=101.43.29.22:3128')
+            print(f"tencent proxy is used")
+        elif random_number == 2:
+            chrome_options.add_argument('--proxy-server=142.171.166.165:3128')
+            print(f"nerdrank proxy is used")
+        else:
+            print(f"localhost proxy is used")
+            pass
 
-    if random_number:
-        chrome_options.add_argument('--proxy-server=142.171.166.165:3128')
-    elif proxy :
-        chrome_options.add_argument('--proxy-server=142.171.166.165:3128')
-        print(f"proxy is used")
         #chrome_options.add_argument('--proxy-server=http://147.75.34.86:9401')
         #chrome_options.add_argument('--proxy-server=socks5://220.167.89.46:1080')
     else:

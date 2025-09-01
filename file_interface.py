@@ -184,7 +184,7 @@ def check_input_parameter():
         exit(1) # 异常退出(下面的代码将不会被执行)
 
     script_name, para1 = argv  # 将传入的参数赋值进行使用
-    my_dbg("%s, %d"%(script_name, int(para1)))
+    my_dbg("%s, %s"%(script_name, para1))
 
     return script_name, para1
 
