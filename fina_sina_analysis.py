@@ -448,6 +448,8 @@ def income_analysis_net_asset_return_rate(df):
         net_profit_growth_rate = 0
         if (i < df_len - 1 ) and df.parenetp[i+1]:
             net_profit_growth_rate  = (df.parenetp[i] - df.parenetp[i+1] ) * 100 / df.parenetp[i+1]  
+            if df.parenetp[i] > 0 and  df.parenetp[i+1] < 0:  #扭亏为盈
+                net_profit_growth_rate = net_profit_growth_rate * (-1) 
             if (df.paresharrigh[i] + df.paresharrigh[i+1]):
                 net_asset_return_rate = df.parenetp[i] * 100 / ((df.paresharrigh[i] + df.paresharrigh[i+1]) / 2)
         if net_asset_return_rate < 15 :
@@ -914,9 +916,15 @@ def fina_data_analysis(df):
             my_dbg(stock_code)
             my_dbg(group_df.head(1))
 
-        
+        '''ROE > 15 '''
+        ret_df, flag =  net_asset_return_rate_df, flag_net_asset_return_rate = income_analysis_net_asset_return_rate(group_df)
+
+        revenue_df, flag_revnue = income_analysis_revenue(group_df)
+        ret_df = pd.concat([ret_df, revenue_df]) 
+       
         '''先看总资产 看总资产，判断公司实力及扩张能力 >30%'''
-        ret_df, flag = asset_df, flag_asset = income_analysis_assets(group_df)
+        asset_df, flag_asset = income_analysis_assets(group_df)
+        ret_df = pd.concat([ret_df, asset_df]) 
         
         '''看资产负债率，判断公司的债务风险.    资产负债率大于 60%的公司，债务风险较大需要注意'''
         liab_df, flag_liab  = income_analysis_liab(group_df)
@@ -937,13 +945,6 @@ def fina_data_analysis(df):
         '''在实践中，与主业无关的投资类资产占总资产比率大于 10%的公司不够专注。淘汰。'''
         invest_df, flag_invest = income_analysis_invest(group_df)
         ret_df = pd.concat([ret_df, invest_df]) 
-
-        '''ROE > 15 '''
-        net_asset_return_rate_df, flag_net_asset_return_rate = income_analysis_net_asset_return_rate(group_df)
-        ret_df = pd.concat([ret_df, net_asset_return_rate_df]) 
-
-        revenue_df, flag_revnue = income_analysis_revenue(group_df)
-        ret_df = pd.concat([ret_df, revenue_df]) 
 
         ''' 毛利率小于 40%的公司一般面临的竞争压力都较大，风险也较大 '''
         gross_df, flag_gross = income_analysis_gross(group_df)

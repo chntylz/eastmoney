@@ -50,6 +50,10 @@ set_data_backend(AaronDataBackend())
 from file_interface import *
 
 
+plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP', 'WenQuanYi Micro Hei', 'sans-serif']
+plt.rcParams['axes.unicode_minus'] = False
+
+
 #debug switch
 debug = 0
 debug = 1

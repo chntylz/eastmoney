@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*- 
-import os,sys
+import os
+import sys
 import gc
 import datetime
+import time
 import psycopg2 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,49 +18,71 @@ from HData_sina_fina import *
 
 import multiprocessing
 
+# 避免调试模式频繁切换
+# debug=0
+# debug=1
 debug=0
-debug=1
-debug=0
+
+plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP', 'WenQuanYi Micro Hei', 'sans-serif']
+plt.rcParams['axes.unicode_minus'] = False
 
 
-hdata_day=HData_eastmoney_day("usr","usr")
-hdata_holder=HData_eastmoney_holder("usr","usr")
-hdata_jigou=HData_eastmoney_jigou("usr","usr")
-hdata_fina=HData_sina_fina("usr","usr")
-
+# 函数级别的数据访问对象，避免全局对象在子进程中累积
 def plot_stock_picture(nowdate, nowcode, nowname):
-    
-    my_dbg('%s: %s, %s, %s' % ( plot_stock_picture, nowdate, nowcode, nowname))
+    my_dbg('%s: %s, %s, %s' % (plot_stock_picture, nowdate, nowcode, nowname))
 
     plt.style.use('bmh')
-    fig = plt.figure(figsize=(24, 30),dpi=120)
+    fig = plt.figure(figsize=(24, 30), dpi=120)
     new_nowcode = nowcode
-    day_df = hdata_day.get_data_from_hdata(stock_code=new_nowcode, \
-            end_date=nowdate.strftime("%Y-%m-%d"), \
-            limit=300)
     
-    holder_df = hdata_holder.get_data_from_hdata(stock_code=new_nowcode, \
-            end_date=nowdate.strftime("%Y-%m-%d"), \
-            limit=300)
-
-    fina_df = hdata_fina.get_data_from_hdata(stock_code=new_nowcode, \
-            end_date=nowdate.strftime("%Y-%m-%d"), \
-            limit=300)
+    # 局部创建数据访问对象，避免全局对象累积
+    hdata_day = HData_eastmoney_day("usr", "usr")
+    hdata_holder = HData_eastmoney_holder("usr", "usr")
+    hdata_fina = HData_sina_fina("usr", "usr")
+    hdata_jigou = HData_eastmoney_jigou("usr", "usr")
     
-    jigou_df = hdata_jigou.get_data_from_hdata(stock_code=new_nowcode, \
-            end_date=nowdate.strftime("%Y-%m-%d"), \
-            limit=300)
-
-    save_dir = 'picture'
-    sub_name = ''
-    plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df, save_dir, fig, sub_name)
-    plt.clf()
-    plt.cla()
-    plt.close(fig)  # # 显式关闭单个图形:ml-citation{ref="1,3" data="citationList"}
-    plt.close('all')  # 关闭所有已打开的图形窗口:ml-citation{ref="1,3" data="citationList"}
-    # 显式删除大型对象以释放内存
-    del day_df, holder_df, fina_df, jigou_df
-    gc.collect()
+    try:
+        day_df = hdata_day.get_data_from_hdata(stock_code=new_nowcode, \
+                end_date=nowdate.strftime("%Y-%m-%d"), \
+                limit=300)
+        
+        holder_df = hdata_holder.get_data_from_hdata(stock_code=new_nowcode, \
+                end_date=nowdate.strftime("%Y-%m-%d"), \
+                limit=300)
+        
+        fina_df = hdata_fina.get_data_from_hdata(stock_code=new_nowcode, \
+                end_date=nowdate.strftime("%Y-%m-%d"), \
+                limit=300)
+        
+        jigou_df = hdata_jigou.get_data_from_hdata(stock_code=new_nowcode, \
+                end_date=nowdate.strftime("%Y-%m-%d"), \
+                limit=300)
+        
+        save_dir = 'picture'
+        sub_name = ''
+        plot_picture(nowdate, nowcode, nowname, day_df, holder_df, fina_df, jigou_df, save_dir, fig, sub_name)
+    finally:
+        # 确保资源被清理，无论是否发生异常
+        plt.clf()
+        plt.cla()
+        plt.close(fig)  # 显式关闭单个图形
+        plt.close('all')  # 关闭所有已打开的图形窗口
+        
+        # 显式删除大型对象以释放内存
+        if 'day_df' in locals():
+            del day_df
+        if 'holder_df' in locals():
+            del holder_df
+        if 'fina_df' in locals():
+            del fina_df
+        if 'jigou_df' in locals():
+            del jigou_df
+        
+        # 删除数据访问对象
+        del hdata_day, hdata_holder, hdata_fina, hdata_jigou
+        
+        # 强制执行垃圾回收
+        gc.collect()
 
 def worker(name):
     nowdate    = name[0]
@@ -78,17 +102,25 @@ def worker(name):
         my_dbg("Worker %s %s started" % (name[0], name[1]))
         my_dbg(name)
         my_dbg("%s %s" % (nowdate, type(nowdate)))
-
-    #for date format test
-    nowdate = datetime.datetime.strptime(nowdate, '%Y-%m-%d').date()
-    if debug:
-        my_dbg("%s %s" % (nowdate, type(nowdate)))
-
-    plot_stock_picture(nowdate, stock_code, stock_name)
+    
+    # 转换日期格式
+    try:
+        nowdate = datetime.datetime.strptime(nowdate, '%Y-%m-%d').date()
+        if debug:
+            my_dbg("%s %s" % (nowdate, type(nowdate)))
+        
+        plot_stock_picture(nowdate, stock_code, stock_name)
+    except Exception as e:
+        my_dbg(f"Error processing {stock_code}: {str(e)}")
+    finally:
+        # 确保在worker结束时进行垃圾回收
+        gc.collect()
     return
 
 
 if __name__ == '__main__':
+    # 初始化全局的hdata_day只用于获取股票列表，不用于具体绘图
+    hdata_day = HData_eastmoney_day("usr", "usr")
     
     t1 = time.time()
 
@@ -98,10 +130,10 @@ if __name__ == '__main__':
     my_dbg("nowdate is %s"%(nowdate.strftime("%Y-%m-%d"))) 
     
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
-    df = hdata_day.get_data_from_hdata(\
-            start_date=nowdate.strftime("%Y-%m-%d"), \
-            end_date=nowdate.strftime("%Y-%m-%d")\
+    
+    df = hdata_day.get_data_from_hdata(
+            start_date=nowdate.strftime("%Y-%m-%d"), 
+            end_date=nowdate.strftime("%Y-%m-%d")
             )
 
     while True:
@@ -109,37 +141,48 @@ if __name__ == '__main__':
             my_dbg('retry=%d' % retry)
 
         if len(df) > 0:
-            break;
-
+            break
+        
         if retry > 10:
             break
-
-        retry = retry + 1
-
-        nowdate=datetime.datetime.now().date()
-        nowdate=nowdate-datetime.timedelta(retry)
-
-        df = hdata_day.get_data_from_hdata(\
-            start_date=nowdate.strftime("%Y-%m-%d"), \
-            end_date=nowdate.strftime("%Y-%m-%d")\
+        
+        retry += 1
+        nowdate = datetime.datetime.now().date()
+        nowdate = nowdate - datetime.timedelta(retry)
+        
+        df = hdata_day.get_data_from_hdata(
+            start_date=nowdate.strftime("%Y-%m-%d"), 
+            end_date=nowdate.strftime("%Y-%m-%d")
             )
-
     
-    #df = df.head(4)  # small size for test
-    data_list = np.array(df)
-    data_list = data_list.tolist()
-
-    processes = multiprocessing.cpu_count()
-    processes = 8
-    with multiprocessing.Pool(processes) as pool:
+    # 释放全局hdata_day，因为具体绘图使用的是worker内创建的局部对象
+    del hdata_day
+    
+    # df = df.head(4)  # 测试用，限制数据量
+    data_list = np.array(df).tolist()
+    
+    # 删除原始DataFrame以节省内存
+    del df
+    gc.collect()
+    
+    # 合理设置进程池大小，避免过多进程导致内存占用过高
+    processes = min(multiprocessing.cpu_count(), 8)  # 使用可用CPU核心数，但不超过8
+    
+    # 正确使用进程池
+    pool = multiprocessing.Pool(processes=processes)
+    try:
         pool.map(worker, data_list)
-    # 清理进程池资源
-    pool.close()
-    pool.join()
-
+    finally:
+        # 确保进程池被正确关闭
+        pool.close()
+        pool.join()
+    
+    # 清理列表并强制垃圾回收
+    del data_list
+    gc.collect()
+    
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     my_dbg("start_time: %s, last_time: %s" % (start_time, last_time))
-
     
     t2 = time.time()
-    my_dbg("t2-t1=%s"%(t2-t1))
+    my_dbg("t2-t1=%s" % (t2-t1))
