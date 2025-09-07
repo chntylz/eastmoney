@@ -29,6 +29,35 @@ hdata_balance  = HData_sina_balance("usr","usr")
 hdata_cashflow = HData_sina_cashflow("usr","usr")
 
 
+from file_interface import *
+import pandas as pd
+#keep 0.01 accrucy
+pd.set_option('display.float_format',lambda x : '%.2f' % x)
+
+
+from get_daily_zlje import *
+
+import multiprocessing
+
+from HData_sina_fina import *
+from HData_sina_income import *
+from HData_sina_balance  import *
+from HData_sina_cashflow import *
+
+import  datetime
+import time 
+
+debug = 0
+debug = 1
+
+hdata_fina     = HData_sina_fina("usr","usr")
+hdata_income   = HData_sina_income("usr","usr")
+hdata_balance  = HData_sina_balance("usr","usr")
+hdata_cashflow = HData_sina_cashflow("usr","usr")
+
+key_day = '09-30'
+
+
 def my_my_dbg():
     if debug:
         my_dbg()
@@ -121,10 +150,106 @@ def  fina_analysis_by_weimiao(stock_code, stock_name):
     df_fina = df_fina.reset_index(drop=True)
     df_fina=df_fina.head(3)
 
+    k
+
+def my_my_dbg():
+    if debug:
+        my_dbg()
+
+def income_analysis_roe(df):
+    df_len=len(df)
+    flag = True
+    #连续5 年的ROE 大于15%
+    i = 0
+    for i in range(df_len):
+        roe  = df.net_asset_return_rate[i]
+        if debug:
+            my_dbg('roe=%s ' % roe )
+        #if float(roe) < 15:
+        if float(roe) < 10:
+            if debug:
+                my_dbg(df.iloc[i])
+            flag = False
+            break
+
+    return flag
+
+
+def income_analysis_liab(df):
+    df_len=len(df)
+    flag = True
+    #zong zi chan fuzhailv  < 60%
+    #asset_liability_ratio
+    i = 0
+    for i in range(df_len):
+        asset_liability_ratio = df.asset_liability_ratio[i]
+        if debug:
+            my_dbg('asset_liability_ratio=%s ' % asset_liability_ratio )
+        if float(asset_liability_ratio) >= 60:
+            if debug:
+                my_dbg(df.iloc[i])
+            flag = False
+            break
+
+    return flag
+
+def income_analysis_cash_of_netincome(df):
+    df_len=len(df)
+    flag = True
+    #连续5 年的净利润现金含量大于80%
+    i = 0
+    for i in range(df_len):
+        cash_of_netincome  = df.net_operating_cash_flow_to_net_profit_ratio[i]
+        if debug:
+            my_dbg('cash_of_netincome=%s ' % cash_of_netincome )
+        if float(cash_of_netincome) < 0.8:
+            if debug:
+                my_dbg(df.iloc[i])
+            flag = False
+            break
+
+    return flag
+
+
+def income_analysis_gross_rate(df):
+    df_len=len(df)
+    flag = True
+    #连续5 年的毛利率大于30%, 用 主营业务利润率 替代
+    i = 0
+    for i in range(df_len):
+        main_profit_rate  = df.main_business_profit_rate[i]
+        if debug:
+            my_dbg('main_profit_rate  =%s ' %  main_profit_rate  )
+        if float(main_profit_rate) < 30:
+            if debug:
+                my_dbg(df.iloc[i])
+            flag = False
+            break
+
+    return flag
+
+
+def  fina_analysis_by_weimiao(stock_code, stock_name):
+
+    code = stock_code
+    #code = '600660'
+    flag = False
+
+    df_fina     = hdata_fina.get_data_from_hdata(stock_code=code)
+
+    if len(df_fina) == 0:
+        return [code, stock_name, flag]
+    
+    df_fina = df_fina.sort_values('record_date', ascending=0)
+    df_fina = df_fina.reset_index(drop=True)
+    df_fina=df_fina.head(3)
+
+    '''
     key_day = '09-30'
     key_day = df_fina.record_date[0][5:]
     key_day = '12-31'
     key_day = '06-30'
+    '''
     my_dbg(f'key_day:{key_day}')
 
     df_y_fina = df_fina[df_fina['record_date'].str.contains(key_day)]
@@ -158,6 +283,9 @@ def worker(data):
 
 
 if __name__ == '__main__':
+
+    script_name, para1 = check_input_parameter()
+    key_day = para1; 
 
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

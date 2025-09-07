@@ -52,6 +52,7 @@ def generate_html_form(start_date='', end_date='', stock_code=''):
     <a href='iwencai_dde_industry.cgi?'>当日DDE数据 </a> |
     <a href='iwencai_dde_industry.cgi?overview=1'>行业概览统计</a> |
     <a href='iwencai_dde_industry.cgi?my_optional=1'>我的自选</a>
+    <a href='iwencai_dde_industry.cgi?weimiao=1'>微淼选股</a>
  
     <form method="post">
         <label>开始日期: <input type="date" name="start_date" value="{start_date}" placeholder="可留空查询全部"></label>
