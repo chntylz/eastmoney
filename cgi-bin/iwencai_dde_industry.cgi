@@ -479,6 +479,8 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             # 显示当前筛选的标题
             if optional_stocks:
                 print(f"<div class='header'><h2>我的自选股 - {latest_date}</h2></div>")
+            elif weimiao_stocks:
+                print(f"<div class='header'><h2>微淼选股 - {latest_date}</h2></div>")
             elif industry:
                 print(f"<div class='header'><h2>行业: {industry} - {latest_date}</h2></div>")
             else:
@@ -521,6 +523,9 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                         query_string += f"&holder_lt={holder_lt}"
                     if optional_stocks:
                         query_string += "&my_optional=1"
+                    # 添加微淼选股参数
+                    if weimiao_stocks:
+                        query_string += "&weimiao=1"
                     print(f"<th><a class='sort-link' href='?{query_string}'>holder {'↑' if new_order == 'DESC' else '↓'}</a></th>")
                 elif col == 'holder2':
                     # 跳过holder2
@@ -557,6 +562,9 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                             query_string += f"&holder_lt={holder_lt}"
                         if optional_stocks:
                             query_string += "&my_optional=1"
+                        # 添加微淼选股参数
+                        if weimiao_stocks:
+                            query_string += "&weimiao=1"
                         print(f"<th><a class='sort-link' href='?{query_string}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
                     else:
                         print(f"<th>{col}</th>")
