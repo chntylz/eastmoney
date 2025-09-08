@@ -22,23 +22,50 @@ def parse_table(soup):
 
 
 #按照group_col 计算target_col连续大于0的天数
+# 修改后的函数：计算target_col连续大于0或者连续小于0的天数，小于0用负数表示
 def count_continous_positive(df, group_col, target_col):
     # 按股票代码分组后处理每组数据
-    return df.groupby(group_col).apply(
-        lambda x: (x[target_col] > 0).groupby(
-            (x[target_col] <= 0).cumsum()
-        ).cumcount().where(x[target_col] > 0, 0)
-    ).reset_index(level=0, drop=True)
+    def calculate_group_continuous_days(group_df):
+        # 创建符号列：1表示正，-1表示负，0表示零
+        sign = group_df[target_col].apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
+        
+        # 创建连续相同符号的分组
+        # 当符号变化时，分组键增加
+        group_key = (sign != sign.shift()).cumsum()
+        
+        # 计算每个分组内的连续天数，并乘以符号值
+        # 对于正数值：连续天数从1开始计数
+        # 对于负数值：连续天数从-1开始计数
+        # 对于零值：保持为0
+        continuous_days = group_df.groupby(group_key).cumcount() + 1
+        result = continuous_days * sign
+        
+        return result
+    
+    # 对每个分组应用计算函数
+    return df.groupby(group_col).apply(calculate_group_continuous_days).reset_index(level=0, drop=True)
 
 
 # 新增函数：按照group_col 计算target_col连续大于0的天数内的总和
+# 修改后的函数：计算连续大于0或者连续小于0的天数内的总和
 def calculate_continuous_sum(df, group_col, target_col):
     # 按股票代码分组后处理每组数据
-    return df.groupby(group_col).apply(
-        lambda x: x[target_col].where(x[target_col] > 0, 0).groupby(
-            (x[target_col] <= 0).cumsum()
-        ).cumsum()
-    ).reset_index(level=0, drop=True)
+    def calculate_group_continuous_sum(group_df):
+        # 创建分组键：每次符号变化时，分组键增加
+        # 先确定当前值的符号（1表示正，-1表示负，0单独处理）
+        sign = group_df[target_col].apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
+        
+        # 创建连续相同符号的分组
+        # 1. 当当前值为0时，创建一个新的分组
+        # 2. 当符号变化时，创建一个新的分组
+        group_key = (sign != sign.shift()).cumsum()
+        
+        # 根据符号和分组键计算连续总和
+        result = group_df[target_col].groupby(group_key).cumsum()
+        return result
+    
+    # 对每个分组应用计算函数
+    return df.groupby(group_col).apply(calculate_group_continuous_sum).reset_index(level=0, drop=True)
 
 
 #如果当天不是星期五，返回最近的星期五
