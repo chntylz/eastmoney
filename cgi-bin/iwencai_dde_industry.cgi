@@ -229,6 +229,18 @@ def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
                                 print(f"<td>{value:.2f}</td>")
                         else:
                             print(f"<td></td>")
+                    elif tmp_column == 'avg_dde_all':
+                        if value is not None:
+                            if value > 100*1000*1000 or value < (-1) * 100*1000*1000:
+                                value = value / (100*1000*1000)
+                                print(f"<td>{value:.2f}亿</td>")
+                            elif value > 10*1000 or value < (-1) * 10*1000:
+                                value = value / (10*1000)
+                                print(f"<td>{value:.2f}万</td>")
+                            else:
+                                print(f"<td>{value:.2f}</td>")
+                        else:
+                            print(f"<td></td>")
                     elif tmp_column in ['avg_pe_pct', 'avg_ystz', 'avg_sjltz']:
                         if value is not None:
                             print(f"<td>{value:.2f}</td>")

@@ -430,4 +430,54 @@ class HData_eastmoney_bk(object):
     
         return df
  
+    def delete_data_from_hdata(self, stock_code=None, 
+                        start_date=None, 
+                        end_date=None,
+                        ):
+        self.db_connect()
+        
+        and_flag = False
 
+        sql_temp = "delete from eastmoney_bk_table"
+
+        if stock_code is None and start_date is None and end_date is None:
+            self.db_disconnect()
+            pass
+            return
+        else:
+            sql_temp += " where "
+
+        if stock_code is None:
+            pass
+        else:
+            sql_temp += " stock_code="+"\'"+stock_code+"\'"                       
+            and_flag |= True
+
+        if start_date is None:
+            pass
+        else:
+            if and_flag:
+                sql_temp += " and record_date >="+"\'"+start_date+"\'"                       
+            else:
+                sql_temp += " record_date >="+"\'"+start_date+"\'"                       
+            
+            and_flag |= True
+
+
+        if end_date is None:
+            pass
+        else:
+            if and_flag:
+                sql_temp += " and record_date <="+"\'"+end_date+"\'"                       
+            else:
+                sql_temp += " record_date <="+"\'"+end_date+"\'"                       
+
+        sql_temp += ";"
+
+        my_dbg("delete_data_from_hdata, sql_temp:%s" % sql_temp)
+
+        self.cur.execute(sql_temp)
+        self.conn.commit()
+        self.db_disconnect()
+        pass
+ 

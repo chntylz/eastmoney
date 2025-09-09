@@ -66,10 +66,15 @@ if __name__ == '__main__':
 
     bk_df = get_bk_data()
     bk_df = bk_df.drop_duplicates(subset=['stock_code'], keep='first')
-    bk_df.to_csv('./csv/'+ nowdate.strftime("%Y-%m-%d")+ '_bankuai.csv', encoding='gbk')
 
-    #bankuai save to db
-    hdata_bk.copy_from_stringio(bk_df)
+    if len(bk_df) > 70:
+        bk_df.to_csv('./csv/'+ nowdate.strftime("%Y-%m-%d")+ '_bankuai.csv', encoding='gbk')
+        hdata_bk.delete_data_from_hdata(
+                start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
+                end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")
+                )
+        #bankuai save to db
+        hdata_bk.copy_from_stringio(bk_df)
 
 
 
