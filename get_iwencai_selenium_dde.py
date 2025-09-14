@@ -98,7 +98,7 @@ def scrapy_pages(url):
     # 输出结果（可选）
     my_dbg(f"当前分钟数: {current_minute}, my_proxy值: {my_proxy}")
 
-    browser = get_browser(headless=1, proxy=my_proxy)
+    browser = get_browser(headless=False, proxy=my_proxy)
 
     """单页爬取逻辑"""
     df=pd.DataFrame()

@@ -521,7 +521,7 @@ class HData_eastmoney_day(object):
         self.conn.commit()
         self.db_disconnect()
 
-        return rows
+        #return rows
 
         dataframe_cols=[tuple[0] for tuple in self.cur.description]#列名和数据库列一致
         df = pd.DataFrame(rows, columns=dataframe_cols)

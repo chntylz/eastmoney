@@ -13,7 +13,7 @@ from file_interface import *
 import random
 proxy_support = 1
 
-def get_browser(headless=None, proxy=None):
+def get_browser(headless=False, proxy=None):
 
     path_chromedriver='/usr/bin/chromedriver'
     path_chromedriver='/snap/bin/chromium.chromedriver'
@@ -33,7 +33,7 @@ def get_browser(headless=None, proxy=None):
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
      
     chrome_options.add_argument("--disable-extensions")
-    if headless is None:
+    if headless is True:
         chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-software-rasterizer")

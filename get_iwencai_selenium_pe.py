@@ -28,8 +28,10 @@ import numpy as np
 import pandas as pd
 
 from HData_iwencai_pe import *
+from HData_eastmoney_day import *
 
 hdata_pe=HData_iwencai_pe("usr","usr")
+hdata_day=HData_eastmoney_day("usr","usr")
 
 
 
@@ -285,17 +287,18 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    stock_df = get_latest_zlje_from_db()
+    #stock_df = get_latest_zlje_from_db()
+    stock_df = hdata_day.get_latest_data_from_hdata()
     #stock_df =  stock_df.head(5)
+
     stock_df_len = len(stock_df)
     my_dbg(stock_df.head(5))
     my_dbg('stock_df.len:%s' % len(stock_df))
 
-    head=None
-    head=1
+    headless=False
 
     #driver = get_browser_real()
-    driver = get_browser(head) 
+    driver = get_browser(headless=False) 
 
     exec_command = "mkdir -p csv" 
     os.system(exec_command)
@@ -326,7 +329,7 @@ if __name__ == '__main__':
                     # 关闭当前驱动
                     driver.quit()
                     # 创建新驱动
-                    driver = get_browser_real()
+                    driver = get_browser(headless=False) 
                     # 再次尝试获取数据
                     stock_code, record_date, pe_pct = get_iwencai_pe(driver, stock_code)
                 except Exception as e:

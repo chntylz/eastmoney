@@ -126,8 +126,7 @@ if __name__ == '__main__':
     
     get_xq_data._init()
 
-    #browser = get_browser(headless=1)
-    browser = get_browser()
+    browser = get_browser(headless=True)
     get_xq_data.set_browser(browser)
     get_xq_data.xq_login2(browser)
     start_slider_login(browser)
