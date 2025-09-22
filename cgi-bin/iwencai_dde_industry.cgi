@@ -8,6 +8,7 @@ from datetime import datetime
 import pandas as pd
 import os
 import platform
+import json
 
 # 启用错误显示
 cgitb.enable()
@@ -31,6 +32,7 @@ def get_db_connection():
         DB_CONN = psycopg2.connect(**DB_CONFIG)
     return DB_CONN
 
+# 修改generate_html_header函数
 
 def generate_html_header():
     """生成HTML头部"""
@@ -55,6 +57,22 @@ def generate_html_header():
             .industry-link { text-decoration: none; color: #0066cc; }
             .industry-link:hover { text-decoration: underline; }
             .header { margin-bottom: 20px; }
+            /* 新增的tooltip样式 */
+            .tooltip-box {
+                display: none;
+                position: absolute;
+                background-color: #333;
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 12px;
+                max-width: 300px;
+                z-index: 1000;
+                white-space: normal;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            }
+            .pattern-positive { color: #4CAF50; }
+            .pattern-negative { color: #f44336; }
         </style>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -76,12 +94,106 @@ def generate_html_header():
                             });
                     });
                 });
+                
+                // 股票模式悬停显示相关代码
+                // 创建tooltip元素
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip-box';
+                tooltip.id = 'pattern-tooltip';
+                document.body.appendChild(tooltip);
+                
+                // 全局缓存，避免重复请求
+                const patternsCache = {};
+                
+                // 为所有数据行添加鼠标事件
+                const handleMouseOver = function(e) {
+                    const row = e.target.closest('tr.data-row');
+                    if (row) {
+                        const stockCode = row.getAttribute('data-stock-code');
+                        const stockName = row.getAttribute('data-stock-name');
+                        if (stockCode) {
+                            showPatternTooltip(stockCode, stockName, e);
+                        }
+                    }
+                };
+                
+                const handleMouseOut = function(e) {
+                    const row = e.target.closest('tr.data-row');
+                    if (!row) {
+                        document.getElementById('pattern-tooltip').style.display = 'none';
+                    }
+                };
+                
+                // 监听鼠标移动，更新tooltip位置
+                const handleMouseMove = function(e) {
+                    const tooltip = document.getElementById('pattern-tooltip');
+                    if (tooltip.style.display === 'block') {
+                        tooltip.style.left = (e.pageX + 10) + 'px';
+                        tooltip.style.top = (e.pageY + 10) + 'px';
+                    }
+                };
+                
+                // 添加事件监听器
+                document.addEventListener('mouseover', handleMouseOver);
+                document.addEventListener('mouseout', handleMouseOut);
+                document.addEventListener('mousemove', handleMouseMove);
+                
+                // 显示模式tooltip
+                function showPatternTooltip(stockCode, stockName, event) {
+                    const tooltip = document.getElementById('pattern-tooltip');
+                    
+                    // 检查缓存中是否已有数据
+                    if (patternsCache[stockCode]) {
+                        displayTooltip(patternsCache[stockCode], stockName, event);
+                        return;
+                    }
+                    
+                    // 没有缓存数据，发送请求获取
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', 'iwencai_dde_industry.cgi?get_patterns=1&stock_code=' + encodeURIComponent(stockCode), true);
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                try {
+                                    const data = JSON.parse(xhr.responseText);
+                                    // 缓存数据
+                                    patternsCache[stockCode] = data;
+                                    displayTooltip(data, stockName, event);
+                                } catch (e) {
+                                    console.error('解析股票模式数据失败:', e);
+                                }
+                            }
+                        }
+                    };
+                    xhr.send();
+                }
+                
+                // 显示tooltip内容
+                function displayTooltip(data, stockName, event) {
+                    const tooltip = document.getElementById('pattern-tooltip');
+                    
+                    if (data.patterns && data.patterns.length > 0) {
+                        let html = `<div style="font-weight: bold; margin-bottom: 5px;">${stockName}(${data.stock_code}) 模式说明:</div>`;
+                        data.patterns.forEach(pattern => {
+                            const colorClass = pattern.sig_value > 0 ? 'pattern-positive' : 'pattern-negative';
+                            html += `<div><span class="${colorClass}">${pattern.pat_name}</span> (信号值: ${pattern.sig_value})</div>`;
+                            html += `<div style="margin-left: 10px; margin-bottom: 5px; font-size: 11px; color: #ccc;">${pattern.pat_des}</div>`;
+                        });
+                        tooltip.innerHTML = html;
+                    } else {
+                        tooltip.innerHTML = `暂无${stockName}(${data.stock_code})的模式信息`;
+                    }
+                    
+                    // 定位tooltip
+                    tooltip.style.left = (event.pageX + 10) + 'px';
+                    tooltip.style.top = (event.pageY + 10) + 'px';
+                    tooltip.style.display = 'block';
+                }
             });
         </script>
     </head>
     <body>
     """)
-
 
 def generate_html_footer():
     """生成HTML底部"""
@@ -585,7 +697,11 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             # 输出数据
             html_buffer = []
             for row in results:
-                html_buffer.append("<tr>")
+                # 获取股票代码和名称
+                stock_code = row[columns.index('stock_code')]
+                stock_name = row[columns.index('stock_name')]
+                # 添加data-stock-code、data-stock-name属性和data-row类
+                html_buffer.append(f'<tr class="data-row" data-stock-code="{stock_code}" data-stock-name="{stock_name}">')
 
                 tmp_code = None
                 tmp_name = None
@@ -723,7 +839,66 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             conn.close()
 
 
+# 在文件的适当位置添加get_stock_patterns函数
+
+def get_stock_patterns(stock_code):
+    """从pattern_table获取指定股票的最新模式数据"""
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cursor:
+            # 查询最新日期
+            cursor.execute("SELECT MAX(record_date) FROM pattern_table WHERE stock_code = %s", [stock_code])
+            latest_date = cursor.fetchone()[0]
+            
+            if not latest_date:
+                return []
+            
+            # 查询该股票最新日期的所有模式数据
+            query = """
+                SELECT pat_name, sig_value, pat_des 
+                FROM pattern_table 
+                WHERE stock_code = %s AND record_date = %s
+            """
+            cursor.execute(query, [stock_code, latest_date])
+            results = cursor.fetchall()
+            
+            # 格式化结果
+            patterns = []
+            for row in results:
+                patterns.append({
+                    'pat_name': row[0],
+                    'sig_value': float(row[1]),
+                    'pat_des': row[2]
+                })
+            
+            return patterns
+    except Exception as e:
+        print(f"获取股票模式数据错误: {str(e)}")
+        return []
+    finally:
+        if 'conn' in locals():
+            conn.close()
+            
+
 def main():
+
+        # 检查是否是获取模式数据的API请求
+    import cgi
+    form = cgi.FieldStorage()
+    if form.getvalue('get_patterns'):
+        stock_code = form.getvalue('stock_code', '')
+        if stock_code:
+            # 从pattern_table获取模式数据
+            patterns = get_stock_patterns(stock_code)
+            # 返回JSON数据
+            print("Content-Type: application/json; charset=utf-8\n\n")
+            result_data = {
+                'stock_code': stock_code,
+                'patterns': patterns
+            }
+            print(json.dumps(result_data, ensure_ascii=False))
+        return
+
     generate_html_header()
 
     form = cgi.FieldStorage()
