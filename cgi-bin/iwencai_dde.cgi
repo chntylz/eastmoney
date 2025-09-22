@@ -74,46 +74,55 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
                 return
                 
             # 构建动态查询条件
-            # 构建主查询，包含HData_iwencai_pe表中最近的pe值
+            # 修复查询，使用LATERAL JOIN并添加DISTINCT确保结果唯一性
             query = """
-                SELECT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.dde_net_all AS dde_all, d.amount, d.rank, d.conti_day AS days, p.pe_pct AS pe, f.ystz, f.sjltz, h1.holder1, h2.holder2, h3.holder3, z.industry 
+                SELECT DISTINCT d.record_date, d.stock_code, d.stock_name, d.close, d.pct, d.dde_net, d.dde_net_all AS dde_all, d.amount, d.rank, d.conti_day AS days, 
+                       p.pe_pct AS pe, f.ystz, f.sjltz, h1.holder1, h2.holder2, h3.holder3, z.industry 
                 FROM iwencai_dde_table d
-                LEFT JOIN (
-                    SELECT stock_code, pe_pct, record_date,
-                           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                LEFT JOIN LATERAL (
+                    SELECT stock_code, pe_pct, record_date
                     FROM iwencai_pe_table
-                ) p ON d.stock_code = p.stock_code AND p.rn = 1
-                LEFT JOIN (
-                    SELECT stock_code, ystz, sjltz, record_date,
-                           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                    WHERE stock_code = d.stock_code
+                    ORDER BY ABS(record_date - d.record_date)
+                    LIMIT 1
+                ) p ON TRUE
+                LEFT JOIN LATERAL (
+                    SELECT stock_code, ystz, sjltz, record_date
                     FROM eastmoney_fina_table
-                ) f ON d.stock_code = f.stock_code AND f.rn = 1
-                LEFT JOIN (
-                    SELECT stock_code, industry, record_date,
-                           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
+                    WHERE stock_code = d.stock_code
+                    ORDER BY ABS(record_date - d.record_date)
+                    LIMIT 1
+                ) f ON TRUE
+                LEFT JOIN LATERAL (
+                    SELECT stock_code, industry, record_date
                     FROM eastmoney_zlpm_table
-                ) z ON d.stock_code = z.stock_code AND z.rn = 1
-                LEFT JOIN (
-                     SELECT * FROM (
-                         SELECT stock_code, holder_num_ratio AS holder1, record_date,
-                                ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
-                         FROM eastmoney_holder_table
-                     ) sub WHERE sub.rn = 1
-                 ) h1 ON d.stock_code = h1.stock_code AND h1.rn = 1
-                LEFT JOIN (
-                     SELECT * FROM (
-                         SELECT stock_code, holder_num_ratio AS holder2, record_date,
-                                ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
-                         FROM eastmoney_holder_table
-                     ) sub WHERE sub.rn = 2
-                 ) h2 ON d.stock_code = h2.stock_code AND h2.rn = 2
-                LEFT JOIN (
-                     SELECT * FROM (
-                         SELECT stock_code, holder_num_ratio AS holder3, record_date,
-                                ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn
-                         FROM eastmoney_holder_table
-                     ) sub WHERE sub.rn = 3
-                 ) h3 ON d.stock_code = h3.stock_code AND h3.rn = 3
+                    WHERE stock_code = d.stock_code
+                    ORDER BY ABS(record_date - d.record_date)
+                    LIMIT 1
+                ) z ON TRUE
+                LEFT JOIN LATERAL (
+                     SELECT stock_code, holder_num_ratio AS holder1, record_date
+                     FROM eastmoney_holder_table
+                     WHERE stock_code = d.stock_code
+                     ORDER BY ABS(record_date - d.record_date)
+                     LIMIT 1
+                 ) h1 ON TRUE
+                LEFT JOIN LATERAL (
+                     SELECT stock_code, holder_num_ratio AS holder2, record_date
+                     FROM eastmoney_holder_table
+                     WHERE stock_code = d.stock_code
+                     ORDER BY record_date DESC
+                     LIMIT 1
+                     OFFSET 1
+                 ) h2 ON TRUE
+                LEFT JOIN LATERAL (
+                     SELECT stock_code, holder_num_ratio AS holder3, record_date
+                     FROM eastmoney_holder_table
+                     WHERE stock_code = d.stock_code
+                     ORDER BY record_date DESC
+                     LIMIT 1
+                     OFFSET 2
+                 ) h3 ON TRUE
             """
 
             # 初始化参数列表
@@ -139,10 +148,13 @@ def display_results(start_date, end_date, stock_code, sort_column=None, sort_ord
             if where_clauses:
                 query += " WHERE " + " AND ".join(where_clauses)
             else:
-                # 如果没有其他条件，我们需要确保z.record_date的条件被应用
+                # 如果没有其他条件，默认显示最近30天的数据
                 today = datetime.now().strftime('%Y-%m-%d')
-                query += " WHERE z.record_date <= %s::date"
-                params.append(today)
+                # 计算30天前的日期
+                from datetime import timedelta
+                thirty_days_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+                query += " WHERE d.record_date BETWEEN %s::date AND %s::date"
+                params.extend([thirty_days_ago, today])
             
 
                 
