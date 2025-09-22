@@ -9,6 +9,9 @@ from datetime import datetime
 import time
 import multiprocessing
 
+from HData_pattern import *
+
+
 # TA-Lib模式说明字典
 pattern_descriptions = {
     'CDL2CROWS': '两只乌鸦\t看跌信号：一根阳线后接两根小阴线，第二根阴线开盘价低于第一根，显示上涨乏力，空头反扑。',
@@ -216,13 +219,18 @@ def main():
                 all_results.append(result)
     
     # 输出结果
-    output_results(all_results)
+    df = output_results(all_results)
+
     
     end_time = time.time()
     print(f"处理完成，耗时 {end_time - start_time:.2f} 秒")
 
+    return df
+
 # 输出结果到CSV文件和控制台
 def output_results(results):
+    df = pd.DataFrame()
+    
     """输出结果到CSV文件和控制台"""
     # 准备输出数据
     output_data = []
@@ -255,7 +263,8 @@ def output_results(results):
     # 将结果保存到CSV文件
     if output_data:
         df = pd.DataFrame(output_data)
-        output_file = f"stock_patterns_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        tmp_date = datetime.datetime.now().date().strftime('%Y%m%d_%H%M%S')
+        output_file = f"./csv/stock_patterns_{tmp_date}.csv"
         df.to_csv(output_file, index=False, encoding='utf-8-sig')
         print(f"所有模式结果已保存到 {output_file}")
     
@@ -264,7 +273,30 @@ def output_results(results):
     pattern_stocks = sum(1 for r in results if r['patterns'])
     print(f"总股票数: {total_stocks}")
     print(f"有模式信号的股票数: {pattern_stocks} ({pattern_stocks / total_stocks * 100:.2f}%)")
+    return df
+
+def check_table():
+    table_exist = hdata_pat.table_is_exist() 
+    my_dbg('table_exist=%d' % table_exist)
+    if table_exist:
+        #hdata_pat.db_hdata_pattern_create()
+        my_dbg('table already exist, recreate')
+    else:
+        hdata_pat.db_hdata_pattern_create()
+        my_dbg('table not exist, create')
+
 
 if __name__ == "__main__":
-    main()
+
+    hdata_pat = HData_pattern("usr","usr")
+
+    #check table exist
+    check_table()
+
+    pat_df = main()
+    hdata_pat.delete_data_from_hdata(
+            start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),  # 保持不变
+            end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")    # 保持不变
+            )
+    hdata_pat.copy_from_stringio(pat_df)
 
