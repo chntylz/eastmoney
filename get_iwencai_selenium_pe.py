@@ -360,10 +360,10 @@ if __name__ == '__main__':
         f.write( 'timestamp,stock_code,record_date,iwencai_pe\n')
 
     pe_first_df = pd.DataFrame()
-    if False:
+    if True:
         pe_first_df = do_scrapy_pe(stock_df, pe_file)
     else: 
-        pe_first_df = pd.read_csv('./csv/pe.csv',encoding='gbk', index_col=[0], dtype={'stock_code':str})
+        pe_first_df = pd.read_csv('./csv/pe.csv',encoding='gbk', dtype={'stock_code':str})
 
     pe_zero_df = pe_first_df[pe_first_df['iwencai_pe'] == 0.0]
     pe_zero_df = pe_zero_df.reset_index(drop=True)
