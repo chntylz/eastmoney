@@ -128,7 +128,7 @@ def scrape_canvas_data(driver):
                 my_dbg(record_date, pe_pct)  
     except Exception as e:
         if debug:
-            my_dbg("%s pe failed" % stock_code)
+            my_dbg(" pe failed" )
             my_dbg(e)
         pass
 
@@ -281,36 +281,18 @@ def check_table():
         my_dbg('table not exist, create')
 
 
+def do_scrapy_pe(stock_df, pe_file):
 
-if __name__ == '__main__':
-
-    t1 = time.time()
-    start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
-    #stock_df = get_latest_zlje_from_db()
-    stock_df = hdata_day.get_latest_data_from_hdata()
-    #stock_df =  stock_df.head(5)
-
-    stock_df_len = len(stock_df)
-    my_dbg(stock_df.head(5))
-    my_dbg('stock_df.len:%s' % len(stock_df))
+    with open(pe_file,'a') as f:
+        f.write( 'timestamp,stock_code,record_date,iwencai_pe\n')
 
     headless=False
-
     #driver = get_browser_real()
     driver = get_browser(headless=False) 
 
-    exec_command = "mkdir -p csv" 
-    os.system(exec_command)
-
-    pe_file = time.strftime("%Y-%m-%d", time.localtime())
-    pe_file = './csv/' + pe_file +'_pe.csv'
-
     pe_list = []
 
-    with open(pe_file,'w') as f:
-        f.write( 'timestamp,stock_code,record_date,iwencai_pe\n')
-
+    stock_df_len = len(stock_df)
     for i in range(stock_df_len):
         stock_code = stock_df.stock_code[i]
         if stock_code[0] == '9' or stock_code[0] == '2':
@@ -352,6 +334,49 @@ if __name__ == '__main__':
     pe_df['record_date'] = pd.to_datetime(pe_df['record_date'], errors='coerce')
     pe_df = pe_df.dropna(subset=['record_date'])  # 删除无效日期
 
+    return pe_df
+
+
+if __name__ == '__main__':
+
+    t1 = time.time()
+    start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    #stock_df = get_latest_zlje_from_db()
+    stock_df = hdata_day.get_latest_data_from_hdata()
+    #stock_df =  stock_df.head(5)
+
+    stock_df_len = len(stock_df)
+    my_dbg(stock_df.head(5))
+    my_dbg('stock_df.len:%s' % len(stock_df))
+
+    exec_command = "mkdir -p csv" 
+    os.system(exec_command)
+
+    pe_file = time.strftime("%Y-%m-%d", time.localtime())
+    pe_file = './csv/' + pe_file +'_pe.csv'
+
+    with open(pe_file,'w') as f:
+        f.write( 'timestamp,stock_code,record_date,iwencai_pe\n')
+
+    pe_first_df = pd.DataFrame()
+    if False:
+        pe_first_df = do_scrapy_pe(stock_df, pe_file)
+    else: 
+        pe_first_df = pd.read_csv('./csv/pe.csv',encoding='gbk', index_col=[0], dtype={'stock_code':str})
+
+    pe_zero_df = pe_first_df[pe_first_df['iwencai_pe'] == 0.0]
+    pe_zero_df = pe_zero_df.reset_index(drop=True)
+
+    pe_non_zero_df = pe_first_df[pe_first_df['iwencai_pe'] != 0.0]
+    pe_non_zero_df = pe_non_zero_df.reset_index(drop=True)
+
+    #第二次, pe为0的重抓一次
+    pe_second_df = do_scrapy_pe(pe_zero_df, pe_file)
+
+    pe_df = pd.concat([pe_first_df, pe_second_df])
+    pe_df = pe_df.reset_index(drop=True)
+
     if len(pe_df) > 4000:
         #check table exist
         check_table()
@@ -363,8 +388,6 @@ if __name__ == '__main__':
 
         hdata_pe.copy_from_stringio(pe_df)
  
-
-
     exec_command = "cp -f " + pe_file  + "  csv/pe.csv" 
     os.system(exec_command)
 
