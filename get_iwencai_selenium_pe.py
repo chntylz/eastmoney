@@ -329,7 +329,7 @@ def do_scrapy_pe(stock_df, pe_file):
 
     driver.quit()
 
-    data_column = ['run_date', 'stock_code', 'record_date', 'pe_pct' ]
+    data_column = ['run_date', 'stock_code', 'record_date', 'iwencai_pe' ]
     pe_df=pd.DataFrame(pe_list, columns=data_column)
     pe_df['record_date'] = pd.to_datetime(pe_df['record_date'], errors='coerce')
     pe_df = pe_df.dropna(subset=['record_date'])  # 删除无效日期
@@ -344,7 +344,7 @@ if __name__ == '__main__':
 
     #stock_df = get_latest_zlje_from_db()
     stock_df = hdata_day.get_latest_data_from_hdata()
-    #stock_df =  stock_df.head(5)
+    stock_df =  stock_df.head(1)
 
     stock_df_len = len(stock_df)
     my_dbg(stock_df.head(5))
