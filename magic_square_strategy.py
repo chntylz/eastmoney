@@ -63,9 +63,10 @@ class MagicSquareStrategy:
         self.signals['long_mavg'] = self.data['close'].rolling(window=self.long_window).mean()
 
         # 生成买入信号（短期均线上穿长期均线）
-        self.signals['signal'] = 0                                  #初始化信号列，全部设为 0（表示“无持仓”或“空仓”状态）
-        self.signals['signal'][self.short_window:] = np.where(      #从第 short_window 个数据点开始赋值（前面是 NaN 或无效数据）
-            self.signals['short_mavg'][self.short_window:] > self.signals['long_mavg'][self.short_window:], 
+        self.signals['signal'] = 0                                  #初始化信号列，全部设为 0（表示"无持仓"或"空仓"状态）
+        # 修改前: self.signals['signal'][self.short_window:] = np.where(
+        self.signals.loc[self.signals.index[self.short_window:], 'signal'] = np.where(      #从第 short_window 个数据点开始赋值（前面是 NaN 或无效数据）
+            self.signals['short_mavg'].iloc[self.short_window:] > self.signals['long_mavg'].iloc[self.short_window:], 
             1,  #条件成立（短期均线上穿长期均线）→ 设为 1（买入信号）
             0)  #否则 → 设为 0（保持空仓）
 
@@ -87,30 +88,36 @@ class MagicSquareStrategy:
         # 创建投资组合DataFrame
         self.portfolio = pd.DataFrame(index=self.signals.index)
         self.portfolio['price'] = self.signals['price']
+        # 修改: 明确将shares列初始化为整数类型
         self.portfolio['shares'] = 0
-        self.portfolio['cash'] = initial_capital
-        self.portfolio['total'] = initial_capital
+        # 修改: 将cash和total列初始化为浮点数类型以避免类型不匹配警告
+        self.portfolio['cash'] = float(initial_capital)
+        self.portfolio['total'] = float(initial_capital)
 
         # 执行交易
         for i in range(1, len(self.portfolio)):
             # 前一天有买入信号
             if self.signals['position'].iloc[i] == 1:
                 # 用所有现金买入股票
-                shares_to_buy = self.portfolio['cash'].iloc[i-1] // self.portfolio['price'].iloc[i]
-                self.portfolio['shares'].iloc[i] = shares_to_buy
-                self.portfolio['cash'].iloc[i] = self.portfolio['cash'].iloc[i-1] - shares_to_buy * self.portfolio['price'].iloc[i]
+                shares_to_buy = int(self.portfolio['cash'].iloc[i-1] // self.portfolio['price'].iloc[i])
+                self.portfolio.loc[self.portfolio.index[i], 'shares'] = shares_to_buy
+                # 修改: 确保赋值为浮点数以保持类型一致性
+                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(self.portfolio['cash'].iloc[i-1] - shares_to_buy * self.portfolio['price'].iloc[i])
             # 前一天有卖出信号
             elif self.signals['position'].iloc[i] == -1:
                 # 卖出所有股票
-                self.portfolio['cash'].iloc[i] = self.portfolio['cash'].iloc[i-1] + self.portfolio['shares'].iloc[i-1] * self.portfolio['price'].iloc[i]
-                self.portfolio['shares'].iloc[i] = 0
+                # 修改: 确保赋值为浮点数以保持类型一致性
+                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(self.portfolio['cash'].iloc[i-1] + self.portfolio['shares'].iloc[i-1] * self.portfolio['price'].iloc[i])
+                self.portfolio.loc[self.portfolio.index[i], 'shares'] = 0
             # 无交易信号
             else:
-                self.portfolio['shares'].iloc[i] = self.portfolio['shares'].iloc[i-1]
-                self.portfolio['cash'].iloc[i] = self.portfolio['cash'].iloc[i-1]
+                self.portfolio.loc[self.portfolio.index[i], 'shares'] = self.portfolio['shares'].iloc[i-1]
+                # 修改: 确保赋值为浮点数以保持类型一致性
+                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(self.portfolio['cash'].iloc[i-1])
 
             # 计算总资产
-            self.portfolio['total'].iloc[i] = self.portfolio['cash'].iloc[i] + self.portfolio['shares'].iloc[i] * self.portfolio['price'].iloc[i]
+            # 修改: 确保赋值为浮点数以保持类型一致性
+            self.portfolio.loc[self.portfolio.index[i], 'total'] = float(self.portfolio['cash'].iloc[i] + self.portfolio['shares'].iloc[i] * self.portfolio['price'].iloc[i])
 
         # 计算收益率
         self.portfolio['return'] = self.portfolio['total'].pct_change()
