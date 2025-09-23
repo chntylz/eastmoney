@@ -7,6 +7,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates  # 添加这行导入
 
 # 设置中文字体
 plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP', 'WenQuanYi Micro Hei', 'sans-serif']
@@ -137,8 +138,8 @@ class DMAStrategy:
         if self.portfolio is None:
             self.backtest()
 
-        # 创建图形和子图
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 15))
+        # 创建图形和子图，并设置共享x轴
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 15), sharex=False)  # 先设为False，稍后手动共享
 
         # 绘制价格和移动平均线
         ax1.plot(self.data['close'], label='收盘价')
@@ -153,6 +154,8 @@ class DMAStrategy:
 
         ax1.set_title(f'{self.stock_code} 价格与移动平均线')
         ax1.legend()
+        ax1.set_ylabel('价格(元)')
+        ax1.set_xlabel('日期')
 
         # 绘制DMA和AMA线
         ax2.plot(self.signals['dma'], label='DMA线')
@@ -162,6 +165,8 @@ class DMAStrategy:
         ax2.scatter(sell_signals.index, [0]*len(sell_signals), marker='v', color='r')
         ax2.set_title(f'{self.stock_code} DMA指标')
         ax2.legend()
+        ax2.set_ylabel('DMA值')
+        ax2.set_xlabel('日期')
 
         # 绘制总资产和累计收益率
         ax3.plot(self.portfolio['total'], label='总资产')
@@ -171,13 +176,34 @@ class DMAStrategy:
         ax3.set_title('策略表现')
         ax3.set_ylabel('总资产(元)')
         ax3_twin.set_ylabel('累计收益率(%)')
+        ax3.set_xlabel('日期')
 
         # 合并图例
         lines1, labels1 = ax3.get_legend_handles_labels()
         lines2, labels2 = ax3_twin.get_legend_handles_labels()
         ax3.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
 
+        # 设置日期格式化器
+        # 设置主刻度为月
+        locator = mdates.MonthLocator()
+        # 设置日期格式
+        formatter = mdates.DateFormatter('%Y-%m-%d')
+        
+        # 为所有子图应用日期格式化
+        for ax in [ax1, ax2, ax3]:
+            ax.xaxis.set_major_locator(locator)
+            ax.xaxis.set_major_formatter(formatter)
+            ax.tick_params(axis='x', which='major', labelsize=10, rotation=15)
+            # 使用setp设置标签对齐
+            plt.setp(ax.get_xticklabels(), ha='right')
+        
+        # 手动设置子图间的共享x轴
+        ax2.sharex(ax1)
+        ax3.sharex(ax1)
+
+        # 调整子图间距，防止标签重叠
         plt.tight_layout()
+        plt.subplots_adjust(hspace=0.3)  # 增加子图间距
         plt.savefig(f'{self.stock_code}_dma_strategy_results.png')
         print(f"回测结果图已保存为 {self.stock_code}_dma_strategy_results.png")
         #plt.show()
