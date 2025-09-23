@@ -58,15 +58,22 @@ class MagicSquareStrategy:
         self.signals['price'] = self.data['close']
 
         # 计算移动平均线
-        self.signals['short_mavg'] = self.data['close'].rolling(window=self.short_window).mean()
+        # 使用 rolling(window=N).mean() 计算过去 self.short_window 天的收盘价均值。
+        self.signals['short_mavg'] = self.data['close'].rolling(window=self.short_window).mean()  
         self.signals['long_mavg'] = self.data['close'].rolling(window=self.long_window).mean()
 
         # 生成买入信号（短期均线上穿长期均线）
-        self.signals['signal'] = 0
-        self.signals['signal'][self.short_window:] = np.where(
-            self.signals['short_mavg'][self.short_window:] > self.signals['long_mavg'][self.short_window:], 1, 0)
+        self.signals['signal'] = 0                                  #初始化信号列，全部设为 0（表示“无持仓”或“空仓”状态）
+        self.signals['signal'][self.short_window:] = np.where(      #从第 short_window 个数据点开始赋值（前面是 NaN 或无效数据）
+            self.signals['short_mavg'][self.short_window:] > self.signals['long_mavg'][self.short_window:], 
+            1,  #条件成立（短期均线上穿长期均线）→ 设为 1（买入信号）
+            0)  #否则 → 设为 0（保持空仓）
 
         # 生成交易信号（1表示买入，-1表示卖出）
+            # 计算 signal 列的差分（diff()）：
+            # 如果信号从 0 → 1：差分为 +1 → 买入信号
+            # 如果信号从 1 → 0：差分为 -1 → 卖出信号
+            # 其他情况：差分为 0 → 无操作
         self.signals['position'] = self.signals['signal'].diff()
         print("交易信号生成完成。")
         return self.signals
@@ -153,7 +160,7 @@ class MagicSquareStrategy:
         plt.tight_layout()
         plt.savefig(f'{self.stock_code}_strategy_results.png')
         print(f"回测结果图已保存为 {self.stock_code}_strategy_results.png")
-        plt.show()
+        #plt.show()
 
     def run(self, initial_capital=100000):
         """运行完整策略"""
@@ -168,8 +175,8 @@ if __name__ == '__main__':
     stock_code = '000001'
     start_date = '2024-08-21'
     end_date = '2025-08-20'
-    short_window = 10
-    long_window = 30
+    short_window = 5
+    long_window = 13
     initial_capital = 100000
 
     print(f"开始运行幻方量化交易策略 - 股票代码: {stock_code}")
