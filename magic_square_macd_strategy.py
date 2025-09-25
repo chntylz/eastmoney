@@ -45,7 +45,10 @@ class MACDStrategy:
         return self.data
 
     def generate_signals(self):
-        """生成交易信号 - 基于MACD指标"""
+        """生成交易信号 - 基于MACD指标
+        只使用DIF线和DEA线的交叉来生成信号：
+        DIF线上穿DEA线买入，DIF线下穿DEA线卖出
+        """
         if self.data is None:
             self.get_data()
 
@@ -66,113 +69,56 @@ class MACDStrategy:
         # 计算MACD柱 = (DIF - DEA) * 2
         self.signals['macd'] = (self.signals['dif'] - self.signals['dea']) * 2
 
-        # 生成买入信号（DIF线上穿DEA线，且MACD从负变正）
-        self.signals['signal'] = 0  # 初始化信号列，全部设为0（表示"无持仓"或"空仓"状态）
+        # 初始化信号列，全部设为0（表示"无持仓"或"空仓"状态）
+        self.signals['signal'] = 0
+        self.signals['position'] = 0
         
         # 从slow_period个数据点开始赋值（前面是NaN或无效数据）
-        start_idx = self.slow_period
+        start_idx = max(self.slow_period, self.signal_period) + 10
         
-        # 调整条件长度以匹配索引切片
-        # 创建完整的布尔数组，初始值为False
-        cross_up = np.zeros(len(self.signals), dtype=bool)
-        macd_turn_positive = np.zeros(len(self.signals), dtype=bool)
-        cross_down = np.zeros(len(self.signals), dtype=bool)
-        macd_turn_negative = np.zeros(len(self.signals), dtype=bool)
-        
-        # 计算实际需要比较的范围
-        compare_range = range(start_idx, len(self.signals))
-        
-        # 填充条件数组
-        for i in compare_range:
-            # 条件1: DIF线上穿DEA线
-            if (self.signals['dif'].iloc[i] > self.signals['dea'].iloc[i]) and \
-               (self.signals['dif'].iloc[i-1] <= self.signals['dea'].iloc[i-1]):
-                cross_up[i] = True
-            
-            # 条件2: MACD从负变正
-            if (self.signals['macd'].iloc[i] >= 0) and \
-               (self.signals['macd'].iloc[i-1] < 0):
-                macd_turn_positive[i] = True
-            
-            # 条件3: DIF线下穿DEA线
-            if (self.signals['dif'].iloc[i] < self.signals['dea'].iloc[i]) and \
-               (self.signals['dif'].iloc[i-1] >= self.signals['dea'].iloc[i-1]):
-                cross_down[i] = True
-            
-            # 条件4: MACD从正变负
-            if (self.signals['macd'].iloc[i] < 0) and \
-               (self.signals['macd'].iloc[i-1] >= 0):
-                macd_turn_negative[i] = True
-        
-        # 买入信号：满足任一条件
-        buy_conditions = cross_up | macd_turn_positive
-        
-        # 设置买入信号
-        self.signals.loc[buy_conditions, 'signal'] = 1
-        
-        # 卖出信号：满足任一条件
-        sell_conditions = cross_down | macd_turn_negative
-        
-        # 设置卖出信号
-        self.signals.loc[sell_conditions, 'signal'] = 0
+        # 向量化判断金叉和死叉
+        dif = self.signals['dif']
+        dea = self.signals['dea']
 
+        # 金叉：当前 DIF > DEA，且前一期 DIF <= DEA
+        cross_up = (dif > dea) & (dif.shift(1) < dea.shift(1))
+
+        # 死叉：当前 DIF < DEA，且前一期 DIF >= DEA
+        cross_down = (dif < dea) & (dif.shift(1) > dea.shift(1))
+
+        # 处理同时满足买入和卖出条件的情况
+        # 首先设置所有卖出信号
+        self.signals.loc[cross_down, 'signal'] = -1
+        # 然后设置买入信号（优先级高于卖出信号）
+        self.signals.loc[cross_up, 'signal'] = 1
+
+        
+        self.signals['position'] = self.signals['signal']
+
+
+        '''       
         # 生成交易信号（1表示买入，-1表示卖出）
         self.signals['position'] = self.signals['signal'].diff()
+		
+
+        # 对于死叉点，确保position为-1
+        # 直接在死叉点设置position为-1，确保卖出信号明确
+        self.signals.loc[cross_down, 'position'] = -1
+        
+        # 对于金叉点，确保position为1
+        # 直接在金叉点设置position为1，确保买入信号明确
+        self.signals.loc[cross_up, 'position'] = 1
+        '''
+		
+        # 修复position中可能出现的NaN值
+
+        
+        # 替换为
+        self.signals.fillna({'position': 0}, inplace=True)
+        
         print("交易信号生成完成。")
+        self.signals.to_csv('csv/macd.csv')
         return self.signals
-
-    def backtest(self, initial_capital=100000):
-        """回测策略"""
-        if self.signals is None:
-            self.generate_signals()
-
-        print("正在回测策略...")
-        # 创建投资组合DataFrame
-        self.portfolio = pd.DataFrame(index=self.signals.index)
-        self.portfolio['price'] = self.signals['price']
-        # 明确将shares列初始化为整数类型
-        self.portfolio['shares'] = 0
-        # 将cash和total列初始化为浮点数类型以避免类型不匹配警告
-        self.portfolio['cash'] = float(initial_capital)
-        self.portfolio['total'] = float(initial_capital)
-
-        # 执行交易
-        for i in range(1, len(self.portfolio)):
-            # 前一天有买入信号
-            if self.signals['position'].iloc[i] == 1:
-                # 用所有现金买入股票
-                shares_to_buy = int(self.portfolio['cash'].iloc[i-1] // self.portfolio['price'].iloc[i])
-                self.portfolio.loc[self.portfolio.index[i], 'shares'] = shares_to_buy
-                # 确保赋值为浮点数以保持类型一致性
-                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(
-                    self.portfolio['cash'].iloc[i-1] - shares_to_buy * self.portfolio['price'].iloc[i])
-            # 前一天有卖出信号
-            elif self.signals['position'].iloc[i] == -1:
-                # 卖出所有股票
-                # 确保赋值为浮点数以保持类型一致性
-                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(
-                    self.portfolio['cash'].iloc[i-1] + self.portfolio['shares'].iloc[i-1] * self.portfolio['price'].iloc[i])
-                self.portfolio.loc[self.portfolio.index[i], 'shares'] = 0
-            # 无交易信号
-            else:
-                self.portfolio.loc[self.portfolio.index[i], 'shares'] = self.portfolio['shares'].iloc[i-1]
-                # 确保赋值为浮点数以保持类型一致性
-                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(self.portfolio['cash'].iloc[i-1])
-
-            # 计算总资产
-            # 确保赋值为浮点数以保持类型一致性
-            self.portfolio.loc[self.portfolio.index[i], 'total'] = float(
-                self.portfolio['cash'].iloc[i] + self.portfolio['shares'].iloc[i] * self.portfolio['price'].iloc[i])
-
-        # 计算收益率
-        self.portfolio['return'] = self.portfolio['total'].pct_change()
-        self.portfolio['cum_return'] = (1 + self.portfolio['return']).cumprod() - 1
-
-        print("回测完成。")
-        print(f"初始资金: {initial_capital} 元")
-        print(f"最终资金: {self.portfolio['total'].iloc[-1]:.2f} 元")
-        print(f"总收益率: {self.portfolio['cum_return'].iloc[-1] * 100:.2f}%")
-        return self.portfolio
 
     def plot_results(self):
         """绘制回测结果"""
@@ -187,6 +133,7 @@ class MACDStrategy:
         
         # 标记买入和卖出信号
         buy_signals = self.signals[self.signals['position'] == 1]
+        # 直接使用cross_down条件来标记卖出信号，确保与策略逻辑完全一致
         sell_signals = self.signals[self.signals['position'] == -1]
         ax1.scatter(buy_signals.index, buy_signals['price'], marker='^', color='g', label='买入信号')
         ax1.scatter(sell_signals.index, sell_signals['price'], marker='v', color='r', label='卖出信号')
@@ -219,9 +166,73 @@ class MACDStrategy:
         ax3.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
 
         plt.tight_layout()
-        plt.savefig(f'{self.stock_code}_macd_strategy_results.png')
+        plt.savefig(f'./picture/{self.stock_code}_macd_strategy_results.png')
         print(f"回测结果图已保存为 {self.stock_code}_macd_strategy_results.png")
         #plt.show()
+
+    def backtest(self, initial_capital=100000):
+        """回测策略"""
+        if self.signals is None:
+            self.generate_signals()
+
+        print("正在回测策略...")
+        # 创建投资组合DataFrame
+        self.portfolio = pd.DataFrame(index=self.signals.index)
+        self.portfolio['price'] = self.signals['price']
+        # 明确将shares列初始化为整数类型
+        self.portfolio['shares'] = 0
+        # 将cash和total列初始化为浮点数类型以避免类型不匹配警告
+        self.portfolio['cash'] = float(initial_capital)
+        self.portfolio['total'] = float(initial_capital)
+
+        # 执行交易
+        for i in range(1, len(self.portfolio)):
+            # 前一天有买入信号
+            if self.signals['position'].iloc[i] == 1:
+                # 用所有现金买入股票
+                shares_to_buy = int(self.portfolio['cash'].iloc[i-1] // self.portfolio['price'].iloc[i])
+                self.portfolio.loc[self.portfolio.index[i], 'shares'] = shares_to_buy
+                # 确保赋值为浮点数以保持类型一致性
+                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(
+                    self.portfolio['cash'].iloc[i-1] - shares_to_buy * self.portfolio['price'].iloc[i])
+            # 前一天有卖出信号
+            #elif self.signals['position'].iloc[i] == -1 or (self.signals['signal'].iloc[i] == 0 and self.signals['signal'].iloc[i-1] == 1):
+            elif self.signals['position'].iloc[i] == -1 :
+                # 卖出所有股票：使用position为-1或者signal从1变为0时都执行卖出
+                # 确保赋值为浮点数以保持类型一致性
+                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(
+                    self.portfolio['cash'].iloc[i-1] + self.portfolio['shares'].iloc[i-1] * self.portfolio['price'].iloc[i])
+                self.portfolio.loc[self.portfolio.index[i], 'shares'] = 0
+            # 无交易信号
+            else:
+                self.portfolio.loc[self.portfolio.index[i], 'shares'] = self.portfolio['shares'].iloc[i-1]
+                # 确保赋值为浮点数以保持类型一致性
+                self.portfolio.loc[self.portfolio.index[i], 'cash'] = float(self.portfolio['cash'].iloc[i-1])
+
+            # 计算总资产
+            # 确保赋值为浮点数以保持类型一致性
+            self.portfolio.loc[self.portfolio.index[i], 'total'] = float(
+                self.portfolio['cash'].iloc[i] + self.portfolio['shares'].iloc[i] * self.portfolio['price'].iloc[i])
+
+        # 确保在策略结束时卖出所有持仓（强制平仓）
+        if len(self.portfolio) > 0:
+            last_day = self.portfolio.index[-1]
+            if self.portfolio['shares'].iloc[-1] > 0:
+                # 最后一天强制卖出所有股票
+                self.portfolio.loc[last_day, 'cash'] = float(
+                    self.portfolio['cash'].iloc[-1] + self.portfolio['shares'].iloc[-1] * self.portfolio['price'].iloc[-1])
+                self.portfolio.loc[last_day, 'shares'] = 0
+                self.portfolio.loc[last_day, 'total'] = float(self.portfolio['cash'].iloc[-1])
+
+        # 计算收益率
+        self.portfolio['return'] = self.portfolio['total'].pct_change()
+        self.portfolio['cum_return'] = (1 + self.portfolio['return']).cumprod() - 1
+
+        print("回测完成。")
+        print(f"初始资金: {initial_capital} 元")
+        print(f"最终资金: {self.portfolio['total'].iloc[-1]:.2f} 元")
+        print(f"总收益率: {self.portfolio['cum_return'].iloc[-1] * 100:.2f}%")
+        return self.portfolio
 
     def run(self, initial_capital=100000):
         """运行完整策略"""
@@ -233,9 +244,9 @@ class MACDStrategy:
 
 if __name__ == '__main__':
     # 示例用法
-    stock_code = '000001'
-    start_date = '2024-08-21'
-    end_date = '2025-08-20'
+    stock_code = '300502'
+    start_date = '2025-04-21'
+    end_date = '2025-09-23'
     fast_period = 12  # MACD快线参数
     slow_period = 26  # MACD慢线参数
     signal_period = 9  # MACD信号线参数
