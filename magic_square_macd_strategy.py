@@ -12,11 +12,16 @@ import matplotlib.pyplot as plt
 plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP', 'WenQuanYi Micro Hei', 'sans-serif']
 plt.rcParams['axes.unicode_minus'] = False
 
-from datetime import datetime
+from datetime import datetime, timedelta
+
 import psycopg2 #使用的是PostgreSQL数据库
 from HData_eastmoney_day import *
 
+import multiprocessing
+
 hdata=HData_eastmoney_day("usr","usr")
+
+debug = 0
 
 class MACDStrategy:
     """MACD量化交易策略类 - 基于移动平均线收敛发散指标"""
@@ -33,7 +38,8 @@ class MACDStrategy:
 
     def get_data(self):
         """获取股票数据"""
-        print(f"正在获取 {self.stock_code} 的数据...")
+        if debug:
+            print(f"正在获取 {self.stock_code} 的数据...")
         self.data = hdata.get_data_from_hdata(stock_code=self.stock_code, 
                                             start_date=self.start_date, 
                                             end_date=self.end_date)
@@ -41,7 +47,8 @@ class MACDStrategy:
         # 将日期列设置为索引
         self.data['date'] = pd.to_datetime(self.data['record_date'])
         self.data.set_index('date', inplace=True)
-        print("数据获取完成。")
+        if debug:
+            print("数据获取完成。")
         return self.data
 
     def generate_signals(self):
@@ -52,7 +59,8 @@ class MACDStrategy:
         if self.data is None:
             self.get_data()
 
-        print("正在生成交易信号...")
+        if debug:
+            print("正在生成交易信号...")
         # 创建信号DataFrame
         self.signals = pd.DataFrame(index=self.data.index)
         self.signals['price'] = self.data['close']
@@ -116,66 +124,18 @@ class MACDStrategy:
         # 替换为
         self.signals.fillna({'position': 0}, inplace=True)
         
-        print("交易信号生成完成。")
+        if debug:
+            print("交易信号生成完成。")
         self.signals.to_csv('csv/macd.csv')
         return self.signals
-
-    def plot_results(self):
-        """绘制回测结果"""
-        if self.portfolio is None:
-            self.backtest()
-
-        # 创建图形和子图
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 15))
-
-        # 绘制价格和移动平均线
-        ax1.plot(self.data['close'], label='收盘价')
-        
-        # 标记买入和卖出信号
-        buy_signals = self.signals[self.signals['position'] == 1]
-        # 直接使用cross_down条件来标记卖出信号，确保与策略逻辑完全一致
-        sell_signals = self.signals[self.signals['position'] == -1]
-        ax1.scatter(buy_signals.index, buy_signals['price'], marker='^', color='g', label='买入信号')
-        ax1.scatter(sell_signals.index, sell_signals['price'], marker='v', color='r', label='卖出信号')
-
-        ax1.set_title(f'{self.stock_code} 价格与交易信号')
-        ax1.legend()
-
-        # 绘制MACD指标
-        ax2.plot(self.signals['dif'], label='DIF线')
-        ax2.plot(self.signals['dea'], label='DEA线')
-        ax2.bar(self.signals.index, self.signals['macd'], label='MACD柱', alpha=0.3)
-        ax2.axhline(y=0, color='k', linestyle='--', alpha=0.3)
-        ax2.scatter(buy_signals.index, [0]*len(buy_signals), marker='^', color='g')
-        ax2.scatter(sell_signals.index, [0]*len(sell_signals), marker='v', color='r')
-        ax2.set_title(f'{self.stock_code} MACD指标')
-        ax2.legend()
-
-        # 绘制总资产和累计收益率
-        ax3.plot(self.portfolio['total'], label='总资产')
-        ax3_twin = ax3.twinx()
-        ax3_twin.plot(self.portfolio['cum_return'] * 100, color='r', label='累计收益率(%)')
-
-        ax3.set_title('策略表现')
-        ax3.set_ylabel('总资产(元)')
-        ax3_twin.set_ylabel('累计收益率(%)')
-
-        # 合并图例
-        lines1, labels1 = ax3.get_legend_handles_labels()
-        lines2, labels2 = ax3_twin.get_legend_handles_labels()
-        ax3.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
-
-        plt.tight_layout()
-        plt.savefig(f'./picture/{self.stock_code}_macd_strategy_results.png')
-        print(f"回测结果图已保存为 {self.stock_code}_macd_strategy_results.png")
-        #plt.show()
 
     def backtest(self, initial_capital=100000):
         """回测策略"""
         if self.signals is None:
             self.generate_signals()
 
-        print("正在回测策略...")
+        if debug:
+            print("正在回测策略...")
         # 创建投资组合DataFrame
         self.portfolio = pd.DataFrame(index=self.signals.index)
         self.portfolio['price'] = self.signals['price']
@@ -228,11 +188,59 @@ class MACDStrategy:
         self.portfolio['return'] = self.portfolio['total'].pct_change()
         self.portfolio['cum_return'] = (1 + self.portfolio['return']).cumprod() - 1
 
-        print("回测完成。")
-        print(f"初始资金: {initial_capital} 元")
-        print(f"最终资金: {self.portfolio['total'].iloc[-1]:.2f} 元")
-        print(f"总收益率: {self.portfolio['cum_return'].iloc[-1] * 100:.2f}%")
+        print(f"回测完成, stock_code: {self.stock_code}, 初始资金: {initial_capital} 元, 最终资金: {self.portfolio['total'].iloc[-1]:.2f} 元,  总收益率: {self.portfolio['cum_return'].iloc[-1] * 100:.2f}%")
         return self.portfolio
+
+    def plot_results(self):
+        """绘制回测结果"""
+        if self.portfolio is None:
+            self.backtest()
+
+        # 创建图形和子图
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 15))
+
+        # 绘制价格和移动平均线
+        ax1.plot(self.data['close'], label='收盘价')
+        
+        # 标记买入和卖出信号
+        buy_signals = self.signals[self.signals['position'] == 1]
+        # 直接使用cross_down条件来标记卖出信号，确保与策略逻辑完全一致
+        sell_signals = self.signals[self.signals['position'] == -1]
+        ax1.scatter(buy_signals.index, buy_signals['price'], marker='^', color='g', label='买入信号')
+        ax1.scatter(sell_signals.index, sell_signals['price'], marker='v', color='r', label='卖出信号')
+
+        ax1.set_title(f'{self.stock_code} 价格与交易信号')
+        ax1.legend()
+
+        # 绘制MACD指标
+        ax2.plot(self.signals['dif'], label='DIF线')
+        ax2.plot(self.signals['dea'], label='DEA线')
+        ax2.bar(self.signals.index, self.signals['macd'], label='MACD柱', alpha=0.3)
+        ax2.axhline(y=0, color='k', linestyle='--', alpha=0.3)
+        ax2.scatter(buy_signals.index, [0]*len(buy_signals), marker='^', color='g')
+        ax2.scatter(sell_signals.index, [0]*len(sell_signals), marker='v', color='r')
+        ax2.set_title(f'{self.stock_code} MACD指标')
+        ax2.legend()
+
+        # 绘制总资产和累计收益率
+        ax3.plot(self.portfolio['total'], label='总资产')
+        ax3_twin = ax3.twinx()
+        ax3_twin.plot(self.portfolio['cum_return'] * 100, color='r', label='累计收益率(%)')
+
+        ax3.set_title('策略表现')
+        ax3.set_ylabel('总资产(元)')
+        ax3_twin.set_ylabel('累计收益率(%)')
+
+        # 合并图例
+        lines1, labels1 = ax3.get_legend_handles_labels()
+        lines2, labels2 = ax3_twin.get_legend_handles_labels()
+        ax3.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+
+        plt.tight_layout()
+        plt.savefig(f'./picture/{self.stock_code}_macd_strategy_results.png')
+        if debug:
+            print(f"回测结果图已保存为 {self.stock_code}_macd_strategy_results.png")
+        #plt.show()
 
     def run(self, initial_capital=100000):
         """运行完整策略"""
@@ -241,18 +249,55 @@ class MACDStrategy:
         self.backtest(initial_capital)
         self.plot_results()
 
-
-if __name__ == '__main__':
+def do_strategy(stock_date, stock_code):
     # 示例用法
-    stock_code = '300502'
-    start_date = '2025-04-21'
-    end_date = '2025-09-23'
+    #stock_code = '300502'
+    stock_code = stock_code
+    
+    # 计算start_date为stock_date的30天前
+    from datetime import datetime as dt, timedelta
+    end_date = stock_date
+    date_format = '%Y-%m-%d'
+    end_date_obj = dt.strptime(end_date, date_format)
+    start_date_obj = end_date_obj - timedelta(days=30)
+    start_date = start_date_obj.strftime(date_format)
+
     fast_period = 12  # MACD快线参数
     slow_period = 26  # MACD慢线参数
     signal_period = 9  # MACD信号线参数
     initial_capital = 100000
 
-    print(f"开始运行MACD量化交易策略 - 股票代码: {stock_code}")
+    if debug:
+            print(f"开始运行MACD量化交易策略 - 股票代码: {stock_code}")
     strategy = MACDStrategy(stock_code, start_date, end_date, fast_period, slow_period, signal_period)
     strategy.run(initial_capital)
-    print("策略运行完成。")
+    if debug:
+            print("策略运行完成。")
+
+def worker(name):
+    if debug:
+        my_dbg("Worker %s %s started" % (name[0], name[1]))
+        my_dbg(name)
+    
+    stock_date = name[0]
+    stock_code = name[1]
+    do_strategy(stock_date, stock_code)
+
+
+if __name__ == '__main__':
+
+
+    latest_df = hdata.get_latest_data_from_hdata()
+    #latest_df = latest_df.head(5)  #debug
+    data_list = np.array(latest_df)
+    data_list = data_list.tolist()
+
+    processes = multiprocessing.cpu_count()
+    number = len(latest_df)
+    mplist = []
+    with multiprocessing.Pool(processes) as pool:
+       mplist.append(
+           pool.map(worker, data_list))
+ 
+
+
