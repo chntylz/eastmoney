@@ -90,6 +90,7 @@ then
          && ~/eastmoney/shell/set_stock_generate_html.sh "
 
     python3 cross_conditions.py 0 >> $logfile 2>&1 \
+    && python3 calculate_all_stock_patterns.py >> $logfile 2>&1 \ 
     && python3 generate_html.py 0 >> $logfile 2>&1 \
     && ~/eastmoney/shell/set_stock_generate_html.sh
 else
@@ -99,6 +100,7 @@ else
     && ~/eastmoney/shell/set_stock_generate_html.sh "
 
     python3 cross_conditions.py 0 >> $logfile 2>&1 \
+    && python3 calculate_all_stock_patterns.py >> $logfile 2>&1 \ 
     && python3 generate_html.py 0 >> $logfile 2>&1 \
     && ~/eastmoney/shell/set_stock_generate_html.sh 
 fi

@@ -365,7 +365,7 @@ if __name__ == '__main__':
     else: 
         pe_first_df = pd.read_csv('./csv/pe.csv',encoding='gbk', dtype={'stock_code':str})
 
-    pe_zero_df = pe_first_df[pe_first_df['iwencai_pe'] == 0.0]
+    pe_zero_df = pe_first_df[(pe_first_df['iwencai_pe'] == 0.0) | (pe_first_df['iwencai_pe'] == 100.0)]
     pe_zero_df = pe_zero_df.reset_index(drop=True)
 
     pe_non_zero_df = pe_first_df[pe_first_df['iwencai_pe'] != 0.0]

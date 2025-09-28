@@ -231,6 +231,9 @@ def main():
 def output_results(results):
     df = pd.DataFrame()
     
+    pattern_cols = ['stock_code', 'stock_name', 'record_date', 'pat_func', \
+                   'pat_name', 'sig_value', 'pat_des'] 
+
     """输出结果到CSV文件和控制台"""
     # 准备输出数据
     output_data = []
@@ -263,6 +266,7 @@ def output_results(results):
     # 将结果保存到CSV文件
     if output_data:
         df = pd.DataFrame(output_data)
+        df.columns = pattern_cols
         tmp_date = datetime.datetime.now().date().strftime('%Y%m%d_%H%M%S')
         output_file = f"./csv/stock_patterns_{tmp_date}.csv"
         df.to_csv(output_file, index=False, encoding='utf-8-sig')
@@ -294,6 +298,8 @@ if __name__ == "__main__":
     check_table()
 
     pat_df = main()
+    #delete suspend item
+    pat_df = pat_df[pat_df['record_date'] == datetime.datetime.now().date().strftime("%Y-%m-%d")] 
     hdata_pat.delete_data_from_hdata(
             start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),  # 保持不变
             end_date=datetime.datetime.now().date().strftime("%Y-%m-%d")    # 保持不变
