@@ -1,30 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from file_interface import *
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+
 
 import random
+
 proxy_support = 1
 
 def get_browser(headless=False, proxy=None):
 
-    path_chromedriver='/usr/bin/chromedriver'
-    path_chromedriver='/snap/bin/chromium.chromedriver'
-    #path_chromedriver='/home/aaron/chrome/138.0.7204.168/driver/chromedriver-linux64/chromedriver'
+    # 配置 ChromeDriver 路径和 Chrome 浏览器路径
+    chrome_driver_path = "/home/aaron/eastmoney/chrome/chromedriver-linux64/chromedriver"  # 替换为你的驱动路径
+    chrome_binary_path = "/home/aaron/eastmoney/chrome/chrome-linux64/chrome"        # 替换为你的浏览器路径
+    service = Service(executable_path=chrome_driver_path)  # 指定驱动路径
+    
     browser = None
     
-    # 添加无头headlesss
-    chrome_options = webdriver.ChromeOptions()
+
+    
+    chrome_options = Options()
+    chrome_options.binary_location = chrome_binary_path  # 指定 Chrome 二进制路径
+
+
     chrome_options.add_argument(
             'user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'\
-            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36')
+            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.207 Safari/537.36')
      
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
      
@@ -33,7 +39,9 @@ def get_browser(headless=False, proxy=None):
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
      
     chrome_options.add_argument("--disable-extensions")
+    
     if headless is True:
+        # 添加无头headlesss
         chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-software-rasterizer")
@@ -71,21 +79,18 @@ def get_browser(headless=False, proxy=None):
     chrome_options.add_argument("--window-size=1920,1080")  # 最小推荐尺寸
 
     try:
-        browser = webdriver.Chrome(executable_path=path_chromedriver,
-            chrome_options=chrome_options)
+        browser = webdriver.Chrome(service=service, options=chrome_options)
     except:
         time.sleep(60)
         try:
-            browser = webdriver.Chrome(executable_path=path_chromedriver,
-                chrome_options=chrome_options)
+            browser = webdriver.Chrome(service=service, options=chrome_options)
         except:
             pass
     finally:
         if browser is None:
             try:
                 time.sleep(60)
-                browser = webdriver.Chrome(executable_path=path_chromedriver,
-                    chrome_options=chrome_options)
+                browser = webdriver.Chrome(service=service, options=chrome_options)
             except:
                 pass
 
