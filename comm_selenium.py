@@ -78,14 +78,14 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
     # 如果需要使用代理
     if proxy:
         # 从数据库读取代理并选择一个可用的
-        selected_proxy = get_random_valid_proxy_from_db()
-        
+        #selected_proxy = get_random_valid_proxy_from_db()
+        selected_proxy = None
+
         # 如果没有找到可用代理，从预设代理列表中随机选择一个
         if not selected_proxy:
             print("没有找到可用的数据库代理，从预设代理列表中随机选择")
             # 定义预设代理列表
-            #proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "localhost"]
-            proxy_list = ["101.43.29.22:3128", "localhost"]
+            proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "localhost"]
             # 随机选择一个代理
             selected_proxy = random.choice(proxy_list)
         
@@ -135,45 +135,63 @@ def get_random_valid_proxy_from_db():
         str: 格式为 "ip:port" 的代理地址，如果没有可用代理则返回None
     """
     try:
-        # 连接数据库（使用用户指定的localhost连接信息）
-        connection = psycopg2.connect(
-            host="localhost",   # 数据库主机
-            port="5432",
-            database="usr",
-            user="usr",
-            password="usr"
-        )
+        # 尝试连接数据库（使用用户指定的localhost连接信息）
+        try:
+            connection = psycopg2.connect(
+                host="localhost",   # 数据库主机
+                port="5432",
+                database="usr",
+                user="usr",
+                password="usr"
+            )
+        except psycopg2.OperationalError as db_error:
+            print(f"数据库连接失败: {db_error}")
+            print("注意：数据库似乎不可用，请检查数据库服务是否运行或已创建")
+            return None
         
         cursor = connection.cursor()
         
-        # 从ip_proxy表中读取所有ip和port
-        cursor.execute("SELECT ip, port FROM ip_proxy")
-        proxies = cursor.fetchall()
-        
-        print(f"从数据库读取到 {len(proxies)} 个代理")
-        
-        # 随机打乱代理列表
-        random.shuffle(proxies)
-        
-        # 随机遍历代理，找到第一个可用的代理就返回
-        for ip, port in proxies:
-            proxy = f"{ip}:{port}"
-            if check_proxy(proxy):
-                # 找到可用代理，关闭数据库连接并返回
+        # 检查ip_proxy表是否存在
+        try:
+            cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'ip_proxy'")
+            table_exists = cursor.fetchone()[0] > 0
+            
+            if not table_exists:
+                print("错误：ip_proxy表不存在")
                 cursor.close()
                 connection.close()
-                return proxy
-            else:
-                # 如果代理不可用，从数据库中删除
-                try:
-                    cursor.execute(
-                        "DELETE FROM ip_proxy WHERE ip = %s AND port = %s",
-                        (ip, port)
-                    )
-                    connection.commit()
-                    print(f"已从数据库删除不可用的代理: {proxy}")
-                except (Exception, psycopg2.Error) as error:
-                    print(f"从数据库删除代理时出错: {error}")
+                return None
+            
+            # 从ip_proxy表中读取所有ip和port
+            cursor.execute("SELECT ip, port FROM ip_proxy")
+            proxies = cursor.fetchall()
+            
+            print(f"从数据库读取到 {len(proxies)} 个代理")
+            
+            # 随机打乱代理列表
+            random.shuffle(proxies)
+            
+            # 随机遍历代理，找到第一个可用的代理就返回
+            for ip, port in proxies:
+                proxy = f"{ip}:{port}"
+                if check_proxy(proxy):
+                    # 找到可用代理，关闭数据库连接并返回
+                    cursor.close()
+                    connection.close()
+                    return proxy
+                else:
+                    # 如果代理不可用，从数据库中删除
+                    try:
+                        cursor.execute(
+                            "DELETE FROM ip_proxy WHERE ip = %s AND port = %s",
+                            (ip, port)
+                        )
+                        connection.commit()
+                        print(f"已从数据库删除不可用的代理: {proxy}")
+                    except (Exception, psycopg2.Error) as error:
+                        print(f"从数据库删除代理时出错: {error}")
+        except (Exception, psycopg2.Error) as error:
+            print(f"查询数据库时出错: {error}")
         
     except (Exception, psycopg2.Error) as error:
         print(f"从数据库读取代理时出错: {error}")

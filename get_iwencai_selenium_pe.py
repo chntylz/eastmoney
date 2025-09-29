@@ -375,6 +375,8 @@ if __name__ == '__main__':
     pe_second_df = do_scrapy_pe(pe_zero_df, pe_file)
 
     pe_df = pd.concat([pe_first_df, pe_second_df])
+
+    pe_df  = pe_df.drop_duplicates(subset=['stock_code', 'record_date'], keep='first')
     pe_df = pe_df.reset_index(drop=True)
 
     if len(pe_df) > 4000:

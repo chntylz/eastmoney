@@ -271,14 +271,19 @@ def get_daily_zlje_final(url=None, pn=None):
 
 def get_daily_zlje2(url=None):
   
-    data_df = pd.DataFrame()
+    data_df = data_df_tmp = pd.DataFrame()
     
     pn = 1
     while True:
         try:
-            data_df_tmp = get_daily_zlje_final(url, pn)
-            if len(data_df_tmp) == 0:
+            for _ in range(3):
+                data_df_tmp = get_daily_zlje_final(url, pn)
+                if not data_df_tmp.empty:  # 或 len(data_df_tmp) != 0
+                    break
+                time.sleep(1)
+            else:
                 break
+
             data_df = pd.concat([data_df, data_df_tmp])
             pn = pn + 1
         except Exception as e:
