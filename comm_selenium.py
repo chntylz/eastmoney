@@ -87,7 +87,7 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
         
         # 设置代理
         print(f"使用代理: {selected_proxy}")
-        chrome_options.add_argument(f'--proxy-server={selected_proxy}')
+        #chrome_options.add_argument(f'--proxy-server={selected_proxy}')
     else:
         print(f"localhost proxy is used")
         pass
@@ -117,20 +117,16 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
     wait = WebDriverWait(browser, 10)
     with open('./stealth.min.js') as f:
         js = f.read()
-    browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source": js
-        })
+        browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", { "source": js })
         
     return browser
 
 def get_random_valid_proxy_from_db():
-    """从数据库读取代理，检查可用性，并随机返回一个可用代理
+    """从数据库读取代理，随机遍历代理，找到第一个可用的代理就返回
     
     返回:
         str: 格式为 "ip:port" 的代理地址，如果没有可用代理则返回None
     """
-    available_proxies = []
-    
     try:
         # 连接数据库（使用用户指定的localhost连接信息）
         connection = psycopg2.connect(
@@ -149,11 +145,17 @@ def get_random_valid_proxy_from_db():
         
         print(f"从数据库读取到 {len(proxies)} 个代理")
         
-        # 检查每个代理的可用性
+        # 随机打乱代理列表
+        random.shuffle(proxies)
+        
+        # 随机遍历代理，找到第一个可用的代理就返回
         for ip, port in proxies:
             proxy = f"{ip}:{port}"
             if check_proxy(proxy):
-                available_proxies.append(proxy)
+                # 找到可用代理，关闭数据库连接并返回
+                cursor.close()
+                connection.close()
+                return proxy
             else:
                 # 如果代理不可用，从数据库中删除
                 try:
@@ -172,11 +174,9 @@ def get_random_valid_proxy_from_db():
     finally:
         # 关闭数据库连接
         if 'connection' in locals() and connection:
-            cursor.close()
+            if 'cursor' in locals() and cursor:
+                cursor.close()
             connection.close()
     
-    # 如果有可用代理，随机选择一个
-    if available_proxies:
-        return random.choice(available_proxies)
-    else:
-        return None
+    # 如果没有找到可用代理，返回None
+    return None
