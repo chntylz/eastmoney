@@ -3,18 +3,45 @@
 
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
-
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-
-
-
 import random
+import time  # 添加time模块导入
+import psycopg2  # 添加psycopg2模块导入
+import requests
+from requests.exceptions import ConnectionError, RequestException, Timeout
 
 proxy_support = 1
 
-def get_browser(headless=False, proxy=None):
+def check_proxy(proxy, timeout=5):
+    """检查代理IP是否可用
+    
+    参数:
+        proxy (str): 格式为 "ip:port" 的代理地址
+        timeout (int): 请求超时时间（秒）
+    
+    返回:
+        bool: 代理可用返回True，否则返回False
+    """
+    test_url = 'http://www.baidu.com'  # 用百度作为测试网站
+    proxies = {
+        'http': f'http://{proxy}',
+        'https': f'http://{proxy}'
+    }
+    
+    try:
+        response = requests.get(test_url, proxies=proxies, timeout=timeout)
+        if response.status_code == 200:
+            print(f"代理 {proxy} 可用")
+            return True
+        else:
+            print(f"代理 {proxy} 不可用，状态码: {response.status_code}")
+            return False
+    except (ConnectionError, RequestException, Timeout) as e:
+        print(f"代理 {proxy} 不可用，错误: {e.__class__.__name__}")
+        return False
 
+def get_browser(headless=False, proxy=None, window_on_top=False):
     # 配置 ChromeDriver 路径和 Chrome 浏览器路径
     chrome_driver_path = "/home/aaron/eastmoney/chrome/chromedriver-linux64/chromedriver"  # 替换为你的驱动路径
     chrome_binary_path = "/home/aaron/eastmoney/chrome/chrome-linux64/chrome"        # 替换为你的浏览器路径
@@ -22,22 +49,18 @@ def get_browser(headless=False, proxy=None):
     
     browser = None
     
-
-    
     chrome_options = Options()
     chrome_options.binary_location = chrome_binary_path  # 指定 Chrome 二进制路径
 
-
     chrome_options.add_argument(
-            'user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'\
+            'user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
             'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.207 Safari/537.36')
-     
+    
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-     
     
     chrome_options.add_argument("disable-infobars");
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-     
+    
     chrome_options.add_argument("--disable-extensions")
     
     if headless is True:
@@ -48,32 +71,25 @@ def get_browser(headless=False, proxy=None):
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
     #chrome_options.add_argument("blink-settings=imagesEnabled=false")  #image disable
-     
+    
     #chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--disk-cache-dir=/dev/shm  --disk-cache-size=4096000000')
 
-    # 生成0或1
-    random_number = 0
-    if proxy_support :
-        random_number = random.randint(0, 2)
-        #print(f"selenium proxy: {random_number}")
-    
-    #random_number = 0
-
-    if proxy :
-        if random_number == 1:
-            chrome_options.add_argument('--proxy-server=101.43.29.22:3128')
-            print(f"tencent proxy is used")
-        elif random_number == 2:
-            chrome_options.add_argument('--proxy-server=142.171.166.165:3128')
-            print(f"nerdrank proxy is used")
-        else:
-            print(f"localhost proxy is used")
-            pass
-
-        #chrome_options.add_argument('--proxy-server=http://147.75.34.86:9401')
-        #chrome_options.add_argument('--proxy-server=socks5://220.167.89.46:1080')
+    # 如果需要使用代理
+    if proxy:
+        # 从数据库读取代理并选择一个可用的
+        selected_proxy = get_random_valid_proxy_from_db()
+        
+        # 如果没有找到可用代理，使用默认代理
+        if not selected_proxy:
+            print("没有找到可用的代理，使用默认代理")
+            selected_proxy = "142.171.166.165:3128"
+        
+        # 设置代理
+        print(f"使用代理: {selected_proxy}")
+        chrome_options.add_argument(f'--proxy-server={selected_proxy}')
     else:
+        print(f"localhost proxy is used")
         pass
 
     chrome_options.add_argument("--window-size=1920,1080")  # 最小推荐尺寸
@@ -94,7 +110,10 @@ def get_browser(headless=False, proxy=None):
             except:
                 pass
 
-    browser.maximize_window()  # 最大化窗口
+    # 只在window_on_top为True时最大化窗口
+    if window_on_top:
+        browser.maximize_window()  # 最大化窗口
+    
     wait = WebDriverWait(browser, 10)
     with open('./stealth.min.js') as f:
         js = f.read()
@@ -103,37 +122,61 @@ def get_browser(headless=False, proxy=None):
         })
         
     return browser
-    
-    
 
-'''
-options.add_argument(‘headless’) # 无头模式
-options.add_argument(‘window-size={}x{}’.format(width, height)) # 直接配置大小和set_window_size一样
-options.add_argument(‘disable-gpu’) # 禁用GPU加速
-options.add_argument(‘proxy-server={}’.format(self.proxy_server)) # 配置代理
-options.add_argument(’–no-sandbox’) # 沙盒模式运行
-options.add_argument(’–disable-setuid-sandbox’) # 禁用沙盒
-options.add_argument(’–disable-dev-shm-usage’) # 大量渲染时候写入/tmp而非/dev/shm
-options.add_argument(’–user-data-dir={profile_path}’.format(profile_path)) # 用户数据存入指定文件
-options.add_argument('no-default-browser-check) # 不做浏览器默认检查
-options.add_argument("–disable-popup-blocking") # 允许弹窗
-options.add_argument("–disable-extensions") # 禁用扩展
-options.add_argument("–ignore-certificate-errors") # 忽略不信任证书
-options.add_argument("–no-first-run") # 初始化时为空白页面
-options.add_argument(’–start-maximized’) # 最大化启动
-options.add_argument(’–disable-notifications’) # 禁用通知警告
-options.add_argument(’–enable-automation’) # 通知(通知用户其浏览器正由自动化测试控制)
-options.add_argument(’–disable-xss-auditor’) # 禁止xss防护
-options.add_argument(’–disable-web-security’) # 关闭安全策略
-options.add_argument(’–allow-running-insecure-content’) # 允许运行不安全的内容
-options.add_argument(’–disable-webgl’) # 禁用webgl
-options.add_argument(’–homedir={}’) # 指定主目录存放位置
-options.add_argument(’–disk-cache-dir={临时文件目录}’) # 指定临时文件目录
-options.add_argument(‘disable-cache’) # 禁用缓存
-options.add_argument(‘excludeSwitches’, [‘enable-automation’]) # 开发者模式
-————————————————
-
-                            版权声明：本文为博主原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接和本声明。
-                        
-原文链接：https://blog.csdn.net/weixin_44929594/article/details/122513925
-'''
+def get_random_valid_proxy_from_db():
+    """从数据库读取代理，检查可用性，并随机返回一个可用代理
+    
+    返回:
+        str: 格式为 "ip:port" 的代理地址，如果没有可用代理则返回None
+    """
+    available_proxies = []
+    
+    try:
+        # 连接数据库（使用用户指定的localhost连接信息）
+        connection = psycopg2.connect(
+            host="localhost",   # 数据库主机
+            port="5432",
+            database="usr",
+            user="usr",
+            password="usr"
+        )
+        
+        cursor = connection.cursor()
+        
+        # 从ip_proxy表中读取所有ip和port
+        cursor.execute("SELECT ip, port FROM ip_proxy")
+        proxies = cursor.fetchall()
+        
+        print(f"从数据库读取到 {len(proxies)} 个代理")
+        
+        # 检查每个代理的可用性
+        for ip, port in proxies:
+            proxy = f"{ip}:{port}"
+            if check_proxy(proxy):
+                available_proxies.append(proxy)
+            else:
+                # 如果代理不可用，从数据库中删除
+                try:
+                    cursor.execute(
+                        "DELETE FROM ip_proxy WHERE ip = %s AND port = %s",
+                        (ip, port)
+                    )
+                    connection.commit()
+                    print(f"已从数据库删除不可用的代理: {proxy}")
+                except (Exception, psycopg2.Error) as error:
+                    print(f"从数据库删除代理时出错: {error}")
+        
+    except (Exception, psycopg2.Error) as error:
+        print(f"从数据库读取代理时出错: {error}")
+    
+    finally:
+        # 关闭数据库连接
+        if 'connection' in locals() and connection:
+            cursor.close()
+            connection.close()
+    
+    # 如果有可用代理，随机选择一个
+    if available_proxies:
+        return random.choice(available_proxies)
+    else:
+        return None

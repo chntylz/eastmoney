@@ -1,15 +1,15 @@
-import os
-import re
 import time
+import os  # 添加os模块导入
+import re  # 添加re模块导入
 import pandas as pd
 import requests
 import concurrent.futures
+import psycopg2  # 添加psycopg2模块导入
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from comm_selenium import get_browser
 from requests.exceptions import ConnectionError, RequestException, Timeout
-
 
 # ==================================================================== #
 
@@ -180,10 +180,145 @@ def check_proxies(proxy_list, max_workers=10):
     print(f"\n检查完成，共找到 {len(valid_proxies)} 个可用代理")
     return valid_proxies
 
+# 添加检查代理并在不可用时从数据库删除的函数
+def check_and_remove_invalid_proxy(ip, port):
+    """检查代理是否可用，如果不可用则从数据库中删除
+    
+    参数:
+        ip (str): 代理IP地址
+        port (str): 代理端口
+    
+    返回:
+        bool: 代理可用返回True，不可用返回False
+    """
+    # 构造代理字符串
+    proxy = f"{ip}:{port}"
+    
+    # 使用现有的check_proxy函数检查代理是否可用
+    is_valid = check_proxy(proxy)
+    
+    # 如果代理不可用，从数据库中删除
+    if not is_valid:
+        try:
+            # 数据库连接信息
+            connection = psycopg2.connect(
+                host="116.233.46.147",   # 数据库主机
+                port="5432",
+                database="usr",
+                user="usr",
+                password="usr"
+            )
+            
+            cursor = connection.cursor()
+            
+            # 删除不可用的代理
+            cursor.execute(
+                "DELETE FROM ip_proxy WHERE ip = %s AND port = %s",
+                (ip, port)
+            )
+            
+            connection.commit()
+            print(f"已从数据库删除不可用的代理: {proxy}")
+            
+        except (Exception, psycopg2.Error) as error:
+            print(f"从数据库删除代理时出错: {error}")
+        
+        finally:
+            # 关闭数据库连接
+            if connection:
+                cursor.close()
+                connection.close()
+    
+    return is_valid
+
+# 添加保存代理到数据库的函数
+def save_proxies_to_db(valid_proxies):
+    """将有效代理保存到PostgreSQL数据库
+    
+    参数:
+        valid_proxies (list): 有效代理列表，每个元素格式为 "ip:port"
+    """
+    try:
+        # 数据库连接信息
+        connection = psycopg2.connect(
+            host="116.233.46.147",   # 如 '123.45.67.89'
+            port="5432",
+            database="usr",
+            user="usr",
+            password="usr"
+        )
+        
+        cursor = connection.cursor()
+        
+        # 检查ip_proxy表是否存在，如果不存在则创建
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT 1 
+                FROM information_schema.tables 
+                WHERE table_name = 'ip_proxy'
+            )
+        """)
+        table_exists = cursor.fetchone()[0]
+        
+        if not table_exists:
+            print("创建ip_proxy表...")
+            # 创建ip_proxy表，包含ip和port字段
+            cursor.execute("""
+                CREATE TABLE ip_proxy (
+                    ip VARCHAR(50) NOT NULL,
+                    port VARCHAR(10) NOT NULL,
+                    PRIMARY KEY (ip, port)
+                )
+            """)
+            connection.commit()
+            print("ip_proxy表创建成功")
+        
+        # 清空表中现有数据
+        cursor.execute("DELETE FROM ip_proxy")
+        
+        # 插入新的代理数据
+        print(f"正在将 {len(valid_proxies)} 个有效代理插入数据库...")
+        for proxy in valid_proxies:
+            # 分割ip和port
+            ip, port = proxy.split(':')
+            # 使用参数化查询避免SQL注入
+            cursor.execute(
+                "INSERT INTO ip_proxy (ip, port) VALUES (%s, %s)",
+                (ip, port)
+            )
+        
+        # 提交事务
+        connection.commit()
+        print(f"已成功将 {len(valid_proxies)} 个有效代理保存到数据库")
+        
+    except (Exception, psycopg2.Error) as error:
+        print(f"数据库操作失败: {error}")
+    
+    finally:
+        # 关闭数据库连接
+        if connection:
+            cursor.close()
+            connection.close()
+            print("数据库连接已关闭")
+
 def main():
     html = get_index(xpp, xf1, xf2, xf4, xf5)
+    if not html:
+        print('未能获取到页面内容，程序终止。')
+        return
+    
     infos = get_proxy_info(html)
+    
+    if not infos:
+        print('未能提取到代理信息，程序终止。')
+        return
+    
     parse_proxy_info(html, infos)
+    
+    if not unchecked:
+        print('未能解析到任何代理，程序终止。')
+        return
+    
     with open(file_path_unchecked,'a+') as f:
         f.write(time.strftime(">>>%Y-%m-%d %H:%M:%S", time.localtime()) + '\n')
         for proxy in unchecked:
@@ -191,7 +326,8 @@ def main():
     print('Save to {}.'.format(file_path_unchecked))
     
     # 检查代理可用性
-    check_proxies_option = input("是否检查代理可用性？(y/n): ").strip().lower()
+    #check_proxies_option = input("是否检查代理可用性？(y/n): ").strip().lower()
+    check_proxies_option = 'y'
     if check_proxies_option == 'y':
         # 检查代理可用性
         valid_proxies = check_proxies(unchecked)
@@ -202,6 +338,9 @@ def main():
             with open(valid_file, 'w', encoding='utf-8') as f:
                 f.write('\n'.join(valid_proxies))
             print(f"已将 {len(valid_proxies)} 个可用代理保存到 {valid_file}")
+            
+            # 将有效代理保存到数据库
+            save_proxies_to_db(valid_proxies)
             
             # 计算可用率
             valid_rate = len(valid_proxies) / len(unchecked) * 100 if unchecked else 0

@@ -8,6 +8,7 @@ from comm_selenium import *
 from PIL import Image, ImageChops
 from numpy import array
 from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait as Wait
@@ -15,6 +16,7 @@ from selenium.webdriver.support import expected_conditions as Expect
 import requests, io, re
 import easing
 import time
+from file_interface import my_dbg
 
 '''
 https://www.aneasystone.com/archives/2018/03/python-selenium-geetest-crack.html
