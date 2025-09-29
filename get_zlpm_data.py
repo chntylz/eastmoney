@@ -34,6 +34,7 @@ https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery1123022981019595514018_162
 
 debug=1
 debug=0
+debug=1
 
 import random
 def get_headers():
@@ -173,6 +174,7 @@ def get_zlpm_data2_final(pn=None):
         browser.implicitly_wait(10)
         html = browser.page_source
     except:
+        my_dbg(f"error: get_zlpm_data2_final pn:{pn}")
         browser.close()
         browser.quit()
     finally:
@@ -219,6 +221,7 @@ def get_zlpm_data2_final(pn=None):
 
 def get_zlpm_data2():
     
+    my_dbg(f"get_zlpm_data2()")
     data_df = pd.DataFrame()
     api_param=''
     pn = 1
@@ -226,10 +229,12 @@ def get_zlpm_data2():
         try:
             data_df_tmp, api_param = get_zlpm_data2_final(pn)
             if len(data_df_tmp) == 0:
+                my_dbg(f"pn:{pn}, len(data_df_tmp): f{len(data_df_tmp)}")
                 break
             data_df = pd.concat([data_df, data_df_tmp])
             pn = pn + 1
         except Exception as e:
+            my_dbg(f"error{e}")
             break
 
     data_df = data_df.drop_duplicates(subset=['stock_code'], keep='first')
