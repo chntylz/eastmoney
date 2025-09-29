@@ -12,7 +12,7 @@ cgitb.enable()
 # 数据库配置（需修改为实际值）
 
 DB_CONFIG = {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "database": "usr",
     "user": "usr",
     "password": "usr",

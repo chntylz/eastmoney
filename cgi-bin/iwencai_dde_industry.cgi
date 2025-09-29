@@ -15,7 +15,7 @@ cgitb.enable()
 
 # 数据库配置
 DB_CONFIG = {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "database": "usr",
     "user": "usr",
     "password": "usr",

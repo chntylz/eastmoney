@@ -85,16 +85,16 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
         if not selected_proxy:
             print("没有找到可用的数据库代理，从预设代理列表中随机选择")
             # 定义预设代理列表
-            proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "localhost"]
+            proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "127.0.0.1"]
             # 随机选择一个代理
             selected_proxy = random.choice(proxy_list)
         
         # 设置代理
         print(f"使用代理: {selected_proxy}")
-        if selected_proxy != "localhost":
+        if selected_proxy != "127.0.0.1":
             chrome_options.add_argument(f'--proxy-server={selected_proxy}')
         else:
-            print("使用localhost，不设置代理服务器参数")
+            print("使用127.0.0.1，不设置代理服务器参数")
     else:
         print(f"不使用代理")
         pass
@@ -138,7 +138,7 @@ def get_random_valid_proxy_from_db():
         # 尝试连接数据库（使用用户指定的localhost连接信息）
         try:
             connection = psycopg2.connect(
-                host="localhost",   # 数据库主机
+                host="127.0.0.1",   # 数据库主机
                 port="5432",
                 database="usr",
                 user="usr",
