@@ -166,7 +166,7 @@ def get_zlpm_data2_final(pn=None):
 
     my_dbg(url)
 
-    browser = get_browser()
+    browser = get_browser(headless=True, proxy=True)
    
     html = ''
     try: 

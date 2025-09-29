@@ -80,16 +80,23 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
         # 从数据库读取代理并选择一个可用的
         selected_proxy = get_random_valid_proxy_from_db()
         
-        # 如果没有找到可用代理，使用默认代理
+        # 如果没有找到可用代理，从预设代理列表中随机选择一个
         if not selected_proxy:
-            print("没有找到可用的代理，使用默认代理")
-            selected_proxy = "142.171.166.165:3128"
+            print("没有找到可用的数据库代理，从预设代理列表中随机选择")
+            # 定义预设代理列表
+            #proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "localhost"]
+            proxy_list = ["101.43.29.22:3128", "localhost"]
+            # 随机选择一个代理
+            selected_proxy = random.choice(proxy_list)
         
         # 设置代理
         print(f"使用代理: {selected_proxy}")
-        #chrome_options.add_argument(f'--proxy-server={selected_proxy}')
+        if selected_proxy != "localhost":
+            chrome_options.add_argument(f'--proxy-server={selected_proxy}')
+        else:
+            print("使用localhost，不设置代理服务器参数")
     else:
-        print(f"localhost proxy is used")
+        print(f"不使用代理")
         pass
 
     chrome_options.add_argument("--window-size=1920,1080")  # 最小推荐尺寸

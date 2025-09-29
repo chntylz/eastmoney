@@ -240,7 +240,7 @@ def get_daily_zlje_final(url=None, pn=None):
 
     my_dbg(url)
 
-    browser = get_browser(headless=True, proxy=False)
+    browser = get_browser(headless=True, proxy=True)
    
     html = ''
     try: 
