@@ -288,16 +288,18 @@ def get_realtime_data2_final_old(page_number):
             + 'f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_='\
             + timestamp
 
-    my_dbg("get_realtime_data2_final_old() url=%s" % url)
+    my_dbg(f"get_realtime_data2_final_old() page_number:{page_number}  url={url}")
 
-    browser = get_browser()
+    browser = get_browser(headless=True, proxy=True)
 
     html = ''
     try:
         browser.get(url)
         browser.implicitly_wait(10)
+
         html = browser.page_source
     except:
+
         browser.close()
         browser.quit()
     finally:
