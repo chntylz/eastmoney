@@ -89,20 +89,20 @@ then
          && python3 generate_html_14_30.py 0 >> $logfile 2>&1 \
          && ~/eastmoney/shell/set_stock_generate_html.sh "
 
-    python3 cross_conditions.py 0 >> $logfile 2>&1 \
-    && python3 calculate_all_stock_patterns.py >> $logfile 2>&1 \ 
-    && python3 generate_html.py 0 >> $logfile 2>&1 \
-    && ~/eastmoney/shell/set_stock_generate_html.sh
+    python3 cross_conditions.py 0 >> $logfile 2>&1  
+    python3 calculate_all_stock_patterns.py >> $logfile 2>&1 
+    python3 generate_html.py 0 >> $logfile 2>&1  
+    ~/eastmoney/shell/set_stock_generate_html.sh
 else
     log "hour >=15 is $hh"
     log "python3 cross_conditions.py 0 >> $logfile 2>&1 \
     && python3 generate_html.py 0 >> $logfile 2>&1 \
     && ~/eastmoney/shell/set_stock_generate_html.sh "
 
-    python3 cross_conditions.py 0 >> $logfile 2>&1 \
-    && python3 calculate_all_stock_patterns.py >> $logfile 2>&1 \ 
-    && python3 generate_html.py 0 >> $logfile 2>&1 \
-    && ~/eastmoney/shell/set_stock_generate_html.sh 
+    python3 cross_conditions.py 0 >> $logfile 2>&1 
+    python3 calculate_all_stock_patterns.py >> $logfile 2>&1  
+    python3 generate_html.py 0 >> $logfile 2>&1 
+    ~/eastmoney/shell/set_stock_generate_html.sh 
 fi
 
 #login auto
