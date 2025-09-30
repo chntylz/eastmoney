@@ -365,34 +365,60 @@ def get_realtime_data2_final_old(page_number):
 
 
 
-
-
-
 def get_realtime_data2():
-    
-    data_df = work_df = stop_df  = pd.DataFrame()
-    api_param  = ''
-
+    data_df = work_df = stop_df = pd.DataFrame()
+    api_param = ''
     pn = 1
-    while True:
-        try:
-            data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final_old(pn)
-            #data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final(pn)
-            if len(data_df_tmp) == 0:
-                my_dbg(f" get_realtime_data2() finished,  pn:{pn}")
-                break
-            data_df = pd.concat([data_df, data_df_tmp])
-            work_df = pd.concat([work_df, work_df_tmp])
-            pn = pn + 1
-        except Exception as e:
-            my_dbg(f" get_realtime_data2() error,  pn:{pn}, error:{e}")
-            break
+    max_retries = 3  # 最大重试次数
 
-    data_df = data_df.drop_duplicates(subset=['stock_code'], keep='first')
-    data_df = data_df.reset_index(drop=True)
-    work_df = work_df.drop_duplicates(subset=['stock_code'], keep='first')
-    work_df = work_df.reset_index(drop=True)
+    while True:
+        retry_count = 0
+        data_df_tmp = work_df_tmp = stop_df_tmp = api_param_tmp = None
+
+        # 对当前 pn 进行最多 max_retries 次重试
+        while retry_count < max_retries:
+            try:
+                data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final_old(pn)
+                # data_df_tmp, work_df_tmp, stop_df_tmp, api_param_tmp = get_realtime_data2_final(pn)
+
+                if len(data_df_tmp) > 0:
+                    # 成功获取非空数据，跳出重试循环
+                    break  # 跳出 while retry_count 循环
+                else:
+                    my_dbg(f"pn={pn}, 第 {retry_count + 1} 次请求返回空数据，正在重试...")
+                    retry_count += 1
+                    time.sleep(1)  # 可选：避免频繁请求
+
+            except Exception as e:
+                my_dbg(f"pn={pn}, 第 {retry_count + 1} 次请求异常: {e}")
+                retry_count += 1
+                time.sleep(1)
+
+        # =============================
+        # 处理重试结果
+        # =============================
+
+        # 如果重试了 max_retries 次仍无有效数据
+        if retry_count >= max_retries or len(data_df_tmp) == 0:
+            my_dbg(f"❌ 达到最大重试次数或始终无数据，结束采集。pn={pn}")
+            break  # 跳出主循环
+
+        # 否则：成功获取数据，合并并继续下一页
+        data_df = pd.concat([data_df, data_df_tmp], ignore_index=True)
+        work_df = pd.concat([work_df, work_df_tmp], ignore_index=True)
+        # 注意：stop_df 和 api_param 在原逻辑中未更新，保持为空和空字符串
+
+        pn += 1  # 进入下一页
+
+    # 去重并重置索引
+    if not data_df.empty:
+        data_df = data_df.drop_duplicates(subset=['stock_code'], keep='first').reset_index(drop=True)
+    if not work_df.empty:
+        work_df = work_df.drop_duplicates(subset=['stock_code'], keep='first').reset_index(drop=True)
+
     return data_df, work_df, stop_df, api_param
+
+
 
 
 def get_realtime_data3():
