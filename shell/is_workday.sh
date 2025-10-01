@@ -52,7 +52,7 @@ is_work_day(){
     '20250101','20250128','20250129','20250130','20250131',
     '20250203','20250204','20250404',
     '20250501','20250502','20250505',
-    '20251001','20251002','20251003','20241006','20241007','20241008',
+    '20251001','20251002','20251003','20251006','20251007','20251008',
     '20250602')
 
     echo "call is_work_day()"
@@ -60,12 +60,16 @@ is_work_day(){
     local cur_day=$1
     echo $cur_day
     #check valid day
-    if [[ ("${arr[*]}" == *"$cur_day"*) ]]; then
-        #holiday
-        return $?
+    if [[ "${arr[*]}" == *"$cur_day"* ]]; then
+        #holiday - 返回0表示是假期
+        echo "holiday: $cur_day"
+        log "holiday: $cur_day"
+        return 0
     else
-        #work day
-        return $?
+        #work day - 返回1表示是工作日
+        echo "work day: $cur_day"
+        log "work day: $cur_day"
+        return 1
     fi
 }
 

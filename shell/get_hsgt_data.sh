@@ -45,6 +45,16 @@ log "source ~/eastmoney/shell/is_workday.sh"
 source ~/eastmoney/shell/is_workday.sh
 
 input=0
+# 添加完整的假期判断逻辑
+sub_str=`date +"%Y%m%d"`
+log "today is $sub_str" >> $logfile
+judge=$(is_work_day $sub_str)
+if [[ $judge == 0 ]] ; then
+    log "holiday, return"
+    exit
+else
+    log "work day, continue"
+fi
 
 #start
 file_array=(

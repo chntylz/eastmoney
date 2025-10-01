@@ -40,8 +40,8 @@ log() {
 log "*********************** begin ********************************"
 
 #check holiday
-log "source ~/linux_server_conf/set_stock_workday.sh"
-source ~/linux_server_conf/set_stock_workday.sh
+log "source ~/eastmoney/shell/is_workday.sh"
+source ~/eastmoney/shell/is_workday.sh
 
 input=1
 sub_str=`date -d "$input day ago" +"%Y%m%d"`

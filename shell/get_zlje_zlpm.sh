@@ -47,9 +47,9 @@ input=1
 sub_str=`date -d "$input day ago" +"%Y%m%d"`
 sub_str=`date +"%Y%m%d"`
 log "today is $sub_str" >> $logfile
-echo "today is $sub_str" >> $logfile
-is_work_day $sub_str
-if [[ $? == 0 ]] ; then
+# echo "today is $sub_str" >> $logfile  # 删除重复的日志记录
+judge=$(is_work_day $sub_str)
+if [[ $judge == 0 ]] ; then
     echo "holiday, return"
     log "holiday, return"
     exit
