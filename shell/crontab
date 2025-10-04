@@ -38,6 +38,8 @@ DISPLAY=:0
 
 */30  1    * * *   root /home/aaron/linux_server_conf/iptables_aaron.sh 
 
+1  1    * * *      aaron /home/aaron/eastmoney/shell/cleanup_old_files.sh
+
 #1  *    * * *   root /home/aaron/linux_server_conf/SendWANIP.sh > /tmp/sendip.log 
 
 #cloudflare 
@@ -54,14 +56,18 @@ DISPLAY=:0
 1 7      * * 1-5    aaron /home/aaron/eastmoney/shell/get_holder_data.sh
 
 #database backup
-1 2      * * 6     aaron /home/aaron/linux_server_conf/set_postgresql_backup.sh 
+1 8      * * *     aaron /home/aaron/linux_server_conf/set_postgresql_backup.sh 
 
 #fina 
 #5 6      * * 6     aaron /home/aaron/eastmoney/shell/get_jijin_fina_balance_income_cashflow.sh
 #5 6      * * 6     aaron /home/aaron/eastmoney/shell/sina_get_jijin_fina_balance_income_cashflow.sh
 
-15 21     * * 5     aaron /home/aaron/eastmoney/shell/get_jijin_fina_balance_income_cashflow.sh
-15 21     * * 5     aaron /home/aaron/eastmoney/shell/sina_get_jijin_fina_balance_income_cashflow.sh
+#tmp
+#15 17     * * *     aaron /home/aaron/eastmoney/shell/get_jijin_fina_balance_income_cashflow.sh
+#15 17     * * *     aaron /home/aaron/eastmoney/shell/sina_get_jijin_fina_balance_income_cashflow.sh
+
+#15 21     * * 5     aaron /home/aaron/eastmoney/shell/get_jijin_fina_balance_income_cashflow.sh
+#15 21     * * 5     aaron /home/aaron/eastmoney/shell/sina_get_jijin_fina_balance_income_cashflow.sh
 
 #get kline data from eastmoney 
 25 9       * * 1-5 aaron /home/aaron/eastmoney/shell/get_kline_data.sh
@@ -70,8 +76,8 @@ DISPLAY=:0
 
 #update zlje zlpm data every 2 minute
 #cgi 
-*/15  9-11     * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
-*/15  13-14    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+*/20  9-11     * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
+*/20  13-14    * * 1-5   aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
 
 
 #get kline data from eastmoney 
@@ -79,11 +85,24 @@ DISPLAY=:0
 
 
 #get the last updated zlje a day
-1 15      * * 1-5       aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
-26 9      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
-30 14      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
-01 15      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+1  15      * * 1-5       aaron /home/aaron/eastmoney/shell/get_zlje_zlpm.sh
 
+#get iwencai data
+*/30  9-14 * * 1-5       aaron /home/aaron/eastmoney/shell/get_iwencai_dde_pe.sh
+1  15      * * 1-5       aaron /home/aaron/eastmoney/shell/get_iwencai_dde_pe.sh
+
+#35 09      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#01 10      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#31 10      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#01 11      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#31 11      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#01 13      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#31 13      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#01 14      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#31 14      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+#01 15      * * 1-5     aaron cd /home/aaron/eastmoney/ && python3 get_iwencai_selenium_dde.py   > /tmp/iwencai_dde.txt 2>&1  
+
+#*/10 9-14     * * 1-5     aaron /home/aaron/eastmoney/shell/get_xq_data.sh 
 30 15     * * 1-5     aaron /home/aaron/eastmoney/shell/get_xq_data.sh 
 
 #get kline data from eastmoney, wait for dde finish
@@ -97,7 +116,7 @@ DISPLAY=:0
 30 19      * * 1-5     aaron /home/aaron/eastmoney/shell/get_dragon_data.sh 
 
 #generate pciture
-00 16      * * 1-5     aaron /home/aaron/eastmoney/shell/get_generate_picture.sh 
+#00 16      * * 1-5     aaron /home/aaron/eastmoney/shell/get_generate_picture.sh 
 
 
 #hsgt
