@@ -49,7 +49,7 @@ sub_str=`date +"%Y%m%d"`
 log "today is $sub_str" >> $logfile
 # echo "today is $sub_str" >> $logfile  # 删除重复的日志记录
 judge=$(is_work_day $sub_str)
-if [[ $judge == 0 ]] ; then
+if [[ $judge = "holiday" ]] ; then
     echo "holiday, return"
     log "holiday, return"
     exit

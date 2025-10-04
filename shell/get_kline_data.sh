@@ -39,7 +39,8 @@ sub_str=`date -d "$input day ago" +"%Y%m%d"`
 sub_str=`date +"%Y%m%d"`
 log "today is $sub_str" >> $logfile
 judge=$(is_work_day $sub_str)
-if [[ $judge == 0 ]] ; then
+log "judge = $judge" >> $logfile
+if [[ $judge = "holiday" ]] ; then
     log "holiday, return"
     exit
 else
