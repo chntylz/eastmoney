@@ -13,6 +13,30 @@ from requests.exceptions import ConnectionError, RequestException, Timeout
 
 proxy_support = 1
 
+
+# 定义预设代理列表
+proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "127.0.0.1"]
+
+# 存储上一次选择的代理
+last_proxy = None
+
+def get_proxy():
+    global last_proxy
+    # 过滤掉上一次使用的代理
+    available_proxies = [p for p in proxy_list if p != last_proxy]
+    
+    # 如果所有代理都和上次一样（比如列表只有一个），则允许重复
+    if not available_proxies:
+        available_proxies = proxy_list[:]
+    
+    # 随机选择一个
+    selected_proxy = random.choice(available_proxies)
+    
+    # 更新上一次选择
+    last_proxy = selected_proxy
+    return selected_proxy
+
+
 def check_proxy(proxy, timeout=5):
     """检查代理IP是否可用
     
@@ -41,6 +65,7 @@ def check_proxy(proxy, timeout=5):
         print(f"代理 {proxy} 不可用，错误: {e.__class__.__name__}")
         return False
 
+
 def get_browser(headless=False, proxy=None, window_on_top=False):
     # 配置 ChromeDriver 路径和 Chrome 浏览器路径
     chrome_driver_path = "/home/aaron/eastmoney/chrome/chromedriver-linux64/chromedriver"  # 替换为你的驱动路径
@@ -66,6 +91,7 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
     if headless is True:
         # 添加无头headlesss
         chrome_options.add_argument("--headless")
+    chrome_options.add_argument('--disable-webgl')
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-software-rasterizer")
     chrome_options.add_argument('--no-sandbox')
@@ -81,13 +107,16 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
         #selected_proxy = get_random_valid_proxy_from_db()
         selected_proxy = None
 
-        # 如果没有找到可用代理，从预设代理列表中随机选择一个
+        # 如果没有找到可用代理，从预设代理列表中随机选择一个, 并且保证连续两次不重复
         if not selected_proxy:
+            '''
             print("没有找到可用的数据库代理，从预设代理列表中随机选择")
             # 定义预设代理列表
             proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "127.0.0.1"]
             # 随机选择一个代理
             selected_proxy = random.choice(proxy_list)
+            '''
+            selected_proxy = get_proxy()
         
         # 设置代理
         print(f"使用代理: {selected_proxy}")
@@ -126,6 +155,20 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
         js = f.read()
         browser.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", { "source": js })
         
+
+    # 删除 navigator.webdriver
+    browser.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => false});")
+
+    # 修复 plugins 和 languages
+    browser.execute_script("""
+        Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});
+        Object.defineProperty(navigator, 'languages', {get: () => ['zh-CN', 'zh']});
+        Object.defineProperty(navigator, 'chrome', {get: () => 1});
+    """)
+
+    # 移除 window.navigator.webdriver
+    browser.execute_script("delete navigator.__proto__.webdriver;")
+
     return browser
 
 def get_random_valid_proxy_from_db():
@@ -205,3 +248,28 @@ def get_random_valid_proxy_from_db():
     
     # 如果没有找到可用代理，返回None
     return None
+
+def roll_to_bottom_by_step(browser):
+    '''
+    # 分步滚动到底部
+    total_height = browser.execute_script("return document.body.scrollHeight")
+    scroll_height = 1000  # 每次滚动 1000 像素
+    current_scroll = 0
+
+    while current_scroll < total_height:
+        browser.execute_script(f"window.scrollBy(0, {scroll_height});")
+        current_scroll += scroll_height
+        time.sleep(1)  # 每次滚动后暂停 1 秒，模拟真人
+    
+    '''
+    
+    total_height = int(browser.execute_script("return document.body.scrollHeight;"))
+    viewport_height = browser.execute_script("return window.innerHeight;")
+    current_scroll = 0
+    while current_scroll < total_height:
+        step = random.randint(300, 800)
+        current_scroll += step
+        browser.execute_script(f"window.scrollTo(0, {current_scroll});")
+        time.sleep(random.uniform(0.5, 1.5))
+
+

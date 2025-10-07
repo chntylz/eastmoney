@@ -24,6 +24,7 @@ import re
 
 from file_interface import *
 
+from eastmoney_slide import *
 
 '''
 http://data.eastmoney.com/zjlx/list.html
@@ -164,14 +165,20 @@ def get_zlpm_data2_final(pn=None):
             + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
             + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
 
+    #url = 'https://bot.sannysoft.com/'
     my_dbg(url)
 
-    browser = get_browser(headless=True, proxy=True)
+    browser = get_browser(headless=False, proxy=True)
    
     html = ''
     try: 
         browser.get(url)
+        time.sleep(random.uniform(3, 5))  # 初始加载等待
         browser.implicitly_wait(10)
+
+        # 分步滚动到底部
+        roll_to_bottom_by_step(browser)
+
         html = browser.page_source
     except:
         my_dbg(f"error: get_zlpm_data2_final pn:{pn}")
@@ -218,27 +225,55 @@ def get_zlpm_data2_final(pn=None):
     return data_df, api_param
 
 
-
 def get_zlpm_data2():
-    
     my_dbg(f"get_zlpm_data2()")
     data_df = pd.DataFrame()
-    api_param=''
+    api_param = ''
     pn = 1
-    while True:
-        try:
-            data_df_tmp, api_param = get_zlpm_data2_final(pn)
-            if len(data_df_tmp) == 0:
-                my_dbg(f"pn:{pn}, len(data_df_tmp): f{len(data_df_tmp)}")
-                break
-            data_df = pd.concat([data_df, data_df_tmp])
-            pn = pn + 1
-        except Exception as e:
-            my_dbg(f"error{e}")
-            break
+    max_retries = 3  # 最大重试次数
 
-    data_df = data_df.drop_duplicates(subset=['stock_code'], keep='first')
-    data_df = data_df.reset_index(drop=True)
+    while True:
+        retry_count = 0
+        data_df_tmp = None
+        success = False
+
+        # 对当前 pn 进行最多 max_retries 次重试
+        while retry_count < max_retries:
+            try:
+                data_df_tmp, api_param = get_zlpm_data2_final(pn)
+                
+                if len(data_df_tmp) > 0:
+                    # 成功获取非空数据
+                    success = True
+                    my_dbg(f"pn:{pn}, 获取到 {len(data_df_tmp)} 条数据")
+                    break  # 跳出重试循环
+                else:
+                    my_dbg(f"pn:{pn}, 第 {retry_count + 1} 次返回空数据，正在重试...")
+                    
+            except Exception as e:
+                my_dbg(f"pn:{pn}, 第 {retry_count + 1} 次调用异常: {e}")
+                if retry_count == 1:
+                    do_slide()
+
+            retry_count += 1
+            time.sleep(10)  # 可选：避免频繁请求，防止被限流
+
+        # =============================
+        # 判断重试结果
+        # =============================
+
+        if not success:
+            my_dbg(f"❌ pn:{pn} 达到最大重试次数 {max_retries}，仍无有效数据，结束采集。")
+            break  # 跳出主循环，结束采集
+
+        # 合并数据
+        data_df = pd.concat([data_df, data_df_tmp], ignore_index=True)
+        pn += 1  # 进入下一页
+
+    # 去重并重置索引
+    if not data_df.empty:
+        data_df = data_df.drop_duplicates(subset=['stock_code'], keep='first').reset_index(drop=True)
+
     return data_df, api_param
 
 

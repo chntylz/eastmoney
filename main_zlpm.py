@@ -22,10 +22,6 @@ debug=0
 hdata_zlpm=HData_eastmoney_zlpm("usr","usr")
 
 
-'''
-'''
-
-
 
 def check_table():
     table_exist = hdata_zlpm.table_is_exist() 
@@ -47,7 +43,7 @@ if __name__ == '__main__':
     df.to_csv('./csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') +'_zlpm_df.csv', encoding='gbk')
     df = df.drop_duplicates(subset=['stock_code'], keep='first')
     
-    if len(df) > 0:
+    if len(df) > 4000:
         #check table exist
         check_table()
         hdata_zlpm.delete_data_from_hdata(
@@ -56,7 +52,7 @@ if __name__ == '__main__':
                 )
         hdata_zlpm.copy_from_stringio(df)
     else:
-        my_dbg('zlpm dataframe is null')
+        my_dbg(f'zlpm dataframe len(df):{len(df)} is not > 4000')
 
 
 

@@ -196,59 +196,61 @@ def do_crack(browser):
 
     return
 
+def do_slide():
+    browser = get_browser()
+    browser.get('https://eastmoney.com')
+    browser.refresh()
 
-browser = get_browser()
-browser.get('https://eastmoney.com')
-browser.refresh()
-
-try:
-    # 定位元素（使用src属性精准匹配）
-    close_button = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "img[src='https://emcharts.dfcfw.com/fullscreengg/ic_close.png']"))
-    )
-
-    # 确保元素可点击（滚动到视图并等待可交互）
-    browser.execute_script("arguments[0].scrollIntoViewIfNeeded();", close_button)
-    
-    # 尝试点击（如果失败则用JS直接执行点击事件）
     try:
-        WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src*='ic_close.png']"))).click()
-    except ElementClickInterceptedException:
-        browser.execute_script("arguments[0].click();", close_button)
+        # 定位元素（使用src属性精准匹配）
+        close_button = WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "img[src='https://emcharts.dfcfw.com/fullscreengg/ic_close.png']"))
+        )
+
+        # 确保元素可点击（滚动到视图并等待可交互）
+        browser.execute_script("arguments[0].scrollIntoViewIfNeeded();", close_button)
         
-    print("点击成功！")
+        # 尝试点击（如果失败则用JS直接执行点击事件）
+        try:
+            WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src*='ic_close.png']"))).click()
+        except ElementClickInterceptedException:
+            browser.execute_script("arguments[0].click();", close_button)
+            
+        print("点击成功！")
 
-except Exception as e:
-    print("操作失败:", str(e))
-finally:
-    pass
-
-
-try:
-     # 等待iframe加载并切换到该iframe
-    iframe = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "popwscps_d_iframe"))
-                    )
-
-    # 切换到iframe内部
-    browser.switch_to.frame(iframe)
-    time.sleep(3)
-
-    browser.find_element('xpath', '//div[contains(@class, "em_slider_knob")]').click()
-    my_dbg('test')
-
-    retry=10
-    while (retry > 0):
-        do_crack(browser)
-        my_dbg(f'retry {retry}')
-        retry = retry - 1
-except Exception as e:
-    my_dbg(e)
-    my_dbg('success!')
-finally:
-    pass
-
-browser.close()
-browser.quit()
+    except Exception as e:
+        print("操作失败:", str(e))
+    finally:
+        pass
 
 
+    try:
+         # 等待iframe加载并切换到该iframe
+        iframe = WebDriverWait(browser, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "popwscps_d_iframe"))
+                        )
+
+        # 切换到iframe内部
+        browser.switch_to.frame(iframe)
+        time.sleep(3)
+
+        browser.find_element('xpath', '//div[contains(@class, "em_slider_knob")]').click()
+        my_dbg('test')
+
+        retry=10
+        while (retry > 0):
+            do_crack(browser)
+            my_dbg(f'retry {retry}')
+            retry = retry - 1
+    except Exception as e:
+        my_dbg(e)
+        my_dbg('success!')
+    finally:
+        pass
+
+    browser.close()
+    browser.quit()
+
+
+if __name__ == '__main__':
+    do_slide()
