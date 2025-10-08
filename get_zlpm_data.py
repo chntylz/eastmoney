@@ -92,8 +92,114 @@ def get_headers():
     headers = {'User-Agent':random.choice(user_agents)}
     return headers
 
+import requests
+import json
+import pandas as pd
+import time
+import datetime
 
-def get_zlpm_data():
+def get_zlpm_data_by_get(pn=None):
+    """
+    获取东方财富-主力排名数据（优化版 GET 请求）
+    :param pn: 页码（从1开始）
+    :return: DataFrame, 原始响应数据
+    """
+    nowdate = datetime.datetime.now().date()
+    
+    # 默认页码
+    if pn is None:
+        pn = 1
+
+    # API URL（去掉 cb 参数即可返回纯 JSON）
+    url = 'https://push2.eastmoney.com/api/qt/clist/get'
+
+    # 请求参数（清晰分离）
+    params = {
+        'fid': 'f184',           # 排序字段：主力净流入涨幅
+        'po': '1',               # 0:降序, 1:升序
+        'pz': '200',             # 每页数量
+        'pn': str(pn),           # 当前页码
+        'np': '1',               # 新版分页
+        'fltt': '2',             # 行情数据延迟
+        'invt': '2',             # 数据版本
+        'ut': 'b2884a393a59ad64002292a3e90d46a5',  # 固定 token
+        'fs': 'm:0+t:6+f:!2,m:0+t:13+f:!2,m:0+t:80+f:!2,m:1+t:2+f:!2,m:1+t:23+f:!2,m:0+t:7+f:!2,m:1+t:3+f:!2',
+        'fields': 'f2,f3,f12,f13,f14,f62,f184,f225,f165,f263,f109,f175,f264,f160,f100,f124,f265,f1'
+    }
+
+    # 请求头（模拟浏览器）
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://quote.eastmoney.com/',
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8'
+    }
+
+    try:
+        response = requests.get(url, params=params, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        # 直接解析 JSON（因为去掉了 cb，返回的是标准 JSON）
+        api_param = response.json()
+
+        if not api_param.get('data') or not api_param['data'].get('diff'):
+            print(f"数据为空或接口异常: {api_param}")
+            return pd.DataFrame(), api_param
+
+        rawdata = api_param['data']['diff']
+        data_df = pd.DataFrame(rawdata)
+
+        # 映射字段名
+        tmp_column = [
+            'close', 'percent', 'stock_code', 'market', 'stock_name', 'percent_5day', 
+            'percent_10day', 'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 
+            'zljzb_pm_5day', 'zljzb_pm_10day', 'f1'
+        ]
+        data_df.columns = tmp_column
+
+        # 删除不需要的列
+        columns_to_drop = ['market', 'f1']  # f13 是 market（0=深市,1=沪市），f1 是未知
+        data_df = data_df.drop(columns=[col for col in columns_to_drop if col in data_df.columns])
+
+        # 处理 '-' 数据
+        numeric_cols = ['close', 'percent', 'percent_5day', 'percent_10day',
+                        'zljzb_5day', 'zljzb_10day', 'zljzb', 'zljzb_pm', 
+                        'zljzb_pm_5day', 'zljzb_pm_10day']
+        for col in numeric_cols:
+            data_df[col] = pd.to_numeric(data_df[col].replace('-', 0), errors='coerce')
+
+        # 添加日期
+        data_df.insert(1, 'record_date', nowdate.strftime("%Y-%m-%d"))
+
+        # 调整列顺序
+        final_columns = [
+            'stock_code', 'record_date', 'stock_name', 'close', 'percent', 
+            'percent_5day', 'percent_10day', 'zljzb_5day', 'zljzb_10day', 
+            'zljzb', 'zljzb_pm', 'zljzb_pm_5day', 'zljzb_pm_10day'
+        ]
+        data_df = data_df[final_columns]
+
+        # 保存 CSV（GBK 编码）
+        data_df.to_csv(f'./csv/real-{nowdate.strftime("%Y-%m-%d")}.csv', 
+                       encoding='gbk', index=False)
+
+        # 排序并重置索引
+        data_df = data_df.sort_values('stock_code').reset_index(drop=True)
+
+        return data_df, api_param
+
+    except requests.exceptions.RequestException as e:
+        print(f"请求失败: {e}")
+        return pd.DataFrame(), {}
+    except json.JSONDecodeError as e:
+        print(f"JSON 解析失败: {e}")
+        print(f"响应内容: {response.text}")
+        return pd.DataFrame(), {}
+
+
+
+def get_zlpm_data(pn=None):
     
     nowdate=datetime.datetime.now().date()
     if debug:
@@ -107,6 +213,16 @@ def get_zlpm_data():
             + 'fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&'\
             + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
             + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
+
+    url = 'https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery1123022981019595514018_'\
+            + timestamp \
+            + '&fid=f184&po=1&pz=200&pn='\
+            + str(pn) \
+            + '&np=1&fltt=2&invt=2&'\
+            + 'fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&'\
+            + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
+            + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
+
 
     my_dbg(url)
 
@@ -165,10 +281,10 @@ def get_zlpm_data2_final(pn=None):
             + 'ut=b2884a393a59ad64002292a3e90d46a5&'\
             + 'fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
 
-    #url = 'https://bot.sannysoft.com/'
-    my_dbg(url)
-
+    #url = 'https://bot.sannysoft.com/' 
+    #browser = get_browser(headless=False, proxy=False)
     browser = get_browser(headless=False, proxy=True)
+    my_dbg(url)
    
     html = ''
     try: 
@@ -241,6 +357,8 @@ def get_zlpm_data2():
         while retry_count < max_retries:
             try:
                 data_df_tmp, api_param = get_zlpm_data2_final(pn)
+                #data_df_tmp, api_param = get_zlpm_data(pn)
+                #data_df_tmp, api_param = get_zlpm_data_by_get(pn)
                 
                 if len(data_df_tmp) > 0:
                     # 成功获取非空数据

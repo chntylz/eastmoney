@@ -43,8 +43,9 @@ if __name__ == '__main__':
     df.to_csv('./csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') +'_zlpm_df.csv', encoding='gbk')
     df = df.drop_duplicates(subset=['stock_code'], keep='first')
     
-    if len(df) > 4000:
+    if len(df) > 5000:
         #check table exist
+        my_dbg(f'zlpm dataframe len(df):{len(df)}  > 5000')
         check_table()
         hdata_zlpm.delete_data_from_hdata(
                 start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"),
@@ -52,7 +53,7 @@ if __name__ == '__main__':
                 )
         hdata_zlpm.copy_from_stringio(df)
     else:
-        my_dbg(f'zlpm dataframe len(df):{len(df)} is not > 4000')
+        my_dbg(f'zlpm dataframe len(df):{len(df)} is not > 5000')
 
 
 

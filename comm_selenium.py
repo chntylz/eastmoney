@@ -16,6 +16,7 @@ proxy_support = 1
 
 # 定义预设代理列表
 proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "127.0.0.1"]
+#proxy_list = ["101.227.40.36:8888","139.155.243.8:3001" ]
 
 # 存储上一次选择的代理
 last_proxy = None
@@ -68,8 +69,14 @@ def check_proxy(proxy, timeout=5):
 
 def get_browser(headless=False, proxy=None, window_on_top=False):
     # 配置 ChromeDriver 路径和 Chrome 浏览器路径
+    #1
     chrome_driver_path = "/home/aaron/eastmoney/chrome/chromedriver-linux64/chromedriver"  # 替换为你的驱动路径
     chrome_binary_path = "/home/aaron/eastmoney/chrome/chrome-linux64/chrome"        # 替换为你的浏览器路径
+
+    #2
+    #chrome_driver_path = "/home/aaron/eastmoney/chrome/141.0.7390.54/chromedriver-linux64/chromedriver"  # 替换为你的驱动路径
+    #chrome_binary_path = "/usr/bin/google-chrome"        # 替换为你的浏览器路径
+
     service = Service(executable_path=chrome_driver_path)  # 指定驱动路径
     
     browser = None
@@ -91,15 +98,25 @@ def get_browser(headless=False, proxy=None, window_on_top=False):
     if headless is True:
         # 添加无头headlesss
         chrome_options.add_argument("--headless")
-    chrome_options.add_argument('--disable-webgl')
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--disable-software-rasterizer")
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
     #chrome_options.add_argument("blink-settings=imagesEnabled=false")  #image disable
     
     #chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--disk-cache-dir=/dev/shm  --disk-cache-size=4096000000')
+
+    # 复用你本地已登录的 Chrome 配置（包含真实的 WebGL 设置）
+    #chrome_options.add_argument("--user-data-dir=/home/aaron/.config/google-chrome")
+    #chrome_options.add_argument("--profile-directory=Default")
+
+    #强制使用 OpenGL（Linux 推荐）
+    #chrome_options.add_argument("--use-gl=desktop")  # 使用桌面 OpenGL
+    
+    '''
+    chrome_options.add_argument('--disable-webgl')
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    '''
 
     # 如果需要使用代理
     if proxy:

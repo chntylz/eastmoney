@@ -30,6 +30,9 @@ url = 'http://spys.one/en/http-proxy-list/'
 
 # url = 'http://spys.one/en/anonymous-proxy-list/'
 
+
+url = 'https://www.zdaye.com/free/3/'
+
 # 设置代理配置:
 # Proxy Information Settings:
 
@@ -340,7 +343,7 @@ def main():
             print(f"已将 {len(valid_proxies)} 个可用代理保存到 {valid_file}")
             
             # 将有效代理保存到数据库
-            save_proxies_to_db(valid_proxies)
+            #save_proxies_to_db(valid_proxies)
             
             # 计算可用率
             valid_rate = len(valid_proxies) / len(unchecked) * 100 if unchecked else 0
