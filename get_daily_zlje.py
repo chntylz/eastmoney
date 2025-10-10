@@ -238,14 +238,19 @@ def get_daily_zlje_final(url=None, pn=None):
     if debug:
         my_dbg(url)
 
+
+    browser = get_browser(headless=False, proxy=True)
     my_dbg(url)
 
-    browser = get_browser(headless=True, proxy=True)
-   
     html = ''
     try: 
         browser.get(url)
+        time.sleep(random.uniform(3, 5))  # 初始加载等待
         browser.implicitly_wait(10)
+
+        # 分步滚动到底部
+        roll_to_bottom_by_step(browser)
+
         html = browser.page_source
     except:
         browser.close()
@@ -264,35 +269,57 @@ def get_daily_zlje_final(url=None, pn=None):
     data_df = pd.DataFrame(rawdata)
     
 
+    my_dbg(f'pn:{pn}') 
 
+    my_dbg(f'{data_df}')
     return data_df
 
 
 
-def get_daily_zlje2(url=None):
-  
-    data_df = data_df_tmp = pd.DataFrame()
-    
+from typing import Optional
+
+def get_daily_zlje2(url: Optional[str] = None) -> pd.DataFrame:
+    """
+    分页获取数据，直到返回空或失败为止。
+    使用列表收集，最后一次性 concat，提升性能。
+    """
+    if url is None:
+        raise ValueError("参数 url 不能为空")
+
+    data_frames = []  # ✅ 用列表存储每页数据，避免频繁 concat
     pn = 1
-    while True:
-        try:
-            for _ in range(3):
+    max_pages = 1000  # ✅ 防止无限循环（可根据业务调整）
+
+    while pn <= max_pages:
+        success = False
+        for retry in range(10):
+            try:
                 data_df_tmp = get_daily_zlje_final(url, pn)
-                if not data_df_tmp.empty:  # 或 len(data_df_tmp) != 0
-                    break
+                if not data_df_tmp.empty:
+                    data_frames.append(data_df_tmp)
+                    success = True
+                    break  # ✅ 获取成功，跳出重试
+                else:
+                    my_dbg(f"第 {pn} 页返回空数据，停止分页")
+                    return pd.concat(data_frames, ignore_index=True).drop_duplicates(subset=['f12'], keep='first')
+            except Exception as e:
+                my_dbg(f"请求失败，页码: {pn}, 重试 {retry + 1}/3, 错误: {e}")
                 time.sleep(1)
-            else:
-                break
+        
+        if not success:
+            my_dbg(f"重试 3 次均失败，停止在页码: {pn}")
+            break  # ✅ 所有重试失败，终止
 
-            data_df = pd.concat([data_df, data_df_tmp])
-            pn = pn + 1
-        except Exception as e:
-            break
+        pn += 1
 
+    # 合并所有数据
+    if not data_frames:
+        return pd.DataFrame()  # 返回空 DataFrame 结构一致
+
+    data_df = pd.concat(data_frames, ignore_index=True)
     data_df = data_df.drop_duplicates(subset=['f12'], keep='first')
-    data_df = data_df.reset_index(drop=True)
     return data_df
-
+  
 def get_daily_zlje3(url=None):
     timestamp=str(round(time.time() * 1000))
     #url = 'http://push2.eastmoney.com/api/qt/clist/get?cb=jQuery112309724568186220448_1610691602607&fid=f62&po=1&pz=10000&pn=1&np=1&fltt=2&invt=2&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2&fields=f12%2Cf14%2Cf2%2Cf3%2Cf62%2Cf184%2Cf66%2Cf69%2Cf72%2Cf75%2Cf78%2Cf81%2Cf84%2Cf87%2Cf204%2Cf205%2Cf124'
@@ -537,50 +564,53 @@ if __name__ == '__main__':
     t1 = time.time()
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    df = get_daily_zlje2()
+    df = get_daily_zlje2(url='url_1')
     df = handle_raw_data(df)
     #my_dbg(list(df))
-    if len(df):
+    if len(df) > 4500:
         my_dbg(f"len(df)={len(df)}")
         delete_zlje_data_from_db()
     hdata_zlje.copy_from_stringio(df)
     df.to_csv('csv/' +   datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_1.csv', encoding='gbk')
 
-
-    df_3 = get_daily_zlje2(url='url_3')
-    df_3 = handle_raw_data(df_3)
-    if len(df_3):
-        my_dbg(f"len(df_3)={len(df_3)}")
-        delete_zlje_data_from_db(url='url_3')
-    hdata_zlje_3.copy_from_stringio(df_3)
-    #my_dbg(list(df_3))
-    df_3.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_3.csv', encoding='gbk')
-
-
-    df_5 = get_daily_zlje2(url='url_5')
-    df_5 = handle_raw_data(df_5)
-    if len(df_5):
-        my_dbg(f"len(df_5)={len(df_5)}")
-        delete_zlje_data_from_db(url='url_5')
-    hdata_zlje_5.copy_from_stringio(df_5)
-    #my_dbg(list(df_5))
-    df_5.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_5.csv', encoding='gbk')
+    
+    now = datetime.datetime.now()
+    #超过 15:00:00
+    if now.time() > datetime.time(15, 0, 0):
+        df_3 = get_daily_zlje2(url='url_3')
+        df_3 = handle_raw_data(df_3)
+        if len(df_3) > 4500:
+            my_dbg(f"len(df_3)={len(df_3)}")
+            delete_zlje_data_from_db(url='url_3')
+        hdata_zlje_3.copy_from_stringio(df_3)
+        #my_dbg(list(df_3))
+        df_3.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_3.csv', encoding='gbk')
 
 
-    df_10 = get_daily_zlje2(url='url_10')
-    df_10 = handle_raw_data(df_10)
-    if len(df_10):
-        my_dbg(f"len(df_10)={len(df_10)}")
-        delete_zlje_data_from_db(url='url_10')
-    hdata_zlje_10.copy_from_stringio(df_10)
-    #my_dbg(list(df_10))
-    df_10.to_csv('csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_10.csv', encoding='gbk')
+        df_5 = get_daily_zlje2(url='url_5')
+        df_5 = handle_raw_data(df_5)
+        if len(df_5) > 4500:
+            my_dbg(f"len(df_5)={len(df_5)}")
+            delete_zlje_data_from_db(url='url_5')
+        hdata_zlje_5.copy_from_stringio(df_5)
+        #my_dbg(list(df_5))
+        df_5.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_5.csv', encoding='gbk')
 
-    if debug:
-        my_dbg(list(df))
-        my_dbg(list(df_3))
-        my_dbg(list(df_5))
-        my_dbg(list(df_10))
+
+        df_10 = get_daily_zlje2(url='url_10')
+        df_10 = handle_raw_data(df_10)
+        if len(df_10) > 4500:
+            my_dbg(f"len(df_10)={len(df_10)}")
+            delete_zlje_data_from_db(url='url_10')
+        hdata_zlje_10.copy_from_stringio(df_10)
+        #my_dbg(list(df_10))
+        df_10.to_csv('csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_10.csv', encoding='gbk')
+
+        if debug:
+            my_dbg(list(df))
+            my_dbg(list(df_3))
+            my_dbg(list(df_5))
+            my_dbg(list(df_10))
 
 
     last_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
