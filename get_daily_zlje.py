@@ -245,7 +245,7 @@ def get_daily_zlje_final(url=None, pn=None):
     html = ''
     try: 
         browser.get(url)
-        time.sleep(random.uniform(3, 5))  # 初始加载等待
+        time.sleep(random.uniform(1, 10))  # 初始加载等待
         browser.implicitly_wait(10)
 
         # 分步滚动到底部

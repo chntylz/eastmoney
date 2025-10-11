@@ -10,29 +10,55 @@ import time  # 添加time模块导入
 import psycopg2  # 添加psycopg2模块导入
 import requests
 from requests.exceptions import ConnectionError, RequestException, Timeout
+import os  # 添加os模块用于文件路径处理
 
 proxy_support = 1
 
+# 从文件中读取代理列表
+def load_proxies_from_file(file_path):
+    """
+    从文件中加载代理列表
+    参数:
+        file_path: 代理文件路径
+    返回:
+        list: 代理列表
+    """
+    proxies = ["142.171.166.165:3128", "101.43.29.22:3128", "127.0.0.1"]
+    try:
+        # 确保文件存在
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                for line in f:
+                    # 去除行首尾的空白字符
+                    proxy = line.strip()
+                    if proxy and not proxy.startswith('#'):  # 跳过空行和注释行
+                        # 如果代理行以http://开头，提取出ip:port部分
+                        if proxy.startswith('http://'):
+                            proxy = proxy[7:].strip()
+                            proxies.append(proxy)
+                        elif not proxy.startswith('sock5://'):
+                            proxies.append(proxy)
+            print(f"从文件 {file_path} 成功加载 {len(proxies)} 个代理")
+        else:
+            print(f"警告: 代理文件 {file_path} 不存在")
+    except Exception as e:
+        print(f"读取代理文件时出错: {e}")
+    
+    # 如果从文件加载失败，使用默认代理
+    if not proxies:
+        print("使用默认代理")
+        proxies = ["127.0.0.1"]  # 默认使用本地代理
+    
+    return proxies
+
+# 获取代理文件路径
+proxy_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'proxy', 'kuaidaili.txt')
 
 # 定义预设代理列表
 proxy_list = ["142.171.166.165:3128", "101.43.29.22:3128", "127.0.0.1"]
-#proxy_list = ["101.227.40.36:8888","139.155.243.8:3001" ]
-#proxy_list = ["114.80.37.90:3081","39.105.27.30:3128" ]
 
-'''
-proxy_list = ["111.3.102.207:30001",
-           "47.243.92.199:3128",
-           "8.212.165.33:3333",
-           "47.96.42.36:80",
-           "123.128.12.93:9055",
-           "121.43.43.217:10007",
-           "114.80.37.90:3081",
-           "114.80.37.90:3081",
-           "103.118.44.31:8080",
-           "113.45.158.25:3128",
-           "39.105.27.30:3128",
-           "8.212.165.33:3333"]
-'''
+# 从文件加载代理列表
+#proxy_list = load_proxies_from_file(proxy_file_path)
 
 # 存储上一次选择的代理
 last_proxy = None

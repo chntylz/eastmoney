@@ -249,188 +249,7 @@ def get_latest_date():
             conn.close()
 
 
-def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
-    """显示行业概览统计"""
-    try:
-        # 获取最近日期
-        latest_date = get_latest_date()
-        if not latest_date:
-            print("<p>无法获取最近日期</p>")
-            return
-
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            # 构建行业统计查询
-            query = ""
-            query += "SELECT z.industry, COUNT(DISTINCT d.stock_code) as stock_count, "
-            query += "       AVG(d.pct) as avg_pct, AVG(d.dde_net) as avg_dde_net, AVG(d.dde_net_all) as avg_dde_all, "
-            query += "       AVG(p.pe_pct) as avg_pe_pct, AVG(f.ystz) as avg_ystz, AVG(f.sjltz) as avg_sjltz "
-            query += "FROM iwencai_dde_table d "
-            query += "LEFT JOIN ( "
-            query += "    SELECT stock_code, industry, record_date, "
-            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
-            query += "    FROM eastmoney_zlpm_table "
-            query += "    WHERE record_date <= %s::date "
-            query += " ) z ON d.stock_code = z.stock_code AND z.rn = 1 "
-            query += "LEFT JOIN ( "
-            query += "    SELECT stock_code, pe_pct, record_date, "
-            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
-            query += "    FROM iwencai_pe_table "
-            query += "    WHERE record_date <= %s::date "
-            query += " ) p ON d.stock_code = p.stock_code AND p.rn = 1 "
-            query += "LEFT JOIN ( "
-            query += "    SELECT stock_code, ystz, sjltz, record_date, "
-            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
-            query += "    FROM eastmoney_fina_table "
-            query += "    WHERE record_date <= %s::date "
-            query += " ) f ON d.stock_code = f.stock_code AND f.rn = 1 "
-            query += "WHERE d.record_date = %s::date AND z.industry IS NOT NULL "
-            query += "GROUP BY z.industry "
-
-            # 处理排序逻辑
-            valid_columns = ['stock_count', 'avg_pct', 'avg_dde_net', 'avg_dde_all', 'avg_pe_pct', 'avg_ystz', 'avg_sjltz']
-            if sort_column in valid_columns:
-                query += f"ORDER BY {sort_column} {sort_order} "
-            else:
-                query += "ORDER BY stock_count DESC "
-
-            params = [latest_date, latest_date, latest_date, latest_date]
-            cursor.execute(query, params)
-            results = cursor.fetchall()
-            columns = [desc[0] for desc in cursor.description]
-
-            if not results:
-                print(f"<p>未找到 {latest_date} 的行业数据</p>")
-                return
-
-            print(f"<div class='header'><h2>行业概览统计 - {latest_date}</h2></div>")
-
-            # 生成表头
-            print("<div class='table-container'><table><tr>")
-            for col in columns:
-                # 为可排序字段添加排序链接
-                if col in valid_columns:
-                    new_order = 'DESC' if (sort_column == col and sort_order == 'ASC') else 'ASC'
-                    print(f"<th><a class='sort-link' href='?overview=1&sort_column={col}&sort_order={new_order}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
-                else:
-                    print(f"<th>{col}</th>")
-            print("</tr>")
-
-            # 输出数据
-            for row in results:
-                print("<tr>")
-                for i, value in enumerate(row):
-                    tmp_column = columns[i]
-                    if tmp_column == 'industry':
-                        print(f"<td><a class='industry-link' href='?industry={value}'>{value}</a></td>")
-                    elif tmp_column == 'avg_pct':
-                        if value is not None:
-                            color = 'red' if value > 0 else 'green'
-                            print(f"<td style='color:{color}'>{value:.2f}</td>")
-                        else:
-                            print(f"<td></td>")
-                    elif tmp_column == 'avg_dde_net':
-                        if value is not None:
-                            if value > 100*1000*1000 or value < (-1) * 100*1000*1000:
-                                value = value / (100*1000*1000)
-                                print(f"<td>{value:.2f}亿</td>")
-                            elif value > 10*1000 or value < (-1) * 10*1000:
-                                value = value / (10*1000)
-                                print(f"<td>{value:.2f}万</td>")
-                            else:
-                                print(f"<td>{value:.2f}</td>")
-                        else:
-                            print(f"<td></td>")
-                    elif tmp_column == 'avg_dde_all':
-                        if value is not None:
-                            if value > 100*1000*1000 or value < (-1) * 100*1000*1000:
-                                value = value / (100*1000*1000)
-                                print(f"<td>{value:.2f}亿</td>")
-                            elif value > 10*1000 or value < (-1) * 10*1000:
-                                value = value / (10*1000)
-                                print(f"<td>{value:.2f}万</td>")
-                            else:
-                                print(f"<td>{value:.2f}</td>")
-                        else:
-                            print(f"<td></td>")
-                    elif tmp_column in ['avg_pe_pct', 'avg_ystz', 'avg_sjltz']:
-                        if value is not None:
-                            print(f"<td>{value:.2f}</td>")
-                        else:
-                            print(f"<td></td>")
-                    else:
-                        print(f"<td>{value if value is not None else ''}</td>")
-                print("</tr>")
-
-            print("</table></div>")
-            print(f"<p>共找到 {len(results)} 个行业数据</p>")
-
-    except Exception as e:
-        print(f"<p style='color:red'>数据库错误: {str(e)}</p>")
-    finally:
-        if 'conn' in locals():
-            conn.close()
-
-# 添加获取自选股列表的函数
-def get_my_optional_stocks():
-    """读取自选股列表"""
-    # 检测操作系统设置文件路径
-    current_os = platform.system()
-    if current_os == 'Windows':
-        optional_file = r'C:\Users\aaron\Documents\eastmoney\cgi-bin\my_optional.txt'
-    else:
-        optional_file = '/var/www/cgi-bin/my_optional.txt'
-        
-    stocks = []
-    try:
-        if os.path.exists(optional_file):
-            with open(optional_file, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith('#'):
-                        parts = line.split(' ', 1)
-                        if len(parts) >= 2:
-                            stock_code = parts[0]
-                            stock_name = parts[1]
-                            # 去除可能的前缀（SH/SZ），因为数据库中可能只存储数字代码
-                            if stock_code.startswith('SH'):
-                                stock_code = stock_code[2:]
-                            elif stock_code.startswith('SZ'):
-                                stock_code = stock_code[2:]
-                            stocks.append((stock_code, stock_name))
-    except Exception as e:
-        print(f"<p style='color:red'>读取自选股文件错误: {str(e)}</p>")
-    
-    return stocks
-
-# 添加获取微妙选股列表的函数
-def get_weimiao_stocks():
-    """读取微妙选股列表"""
-    # Linux环境下的文件路径
-    weimiao_file = '/var/www/cgi-bin/weimiao.txt'
-    
-    stocks = []
-    try:
-        if os.path.exists(weimiao_file):
-            with open(weimiao_file, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith('#'):
-                        parts = line.split(' ', 1)
-                        if len(parts) >= 2:
-                            stock_code = parts[0]
-                            stock_name = parts[1]
-                            # 去除可能的前缀（SH/SZ），因为数据库中可能只存储数字代码
-                            if stock_code.startswith('SH'):
-                                stock_code = stock_code[2:]
-                            elif stock_code.startswith('SZ'):
-                                stock_code = stock_code[2:]
-                            stocks.append((stock_code, stock_name))
-    except Exception as e:
-        print(f"<p style='color:red'>读取微妙选股文件错误: {str(e)}</p>")
-    
-    return stocks
-
+# 修复了display_results函数中的排序逻辑和数据处理，增加了对NULL值的处理
 def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=None, pe_pct_lt=None, ystz_gt=None, sjltz_gt=None, pct_gt=None, dde_net_gt=None, dde_all_gt=None, amount_gt=None, holder_lt=None, optional_stocks=None, weimiao_stocks=None):
     """显示查询结果"""
     try:
@@ -580,11 +399,17 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                 except ValueError:
                     print("<p style='color:red'>holder必须是数字</p>")
 
-            # 处理排序逻辑
+            # 修复：处理排序逻辑，增加对NULL值的处理
             if sort_column:
                 valid_columns = ['rank', 'stock_code', 'stock_name', 'close', 'pct', 'dde_net', 'dde_all', 'amount', 'industry', 'pe_pct', 'ystz', 'sjltz', 'days', 'holder1']
                 if sort_column in valid_columns:
-                    query += f"ORDER BY {sort_column} {sort_order}, stock_code "
+                    # 处理可能为NULL的字段，特别是dde_net, dde_all, amount等数值型字段
+                    if sort_column in ['dde_net', 'dde_all', 'amount', 'pct', 'pe_pct', 'ystz', 'sjltz', 'days', 'holder1']:
+                        # 对于数值型字段，确保NULL值排在最后（无论升序还是降序）
+                        # 这里使用NULLS LAST子句
+                        query += f"ORDER BY {sort_column} {sort_order} NULLS LAST, stock_code "
+                    else:
+                        query += f"ORDER BY {sort_column} {sort_order}, stock_code "
                 else:
                     query += "ORDER BY rank ASC, stock_code "
             else:
@@ -698,8 +523,8 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             html_buffer = []
             for row in results:
                 # 获取股票代码和名称
-                stock_code = row[columns.index('stock_code')]
-                stock_name = row[columns.index('stock_name')]
+                stock_code = row[columns.index('stock_code')] if 'stock_code' in columns else None
+                stock_name = row[columns.index('stock_name')] if 'stock_name' in columns else None
                 # 添加data-stock-code、data-stock-name属性和data-row类
                 html_buffer.append(f'<tr class="data-row" data-stock-code="{stock_code}" data-stock-name="{stock_name}">')
 
@@ -724,14 +549,18 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                         else:
                             html_buffer.append(f"<td>{value if value is not None else ''}</td>")
                     elif "dde" in tmp_column or "amount" in tmp_column or "dde_net_all" in tmp_column:
-                        if value and (value > 100*1000*1000 or value < (-1) * 100*1000*1000):
-                            value = value / (100*1000*1000)
-                            html_buffer.append(f"<td>{value:.2f}亿</td>")
-                        elif value and (value > 10*1000 or value < (-1) * 10*1000):
-                            value = value / (10*1000)
-                            html_buffer.append(f"<td>{value:.2f}万</td>")
+                        # 修复：确保在格式化前正确检查None值
+                        if value is not None:
+                            if (value > 100*1000*1000 or value < (-1) * 100*1000*1000):
+                                value = value / (100*1000*1000)
+                                html_buffer.append(f"<td>{value:.2f}亿</td>")
+                            elif (value > 10*1000 or value < (-1) * 10*1000):
+                                value = value / (10*1000)
+                                html_buffer.append(f"<td>{value:.2f}万</td>")
+                            else:
+                                html_buffer.append(f"<td>{value:.2f}</td>")
                         else:
-                            html_buffer.append(f"<td>{value if value is not None else ''}</td>")
+                            html_buffer.append(f"<td></td>")
                     elif tmp_column == "pct":
                         if value is not None:
                             color = 'red' if value > 0 else 'green'
@@ -821,7 +650,10 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
                         else:
                             html_buffer.append(f"<td></td>")
                     elif tmp_column in ["sjltz"]:
+                        if value is not None:
                             html_buffer.append(f"<td><a class='stock-link' href='../sina_html/sina_{tmp_code}.html' target='_blank'>{value:.2f}</a></td>")
+                        else:
+                            html_buffer.append(f"<td></td>")
                     else:
                         html_buffer.append(f"<td>{value if value is not None else ''}</td>")
 
@@ -839,8 +671,9 @@ def display_results(sort_column=None, sort_order='ASC', industry=None, days_gt=N
             conn.close()
 
 
-# 在文件的适当位置添加get_stock_patterns函数
+# 其他函数保持不变
 
+# 在文件的适当位置添加get_stock_patterns函数
 def get_stock_patterns(stock_code):
     """从pattern_table获取指定股票的最新模式数据"""
     try:
@@ -867,8 +700,8 @@ def get_stock_patterns(stock_code):
             for row in results:
                 patterns.append({
                     'pat_name': row[0],
-                    'sig_value': float(row[1]),
-                    'pat_des': row[2]
+                    'sig_value': float(row[1]) if row[1] is not None else 0.0,  # 添加对None的处理
+                    'pat_des': row[2] if row[2] is not None else ''  # 添加对None的处理
                 })
             
             return patterns
@@ -879,6 +712,192 @@ def get_stock_patterns(stock_code):
         if 'conn' in locals():
             conn.close()
             
+
+def display_industry_overview(sort_column='stock_count', sort_order='DESC'):
+    """显示行业概览统计"""
+    try:
+        # 获取最近日期
+        latest_date = get_latest_date()
+        if not latest_date:
+            print("<p>无法获取最近日期</p>")
+            return
+
+        conn = get_db_connection()
+        with conn.cursor() as cursor:
+            # 构建行业统计查询
+            query = ""
+            query += "SELECT z.industry, COUNT(DISTINCT d.stock_code) as stock_count, "
+            query += "       AVG(d.pct) as avg_pct, AVG(d.dde_net) as avg_dde_net, AVG(d.dde_net_all) as avg_dde_all, "
+            query += "       AVG(p.pe_pct) as avg_pe_pct, AVG(f.ystz) as avg_ystz, AVG(f.sjltz) as avg_sjltz "
+            query += "FROM iwencai_dde_table d "
+            query += "LEFT JOIN ( "
+            query += "    SELECT stock_code, industry, record_date, "
+            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
+            query += "    FROM eastmoney_zlpm_table "
+            query += "    WHERE record_date <= %s::date "
+            query += " ) z ON d.stock_code = z.stock_code AND z.rn = 1 "
+            query += "LEFT JOIN ( "
+            query += "    SELECT stock_code, pe_pct, record_date, "
+            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
+            query += "    FROM iwencai_pe_table "
+            query += "    WHERE record_date <= %s::date "
+            query += " ) p ON d.stock_code = p.stock_code AND p.rn = 1 "
+            query += "LEFT JOIN ( "
+            query += "    SELECT stock_code, ystz, sjltz, record_date, "
+            query += "           ROW_NUMBER() OVER (PARTITION BY stock_code ORDER BY record_date DESC) as rn "
+            query += "    FROM eastmoney_fina_table "
+            query += "    WHERE record_date <= %s::date "
+            query += " ) f ON d.stock_code = f.stock_code AND f.rn = 1 "
+            query += "WHERE d.record_date = %s::date AND z.industry IS NOT NULL "
+            query += "GROUP BY z.industry "
+
+            # 处理排序逻辑
+            valid_columns = ['stock_count', 'avg_pct', 'avg_dde_net', 'avg_dde_all', 'avg_pe_pct', 'avg_ystz', 'avg_sjltz']
+            if sort_column in valid_columns:
+                # 修复：对于数值型字段，增加NULLS LAST处理
+                if sort_column in ['avg_pct', 'avg_dde_net', 'avg_dde_all', 'avg_pe_pct', 'avg_ystz', 'avg_sjltz']:
+                    query += f"ORDER BY {sort_column} {sort_order} NULLS LAST "
+                else:
+                    query += f"ORDER BY {sort_column} {sort_order} "
+            else:
+                query += "ORDER BY stock_count DESC "
+
+            params = [latest_date, latest_date, latest_date, latest_date]
+            cursor.execute(query, params)
+            results = cursor.fetchall()
+            columns = [desc[0] for desc in cursor.description]
+
+            if not results:
+                print(f"<p>未找到 {latest_date} 的行业数据</p>")
+                return
+
+            print(f"<div class='header'><h2>行业概览统计 - {latest_date}</h2></div>")
+
+            # 生成表头
+            print("<div class='table-container'><table><tr>")
+            for col in columns:
+                # 为可排序字段添加排序链接
+                if col in valid_columns:
+                    new_order = 'DESC' if (sort_column == col and sort_order == 'ASC') else 'ASC'
+                    print(f"<th><a class='sort-link' href='?overview=1&sort_column={col}&sort_order={new_order}'>{col} {'↑' if new_order == 'DESC' else '↓'}</a></th>")
+                else:
+                    print(f"<th>{col}</th>")
+            print("</tr>")
+
+            # 输出数据
+            for row in results:
+                print("<tr>")
+                for i, value in enumerate(row):
+                    tmp_column = columns[i]
+                    if tmp_column == 'industry':
+                        print(f"<td><a class='industry-link' href='?industry={value}'>{value}</a></td>")
+                    elif tmp_column == 'avg_pct':
+                        if value is not None:
+                            color = 'red' if value > 0 else 'green'
+                            print(f"<td style='color:{color}'>{value:.2f}</td>")
+                        else:
+                            print(f"<td></td>")
+                    elif tmp_column == 'avg_dde_net':
+                        if value is not None:
+                            if value > 100*1000*1000 or value < (-1) * 100*1000*1000:
+                                value = value / (100*1000*1000)
+                                print(f"<td>{value:.2f}亿</td>")
+                            elif value > 10*1000 or value < (-1) * 10*1000:
+                                value = value / (10*1000)
+                                print(f"<td>{value:.2f}万</td>")
+                            else:
+                                print(f"<td>{value:.2f}</td>")
+                        else:
+                            print(f"<td></td>")
+                    elif tmp_column == 'avg_dde_all':
+                        if value is not None:
+                            if value > 100*1000*1000 or value < (-1) * 100*1000*1000:
+                                value = value / (100*1000*1000)
+                                print(f"<td>{value:.2f}亿</td>")
+                            elif value > 10*1000 or value < (-1) * 10*1000:
+                                value = value / (10*1000)
+                                print(f"<td>{value:.2f}万</td>")
+                            else:
+                                print(f"<td>{value:.2f}</td>")
+                        else:
+                            print(f"<td></td>")
+                    elif tmp_column in ['avg_pe_pct', 'avg_ystz', 'avg_sjltz']:
+                        if value is not None:
+                            print(f"<td>{value:.2f}</td>")
+                        else:
+                            print(f"<td></td>")
+                    else:
+                        print(f"<td>{value if value is not None else ''}</td>")
+                print("</tr>")
+
+            print("</table></div>")
+            print(f"<p>共找到 {len(results)} 个行业数据</p>")
+
+    except Exception as e:
+        print(f"<p style='color:red'>数据库错误: {str(e)}</p>")
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+# 添加获取自选股列表的函数
+def get_my_optional_stocks():
+    """读取自选股列表"""
+    # 检测操作系统设置文件路径
+    current_os = platform.system()
+    if current_os == 'Windows':
+        optional_file = r'C:\Users\aaron\Documents\eastmoney\cgi-bin\my_optional.txt'
+    else:
+        optional_file = '/var/www/cgi-bin/my_optional.txt'
+        
+    stocks = []
+    try:
+        if os.path.exists(optional_file):
+            with open(optional_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        parts = line.split(' ', 1)
+                        if len(parts) >= 2:
+                            stock_code = parts[0]
+                            stock_name = parts[1]
+                            # 去除可能的前缀（SH/SZ），因为数据库中可能只存储数字代码
+                            if stock_code.startswith('SH'):
+                                stock_code = stock_code[2:]
+                            elif stock_code.startswith('SZ'):
+                                stock_code = stock_code[2:]
+                            stocks.append((stock_code, stock_name))
+    except Exception as e:
+        print(f"<p style='color:red'>读取自选股文件错误: {str(e)}</p>")
+    
+    return stocks
+
+# 添加获取微妙选股列表的函数
+def get_weimiao_stocks():
+    """读取微妙选股列表"""
+    # Linux环境下的文件路径
+    weimiao_file = '/var/www/cgi-bin/weimiao.txt'
+    
+    stocks = []
+    try:
+        if os.path.exists(weimiao_file):
+            with open(weimiao_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        parts = line.split(' ', 1)
+                        if len(parts) >= 2:
+                            stock_code = parts[0]
+                            stock_name = parts[1]
+                            # 去除可能的前缀（SH/SZ），因为数据库中可能只存储数字代码
+                            if stock_code.startswith('SH'):
+                                stock_code = stock_code[2:]
+                            elif stock_code.startswith('SZ'):
+                                stock_code = stock_code[2:]
+                            stocks.append((stock_code, stock_name))
+    except Exception as e:
+        print(f"<p style='color:red'>读取微妙选股文件错误: {str(e)}</p>")
+    
+    return stocks
 
 def main():
 
@@ -1017,8 +1036,8 @@ if __name__ == '__main__':
             DB_CONN.close()
 
 
-
 '''
+# 数据库索引优化建议
 wencai_dde_table的record_date和stock_code创建索引
 CREATE INDEX idx_iwencai_dde_record_date ON iwencai_dde_table(record_date);
 CREATE INDEX idx_iwencai_dde_stock_code ON iwencai_dde_table(stock_code);
