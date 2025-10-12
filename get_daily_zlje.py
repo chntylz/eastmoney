@@ -570,8 +570,8 @@ if __name__ == '__main__':
     if len(df) > 4500:
         my_dbg(f"len(df)={len(df)}")
         delete_zlje_data_from_db()
-    hdata_zlje.copy_from_stringio(df)
-    df.to_csv('csv/' +   datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_1.csv', encoding='gbk')
+        hdata_zlje.copy_from_stringio(df)
+        df.to_csv('csv/' +   datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_1.csv', encoding='gbk')
 
     
     now = datetime.datetime.now()
@@ -582,9 +582,9 @@ if __name__ == '__main__':
         if len(df_3) > 4500:
             my_dbg(f"len(df_3)={len(df_3)}")
             delete_zlje_data_from_db(url='url_3')
-        hdata_zlje_3.copy_from_stringio(df_3)
-        #my_dbg(list(df_3))
-        df_3.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_3.csv', encoding='gbk')
+            hdata_zlje_3.copy_from_stringio(df_3)
+            #my_dbg(list(df_3))
+            df_3.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_3.csv', encoding='gbk')
 
 
         df_5 = get_daily_zlje2(url='url_5')
@@ -592,9 +592,9 @@ if __name__ == '__main__':
         if len(df_5) > 4500:
             my_dbg(f"len(df_5)={len(df_5)}")
             delete_zlje_data_from_db(url='url_5')
-        hdata_zlje_5.copy_from_stringio(df_5)
-        #my_dbg(list(df_5))
-        df_5.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_5.csv', encoding='gbk')
+            hdata_zlje_5.copy_from_stringio(df_5)
+            #my_dbg(list(df_5))
+            df_5.to_csv('csv/' + datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_5.csv', encoding='gbk')
 
 
         df_10 = get_daily_zlje2(url='url_10')
@@ -602,9 +602,9 @@ if __name__ == '__main__':
         if len(df_10) > 4500:
             my_dbg(f"len(df_10)={len(df_10)}")
             delete_zlje_data_from_db(url='url_10')
-        hdata_zlje_10.copy_from_stringio(df_10)
-        #my_dbg(list(df_10))
-        df_10.to_csv('csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_10.csv', encoding='gbk')
+            hdata_zlje_10.copy_from_stringio(df_10)
+            #my_dbg(list(df_10))
+            df_10.to_csv('csv/'+ datetime.datetime.now().strftime('%Y-%m-%d') + '_zlje_10.csv', encoding='gbk')
 
         if debug:
             my_dbg(list(df))
